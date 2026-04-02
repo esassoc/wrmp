@@ -1,0 +1,157 @@
+[
+  {
+    "Benthos Types": "A",
+    "discription": "algae filamentous",
+    "comments": null
+  },
+  {
+    "Benthos Types": "AK",
+    "discription": "Antithamnion kylinii",
+    "comments": null
+  },
+  {
+    "Benthos Types": "AN",
+    "discription": "Ascophyllum nodosum",
+    "comments": null
+  },
+  {
+    "Benthos Types": "AT",
+    "discription": "amphipod tubes",
+    "comments": null
+  },
+  {
+    "Benthos Types": "B",
+    "discription": "bryozoans",
+    "comments": "we have filamentous and encrusting, lets make two codes BE - bryozoan encrusting and BF - bryozoan filamentous"
+  },
+  {
+    "Benthos Types": "BA",
+    "discription": "Chondracanthus sp.",
+    "comments": "Or bacon algae/Turkish Towel"
+  },
+  {
+    "Benthos Types": "BR",
+    "discription": "Bryopsis sp.",
+    "comments": null
+  },
+  {
+    "Benthos Types": "C",
+    "discription": "Ceramium sp.",
+    "comments": null
+  },
+  {
+    "Benthos Types": "CF",
+    "discription": "Codium fragile",
+    "comments": null
+  },
+  {
+    "Benthos Types": "CL",
+    "discription": "Cladophora sp.",
+    "comments": null
+  },
+  {
+    "Benthos Types": "CR",
+    "discription": "Cryptopleura sp.",
+    "comments": null
+  },
+  {
+    "Benthos Types": "CB",
+    "discription": "chicken bones",
+    "comments": null
+  },
+  {
+    "Benthos Types": "D",
+    "discription": "detritus",
+    "comments": null
+  },
+  {
+    "Benthos Types": "EG",
+    "discription": "eelgrass",
+    "comments": "Should be Zostera marina"
+  },
+  {
+    "Benthos Types": "F",
+    "discription": "Fucus sp.",
+    "comments": null
+  },
+  {
+    "Benthos Types": "G",
+    "discription": "Gracilaria sp.",
+    "comments": "sometimes we used G and others Gr"
+  },
+  {
+    "Benthos Types": "GA",
+    "discription": "Garbage",
+    "comments": "we might distinguish fresh looking garbage from old crusty garbage"
+  },
+  {
+    "Benthos Types": "GC",
+    "discription": "Gelidium couheri",
+    "comments": null
+  },
+  {
+    "Benthos Types": "H",
+    "discription": "hydrozoan",
+    "comments": null
+  },
+  {
+    "Benthos Types": "L",
+    "discription": "Leaves",
+    "comments": null
+  },
+  {
+    "Benthos Types": "M",
+    "discription": "mud",
+    "comments": null
+  },
+  {
+    "Benthos Types": "MB",
+    "discription": "mud ball",
+    "comments": null
+  },
+  {
+    "Benthos Types": "PD",
+    "discription": "Polysiphonia denudata",
+    "comments": null
+  },
+  {
+    "Benthos Types": "S",
+    "discription": "shells & shell hash",
+    "comments": null
+  },
+  {
+    "Benthos Types": "SM",
+    "discription": "Sargassum muticum",
+    "comments": null
+  },
+  {
+    "Benthos Types": "T",
+    "discription": "tire",
+    "comments": null
+  },
+  {
+    "Benthos Types": "TR",
+    "discription": "tule & tule roots",
+    "comments": "tule roots and other part of tule"
+  },
+  {
+    "Benthos Types": "U",
+    "discription": "Ulva sp.",
+    "comments": null
+  },
+  {
+    "Benthos Types": "W",
+    "discription": "woody debris & leaves",
+    "comments": null
+  },
+  {
+    "Benthos Types": "RA",
+    "discription": "red algae",
+    "comments": null
+  },
+  {
+    "Benthos Types": "SP",
+    "discription": "sponges",
+    "comments": null
+  }
+]
