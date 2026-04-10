@@ -1,0 +1,44 @@
+/* ── WRMP Design Tokens ──────────────────────────
+   Single source of truth for brand colors, typography,
+   and spacing. No selectors — just custom properties.
+   Exhibits can override any token in their own <style>. */
+
+:root {
+    /* Typography — matches wrmp.org */
+    --font-body: "Source Sans 3", "Source Sans Pro", Helvetica, Arial, sans-serif;
+    --font-heading: "Source Serif 4", Georgia, serif;
+    --size-base: 16px;
+    --size-sm: 14px;
+    --size-lg: 20px;
+    --size-xl: 26px;
+    --size-xxl: 34px;
+
+    /* Spacing */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 40px;
+
+    /* WRMP brand colors */
+    --wrmp-teal: #228b9c;
+    --wrmp-ada-teal: #005e6a;
+    --wrmp-orange: #e09337;
+    --wrmp-green: #379352;
+    --wrmp-light-green: #92bb4d;
+    --wrmp-dark: #4e4e50;
+    --wrmp-sky-blue: #00acec;
+    --wrmp-dark-orange: #d66b2c;
+    --wrmp-earth: #664d26;
+    --wrmp-text: #272525;
+
+    /* Region colors */
+    --color-south-bay: #005e6a;
+    --color-north-bay: #379352;
+    --color-suisun: #e09337;
+
+    /* Panel */
+    --panel-bg: rgba(255, 255, 255, 0.5);
+    --panel-width: 42%;
+    --panel-inset: 16px;
+}

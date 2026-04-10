@@ -11,417 +11,9 @@
             rel="stylesheet"
         />
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-        <style>
-            /* ── WRMP Design Tokens ────────────────────────── */
-            :root {
-                /* Typography — matches wrmp.org */
-                --font-body: "Source Sans 3", "Source Sans Pro", Helvetica, Arial, sans-serif;
-                --font-heading: "Source Serif 4", Georgia, serif;
-                --size-base: 16px;
-                --size-sm: 14px;
-                --size-lg: 20px;
-                --size-xl: 26px;
-                --size-xxl: 34px;
-
-                /* Spacing */
-                --space-xs: 4px;
-                --space-sm: 8px;
-                --space-md: 16px;
-                --space-lg: 24px;
-                --space-xl: 40px;
-
-                /* WRMP brand colors */
-                --wrmp-teal: #228b9c;
-                --wrmp-ada-teal: #005e6a;
-                --wrmp-orange: #e09337;
-                --wrmp-green: #379352;
-                --wrmp-light-green: #92bb4d;
-                --wrmp-dark: #4e4e50;
-                --wrmp-sky-blue: #00acec;
-                --wrmp-dark-orange: #d66b2c;
-                --wrmp-earth: #664d26;
-                --wrmp-text: #272525;
-
-                /* Region palette — derived from WRMP brand */
-                --color-south-bay: #005e6a;
-                --color-north-bay: #379352;
-                --color-suisun: #e09337;
-
-                /* Panel */
-                --panel-bg: rgba(255, 255, 255, 0.5);
-                --panel-width: 42%;
-                --panel-inset: 16px;
-            }
-
-            *,
-            *::before,
-            *::after {
-                box-sizing: border-box;
-                margin: 0;
-            }
-
-            body {
-                font-family: var(--font-body);
-                font-size: var(--size-base);
-                line-height: 1.7;
-                color: var(--wrmp-text);
-                background: #111;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                min-height: 100vh;
-                padding: var(--space-md);
-            }
-
-            /* ── Embed Frame ───────────────────────────────── */
-            .exhibit-frame {
-                position: relative;
-                width: 100%;
-                max-width: 1200px;
-                aspect-ratio: 16 / 9;
-                border-radius: 10px;
-                overflow: hidden;
-                box-shadow: 0 4px 40px rgba(0, 0, 0, 0.5);
-                background: #e8e8e8;
-            }
-
-            /* ── Map (full bleed behind everything) ─────────── */
-            #map {
-                position: absolute;
-                inset: 0;
-                z-index: 1;
-            }
-
-            /* Hide Leaflet default controls — we'll manage zoom via steps */
-            .leaflet-control-zoom {
-                display: none;
-            }
-
-            .leaflet-control-attribution {
-                font-size: 10px;
-                background: rgba(255, 255, 255, 0.6);
-                border-radius: 4px 0 0 0;
-            }
-
-            /* ── Story Panel (left overlay, inset) ─────────── */
-            .story-panel {
-                position: absolute;
-                top: var(--panel-inset);
-                left: var(--panel-inset);
-                bottom: var(--panel-inset);
-                width: var(--panel-width);
-                z-index: 10;
-                display: flex;
-                flex-direction: column;
-                border-radius: 12px;
-                overflow: hidden;
-                box-shadow:
-                    0 8px 32px rgba(0, 0, 0, 0.12),
-                    0 2px 8px rgba(0, 0, 0, 0.08);
-                border: 1px solid rgba(255, 255, 255, 0.5);
-            }
-
-            .story-panel-inner {
-                flex: 1;
-                background: var(--panel-bg);
-                backdrop-filter: blur(20px);
-                -webkit-backdrop-filter: blur(20px);
-                padding: var(--space-lg) var(--space-lg) var(--space-md);
-                display: flex;
-                flex-direction: column;
-                overflow: hidden;
-            }
-
-            /* ── Step Content ──────────────────────────────── */
-            .step {
-                display: none;
-                flex-direction: column;
-                flex: 1;
-                animation: fadeIn 0.4s ease;
-            }
-
-            .step.active {
-                display: flex;
-            }
-
-            @keyframes fadeIn {
-                from {
-                    opacity: 0;
-                    transform: translateY(8px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-
-            .step .kicker {
-                font-size: 11px;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: 0.1em;
-                color: #999;
-                margin-bottom: var(--space-xs);
-            }
-
-            .step h2 {
-                font-family: var(--font-heading);
-                font-size: var(--size-xl);
-                font-weight: 400;
-                line-height: 1.15;
-                margin-bottom: var(--space-md);
-                color: var(--wrmp-ada-teal);
-            }
-
-            .step .body {
-                flex: 1;
-                overflow-y: auto;
-            }
-
-            .step .body p {
-                font-size: var(--size-sm);
-                color: #333;
-                margin-bottom: var(--space-md);
-            }
-
-            .step .body p:last-child {
-                margin-bottom: 0;
-            }
-
-            .step .stat-row {
-                display: flex;
-                gap: var(--space-md);
-                margin: var(--space-md) 0;
-            }
-
-            .step .stat-pill {
-                background: rgba(240, 244, 247, 0.7);
-                border: 1px solid rgba(0, 0, 0, 0.06);
-                border-radius: 8px;
-                padding: var(--space-sm) var(--space-md);
-                text-align: center;
-                flex: 1;
-            }
-
-            .step .stat-pill .num {
-                font-size: var(--size-xl);
-                font-weight: 700;
-                line-height: 1;
-                color: #1a1a2e;
-            }
-
-            .step .stat-pill .lbl {
-                font-size: 12px;
-                color: #777;
-                margin-top: 2px;
-            }
-
-            .step .callout {
-                background: rgba(34, 139, 156, 0.08);
-                border-left: 3px solid var(--wrmp-teal);
-                padding: var(--space-sm) var(--space-md);
-                border-radius: 0 6px 6px 0;
-                margin: var(--space-md) 0;
-                font-size: var(--size-sm);
-                color: #333;
-            }
-
-            /* ── Map Legend (floating overlay, top-right) ──── */
-            .map-legend {
-                position: absolute;
-                top: var(--panel-inset);
-                right: var(--panel-inset);
-                z-index: 10;
-                display: flex;
-                flex-direction: column;
-                gap: 3px;
-                pointer-events: auto;
-            }
-
-            .map-legend:empty {
-                display: none;
-            }
-
-            .map-legend-chip {
-                display: flex;
-                align-items: center;
-                gap: 6px;
-                padding: 5px 12px;
-                background: rgba(255, 255, 255, 0.82);
-                backdrop-filter: blur(16px);
-                -webkit-backdrop-filter: blur(16px);
-                border: 1px solid rgba(255, 255, 255, 0.5);
-                border-radius: 8px;
-                font-size: 13px;
-                font-weight: 500;
-                color: #333;
-                cursor: pointer;
-                transition:
-                    background 0.15s,
-                    box-shadow 0.15s,
-                    opacity 0.15s;
-                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-                user-select: none;
-            }
-
-            .map-legend-chip:hover {
-                background: rgba(255, 255, 255, 0.95);
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-            }
-
-            .map-legend-chip.active {
-                background: rgba(255, 255, 255, 0.97);
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-                font-weight: 600;
-            }
-
-            .map-legend-chip.dimmed {
-                opacity: 0.45;
-            }
-
-            .map-legend-dot {
-                width: 10px;
-                height: 10px;
-                border-radius: 50%;
-                flex-shrink: 0;
-                border: 1.5px solid rgba(255, 255, 255, 0.8);
-                box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
-            }
-
-            /* ── Navigation Bar ────────────────────────────── */
-            .nav-bar {
-                display: flex;
-                align-items: center;
-                gap: var(--space-sm);
-                padding: var(--space-sm) var(--space-lg);
-                background: rgba(240, 240, 240, 0.65);
-                backdrop-filter: blur(20px);
-                -webkit-backdrop-filter: blur(20px);
-                border-top: 1px solid rgba(255, 255, 255, 0.4);
-                border-radius: 0 0 12px 12px;
-            }
-
-            .nav-bar button {
-                font-family: var(--font-body);
-                font-size: var(--size-sm);
-                font-weight: 600;
-                padding: var(--space-xs) var(--space-md);
-                border: 1px solid #ccc;
-                border-radius: 6px;
-                background: #fff;
-                cursor: pointer;
-                color: #333;
-                transition: background 0.15s;
-            }
-
-            .nav-bar button:hover {
-                background: #f0f0f0;
-            }
-            .nav-bar button:disabled {
-                opacity: 0.35;
-                cursor: default;
-            }
-
-            .step-dots {
-                display: flex;
-                gap: 10px;
-                flex: 1;
-                justify-content: center;
-                align-items: center;
-            }
-
-            .nav-bar .step-dot {
-                all: unset;
-                display: block;
-                width: 8px;
-                height: 8px;
-                padding: 0;
-                border: none;
-                border-radius: 4px;
-                background: #4e4e50;
-                opacity: 0.4;
-                transition:
-                    width 0.35s ease,
-                    opacity 0.35s ease,
-                    background 0.35s ease;
-                cursor: pointer;
-                flex-shrink: 0;
-                box-sizing: border-box;
-            }
-
-            .nav-bar .step-dot:hover {
-                opacity: 0.6;
-                background: #4e4e50;
-            }
-
-            .nav-bar .step-dot.active {
-                width: 36px;
-                background: var(--wrmp-ada-teal);
-                opacity: 1;
-            }
-
-            .step-counter {
-                display: none;
-            }
-
-            .nav-logo {
-                height: 24px;
-                opacity: 0.7;
-                flex-shrink: 0;
-            }
-
-            /* ── Leaflet Popup Override ─────────────────────── */
-            .leaflet-popup-content-wrapper {
-                border-radius: 8px;
-                font-family: var(--font-body);
-                box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-            }
-
-            .leaflet-popup-content {
-                margin: 10px 14px;
-                font-size: var(--size-sm);
-                line-height: 1.5;
-            }
-
-            .popup-title {
-                font-weight: 700;
-                font-size: var(--size-base);
-                margin-bottom: 4px;
-            }
-
-            .popup-row {
-                display: flex;
-                justify-content: space-between;
-                gap: var(--space-md);
-                padding: 2px 0;
-                border-bottom: 1px solid #eee;
-            }
-
-            .popup-row:last-child {
-                border-bottom: none;
-            }
-            .popup-row .k {
-                color: #888;
-            }
-            .popup-row .v {
-                font-weight: 500;
-            }
-
-            /* ── POI Annotations ───────────────────────────── */
-            .poi-label {
-                background: rgba(255, 255, 255, 0.92);
-                border: 1px solid #ccc;
-                border-radius: 6px;
-                padding: 4px 10px;
-                font-family: var(--font-body);
-                font-size: 12px;
-                font-weight: 600;
-                color: #333;
-                white-space: nowrap;
-                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
-                pointer-events: none;
-            }
-        </style>
+        <link rel="stylesheet" href="../../shared/css/tokens.css" />
+        <link rel="stylesheet" href="../../shared/css/exhibit-frame.css" />
+        <link rel="stylesheet" href="../../shared/css/leaflet-overrides.css" />
     </head>
     <body>
         <div class="exhibit-frame">
@@ -573,7 +165,7 @@
 
                 <!-- Navigation -->
                 <div class="nav-bar">
-                    <img src="wrmp-logo.png" alt="WRMP" class="nav-logo" />
+                    <img src="../../shared/img/wrmp-logo.png" alt="WRMP" class="nav-logo" />
                     <button id="btn-prev" disabled>Back</button>
                     <div class="step-dots">
                         <button class="step-dot active" data-step="0" aria-label="Step 1"></button>
@@ -589,20 +181,20 @@
         </div>
 
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <script src="../../shared/js/data-loader.js"></script>
+        <script src="../../shared/js/map-init.js"></script>
+        <script src="../../shared/js/stepper.js"></script>
         <script>
-            // ── Data & Config ──────────────────────────────
-            let STATIONS = [];
-            let currentStep = 0;
-            const TOTAL_STEPS = 5;
+            // ── Exhibit Config ─────────────────────────────
+            var STATIONS = [];
 
-            // Color palettes
-            const REGION_COLORS = {
+            var REGION_COLORS = {
                 "South Bay": "#005E6A",
                 "North Bay": "#379352",
                 "Suisun Bay": "#E09337",
             };
 
-            const NETWORK_COLORS = {
+            var NETWORK_COLORS = {
                 "Santa Clara - Primary": "#005E6A",
                 "Alameda - Primary": "#228B9C",
                 "Belmon-Redwood - Secondary": "#6BB5C2",
@@ -614,7 +206,7 @@
                 "Montezuma - Delta - Secondary": "#D66B2C",
             };
 
-            const SITE_COLORS = {
+            var SITE_COLORS = {
                 Benchmark: "#92BB4D",
                 "Benchmark-Reference": "#C7D865",
                 Reference: "#005E6A",
@@ -625,111 +217,37 @@
                 NA: "#bbb",
             };
 
-            // Map bounds for each step
-            const BAY_FULL = [
-                [37.4, -122.55],
-                [38.28, -121.85],
-            ];
-            const SOUTH_BAY = [
-                [37.42, -122.1],
-                [37.62, -121.88],
-            ];
+            var BAY_FULL = [[37.4, -122.55], [38.28, -121.85]];
+            var SOUTH_BAY = [[37.42, -122.1], [37.62, -121.88]];
 
-            // Panel-aware padding: push the map's effective center rightward
-            // so the visible area (right of panel) shows all the stations
-            function getMapPadding() {
-                var frame = document.querySelector(".exhibit-frame");
-                var panelW = frame ? frame.offsetWidth * 0.44 : 400;
-                return { paddingTopLeft: [panelW + 20, 30], paddingBottomRight: [30, 30] };
-            }
-
-            function flyTo(bounds, extraOpts) {
-                var opts = getMapPadding();
-                opts.duration = 1.2;
-                opts.maxZoom = 14;
-                if (extraOpts) {
-                    Object.keys(extraOpts).forEach(function (k) {
-                        opts[k] = extraOpts[k];
-                    });
-                }
-                map.flyToBounds(bounds, opts);
-            }
+            var POPUP_FIELDS = [
+                ["Region", "region"],
+                ["Network", "WRMP_Network"],
+                ["Habitat", "habitat"],
+                ["Site Type", "WRMP_Site_Type"],
+            ];
 
             // ── Map Init ───────────────────────────────────
-            var map = L.map("map", {
-                zoomControl: false,
-                scrollWheelZoom: true,
-                dragging: true,
-                doubleClickZoom: true,
-                touchZoom: true,
-                keyboard: true,
-                attributionControl: true,
-            }).fitBounds(BAY_FULL, getMapPadding());
-
-            L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-                attribution: "&copy; OSM &copy; CARTO",
-                subdomains: "abcd",
-                maxZoom: 16,
-            }).addTo(map);
-
-            // ── Marker Layer ───────────────────────────────
+            var map = WRMP.initMap("map", { bounds: BAY_FULL });
             var markerLayer = L.layerGroup().addTo(map);
             var poiLayer = L.layerGroup().addTo(map);
 
-            function makePopup(s) {
-                var container = document.createElement("div");
-                var title = document.createElement("div");
-                title.className = "popup-title";
-                title.textContent = s.station_code + " — " + s.station_name;
-                container.appendChild(title);
-
-                var rows = [
-                    ["Region", s.region],
-                    ["Network", s.WRMP_Network],
-                    ["Habitat", s.habitat],
-                    ["Site Type", s.WRMP_Site_Type],
-                ];
-                rows.forEach(function (pair) {
-                    var row = document.createElement("div");
-                    row.className = "popup-row";
-                    var k = document.createElement("span");
-                    k.className = "k";
-                    k.textContent = pair[0];
-                    var v = document.createElement("span");
-                    v.className = "v";
-                    v.textContent = pair[1];
-                    row.appendChild(k);
-                    row.appendChild(v);
-                    container.appendChild(row);
-                });
-                return container;
-            }
-
-            // ── Step Definitions ─────────────────────────────
-            // Each step: legend items, data field, color map, render behavior, default bounds
+            // ── Step Definitions ────────────────────────────
             var STEP_DEFS = [
                 {
-                    // Step 0: The Estuary — no legend, uniform dots
                     legend: null,
                     bounds: BAY_FULL,
                     pois: [],
                     render: function (stations, filter) {
                         stations.forEach(function (s) {
                             L.circleMarker([s.lat, s.lon], {
-                                radius: 5,
-                                fillColor: "#228B9C",
-                                color: "#fff",
-                                weight: 1.5,
-                                opacity: 0.8,
-                                fillOpacity: 0.5,
-                            })
-                                .bindPopup(makePopup(s))
-                                .addTo(markerLayer);
+                                radius: 5, fillColor: "#228B9C", color: "#fff",
+                                weight: 1.5, opacity: 0.8, fillOpacity: 0.5,
+                            }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
                         });
                     },
                 },
                 {
-                    // Step 1: Three Worlds — legend by region
                     legend: [
                         { label: "Suisun Bay", color: "#E09337", value: "Suisun Bay" },
                         { label: "North Bay", color: "#379352", value: "North Bay" },
@@ -750,19 +268,14 @@
                             var color = colors[s.region] || "#999";
                             L.circleMarker([s.lat, s.lon], {
                                 radius: match ? 7 : 4,
-                                fillColor: match ? color : "#aaa",
-                                color: "#fff",
-                                weight: match ? 2 : 1,
-                                opacity: match ? 1 : 0.3,
+                                fillColor: match ? color : "#aaa", color: "#fff",
+                                weight: match ? 2 : 1, opacity: match ? 1 : 0.3,
                                 fillOpacity: match ? 0.85 : 0.25,
-                            })
-                                .bindPopup(makePopup(s))
-                                .addTo(markerLayer);
+                            }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
                         });
                     },
                 },
                 {
-                    // Step 2: The Network — legend by network
                     legend: [
                         { label: "Santa Clara", color: "#005E6A", value: "Santa Clara - Primary" },
                         { label: "Alameda", color: "#228B9C", value: "Alameda - Primary" },
@@ -787,19 +300,14 @@
                             var color = colors[net] || "#999";
                             L.circleMarker([s.lat, s.lon], {
                                 radius: match ? 7 : 4,
-                                fillColor: match ? color : "#aaa",
-                                color: "#fff",
-                                weight: match ? 2 : 1,
-                                opacity: match ? 1 : 0.3,
+                                fillColor: match ? color : "#aaa", color: "#fff",
+                                weight: match ? 2 : 1, opacity: match ? 1 : 0.3,
                                 fillOpacity: match ? 0.85 : 0.25,
-                            })
-                                .bindPopup(makePopup(s))
-                                .addTo(markerLayer);
+                            }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
                         });
                     },
                 },
                 {
-                    // Step 3: Restoration — legend by site type, default zoom to South Bay
                     legend: [
                         { label: "Benchmark", color: "#92BB4D", value: "Benchmark" },
                         { label: "Reference", color: "#005E6A", value: "Reference" },
@@ -821,19 +329,14 @@
                             var color = colors[siteType] || "#bbb";
                             L.circleMarker([s.lat, s.lon], {
                                 radius: match ? 8 : 4,
-                                fillColor: match ? color : "#aaa",
-                                color: "#fff",
-                                weight: match ? 2 : 1,
-                                opacity: match ? 1 : 0.3,
+                                fillColor: match ? color : "#aaa", color: "#fff",
+                                weight: match ? 2 : 1, opacity: match ? 1 : 0.3,
                                 fillOpacity: match ? 0.9 : 0.25,
-                            })
-                                .bindPopup(makePopup(s))
-                                .addTo(markerLayer);
+                            }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
                         });
                     },
                 },
                 {
-                    // Step 4: What Comes Next — legend for planned vs existing
                     legend: [
                         { label: "Planned Restoration", color: "#E09337", value: "Planned Restoration" },
                         { label: "Existing Stations", color: "#bbb", value: "_other" },
@@ -857,73 +360,21 @@
                                 weight: match ? (isPlanned ? 2.5 : 1.5) : 1,
                                 opacity: match ? 1 : 0.3,
                                 fillOpacity: match ? (isPlanned ? 0.9 : 0.5) : 0.12,
-                            })
-                                .bindPopup(makePopup(s))
-                                .addTo(markerLayer);
+                            }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
                         });
                     },
                 },
             ];
 
-            // ── Legend State ────────────────────────────────
-            var activeFilter = null; // null = "All" / default view
-
-            // ── POI Helper ─────────────────────────────────
-            function addPOI(lat, lon, text) {
-                var icon = L.divIcon({
-                    className: "poi-label",
-                    html: document.createTextNode(text).textContent,
-                    iconSize: null,
-                    iconAnchor: [0, -12],
-                });
-                L.marker([lat, lon], { icon: icon, interactive: false }).addTo(poiLayer);
-            }
-
-            // ── Render Current Step ────────────────────────
-            function renderCurrentStep() {
-                markerLayer.clearLayers();
-                poiLayer.clearLayers();
-
-                var def = STEP_DEFS[currentStep];
-                def.render(STATIONS, activeFilter);
-
-                // POIs only when no filter active
-                if (!activeFilter) {
-                    def.pois.forEach(function (p) {
-                        addPOI(p[0], p[1], p[2]);
-                    });
-                }
-
-                // Zoom: if filtering, zoom to matching stations; else use step default
-                if (activeFilter) {
-                    var matching = STATIONS.filter(function (s) {
-                        if (!def.field) return true;
-                        var val = (s[def.field] || "").trim();
-                        if (activeFilter === "_other") return val !== "Planned Restoration";
-                        return val === activeFilter;
-                    });
-                    if (matching.length > 0) {
-                        var bounds = L.latLngBounds(
-                            matching.map(function (s) {
-                                return [s.lat, s.lon];
-                            }),
-                        );
-                        flyTo(bounds);
-                    }
-                } else {
-                    flyTo(def.bounds, def.boundsOpts || {});
-                }
-            }
-
-            // ── Legend Builder ──────────────────────────────
+            // ── Legend ─────────────────────────────────────
             var legendEl = document.getElementById("map-legend");
+            var activeFilter = null;
 
             function buildLegend() {
                 legendEl.replaceChildren();
-                var def = STEP_DEFS[currentStep];
+                var def = STEP_DEFS[stepper.currentStep];
                 if (!def.legend) return;
 
-                // "All" chip
                 var allChip = document.createElement("button");
                 allChip.className = "map-legend-chip" + (!activeFilter ? " active" : "");
                 allChip.textContent = "All";
@@ -934,107 +385,68 @@
                 });
                 legendEl.appendChild(allChip);
 
-                // Category chips
                 def.legend.forEach(function (item) {
                     var chip = document.createElement("button");
                     var isActive = activeFilter === item.value;
                     var isDimmed = activeFilter && !isActive;
                     chip.className = "map-legend-chip" + (isActive ? " active" : "") + (isDimmed ? " dimmed" : "");
-
                     var dot = document.createElement("span");
                     dot.className = "map-legend-dot";
                     dot.style.background = item.color;
                     chip.appendChild(dot);
                     chip.appendChild(document.createTextNode(item.label));
-
                     chip.addEventListener("click", function () {
-                        if (activeFilter === item.value) {
-                            activeFilter = null; // toggle off = back to All
-                        } else {
-                            activeFilter = item.value;
-                        }
+                        activeFilter = activeFilter === item.value ? null : item.value;
                         buildLegend();
                         renderCurrentStep();
                     });
-
                     legendEl.appendChild(chip);
                 });
             }
 
-            // ── Navigation ─────────────────────────────────
-            var btnPrev = document.getElementById("btn-prev");
-            var btnNext = document.getElementById("btn-next");
-            var stepDots = document.querySelectorAll(".step-dot");
-            var stepEls = document.querySelectorAll(".step");
-            var counter = document.querySelector(".step-counter");
+            // ── Render ─────────────────────────────────────
+            function renderCurrentStep() {
+                markerLayer.clearLayers();
+                poiLayer.clearLayers();
+                var def = STEP_DEFS[stepper.currentStep];
+                def.render(STATIONS, activeFilter);
 
-            function goToStep(n) {
-                if (n < 0 || n >= TOTAL_STEPS) return;
-                currentStep = n;
-                activeFilter = null; // reset filter on step change
+                if (!activeFilter) {
+                    def.pois.forEach(function (p) { WRMP.addPOI(poiLayer, p[0], p[1], p[2]); });
+                }
 
-                // Update panels
-                stepEls.forEach(function (el) {
-                    el.classList.remove("active");
-                });
-                stepEls[currentStep].classList.add("active");
-
-                // Update dots
-                stepDots.forEach(function (d) {
-                    d.classList.remove("active");
-                });
-                stepDots[currentStep].classList.add("active");
-
-                // Update buttons
-                btnPrev.disabled = currentStep === 0;
-                btnNext.disabled = currentStep === TOTAL_STEPS - 1;
-
-                // Update counter
-                counter.textContent = currentStep + 1 + " / " + TOTAL_STEPS;
-
-                // Build legend + render map
-                buildLegend();
-                if (STATIONS.length > 0) {
-                    renderCurrentStep();
+                if (activeFilter) {
+                    var matching = STATIONS.filter(function (s) {
+                        if (!def.field) return true;
+                        var val = (s[def.field] || "").trim();
+                        if (activeFilter === "_other") return val !== "Planned Restoration";
+                        return val === activeFilter;
+                    });
+                    if (matching.length > 0) {
+                        WRMP.flyTo(map, L.latLngBounds(matching.map(function (s) { return [s.lat, s.lon]; })));
+                    }
+                } else {
+                    WRMP.flyTo(map, def.bounds, def.boundsOpts || {});
                 }
             }
 
-            btnPrev.addEventListener("click", function () {
-                goToStep(currentStep - 1);
-            });
-            btnNext.addEventListener("click", function () {
-                goToStep(currentStep + 1);
-            });
-
-            stepDots.forEach(function (dot) {
-                dot.addEventListener("click", function () {
-                    goToStep(parseInt(dot.dataset.step, 10));
-                });
-            });
-
-            // Keyboard navigation
-            document.addEventListener("keydown", function (e) {
-                if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-                    e.preventDefault();
-                    goToStep(currentStep + 1);
-                } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
-                    e.preventDefault();
-                    goToStep(currentStep - 1);
-                }
+            // ── Stepper ────────────────────────────────────
+            var stepper = WRMP.createStepper({
+                totalSteps: 5,
+                onStepEnter: function (n) {
+                    activeFilter = null;
+                    buildLegend();
+                    if (STATIONS.length > 0) renderCurrentStep();
+                },
             });
 
             // ── Load Data ──────────────────────────────────
-            fetch("../../data/stations.json")
-                .then(function (r) {
-                    return r.json();
-                })
-                .then(function (data) {
-                    STATIONS = data;
-                    goToStep(0);
-                })
-                .catch(function (err) {
-                    console.error("Failed to load station data:", err);
-                });
+            WRMP.loadData({ stations: true }).then(function (data) {
+                STATIONS = data.stations;
+                stepper.goToStep(0);
+            }).catch(function (err) {
+                console.error("Failed to load station data:", err);
+            });
         </script>
     </body>
 </html>

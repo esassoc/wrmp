@@ -1,0 +1,41 @@
+/* ── Leaflet Overrides ────────────────────────────
+   Hide default controls and style popups to match
+   the WRMP design system. */
+
+.leaflet-control-zoom { display: none; }
+
+.leaflet-control-attribution {
+    font-size: 10px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 4px 0 0 0;
+}
+
+.leaflet-popup-content-wrapper {
+    border-radius: 8px;
+    font-family: var(--font-body);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+}
+
+.leaflet-popup-content {
+    margin: 10px 14px;
+    font-size: var(--size-sm);
+    line-height: 1.5;
+}
+
+.popup-title {
+    font-weight: 700;
+    font-size: var(--size-base);
+    margin-bottom: 4px;
+}
+
+.popup-row {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding: 2px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.popup-row:last-child { border-bottom: none; }
+.popup-row .k { color: #888; }
+.popup-row .v { font-weight: 500; }
