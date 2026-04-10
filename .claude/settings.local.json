@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(lsof -ti:8765)",
+      "Bash(xargs kill:*)",
+      "Bash(du:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "WebSearch",
+      "WebFetch(domain:wildlife.ca.gov)",
+      "WebFetch(domain:www.fws.gov)",
+      "WebFetch(domain:apps.wildlife.ca.gov)",
+      "WebFetch(domain:portal.edirepository.org)",
+      "WebFetch(domain:www.indybay.org)",
+      "WebFetch(domain:filelib.wildlife.ca.gov)",
+      "WebFetch(domain:www.usgs.gov)",
+      "WebFetch(domain:caseagrant.ucsd.edu)",
+      "WebFetch(domain:archive.estuarynews.org)",
+      "WebFetch(domain:sciencetracker.deltacouncil.ca.gov)",
+      "WebFetch(domain:www.wrmp.org)",
+      "Bash(ffprobe -v quiet -print_format json -show_streams /Users/andrewlovseth/Downloads/delta-smelt.mp4)",
+      "Bash(ffmpeg -i /Users/andrewlovseth/Downloads/delta-smelt.mp4 -an -c:v copy /Users/andrewlovseth/Dev/wrmp/exhibits/2026-04-10-delta-smelt/delta-smelt.mp4)",
+      "WebFetch(domain:iep.ca.gov)",
+      "WebFetch(domain:californiawaterblog.com)",
+      "WebFetch(domain:fishbio.com)",
+      "WebFetch(domain:www.ogfishlab.com)",
+      "mcp__gemini__generate_image",
+      "Bash(cp /Users/andrewlovseth/Documents/Claude/Images/2026-04/a_research_boat_towing_an_105112.png /Users/andrewlovseth/Dev/wrmp/exhibits/2026-04-10-how-we-look/otter-trawl.png)",
+      "Bash(cp /Users/andrewlovseth/Documents/Claude/Images/2026-04/two_fisheries_scientists_pulling_a_105139.png /Users/andrewlovseth/Dev/wrmp/exhibits/2026-04-10-how-we-look/beach-seine.png)",
+      "Bash(cp /Users/andrewlovseth/Documents/Claude/Images/2026-04/a_gill_net_stretched_across_105202.png /Users/andrewlovseth/Dev/wrmp/exhibits/2026-04-10-how-we-look/gill-net.png)",
+      "Bash(cp /Users/andrewlovseth/Documents/Claude/Images/2026-04/a_fyke_trap_fish_net_105230.png /Users/andrewlovseth/Dev/wrmp/exhibits/2026-04-10-how-we-look/fyke-trap.png)",
+      "Bash(grep -n \"href\\\\|src\\\\|@import\" /Users/andrewlovseth/Dev/wrmp/exhibits/*/index.html)",
+      "Bash(grep:*)",
+      "Bash(wc -l /Users/andrewlovseth/Dev/wrmp/exhibits/*/index.html)",
+      "Bash(echo \"Server PID: $!\")",
+      "Bash(kill 24334)",
+      "Bash(kill 39936)"
+    ]
+  }
+}

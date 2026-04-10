@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Designing the Experiment — WRMP</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:wght@400;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <link rel="stylesheet" href="../../shared/css/tokens.css" />
+        <link rel="stylesheet" href="../../shared/css/exhibit-frame.css" />
+        <link rel="stylesheet" href="../../shared/css/leaflet-overrides.css" />
+    </head>
+    <body>
+        <div class="exhibit-frame">
+            <div id="map"></div>
+            <div class="map-legend" id="map-legend"></div>
+
+            <div class="story-panel">
+                <div class="story-panel-inner">
+                    <!-- Step 1: Designing the Experiment -->
+                    <div class="step active" data-step="0">
+                        <span class="kicker">How Science Works</span>
+                        <h2>Designing the Experiment</h2>
+                        <div class="body">
+                            <p>
+                                Before you can measure restoration success, you need a plan. WRMP's 119 monitoring
+                                stations aren't placed at random — they're a carefully designed scientific network
+                                spanning three regions of the San Francisco Estuary.
+                            </p>
+                            <p>
+                                Each station plays a specific role in answering the question:
+                                <strong>is wetland restoration working?</strong>
+                            </p>
+                            <div class="stat-row">
+                                <div class="stat-pill">
+                                    <div class="num">119</div>
+                                    <div class="lbl">Stations</div>
+                                </div>
+                                <div class="stat-pill">
+                                    <div class="num">9</div>
+                                    <div class="lbl">Networks</div>
+                                </div>
+                                <div class="stat-pill">
+                                    <div class="num">4</div>
+                                    <div class="lbl">Habitat Types</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Benchmarks -->
+                    <div class="step" data-step="1">
+                        <span class="kicker">The Control Group</span>
+                        <h2>Benchmarks: The Gold Standard</h2>
+                        <div class="body">
+                            <p>
+                                Benchmark sites are healthy, undisturbed habitats that define what "good" looks like.
+                                Scientists measure fish communities here to establish the ecological baseline — the
+                                gold standard against which everything else is compared.
+                            </p>
+                            <p>
+                                These are the <strong>control group</strong>. If a restored wetland eventually supports
+                                the same species diversity and abundance as a benchmark site, restoration is succeeding.
+                            </p>
+                            <div class="stat-row">
+                                <div class="stat-pill">
+                                    <div class="num">15</div>
+                                    <div class="lbl">Benchmark Sites</div>
+                                </div>
+                            </div>
+                            <div class="callout">
+                                Benchmark sites are selected for long-term ecological stability — natural sloughs and
+                                channels that have remained largely undisturbed.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Reference Sites -->
+                    <div class="step" data-step="2">
+                        <span class="kicker">The Comparison</span>
+                        <h2>Reference Sites</h2>
+                        <div class="body">
+                            <p>
+                                Reference sites are natural areas adjacent to restoration projects. They show what the
+                                local ecosystem looks like <strong>without intervention</strong> — the "before" picture
+                                that gives restoration targets their meaning.
+                            </p>
+                            <p>
+                                Reference Site Candidates are locations being evaluated for this role. Together, these
+                                sites form the comparison framework that makes the science rigorous.
+                            </p>
+                            <div class="stat-row">
+                                <div class="stat-pill">
+                                    <div class="num">18</div>
+                                    <div class="lbl">Reference</div>
+                                </div>
+                                <div class="stat-pill">
+                                    <div class="num">9</div>
+                                    <div class="lbl">Candidates</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Project Sites -->
+                    <div class="step" data-step="3">
+                        <span class="kicker">Restoration in Action</span>
+                        <h2>Project Sites</h2>
+                        <div class="body">
+                            <p>
+                                These are the restored wetlands being actively monitored — former salt ponds, diked
+                                marshlands, and degraded habitats being returned to tidal influence.
+                            </p>
+                            <p>
+                                By sampling at restored project sites alongside natural reference sites and long-term
+                                benchmarks, scientists can directly compare fish communities and track recovery over time.
+                            </p>
+                            <div class="stat-row">
+                                <div class="stat-pill">
+                                    <div class="num">40</div>
+                                    <div class="lbl">Project Sites</div>
+                                </div>
+                                <div class="stat-pill">
+                                    <div class="num">11</div>
+                                    <div class="lbl">Other Restored</div>
+                                </div>
+                            </div>
+                            <div class="callout">
+                                The South Bay Salt Pond Restoration is the largest tidal wetland restoration in the
+                                US — 15,000 acres of former salt ponds being returned to marsh habitat.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 5: What Comes Next -->
+                    <div class="step" data-step="4">
+                        <span class="kicker">Future Monitoring</span>
+                        <h2>What Comes Next</h2>
+                        <div class="body">
+                            <p>
+                                Across the Bay, <strong>17 planned restoration sites</strong> mark where the next
+                                chapter of recovery will unfold — 10 in Alviso Marsh, 3 at Eden Landing, and
+                                6 in Suisun Marsh.
+                            </p>
+                            <p>
+                                Baseline monitoring at these locations will begin before construction starts —
+                                establishing what's there before transformation begins. This "before" snapshot is
+                                essential to measuring future change.
+                            </p>
+                            <div class="stat-row">
+                                <div class="stat-pill">
+                                    <div class="num">17</div>
+                                    <div class="lbl">Planned Sites</div>
+                                </div>
+                                <div class="stat-pill">
+                                    <div class="num">3</div>
+                                    <div class="lbl">Marsh Systems</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 6: The Full Picture -->
+                    <div class="step" data-step="5">
+                        <span class="kicker">All Together</span>
+                        <h2>The Full Picture</h2>
+                        <div class="body">
+                            <p>
+                                Benchmark, Reference, Project, Planned — each station type plays a distinct role in
+                                the monitoring design. Together they answer the central question:
+                                <strong>is restoration working?</strong>
+                            </p>
+                            <p>
+                                Are fish communities in restored wetlands approaching those in natural ones? Are the
+                                right species returning? Is the ecosystem recovering?
+                            </p>
+                            <div class="callout">
+                                Early results from 14 years of monitoring at Alviso Marsh say yes — restored tidal
+                                ponds support fish communities equivalent to natural sloughs.
+                            </div>
+                            <p>
+                                Click the legend to explore each site type, or use the dots below to revisit any step
+                                in the story.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="nav-bar">
+                    <img src="../../shared/img/wrmp-logo.png" alt="WRMP" class="nav-logo" />
+                    <button id="btn-prev" disabled>Back</button>
+                    <div class="step-dots">
+                        <button class="step-dot active" data-step="0" aria-label="Step 1"></button>
+                        <button class="step-dot" data-step="1" aria-label="Step 2"></button>
+                        <button class="step-dot" data-step="2" aria-label="Step 3"></button>
+                        <button class="step-dot" data-step="3" aria-label="Step 4"></button>
+                        <button class="step-dot" data-step="4" aria-label="Step 5"></button>
+                        <button class="step-dot" data-step="5" aria-label="Step 6"></button>
+                    </div>
+                    <span class="step-counter">1 / 6</span>
+                    <button id="btn-next">Next</button>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <script src="../../shared/js/data-loader.js"></script>
+        <script src="../../shared/js/map-init.js"></script>
+        <script src="../../shared/js/stepper.js"></script>
+        <script>
+            // ── Exhibit Config ─────────────────────────────
+            var STATIONS = [];
+
+            var SITE_COLORS = {
+                Benchmark: "#92BB4D",
+                "Benchmark-Reference": "#C7D865",
+                Reference: "#005E6A",
+                "Reference Site Candidate": "#228B9C",
+                Project: "#379352",
+                "Other Restored Site": "#6A9E3A",
+                "Planned Restoration": "#E09337",
+                NA: "#bbb",
+            };
+
+            var BAY_FULL = [[37.4, -122.55], [38.28, -121.85]];
+            var SOUTH_BAY = [[37.42, -122.1], [37.62, -121.88]];
+
+            var POPUP_FIELDS = [
+                ["Site Type", "WRMP_Site_Type"],
+                ["Habitat", "habitat"],
+                ["Region", "region"],
+                ["Subregion", "subregion"],
+            ];
+
+            // ── Helpers ────────────────────────────────────
+            function isBenchmark(s) {
+                var t = (s.WRMP_Site_Type || "").trim();
+                return t === "Benchmark" || t === "Benchmark-Reference";
+            }
+            function isReference(s) {
+                var t = (s.WRMP_Site_Type || "").trim();
+                return t === "Reference" || t === "Reference Site Candidate";
+            }
+            function isProject(s) {
+                var t = (s.WRMP_Site_Type || "").trim();
+                return t === "Project" || t === "Other Restored Site";
+            }
+            function isPlanned(s) {
+                return (s.WRMP_Site_Type || "").trim() === "Planned Restoration";
+            }
+
+            // ── Map Init ───────────────────────────────────
+            var map = WRMP.initMap("map", { bounds: BAY_FULL });
+            var markerLayer = L.layerGroup().addTo(map);
+            var poiLayer = L.layerGroup().addTo(map);
+
+            // ── Step Definitions ────────────────────────────
+            var STEP_DEFS = [
+                {
+                    legend: null,
+                    bounds: BAY_FULL,
+                    pois: [],
+                    render: function (stations, filter) {
+                        stations.forEach(function (s) {
+                            L.circleMarker([s.lat, s.lon], {
+                                radius: 5, fillColor: "#228B9C", color: "#fff",
+                                weight: 1.5, opacity: 0.8, fillOpacity: 0.5,
+                            }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
+                        });
+                    },
+                },
+                {
+                    legend: [
+                        { label: "Benchmark", color: "#92BB4D", value: "Benchmark" },
+                        { label: "Benchmark-Reference", color: "#C7D865", value: "Benchmark-Reference" },
+                    ],
+                    field: "WRMP_Site_Type",
+                    bounds: BAY_FULL,
+                    pois: [],
+                    render: function (stations, filter) {
+                        stations.forEach(function (s) {
+                            var match = !filter ? isBenchmark(s) : (s.WRMP_Site_Type || "").trim() === filter;
+                            var color = match ? (SITE_COLORS[(s.WRMP_Site_Type || "").trim()] || "#92BB4D") : "#aaa";
+                            L.circleMarker([s.lat, s.lon], {
+                                radius: match ? 8 : 4, fillColor: color, color: "#fff",
+                                weight: match ? 2 : 1, opacity: match ? 1 : 0.3, fillOpacity: match ? 0.85 : 0.15,
+                            }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
+                        });
+                    },
+                },
+                {
+                    legend: [
+                        { label: "Reference", color: "#005E6A", value: "Reference" },
+                        { label: "Reference Candidate", color: "#228B9C", value: "Reference Site Candidate" },
+                    ],
+                    field: "WRMP_Site_Type",
+                    bounds: BAY_FULL,
+                    pois: [],
+                    render: function (stations, filter) {
+                        stations.forEach(function (s) {
+                            var match = !filter ? isReference(s) : (s.WRMP_Site_Type || "").trim() === filter;
+                            var color = match ? (SITE_COLORS[(s.WRMP_Site_Type || "").trim()] || "#005E6A") : "#aaa";
+                            L.circleMarker([s.lat, s.lon], {
+                                radius: match ? 8 : 4, fillColor: color, color: "#fff",
+                                weight: match ? 2 : 1, opacity: match ? 1 : 0.3, fillOpacity: match ? 0.85 : 0.15,
+                            }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
+                        });
+                    },
+                },
+                {
+                    legend: [
+                        { label: "Project", color: "#379352", value: "Project" },
+                        { label: "Other Restored", color: "#6A9E3A", value: "Other Restored Site" },
+                    ],
+                    field: "WRMP_Site_Type",
+                    bounds: SOUTH_BAY,
+                    boundsOpts: { duration: 1.5 },
+                    pois: [[37.47, -121.97, "15,000-acre restoration"]],
+                    render: function (stations, filter) {
+                        stations.forEach(function (s) {
+                            var match = !filter ? isProject(s) : (s.WRMP_Site_Type || "").trim() === filter;
+                            var color = match ? (SITE_COLORS[(s.WRMP_Site_Type || "").trim()] || "#379352") : "#aaa";
+                            L.circleMarker([s.lat, s.lon], {
+                                radius: match ? 8 : 4, fillColor: color, color: "#fff",
+                                weight: match ? 2 : 1, opacity: match ? 1 : 0.3, fillOpacity: match ? 0.9 : 0.15,
+                            }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
+                        });
+                    },
+                },
+                {
+                    legend: [
+                        { label: "Planned Restoration", color: "#E09337", value: "Planned Restoration" },
+                        { label: "Existing Stations", color: "#bbb", value: "_other" },
+                    ],
+                    field: "WRMP_Site_Type",
+                    bounds: BAY_FULL,
+                    pois: [
+                        [37.46, -121.97, "Alviso Marsh (10 sites)"],
+                        [37.58, -122.08, "Eden Landing (3 sites)"],
+                        [38.15, -121.95, "Suisun Marsh (6 sites)"],
+                    ],
+                    render: function (stations, filter) {
+                        stations.forEach(function (s) {
+                            var planned = isPlanned(s);
+                            var match;
+                            if (!filter) match = true;
+                            else if (filter === "_other") match = !planned;
+                            else match = planned;
+
+                            L.circleMarker([s.lat, s.lon], {
+                                radius: match ? (planned ? 9 : 5) : 4,
+                                fillColor: match ? (planned ? "#E09337" : "#888") : "#aaa",
+                                color: match ? "#fff" : "#ccc",
+                                weight: match ? (planned ? 2.5 : 1.5) : 1,
+                                opacity: match ? 1 : 0.3,
+                                fillOpacity: match ? (planned ? 0.9 : 0.4) : 0.12,
+                            }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
+                        });
+                    },
+                },
+                {
+                    legend: [
+                        { label: "Benchmark", color: "#92BB4D", value: "Benchmark" },
+                        { label: "Benchmark-Ref", color: "#C7D865", value: "Benchmark-Reference" },
+                        { label: "Reference", color: "#005E6A", value: "Reference" },
+                        { label: "Ref Candidate", color: "#228B9C", value: "Reference Site Candidate" },
+                        { label: "Project", color: "#379352", value: "Project" },
+                        { label: "Other Restored", color: "#6A9E3A", value: "Other Restored Site" },
+                        { label: "Planned", color: "#E09337", value: "Planned Restoration" },
+                    ],
+                    field: "WRMP_Site_Type",
+                    colors: SITE_COLORS,
+                    bounds: BAY_FULL,
+                    pois: [],
+                    render: function (stations, filter) {
+                        var colors = this.colors;
+                        stations.forEach(function (s) {
+                            var siteType = (s.WRMP_Site_Type || "").trim();
+                            var match = !filter || siteType === filter;
+                            var color = colors[siteType] || "#bbb";
+                            L.circleMarker([s.lat, s.lon], {
+                                radius: match ? 7 : 4, fillColor: match ? color : "#aaa", color: "#fff",
+                                weight: match ? 2 : 1, opacity: match ? 1 : 0.3, fillOpacity: match ? 0.85 : 0.15,
+                            }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
+                        });
+                    },
+                },
+            ];
+
+            // ── Legend ─────────────────────────────────────
+            var legendEl = document.getElementById("map-legend");
+            var activeFilter = null;
+
+            function buildLegend() {
+                legendEl.replaceChildren();
+                var def = STEP_DEFS[stepper.currentStep];
+                if (!def.legend) return;
+
+                var allChip = document.createElement("button");
+                allChip.className = "map-legend-chip" + (!activeFilter ? " active" : "");
+                allChip.textContent = "All";
+                allChip.addEventListener("click", function () {
+                    activeFilter = null;
+                    buildLegend();
+                    renderCurrentStep();
+                });
+                legendEl.appendChild(allChip);
+
+                def.legend.forEach(function (item) {
+                    var chip = document.createElement("button");
+                    var isActive = activeFilter === item.value;
+                    var isDimmed = activeFilter && !isActive;
+                    chip.className = "map-legend-chip" + (isActive ? " active" : "") + (isDimmed ? " dimmed" : "");
+                    var dot = document.createElement("span");
+                    dot.className = "map-legend-dot";
+                    dot.style.background = item.color;
+                    chip.appendChild(dot);
+                    chip.appendChild(document.createTextNode(item.label));
+                    chip.addEventListener("click", function () {
+                        activeFilter = activeFilter === item.value ? null : item.value;
+                        buildLegend();
+                        renderCurrentStep();
+                    });
+                    legendEl.appendChild(chip);
+                });
+            }
+
+            // ── Render ─────────────────────────────────────
+            function renderCurrentStep() {
+                markerLayer.clearLayers();
+                poiLayer.clearLayers();
+                var def = STEP_DEFS[stepper.currentStep];
+                def.render(STATIONS, activeFilter);
+
+                if (!activeFilter) {
+                    def.pois.forEach(function (p) { WRMP.addPOI(poiLayer, p[0], p[1], p[2]); });
+                }
+
+                if (activeFilter) {
+                    var matching = STATIONS.filter(function (s) {
+                        if (!def.field) return true;
+                        var val = (s[def.field] || "").trim();
+                        if (activeFilter === "_other") return val !== "Planned Restoration";
+                        return val === activeFilter;
+                    });
+                    if (matching.length > 0) {
+                        WRMP.flyTo(map, L.latLngBounds(matching.map(function (s) { return [s.lat, s.lon]; })));
+                    }
+                } else {
+                    WRMP.flyTo(map, def.bounds, def.boundsOpts || {});
+                }
+            }
+
+            // ── Stepper ────────────────────────────────────
+            var stepper = WRMP.createStepper({
+                totalSteps: 6,
+                onStepEnter: function (n) {
+                    activeFilter = null;
+                    buildLegend();
+                    if (STATIONS.length > 0) renderCurrentStep();
+                },
+            });
+
+            // ── Load Data ──────────────────────────────────
+            WRMP.loadData({ stations: true }).then(function (data) {
+                STATIONS = data.stations;
+                stepper.goToStep(0);
+            }).catch(function (err) {
+                console.error("Failed to load station data:", err);
+            });
+        </script>
+    </body>
+</html>

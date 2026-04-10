@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>How We Monitor — WRMP</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:wght@400;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <link rel="stylesheet" href="../../shared/css/tokens.css" />
+        <link rel="stylesheet" href="../../shared/css/exhibit-frame.css" />
+        <link rel="stylesheet" href="../../shared/css/leaflet-overrides.css" />
+        <style>
+            /* ── Exhibit-specific: habitat color tokens ───── */
+            :root {
+                --color-slough: #228b9c;
+                --color-open-bay: #005e6a;
+                --color-tidal-pond-slough: #379352;
+                --color-tidal-pond: #92bb4d;
+            }
+
+            /* ── Infographic Background (non-map steps) ───── */
+            .infographic-bg {
+                position: absolute;
+                inset: 0;
+                z-index: 2;
+                background-size: cover;
+                background-position: center;
+                display: none;
+                align-items: flex-end;
+                justify-content: flex-end;
+                padding: 24px;
+                padding-left: calc(var(--panel-width) + var(--panel-inset) + 24px);
+            }
+
+            .infographic-bg::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(
+                    to right,
+                    rgba(0, 0, 0, 0.4) 0%,
+                    rgba(0, 0, 0, 0.1) 45%,
+                    rgba(0, 0, 0, 0.05) 100%
+                );
+                z-index: -1;
+            }
+
+            .infographic-bg .photo-credit {
+                position: absolute;
+                bottom: 8px;
+                right: 12px;
+                font-size: 11px;
+                color: rgba(255, 255, 255, 0.6);
+                z-index: 3;
+            }
+
+            .infographic-bg.active { display: flex; }
+
+            /* ── Gear Infographic Cards ───────────────────── */
+            .gear-cards {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 12px;
+                justify-content: flex-end;
+                align-items: flex-end;
+                max-width: 480px;
+                z-index: 1;
+            }
+
+            .gear-card {
+                background: rgba(255, 255, 255, 0.88);
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                border: 1px solid rgba(255, 255, 255, 0.6);
+                border-radius: 10px;
+                box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+                padding: 14px 14px;
+                text-align: center;
+                flex: 1 1 130px;
+                max-width: 220px;
+                min-width: 120px;
+            }
+
+            .gear-card .gear-icon { display: none; }
+
+            .gear-card .gear-name {
+                font-family: var(--font-heading);
+                font-size: 15px;
+                font-weight: 400;
+                color: var(--wrmp-ada-teal);
+                margin-bottom: 3px;
+            }
+
+            .gear-card .gear-spec {
+                font-size: 12px;
+                color: #555;
+                line-height: 1.3;
+            }
+
+            .gear-card .gear-stat {
+                font-size: var(--size-lg);
+                font-weight: 700;
+                color: var(--wrmp-ada-teal);
+                line-height: 1;
+                margin-top: 6px;
+            }
+
+            .gear-card .gear-stat-label {
+                font-size: 11px;
+                color: #888;
+                margin-top: 2px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="exhibit-frame">
+            <div id="map"></div>
+
+            <!-- Infographic backgrounds for non-map steps -->
+            <div class="infographic-bg" id="infographic-step2" style="background-image: url('otter-trawl.png');">
+                <span class="photo-credit">AI-generated reference image</span>
+                <div class="gear-cards">
+                    <div class="gear-card">
+                        <div class="gear-icon">&#x1F6A2;</div>
+                        <div class="gear-name">OT14</div>
+                        <div class="gear-spec">14' mouth, 5' tall</div>
+                        <div class="gear-spec">Large slough channels</div>
+                    </div>
+                    <div class="gear-card">
+                        <div class="gear-icon">&#x26F5;</div>
+                        <div class="gear-name">OT7</div>
+                        <div class="gear-spec">7' mouth, 3.5' tall</div>
+                        <div class="gear-spec">Medium waterways</div>
+                    </div>
+                    <div class="gear-card">
+                        <div class="gear-icon">&#x1F6F6;</div>
+                        <div class="gear-name">OT4</div>
+                        <div class="gear-spec">4' mouth, 2' tall</div>
+                        <div class="gear-spec">Narrow channels</div>
+                    </div>
+                    <div class="gear-card">
+                        <div class="gear-icon">&#x1F9EA;</div>
+                        <div class="gear-name">OTL</div>
+                        <div class="gear-spec">4' mouth, 2mm mesh</div>
+                        <div class="gear-spec">Fine-mesh larvae</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="infographic-bg" id="infographic-step3" style="background-image: url('beach-seine.png');">
+                <span class="photo-credit">AI-generated reference image</span>
+                <div class="gear-cards">
+                    <div class="gear-card">
+                        <div class="gear-icon">&#x1F3D6;</div>
+                        <div class="gear-name">Beach Seine 20'</div>
+                        <div class="gear-spec">20' x 4', 1/8" mesh</div>
+                        <div class="gear-spec">Tight marsh edges</div>
+                        <div class="gear-stat">20</div>
+                        <div class="gear-stat-label">feet long</div>
+                    </div>
+                    <div class="gear-card">
+                        <div class="gear-icon">&#x1F30A;</div>
+                        <div class="gear-name">Beach Seine 50'</div>
+                        <div class="gear-spec">50' x 6', 1/4" mesh</div>
+                        <div class="gear-spec">Open shoreline</div>
+                        <div class="gear-stat">50</div>
+                        <div class="gear-stat-label">feet long</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="infographic-bg" id="infographic-step4" style="background-image: url('gill-net.png');">
+                <span class="photo-credit">AI-generated reference image</span>
+                <div class="gear-cards">
+                    <div class="gear-card">
+                        <div class="gear-icon">&#x1F9F5;</div>
+                        <div class="gear-name">Gill Net</div>
+                        <div class="gear-spec">6 panels, 150' x 6'</div>
+                        <div class="gear-spec">Mesh: 2" to 8" stretch</div>
+                        <div class="gear-stat">6</div>
+                        <div class="gear-stat-label">mesh sizes</div>
+                    </div>
+                    <div class="gear-card">
+                        <div class="gear-icon">&#x1FAA4;</div>
+                        <div class="gear-name">Fyke Trap</div>
+                        <div class="gear-spec">3' x 6' frame</div>
+                        <div class="gear-spec">Two 50' lead nets</div>
+                        <div class="gear-stat">100</div>
+                        <div class="gear-stat-label">ft of leads</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="map-legend" id="map-legend"></div>
+
+            <div class="story-panel" id="story-panel">
+                <div class="story-panel-inner">
+                    <div class="step active" data-step="0">
+                        <span class="kicker">Monitoring Methods</span>
+                        <h2>No Single Net Catches Everything</h2>
+                        <div class="body">
+                            <p>
+                                The San Francisco Estuary holds 237 species across every habitat — open water,
+                                channel bottoms, marsh edges. Each requires a different approach to sample.
+                            </p>
+                            <div class="stat-row">
+                                <div class="stat-pill">
+                                    <div class="num">237</div>
+                                    <div class="lbl">Species</div>
+                                </div>
+                                <div class="stat-pill">
+                                    <div class="num">9</div>
+                                    <div class="lbl">Gear Types</div>
+                                </div>
+                                <div class="stat-pill">
+                                    <div class="num">119</div>
+                                    <div class="lbl">Stations</div>
+                                </div>
+                            </div>
+                            <p>
+                                These surveys require certified boat operators, trained fisheries scientists, and
+                                familiarity with working in tidal wetlands. The tools change — but the question
+                                stays the same: <strong>what lives here?</strong>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="step" data-step="1">
+                        <span class="kicker">The Workhorse</span>
+                        <h2>Otter Trawls: Sweeping the Channels</h2>
+                        <div class="body">
+                            <p>
+                                A net towed behind a boat for 5 to 10 minutes, sweeping fish and invertebrates from
+                                slough channels. The otter trawl is the program's workhorse — four sizes for
+                                different waterways.
+                            </p>
+                            <div class="stat-row">
+                                <div class="stat-pill">
+                                    <div class="num">4</div>
+                                    <div class="lbl">Trawl Sizes</div>
+                                </div>
+                                <div class="stat-pill">
+                                    <div class="num">77</div>
+                                    <div class="lbl">Slough Stations</div>
+                                </div>
+                            </div>
+                            <p>
+                                The largest (OT14) has a 14-foot opening for wide channels. The smallest (OT4) fits
+                                narrow marsh creeks. A fine-mesh variant (OTL) catches larvae and tiny invertebrates
+                                that slip through standard nets.
+                            </p>
+                            <div class="callout">
+                                Trawls catch the broadest diversity — benthic species on the bottom and pelagic
+                                species in the water column. A single quarter produced 244 trawl samples across
+                                the Bay.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step" data-step="2">
+                        <span class="kicker">Walking the Shallows</span>
+                        <h2>Beach Seines: The Shallow Edge</h2>
+                        <div class="body">
+                            <p>
+                                For shallow marsh edges and mudflats where boats can't go. Two people drag a net
+                                through the shallows — a method unchanged for centuries.
+                            </p>
+                            <p>
+                                Two sizes: 20 feet for tight spots, 50 feet for open shoreline. The fine mesh
+                                catches small species and juveniles that slip past larger gear.
+                            </p>
+                            <div class="callout">
+                                Beach seines catch littoral species — the creatures that live along the edges.
+                                These shallow-water habitats are critical nursery grounds for juvenile fish.
+                            </div>
+                            <p>
+                                Timing matters. Seines work best at low tide when water is shallow and fish
+                                concentrate along the margins.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="step" data-step="3">
+                        <span class="kicker">The Specialists</span>
+                        <h2>Gill Nets &amp; Fyke Traps</h2>
+                        <div class="body">
+                            <p>
+                                Gill nets are 150 feet of mesh stretched across the current, with six panel sizes
+                                from 2 inches to 8 inches. They catch larger fish that swim through — Leopard Sharks,
+                                sturgeon, Striped Bass.
+                            </p>
+                            <p>
+                                Fyke traps take a different approach: passive capture. A 3-by-6-foot frame with
+                                two 50-foot lead nets funnels fish into a holding chamber. Set and wait.
+                            </p>
+                            <div class="callout">
+                                These specialist tools fill gaps the trawls and seines miss — the large, powerful
+                                swimmers and the species that avoid active nets.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step" data-step="4">
+                        <span class="kicker">The Complete Picture</span>
+                        <h2>Matching Tools to Questions</h2>
+                        <div class="body">
+                            <p>
+                                Each station's habitat determines which gear gets deployed. The monitoring design
+                                matches methods to places to build a complete picture of the estuary.
+                            </p>
+                            <p>
+                                <strong style="color: var(--color-slough)">Sloughs</strong> get otter trawls —
+                                the channels are deep enough for boats and nets.
+                                <strong style="color: var(--color-open-bay)">Open Bay</strong> stations combine
+                                trawls with gill nets for open-water species.
+                            </p>
+                            <p>
+                                <strong style="color: var(--color-tidal-pond-slough)">Tidal pond sloughs</strong>
+                                use smaller trawls suited to restored channels.
+                                <strong style="color: var(--color-tidal-pond)">Tidal ponds</strong> get seines
+                                for their shallow, enclosed waters.
+                            </p>
+                            <div class="callout">
+                                No single gear catches everything — but together, nine types across 119 stations
+                                give scientists a comprehensive view of what lives in the estuary.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="nav-bar">
+                    <img src="../../shared/img/wrmp-logo.png" alt="WRMP" class="nav-logo" />
+                    <button id="btn-prev" disabled>Back</button>
+                    <div class="step-dots">
+                        <button class="step-dot active" data-step="0" aria-label="Step 1"></button>
+                        <button class="step-dot" data-step="1" aria-label="Step 2"></button>
+                        <button class="step-dot" data-step="2" aria-label="Step 3"></button>
+                        <button class="step-dot" data-step="3" aria-label="Step 4"></button>
+                        <button class="step-dot" data-step="4" aria-label="Step 5"></button>
+                    </div>
+                    <span class="step-counter">1 / 5</span>
+                    <button id="btn-next">Next</button>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <script src="../../shared/js/data-loader.js"></script>
+        <script src="../../shared/js/map-init.js"></script>
+        <script src="../../shared/js/stepper.js"></script>
+        <script>
+            // ── Exhibit Config ─────────────────────────────
+            var STATIONS = [];
+            var SPECIES = [];
+
+            var HABITAT_COLORS = {
+                Slough: "#228B9C",
+                "Open Bay": "#005E6A",
+                "Tidal Pond Slough": "#379352",
+                "Tidal Pond": "#92BB4D",
+            };
+
+            var BAY_FULL = [[37.4, -122.55], [38.28, -121.85]];
+
+            var POPUP_FIELDS = [
+                ["Region", "region"],
+                ["Network", "WRMP_Network"],
+                ["Habitat", "habitat"],
+                ["Site Type", "WRMP_Site_Type"],
+            ];
+
+            // Infographic elements
+            var infographicEls = {
+                1: document.getElementById("infographic-step2"),
+                2: document.getElementById("infographic-step3"),
+                3: document.getElementById("infographic-step4"),
+            };
+
+            var MAP_STEPS = [0, 4];
+
+            // ── Map Init ───────────────────────────────────
+            var map = WRMP.initMap("map", { bounds: BAY_FULL });
+            var markerLayer = L.layerGroup().addTo(map);
+            var poiLayer = L.layerGroup().addTo(map);
+
+            // ── Legend ─────────────────────────────────────
+            var legendEl = document.getElementById("map-legend");
+            var activeFilter = null;
+
+            function buildLegend() {
+                legendEl.replaceChildren();
+                if (stepper.currentStep !== 4) return;
+
+                var legend = [
+                    { label: "Slough", color: "#228B9C", value: "Slough" },
+                    { label: "Open Bay", color: "#005E6A", value: "Open Bay" },
+                    { label: "Tidal Pond Slough", color: "#379352", value: "Tidal Pond Slough" },
+                    { label: "Tidal Pond", color: "#92BB4D", value: "Tidal Pond" },
+                ];
+
+                var allChip = document.createElement("button");
+                allChip.className = "map-legend-chip" + (!activeFilter ? " active" : "");
+                allChip.textContent = "All";
+                allChip.addEventListener("click", function () {
+                    activeFilter = null;
+                    buildLegend();
+                    renderMap();
+                });
+                legendEl.appendChild(allChip);
+
+                legend.forEach(function (item) {
+                    var chip = document.createElement("button");
+                    var isActive = activeFilter === item.value;
+                    var isDimmed = activeFilter && !isActive;
+                    chip.className = "map-legend-chip" + (isActive ? " active" : "") + (isDimmed ? " dimmed" : "");
+                    var dot = document.createElement("span");
+                    dot.className = "map-legend-dot";
+                    dot.style.background = item.color;
+                    chip.appendChild(dot);
+                    chip.appendChild(document.createTextNode(item.label));
+                    chip.addEventListener("click", function () {
+                        activeFilter = activeFilter === item.value ? null : item.value;
+                        buildLegend();
+                        renderMap();
+                    });
+                    legendEl.appendChild(chip);
+                });
+            }
+
+            // ── Map Rendering ──────────────────────────────
+            function renderMap() {
+                markerLayer.clearLayers();
+                poiLayer.clearLayers();
+                if (STATIONS.length === 0) return;
+
+                if (stepper.currentStep === 0) {
+                    STATIONS.forEach(function (s) {
+                        L.circleMarker([s.lat, s.lon], {
+                            radius: 5, fillColor: "#228B9C", color: "#fff",
+                            weight: 1.5, opacity: 0.8, fillOpacity: 0.5,
+                        }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
+                    });
+                    WRMP.flyTo(map, BAY_FULL);
+                } else if (stepper.currentStep === 4) {
+                    STATIONS.forEach(function (s) {
+                        var hab = (s.habitat || "").trim();
+                        var match = !activeFilter || hab === activeFilter;
+                        var color = HABITAT_COLORS[hab] || "#999";
+                        L.circleMarker([s.lat, s.lon], {
+                            radius: match ? 7 : 4,
+                            fillColor: match ? color : "#aaa",
+                            color: "#fff",
+                            weight: match ? 2 : 1,
+                            opacity: match ? 1 : 0.3,
+                            fillOpacity: match ? 0.85 : 0.25,
+                        }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
+                    });
+
+                    if (activeFilter) {
+                        var matching = STATIONS.filter(function (s) { return (s.habitat || "").trim() === activeFilter; });
+                        if (matching.length) {
+                            WRMP.flyTo(map, L.latLngBounds(matching.map(function (s) { return [s.lat, s.lon]; })));
+                        }
+                    } else {
+                        WRMP.flyTo(map, BAY_FULL);
+                    }
+                }
+            }
+
+            // ── Stepper ────────────────────────────────────
+            var storyPanel = document.getElementById("story-panel");
+
+            var stepper = WRMP.createStepper({
+                totalSteps: 5,
+                onStepEnter: function (n) {
+                    activeFilter = null;
+                    var isMap = MAP_STEPS.indexOf(n) !== -1;
+
+                    // Show/hide map
+                    var mapEl = document.getElementById("map");
+                    mapEl.style.display = isMap ? "block" : "none";
+                    if (isMap) map.invalidateSize();
+
+                    // Show/hide infographic backgrounds
+                    Object.keys(infographicEls).forEach(function (key) {
+                        var el = infographicEls[key];
+                        if (el) el.classList.toggle("active", parseInt(key, 10) === n);
+                    });
+
+                    // Panel theme: dark on photo steps, light on map
+                    storyPanel.classList.toggle("panel-dark", n >= 1 && n <= 3);
+
+                    // Legend + render
+                    buildLegend();
+                    if (isMap) renderMap();
+                },
+            });
+
+            // ── Load Data ──────────────────────────────────
+            WRMP.loadData({ stations: true, species: true }).then(function (data) {
+                STATIONS = data.stations;
+                SPECIES = data.species;
+                stepper.goToStep(0);
+            }).catch(function (err) {
+                console.error("Failed to load data:", err);
+            });
+        </script>
+    </body>
+</html>

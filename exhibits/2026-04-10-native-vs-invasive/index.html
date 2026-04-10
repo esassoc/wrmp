@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Native vs. Invasive — WRMP</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:wght@400;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <link rel="stylesheet" href="../../shared/css/tokens.css" />
+        <link rel="stylesheet" href="../../shared/css/exhibit-frame.css" />
+        <link rel="stylesheet" href="../../shared/css/leaflet-overrides.css" />
+        <style>
+            /* ── Exhibit-specific styles ─────────────────── */
+
+            /* Map toggle (this exhibit hides/shows via .active) */
+            #map { opacity: 0; transition: opacity 0.5s ease; }
+            #map.active { opacity: 1; }
+
+            /* ── Content Area (right side, non-map steps) ── */
+            .content-area {
+                position: absolute;
+                top: var(--panel-inset);
+                left: calc(var(--panel-width) + var(--panel-inset) + var(--panel-inset));
+                right: var(--panel-inset);
+                bottom: var(--panel-inset);
+                z-index: 5;
+                display: none;
+                flex-direction: column;
+                justify-content: center;
+                padding: var(--space-lg);
+                overflow: hidden;
+            }
+            .content-area.active { display: flex; }
+
+            /* ── Species Gallery ──────────────────────────── */
+            .gallery-group { margin-bottom: var(--space-md); }
+            .gallery-group:last-child { margin-bottom: 0; }
+
+            .gallery-group-label {
+                font-family: var(--font-body);
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                color: #888;
+                margin-bottom: var(--space-sm);
+            }
+
+            .gallery-row { display: flex; gap: 12px; }
+
+            .species-gallery-card {
+                background: #fff;
+                border: 1px solid rgba(0, 0, 0, 0.08);
+                border-radius: 10px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+                padding: 12px 16px;
+                flex: 1;
+                min-width: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+            .species-gallery-card.invasive { border-left: 3px solid var(--wrmp-orange); }
+
+            .species-gallery-card .card-name {
+                font-weight: 600;
+                font-size: var(--size-sm);
+                color: var(--wrmp-text);
+                line-height: 1.2;
+            }
+            .species-gallery-card .card-sci {
+                font-style: italic;
+                font-size: 12px;
+                color: #888;
+                line-height: 1.2;
+            }
+            .species-gallery-card .card-habitat {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                margin-top: 2px;
+            }
+            .species-gallery-card .habitat-pip {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                flex-shrink: 0;
+            }
+            .species-gallery-card .habitat-label {
+                font-size: 11px;
+                color: #aaa;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            /* ── Infographic Bars (Step 5) ────────────────── */
+            .bar-group { margin-bottom: var(--space-lg); }
+            .bar-group:last-child { margin-bottom: 0; }
+
+            .bar-label {
+                font-family: var(--font-heading);
+                font-size: var(--size-lg);
+                font-weight: 400;
+                color: var(--wrmp-ada-teal);
+                margin-bottom: var(--space-xs);
+            }
+            .bar-sublabel {
+                font-size: 12px;
+                color: #888;
+                margin-bottom: var(--space-sm);
+            }
+            .bar-track {
+                display: flex;
+                gap: 4px;
+                height: 36px;
+                border-radius: 6px;
+                overflow: hidden;
+            }
+            .bar-segment {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 6px;
+                font-size: var(--size-sm);
+                font-weight: 700;
+                color: #fff;
+                transition: width 0.8s ease;
+                min-width: 36px;
+            }
+            .bar-segment.native { background: var(--wrmp-teal); }
+            .bar-segment.invasive { background: var(--wrmp-orange); }
+
+            .bar-legend-row {
+                display: flex;
+                gap: var(--space-lg);
+                margin-top: var(--space-md);
+            }
+            .bar-legend-item {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: var(--size-sm);
+                color: #555;
+            }
+            .bar-legend-swatch {
+                width: 14px;
+                height: 14px;
+                border-radius: 3px;
+                flex-shrink: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="exhibit-frame">
+            <!-- Background layers for non-map steps -->
+            <div class="bg-layer bg-gradient" id="bg-gallery"></div>
+            <div class="bg-layer bg-gradient" id="bg-infographic"></div>
+
+            <!-- Map layer -->
+            <div id="map"></div>
+            <div class="map-legend" id="map-legend"></div>
+
+            <!-- Content areas for non-map steps -->
+            <div class="content-area" id="content-step2"></div>
+            <div class="content-area" id="content-step3"></div>
+            <div class="content-area" id="content-step5"></div>
+
+            <div class="story-panel">
+                <div class="story-panel-inner">
+                    <div class="step active" data-step="0">
+                        <span class="kicker">Biodiversity</span>
+                        <h2>237 Species Call It Home</h2>
+                        <div class="body">
+                            <p>
+                                The San Francisco Estuary supports incredible biodiversity. From sharks to shrimp,
+                                salmon to sponges — <strong>237 species</strong> of fish and invertebrates have been
+                                documented across the monitoring network.
+                            </p>
+                            <div class="stat-row">
+                                <div class="stat-pill">
+                                    <div class="num">237</div>
+                                    <div class="lbl">Species</div>
+                                </div>
+                                <div class="stat-pill">
+                                    <div class="num">146</div>
+                                    <div class="lbl">Fish</div>
+                                </div>
+                                <div class="stat-pill">
+                                    <div class="num">91</div>
+                                    <div class="lbl">Invertebrates</div>
+                                </div>
+                            </div>
+                            <p>
+                                These 119 monitoring stations are the eyes and ears of the estuary — each one a
+                                window into the community of species that lives there.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="step" data-step="1">
+                        <span class="kicker">Native Species</span>
+                        <h2>The Home Team</h2>
+                        <div class="body">
+                            <p>
+                                <strong>151 native species</strong> have been documented in the estuary. From
+                                9 species of shark to 7 species of smelt, these animals evolved with the estuary
+                                over thousands of years.
+                            </p>
+                            <div class="stat-row">
+                                <div class="stat-pill">
+                                    <div class="num">113</div>
+                                    <div class="lbl">Native Fish</div>
+                                </div>
+                                <div class="stat-pill">
+                                    <div class="num">38</div>
+                                    <div class="lbl">Native Inverts</div>
+                                </div>
+                            </div>
+                            <p>
+                                Many are uniquely adapted to estuarine life — tolerating the daily swings
+                                in salinity, temperature, and turbidity that make this habitat so challenging.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="step" data-step="2">
+                        <span class="kicker">Invasive Species</span>
+                        <h2>The Uninvited</h2>
+                        <div class="body">
+                            <p>
+                                <strong>50 invasive species</strong> have been documented in the estuary.
+                                They arrive through ballast water, aquaculture, and intentional introduction.
+                                <strong>7 species from Japan</strong> alone.
+                            </p>
+                            <div class="stat-row">
+                                <div class="stat-pill">
+                                    <div class="num">27</div>
+                                    <div class="lbl">Invasive Fish</div>
+                                </div>
+                                <div class="stat-pill">
+                                    <div class="num">23</div>
+                                    <div class="lbl">Invasive Inverts</div>
+                                </div>
+                            </div>
+                            <p>
+                                Some, like Striped Bass, were introduced intentionally in the 1870s for sport
+                                fishing. Others hitchhiked in ship ballast tanks from ports around the world.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="step" data-step="3">
+                        <span class="kicker">Alviso Marsh</span>
+                        <h2>Where They Meet</h2>
+                        <div class="body">
+                            <p>
+                                Zoom into Alviso Marsh — <strong>21 monitoring stations</strong> where scientists
+                                track which species use restored and natural habitats.
+                            </p>
+                            <p>
+                                This is where native and invasive species share the same slough channels.
+                                Every trawl sample records what's there.
+                            </p>
+                            <div class="callout">
+                                The South Bay Salt Pond Restoration Project — 15,000 acres of former salt ponds
+                                returning to tidal marsh.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step" data-step="4">
+                        <span class="kicker">The Balance</span>
+                        <h2>Counting the Balance</h2>
+                        <div class="body">
+                            <p>
+                                Monitoring tracks the balance between native and invasive species across every
+                                habitat type. The ratio tells us about ecosystem health.
+                            </p>
+                            <div class="stat-row">
+                                <div class="stat-pill">
+                                    <div class="num">119</div>
+                                    <div class="lbl">Stations</div>
+                                </div>
+                                <div class="stat-pill">
+                                    <div class="num">9</div>
+                                    <div class="lbl">Networks</div>
+                                </div>
+                            </div>
+                            <p>
+                                WRMP's network provides the data to understand whether the balance is shifting.
+                                Quarterly surveys across the estuary reveal the patterns that matter most.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="nav-bar">
+                    <img src="../../shared/img/wrmp-logo.png" alt="WRMP" class="nav-logo" />
+                    <button id="btn-prev" disabled>Back</button>
+                    <div class="step-dots">
+                        <button class="step-dot active" data-step="0" aria-label="Step 1"></button>
+                        <button class="step-dot" data-step="1" aria-label="Step 2"></button>
+                        <button class="step-dot" data-step="2" aria-label="Step 3"></button>
+                        <button class="step-dot" data-step="3" aria-label="Step 4"></button>
+                        <button class="step-dot" data-step="4" aria-label="Step 5"></button>
+                    </div>
+                    <span class="step-counter">1 / 5</span>
+                    <button id="btn-next">Next</button>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <script src="../../shared/js/data-loader.js"></script>
+        <script src="../../shared/js/map-init.js"></script>
+        <script src="../../shared/js/stepper.js"></script>
+        <script>
+            // ── Exhibit Config ─────────────────────────────
+            var STATIONS = [];
+            var SPECIES = [];
+
+            var HABITAT_COLORS = { Benthic: "#228B9C", Pelagic: "#E09337", Littoral: "#379352" };
+            var STATION_HABITAT_COLORS = { Slough: "#228B9C", "Tidal Pond Slough": "#379352" };
+
+            var BAY_FULL = [[37.4, -122.55], [38.28, -121.85]];
+            var ALVISO = [[37.43, -122.05], [37.47, -121.93]];
+
+            var POPUP_FIELDS = [
+                ["Region", "region"],
+                ["Network", "WRMP_Network"],
+                ["Habitat", "habitat"],
+                ["Site Type", "WRMP_Site_Type"],
+            ];
+
+            var NATIVE_FEATURED = {
+                sharks: ["LEOSHA", "BATRAY", "BROSSH"],
+                smelt: ["DELSME", "LONSME", "TOPSME"],
+                icons: ["CHISAL", "PACHER", "STAFLO"],
+            };
+            var INVASIVE_FEATURED = {
+                japan: ["YELGOB", "SHIGOB", "WAKASA"],
+                eastcoast: ["STRBAS", "AMESHA", "CHACAT"],
+                world: ["CMAENA", "CORBUL", "ESINEN"],
+            };
+
+            var STEP_TYPES = ["map", "gallery", "gallery", "map", "infographic"];
+
+            // ── Map Init ───────────────────────────────────
+            var map = WRMP.initMap("map", { bounds: BAY_FULL });
+            var markerLayer = L.layerGroup().addTo(map);
+            var labelLayer = L.layerGroup().addTo(map);
+
+            // ── DOM refs ───────────────────────────────────
+            var mapEl = document.getElementById("map");
+            var bgGallery = document.getElementById("bg-gallery");
+            var bgInfographic = document.getElementById("bg-infographic");
+            var contentStep2 = document.getElementById("content-step2");
+            var contentStep3 = document.getElementById("content-step3");
+            var contentStep5 = document.getElementById("content-step5");
+            var legendEl = document.getElementById("map-legend");
+
+            // ── Species Card Builder ───────────────────────
+            function buildSpeciesCard(sp, invasive) {
+                var card = document.createElement("div");
+                card.className = "species-gallery-card" + (invasive ? " invasive" : "");
+
+                var name = document.createElement("div");
+                name.className = "card-name";
+                name.textContent = sp.comname;
+                card.appendChild(name);
+
+                var sci = document.createElement("div");
+                sci.className = "card-sci";
+                sci.textContent = sp.gensp !== "NA" ? sp.gensp : sp.genus + " " + sp.species;
+                card.appendChild(sci);
+
+                var hab = document.createElement("div");
+                hab.className = "card-habitat";
+                var pip = document.createElement("span");
+                pip.className = "habitat-pip";
+                pip.style.background = HABITAT_COLORS[sp.hab] || "#999";
+                var lbl = document.createElement("span");
+                lbl.className = "habitat-label";
+                lbl.textContent = sp.hab || "";
+                hab.appendChild(pip);
+                hab.appendChild(lbl);
+                card.appendChild(hab);
+
+                return card;
+            }
+
+            function buildGalleryGroup(label, codes, invasive) {
+                var speciesMap = {};
+                SPECIES.forEach(function (sp) { speciesMap[sp.code] = sp; });
+
+                var group = document.createElement("div");
+                group.className = "gallery-group";
+
+                var lbl = document.createElement("div");
+                lbl.className = "gallery-group-label";
+                lbl.textContent = label;
+                group.appendChild(lbl);
+
+                var row = document.createElement("div");
+                row.className = "gallery-row";
+                codes.forEach(function (code) {
+                    var sp = speciesMap[code];
+                    if (sp) row.appendChild(buildSpeciesCard(sp, invasive));
+                });
+                group.appendChild(row);
+                return group;
+            }
+
+            // ── Infographic Bar Builder ────────────────────
+            function buildBarGroup(label, sublabel, nativeCount, invasiveCount) {
+                var total = nativeCount + invasiveCount;
+                var group = document.createElement("div");
+                group.className = "bar-group";
+
+                var title = document.createElement("div");
+                title.className = "bar-label";
+                title.textContent = label;
+                group.appendChild(title);
+
+                var sub = document.createElement("div");
+                sub.className = "bar-sublabel";
+                sub.textContent = sublabel;
+                group.appendChild(sub);
+
+                var track = document.createElement("div");
+                track.className = "bar-track";
+
+                var nativeBar = document.createElement("div");
+                nativeBar.className = "bar-segment native";
+                nativeBar.style.width = ((nativeCount / total) * 100) + "%";
+                nativeBar.textContent = nativeCount;
+                track.appendChild(nativeBar);
+
+                var invasiveBar = document.createElement("div");
+                invasiveBar.className = "bar-segment invasive";
+                invasiveBar.style.width = ((invasiveCount / total) * 100) + "%";
+                invasiveBar.textContent = invasiveCount;
+                track.appendChild(invasiveBar);
+
+                group.appendChild(track);
+                return group;
+            }
+
+            // ── Build Content Areas ────────────────────────
+            function buildContentAreas() {
+                var c2 = contentStep2;
+                c2.replaceChildren();
+                c2.appendChild(buildGalleryGroup("Sharks & Rays", NATIVE_FEATURED.sharks, false));
+                c2.appendChild(buildGalleryGroup("Smelt", NATIVE_FEATURED.smelt, false));
+                c2.appendChild(buildGalleryGroup("Estuary Icons", NATIVE_FEATURED.icons, false));
+
+                var c3 = contentStep3;
+                c3.replaceChildren();
+                c3.appendChild(buildGalleryGroup("From Japan", INVASIVE_FEATURED.japan, true));
+                c3.appendChild(buildGalleryGroup("From the East Coast", INVASIVE_FEATURED.eastcoast, true));
+                c3.appendChild(buildGalleryGroup("From Around the World", INVASIVE_FEATURED.world, true));
+
+                var counts = { Benthic: { Native: 0, Invasive: 0 }, Littoral: { Native: 0, Invasive: 0 }, Pelagic: { Native: 0, Invasive: 0 } };
+                SPECIES.forEach(function (sp) {
+                    if (sp.hab && counts[sp.hab] && (sp.natinv === "Native" || sp.natinv === "Invasive")) {
+                        counts[sp.hab][sp.natinv]++;
+                    }
+                });
+
+                var c5 = contentStep5;
+                c5.replaceChildren();
+                c5.appendChild(buildBarGroup("Benthic", "Bottom-dwellers", counts.Benthic.Native, counts.Benthic.Invasive));
+                c5.appendChild(buildBarGroup("Littoral", "Shoreline species", counts.Littoral.Native, counts.Littoral.Invasive));
+                c5.appendChild(buildBarGroup("Pelagic", "Open water", counts.Pelagic.Native, counts.Pelagic.Invasive));
+
+                var legendRow = document.createElement("div");
+                legendRow.className = "bar-legend-row";
+                [["#228B9C", "Native"], ["#E09337", "Invasive"]].forEach(function (pair) {
+                    var item = document.createElement("div");
+                    item.className = "bar-legend-item";
+                    var swatch = document.createElement("span");
+                    swatch.className = "bar-legend-swatch";
+                    swatch.style.background = pair[0];
+                    item.appendChild(swatch);
+                    item.appendChild(document.createTextNode(pair[1]));
+                    legendRow.appendChild(item);
+                });
+                c5.appendChild(legendRow);
+            }
+
+            // ── Step Rendering ─────────────────────────────
+            function renderStep() {
+                var type = STEP_TYPES[stepper.currentStep];
+
+                mapEl.classList.toggle("active", type === "map");
+                bgGallery.classList.toggle("active", type === "gallery");
+                bgInfographic.classList.toggle("active", type === "infographic");
+
+                contentStep2.classList.toggle("active", stepper.currentStep === 1);
+                contentStep3.classList.toggle("active", stepper.currentStep === 2);
+                contentStep5.classList.toggle("active", stepper.currentStep === 4);
+
+                legendEl.replaceChildren();
+                markerLayer.clearLayers();
+                labelLayer.clearLayers();
+
+                if (type !== "map" || STATIONS.length === 0) return;
+
+                if (stepper.currentStep === 0) {
+                    STATIONS.forEach(function (s) {
+                        L.circleMarker([s.lat, s.lon], {
+                            radius: 5, fillColor: "#228B9C", color: "#fff",
+                            weight: 1.5, opacity: 0.8, fillOpacity: 0.5,
+                        }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
+                    });
+                    WRMP.flyTo(map, BAY_FULL);
+                } else if (stepper.currentStep === 3) {
+                    var alviso = STATIONS.filter(function (s) { return s.subregion === "Alviso Marsh"; });
+                    alviso.forEach(function (s) {
+                        var habitat = (s.habitat || "").trim();
+                        var color = STATION_HABITAT_COLORS[habitat] || "#999";
+                        L.circleMarker([s.lat, s.lon], {
+                            radius: 8, fillColor: color, color: "#fff",
+                            weight: 2, opacity: 1, fillOpacity: 0.85,
+                        }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
+
+                        var icon = L.divIcon({
+                            className: "station-label",
+                            html: document.createElement("span").textContent = s.station_name || s.station_code,
+                            iconSize: null,
+                            iconAnchor: [0, -14],
+                        });
+                        L.marker([s.lat, s.lon], { icon: icon, interactive: false }).addTo(labelLayer);
+                    });
+
+                    STATIONS.forEach(function (s) {
+                        if (s.subregion === "Alviso Marsh") return;
+                        L.circleMarker([s.lat, s.lon], {
+                            radius: 3, fillColor: "#bbb", color: "#ddd",
+                            weight: 1, opacity: 0.3, fillOpacity: 0.15,
+                        }).addTo(markerLayer);
+                    });
+
+                    Object.keys(STATION_HABITAT_COLORS).forEach(function (hab) {
+                        var chip = document.createElement("div");
+                        chip.className = "map-legend-chip";
+                        var dot = document.createElement("span");
+                        dot.className = "map-legend-dot";
+                        dot.style.background = STATION_HABITAT_COLORS[hab];
+                        chip.appendChild(dot);
+                        chip.appendChild(document.createTextNode(hab));
+                        legendEl.appendChild(chip);
+                    });
+
+                    WRMP.flyTo(map, ALVISO, { duration: 1.5 });
+                }
+            }
+
+            // ── Stepper ────────────────────────────────────
+            var stepper = WRMP.createStepper({
+                totalSteps: 5,
+                onStepEnter: function (n) {
+                    renderStep();
+                },
+            });
+
+            // ── Load Data ──────────────────────────────────
+            WRMP.loadData({ stations: true, species: true }).then(function (data) {
+                STATIONS = data.stations;
+                SPECIES = data.species;
+                buildContentAreas();
+                stepper.goToStep(0);
+            }).catch(function (err) {
+                console.error("Failed to load data:", err);
+            });
+        </script>
+    </body>
+</html>
