@@ -9,3 +9,6 @@ reference/
 
 # Playwright MCP temp files
 .playwright-mcp/
+
+# Reference archive
+reference.zip
