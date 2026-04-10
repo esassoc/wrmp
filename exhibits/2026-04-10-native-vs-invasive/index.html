@@ -417,6 +417,117 @@
                 return group;
             }
 
+            // ── Canvas Bar Chart ────────────────────────────
+            function drawHabitatChart(canvas, counts) {
+                var dpr = window.devicePixelRatio || 1;
+                var container = canvas.parentElement;
+                var w = container.clientWidth;
+                var habitats = ["Benthic", "Littoral", "Pelagic"];
+                var maxTotal = 0;
+                habitats.forEach(function (h) {
+                    var t = counts[h].Native + counts[h].Invasive;
+                    if (t > maxTotal) maxTotal = t;
+                });
+
+                var rowHeight = 36;
+                var rowGap = 18;
+                var labelWidth = 80;
+                var countWidth = 50;
+                var titleHeight = 32;
+                var legendHeight = 30;
+                var topPad = 8;
+                var chartHeight = titleHeight + topPad + habitats.length * (rowHeight + rowGap) - rowGap + legendHeight + 8;
+
+                canvas.style.width = w + "px";
+                canvas.style.height = chartHeight + "px";
+                canvas.width = w * dpr;
+                canvas.height = chartHeight * dpr;
+
+                var ctx = canvas.getContext("2d");
+                ctx.scale(dpr, dpr);
+                ctx.clearRect(0, 0, w, chartHeight);
+
+                // Title
+                ctx.font = "600 15px 'Source Sans 3', sans-serif";
+                ctx.fillStyle = "#005E6A";
+                ctx.textBaseline = "top";
+                ctx.fillText("Species by Habitat", 0, 0);
+
+                var barAreaWidth = w - labelWidth - countWidth;
+                var y = titleHeight + topPad;
+
+                habitats.forEach(function (hab) {
+                    var nativeCount = counts[hab].Native;
+                    var invasiveCount = counts[hab].Invasive;
+                    var total = nativeCount + invasiveCount;
+
+                    // Label
+                    ctx.font = "600 14px 'Source Sans 3', sans-serif";
+                    ctx.fillStyle = "#4E4E50";
+                    ctx.textBaseline = "middle";
+                    ctx.textAlign = "left";
+                    ctx.fillText(hab, 0, y + rowHeight / 2);
+
+                    // Native bar
+                    var nativeW = maxTotal > 0 ? (nativeCount / maxTotal) * barAreaWidth : 0;
+                    var barX = labelWidth;
+                    ctx.fillStyle = "#228B9C";
+                    ctx.beginPath();
+                    ctx.roundRect(barX, y, Math.max(nativeW, 2), rowHeight, [4, 0, 0, 4]);
+                    ctx.fill();
+
+                    // Native count label inside bar
+                    if (nativeW > 30) {
+                        ctx.font = "700 13px 'Source Sans 3', sans-serif";
+                        ctx.fillStyle = "#fff";
+                        ctx.textAlign = "center";
+                        ctx.fillText(String(nativeCount), barX + nativeW / 2, y + rowHeight / 2);
+                    }
+
+                    // Invasive bar
+                    var invasiveW = maxTotal > 0 ? (invasiveCount / maxTotal) * barAreaWidth : 0;
+                    var invX = barX + nativeW + 3;
+                    ctx.fillStyle = "#E09337";
+                    ctx.beginPath();
+                    ctx.roundRect(invX, y, Math.max(invasiveW, 2), rowHeight, [0, 4, 4, 0]);
+                    ctx.fill();
+
+                    // Invasive count label inside bar
+                    if (invasiveW > 30) {
+                        ctx.font = "700 13px 'Source Sans 3', sans-serif";
+                        ctx.fillStyle = "#fff";
+                        ctx.textAlign = "center";
+                        ctx.fillText(String(invasiveCount), invX + invasiveW / 2, y + rowHeight / 2);
+                    }
+
+                    // Total on right
+                    ctx.font = "600 14px 'Source Sans 3', sans-serif";
+                    ctx.fillStyle = "#4E4E50";
+                    ctx.textAlign = "right";
+                    ctx.fillText(String(total), w, y + rowHeight / 2);
+
+                    y += rowHeight + rowGap;
+                });
+
+                // Legend
+                var legY = y + 4;
+                var swatchSize = 12;
+                var legItems = [["#228B9C", "Native"], ["#E09337", "Invasive"]];
+                var legX = labelWidth;
+                ctx.textAlign = "left";
+                ctx.textBaseline = "middle";
+                legItems.forEach(function (item) {
+                    ctx.fillStyle = item[0];
+                    ctx.beginPath();
+                    ctx.roundRect(legX, legY, swatchSize, swatchSize, 2);
+                    ctx.fill();
+                    ctx.font = "400 13px 'Source Sans 3', sans-serif";
+                    ctx.fillStyle = "#555";
+                    ctx.fillText(item[1], legX + swatchSize + 6, legY + swatchSize / 2);
+                    legX += swatchSize + 6 + ctx.measureText(item[1]).width + 20;
+                });
+            }
+
             // ── Infographic Bar Builder ────────────────────
             function buildBarGroup(label, sublabel, nativeCount, invasiveCount) {
                 var total = nativeCount + invasiveCount;
@@ -475,6 +586,25 @@
 
                 var c5 = contentStep5;
                 c5.replaceChildren();
+
+                // Canvas chart
+                var chartCanvas = document.createElement("canvas");
+                chartCanvas.id = "habitat-chart";
+                chartCanvas.style.display = "block";
+                chartCanvas.style.marginBottom = "var(--space-lg)";
+                c5.appendChild(chartCanvas);
+                // Draw after append so container width is available
+                requestAnimationFrame(function () { drawHabitatChart(chartCanvas, counts); });
+
+                // Resize handler
+                var resizeTimer;
+                window.addEventListener("resize", function () {
+                    clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(function () {
+                        if (chartCanvas.parentElement) drawHabitatChart(chartCanvas, counts);
+                    }, 150);
+                });
+
                 c5.appendChild(buildBarGroup("Benthic", "Bottom-dwellers", counts.Benthic.Native, counts.Benthic.Invasive));
                 c5.appendChild(buildBarGroup("Littoral", "Shoreline species", counts.Littoral.Native, counts.Littoral.Invasive));
                 c5.appendChild(buildBarGroup("Pelagic", "Open water", counts.Pelagic.Native, counts.Pelagic.Invasive));
@@ -529,14 +659,6 @@
                             radius: 8, fillColor: color, color: "#fff",
                             weight: 2, opacity: 1, fillOpacity: 0.85,
                         }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
-
-                        var icon = L.divIcon({
-                            className: "station-label",
-                            html: document.createElement("span").textContent = s.station_name || s.station_code,
-                            iconSize: null,
-                            iconAnchor: [0, -14],
-                        });
-                        L.marker([s.lat, s.lon], { icon: icon, interactive: false }).addTo(labelLayer);
                     });
 
                     STATIONS.forEach(function (s) {

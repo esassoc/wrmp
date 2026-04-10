@@ -1,4 +1,4 @@
-<!doctype html>
+2<!doctype html>
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
@@ -14,11 +14,46 @@
         <link rel="stylesheet" href="../../shared/css/tokens.css" />
         <link rel="stylesheet" href="../../shared/css/exhibit-frame.css" />
         <link rel="stylesheet" href="../../shared/css/leaflet-overrides.css" />
+        <style>
+            .site-chart-card {
+                position: absolute;
+                top: 50%;
+                right: 24px;
+                transform: translateY(-50%);
+                z-index: 500;
+                background: rgba(255, 255, 255, 0.08);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.18);
+                border-radius: 12px;
+                padding: 20px 24px 16px;
+                box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity 0.4s ease;
+            }
+            .site-chart-card.visible {
+                opacity: 1;
+            }
+            .site-chart-title {
+                font-family: var(--font-heading, "Source Serif 4", serif);
+                font-size: 15px;
+                font-weight: 600;
+                color: var(--wrmp-ada-teal, #005e6a);
+                margin: 0 0 10px 0;
+                text-align: center;
+            }
+        </style>
     </head>
     <body>
         <div class="exhibit-frame">
             <div id="map"></div>
             <div class="map-legend" id="map-legend"></div>
+
+            <div class="site-chart-card" id="site-chart-card">
+                <div class="site-chart-title">Stations by Role</div>
+                <canvas id="site-chart" width="240" height="180"></canvas>
+            </div>
 
             <div class="story-panel">
                 <div class="story-panel-inner">
@@ -60,8 +95,8 @@
                         <div class="body">
                             <p>
                                 Benchmark sites are healthy, undisturbed habitats that define what "good" looks like.
-                                Scientists measure fish communities here to establish the ecological baseline — the
-                                gold standard against which everything else is compared.
+                                Scientists measure fish communities here to establish the ecological baseline — the gold
+                                standard against which everything else is compared.
                             </p>
                             <p>
                                 These are the <strong>control group</strong>. If a restored wetland eventually supports
@@ -118,7 +153,8 @@
                             </p>
                             <p>
                                 By sampling at restored project sites alongside natural reference sites and long-term
-                                benchmarks, scientists can directly compare fish communities and track recovery over time.
+                                benchmarks, scientists can directly compare fish communities and track recovery over
+                                time.
                             </p>
                             <div class="stat-row">
                                 <div class="stat-pill">
@@ -131,8 +167,8 @@
                                 </div>
                             </div>
                             <div class="callout">
-                                The South Bay Salt Pond Restoration is the largest tidal wetland restoration in the
-                                US — 15,000 acres of former salt ponds being returned to marsh habitat.
+                                The South Bay Salt Pond Restoration is the largest tidal wetland restoration in the US —
+                                15,000 acres of former salt ponds being returned to marsh habitat.
                             </div>
                         </div>
                     </div>
@@ -144,8 +180,8 @@
                         <div class="body">
                             <p>
                                 Across the Bay, <strong>17 planned restoration sites</strong> mark where the next
-                                chapter of recovery will unfold — 10 in Alviso Marsh, 3 at Eden Landing, and
-                                6 in Suisun Marsh.
+                                chapter of recovery will unfold — 10 in Alviso Marsh, 3 at Eden Landing, and 6 in Suisun
+                                Marsh.
                             </p>
                             <p>
                                 Baseline monitoring at these locations will begin before construction starts —
@@ -171,8 +207,8 @@
                         <h2>The Full Picture</h2>
                         <div class="body">
                             <p>
-                                Benchmark, Reference, Project, Planned — each station type plays a distinct role in
-                                the monitoring design. Together they answer the central question:
+                                Benchmark, Reference, Project, Planned — each station type plays a distinct role in the
+                                monitoring design. Together they answer the central question:
                                 <strong>is restoration working?</strong>
                             </p>
                             <p>
@@ -180,12 +216,12 @@
                                 right species returning? Is the ecosystem recovering?
                             </p>
                             <div class="callout">
-                                Early results from 14 years of monitoring at Alviso Marsh say yes — restored tidal
-                                ponds support fish communities equivalent to natural sloughs.
+                                Early results from 14 years of monitoring at Alviso Marsh say yes — restored tidal ponds
+                                support fish communities equivalent to natural sloughs.
                             </div>
                             <p>
-                                Click the legend to explore each site type, or use the dots below to revisit any step
-                                in the story.
+                                Click the legend to explore each site type, or use the dots below to revisit any step in
+                                the story.
                             </p>
                         </div>
                     </div>
@@ -228,8 +264,14 @@
                 NA: "#bbb",
             };
 
-            var BAY_FULL = [[37.4, -122.55], [38.28, -121.85]];
-            var SOUTH_BAY = [[37.42, -122.1], [37.62, -121.88]];
+            var BAY_FULL = [
+                [37.4, -122.55],
+                [38.28, -121.85],
+            ];
+            var SOUTH_BAY = [
+                [37.42, -122.1],
+                [37.62, -121.88],
+            ];
 
             var POPUP_FIELDS = [
                 ["Site Type", "WRMP_Site_Type"],
@@ -269,9 +311,15 @@
                     render: function (stations, filter) {
                         stations.forEach(function (s) {
                             L.circleMarker([s.lat, s.lon], {
-                                radius: 5, fillColor: "#228B9C", color: "#fff",
-                                weight: 1.5, opacity: 0.8, fillOpacity: 0.5,
-                            }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
+                                radius: 5,
+                                fillColor: "#228B9C",
+                                color: "#fff",
+                                weight: 1.5,
+                                opacity: 0.8,
+                                fillOpacity: 0.5,
+                            })
+                                .bindPopup(WRMP.makePopup(s, POPUP_FIELDS))
+                                .addTo(markerLayer);
                         });
                     },
                 },
@@ -286,11 +334,17 @@
                     render: function (stations, filter) {
                         stations.forEach(function (s) {
                             var match = !filter ? isBenchmark(s) : (s.WRMP_Site_Type || "").trim() === filter;
-                            var color = match ? (SITE_COLORS[(s.WRMP_Site_Type || "").trim()] || "#92BB4D") : "#aaa";
+                            var color = match ? SITE_COLORS[(s.WRMP_Site_Type || "").trim()] || "#92BB4D" : "#aaa";
                             L.circleMarker([s.lat, s.lon], {
-                                radius: match ? 8 : 4, fillColor: color, color: "#fff",
-                                weight: match ? 2 : 1, opacity: match ? 1 : 0.3, fillOpacity: match ? 0.85 : 0.15,
-                            }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
+                                radius: match ? 8 : 4,
+                                fillColor: color,
+                                color: "#fff",
+                                weight: match ? 2 : 1,
+                                opacity: match ? 1 : 0.3,
+                                fillOpacity: match ? 0.85 : 0.15,
+                            })
+                                .bindPopup(WRMP.makePopup(s, POPUP_FIELDS))
+                                .addTo(markerLayer);
                         });
                     },
                 },
@@ -305,11 +359,17 @@
                     render: function (stations, filter) {
                         stations.forEach(function (s) {
                             var match = !filter ? isReference(s) : (s.WRMP_Site_Type || "").trim() === filter;
-                            var color = match ? (SITE_COLORS[(s.WRMP_Site_Type || "").trim()] || "#005E6A") : "#aaa";
+                            var color = match ? SITE_COLORS[(s.WRMP_Site_Type || "").trim()] || "#005E6A" : "#aaa";
                             L.circleMarker([s.lat, s.lon], {
-                                radius: match ? 8 : 4, fillColor: color, color: "#fff",
-                                weight: match ? 2 : 1, opacity: match ? 1 : 0.3, fillOpacity: match ? 0.85 : 0.15,
-                            }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
+                                radius: match ? 8 : 4,
+                                fillColor: color,
+                                color: "#fff",
+                                weight: match ? 2 : 1,
+                                opacity: match ? 1 : 0.3,
+                                fillOpacity: match ? 0.85 : 0.15,
+                            })
+                                .bindPopup(WRMP.makePopup(s, POPUP_FIELDS))
+                                .addTo(markerLayer);
                         });
                     },
                 },
@@ -325,11 +385,17 @@
                     render: function (stations, filter) {
                         stations.forEach(function (s) {
                             var match = !filter ? isProject(s) : (s.WRMP_Site_Type || "").trim() === filter;
-                            var color = match ? (SITE_COLORS[(s.WRMP_Site_Type || "").trim()] || "#379352") : "#aaa";
+                            var color = match ? SITE_COLORS[(s.WRMP_Site_Type || "").trim()] || "#379352" : "#aaa";
                             L.circleMarker([s.lat, s.lon], {
-                                radius: match ? 8 : 4, fillColor: color, color: "#fff",
-                                weight: match ? 2 : 1, opacity: match ? 1 : 0.3, fillOpacity: match ? 0.9 : 0.15,
-                            }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
+                                radius: match ? 8 : 4,
+                                fillColor: color,
+                                color: "#fff",
+                                weight: match ? 2 : 1,
+                                opacity: match ? 1 : 0.3,
+                                fillOpacity: match ? 0.9 : 0.15,
+                            })
+                                .bindPopup(WRMP.makePopup(s, POPUP_FIELDS))
+                                .addTo(markerLayer);
                         });
                     },
                 },
@@ -360,7 +426,9 @@
                                 weight: match ? (planned ? 2.5 : 1.5) : 1,
                                 opacity: match ? 1 : 0.3,
                                 fillOpacity: match ? (planned ? 0.9 : 0.4) : 0.12,
-                            }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
+                            })
+                                .bindPopup(WRMP.makePopup(s, POPUP_FIELDS))
+                                .addTo(markerLayer);
                         });
                     },
                 },
@@ -385,13 +453,111 @@
                             var match = !filter || siteType === filter;
                             var color = colors[siteType] || "#bbb";
                             L.circleMarker([s.lat, s.lon], {
-                                radius: match ? 7 : 4, fillColor: match ? color : "#aaa", color: "#fff",
-                                weight: match ? 2 : 1, opacity: match ? 1 : 0.3, fillOpacity: match ? 0.85 : 0.15,
-                            }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
+                                radius: match ? 7 : 4,
+                                fillColor: match ? color : "#aaa",
+                                color: "#fff",
+                                weight: match ? 2 : 1,
+                                opacity: match ? 1 : 0.3,
+                                fillOpacity: match ? 0.85 : 0.15,
+                            })
+                                .bindPopup(WRMP.makePopup(s, POPUP_FIELDS))
+                                .addTo(markerLayer);
                         });
                     },
                 },
             ];
+
+            // ── Bar Chart ──────────────────────────────
+            var chartCard = document.getElementById("site-chart-card");
+            var chartCanvas = document.getElementById("site-chart");
+            var chartDrawn = false;
+
+            function drawSiteChart(stations) {
+                // Group stations by role
+                var counts = { Benchmark: 0, Reference: 0, Project: 0, Planned: 0, Other: 0 };
+                stations.forEach(function (s) {
+                    var t = (s.WRMP_Site_Type || "").trim();
+                    if (t === "Benchmark" || t === "Benchmark-Reference") counts.Benchmark++;
+                    else if (t === "Reference" || t === "Reference Site Candidate") counts.Reference++;
+                    else if (t === "Project" || t === "Other Restored Site") counts.Project++;
+                    else if (t === "Planned Restoration") counts.Planned++;
+                    else counts.Other++;
+                });
+
+                var bars = [
+                    { label: "Project", count: counts.Project, color: "#379352" },
+                    { label: "Reference", count: counts.Reference, color: "#005E6A" },
+                    { label: "Planned", count: counts.Planned, color: "#E09337" },
+                    { label: "Benchmark", count: counts.Benchmark, color: "#92BB4D" },
+                    { label: "Other/NA", count: counts.Other, color: "#bbb" },
+                ];
+
+                var dpr = window.devicePixelRatio || 1;
+                var cw = 240,
+                    ch = 180;
+                chartCanvas.width = cw * dpr;
+                chartCanvas.height = ch * dpr;
+                chartCanvas.style.width = cw + "px";
+                chartCanvas.style.height = ch + "px";
+
+                var ctx = chartCanvas.getContext("2d");
+                ctx.scale(dpr, dpr);
+
+                var labelW = 72;
+                var countW = 32;
+                var barAreaW = cw - labelW - countW - 8;
+                var maxVal = Math.max.apply(
+                    null,
+                    bars.map(function (b) {
+                        return b.count;
+                    }),
+                );
+                var barH = 22;
+                var gap = 10;
+                var topPad = 4;
+
+                bars.forEach(function (bar, i) {
+                    var y = topPad + i * (barH + gap);
+
+                    // Label
+                    ctx.font = "500 13px 'Source Sans 3', sans-serif";
+                    ctx.fillStyle = "#4E4E50";
+                    ctx.textAlign = "right";
+                    ctx.textBaseline = "middle";
+                    ctx.fillText(bar.label, labelW - 8, y + barH / 2);
+
+                    // Bar
+                    var bw = (bar.count / maxVal) * barAreaW;
+                    ctx.fillStyle = bar.color;
+                    ctx.beginPath();
+                    // Rounded right end
+                    var r = Math.min(4, barH / 2);
+                    ctx.moveTo(labelW, y);
+                    ctx.lineTo(labelW + bw - r, y);
+                    ctx.arcTo(labelW + bw, y, labelW + bw, y + r, r);
+                    ctx.lineTo(labelW + bw, y + barH - r);
+                    ctx.arcTo(labelW + bw, y + barH, labelW + bw - r, y + barH, r);
+                    ctx.lineTo(labelW, y + barH);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // Count
+                    ctx.font = "600 13px 'Source Sans 3', sans-serif";
+                    ctx.fillStyle = "#4E4E50";
+                    ctx.textAlign = "left";
+                    ctx.fillText(bar.count, labelW + bw + 6, y + barH / 2);
+                });
+
+                chartDrawn = true;
+            }
+
+            function updateChartVisibility(step) {
+                if (step === 0) {
+                    chartCard.classList.add("visible");
+                } else {
+                    chartCard.classList.remove("visible");
+                }
+            }
 
             // ── Legend ─────────────────────────────────────
             var legendEl = document.getElementById("map-legend");
@@ -439,7 +605,9 @@
                 def.render(STATIONS, activeFilter);
 
                 if (!activeFilter) {
-                    def.pois.forEach(function (p) { WRMP.addPOI(poiLayer, p[0], p[1], p[2]); });
+                    def.pois.forEach(function (p) {
+                        WRMP.addPOI(poiLayer, p[0], p[1], p[2]);
+                    });
                 }
 
                 if (activeFilter) {
@@ -450,7 +618,14 @@
                         return val === activeFilter;
                     });
                     if (matching.length > 0) {
-                        WRMP.flyTo(map, L.latLngBounds(matching.map(function (s) { return [s.lat, s.lon]; })));
+                        WRMP.flyTo(
+                            map,
+                            L.latLngBounds(
+                                matching.map(function (s) {
+                                    return [s.lat, s.lon];
+                                }),
+                            ),
+                        );
                     }
                 } else {
                     WRMP.flyTo(map, def.bounds, def.boundsOpts || {});
@@ -463,17 +638,21 @@
                 onStepEnter: function (n) {
                     activeFilter = null;
                     buildLegend();
+                    updateChartVisibility(n);
                     if (STATIONS.length > 0) renderCurrentStep();
                 },
             });
 
             // ── Load Data ──────────────────────────────────
-            WRMP.loadData({ stations: true }).then(function (data) {
-                STATIONS = data.stations;
-                stepper.goToStep(0);
-            }).catch(function (err) {
-                console.error("Failed to load station data:", err);
-            });
+            WRMP.loadData({ stations: true })
+                .then(function (data) {
+                    STATIONS = data.stations;
+                    drawSiteChart(STATIONS);
+                    stepper.goToStep(0);
+                })
+                .catch(function (err) {
+                    console.error("Failed to load station data:", err);
+                });
         </script>
     </body>
 </html>

@@ -34,7 +34,18 @@
       "Bash(wc -l /Users/andrewlovseth/Dev/wrmp/exhibits/*/index.html)",
       "Bash(echo \"Server PID: $!\")",
       "Bash(kill 24334)",
-      "Bash(kill 39936)"
+      "Bash(kill 39936)",
+      "Bash(find:*)",
+      "Bash(kill 53653)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(echo \"PID: $!\")",
+      "Bash(kill 59529)",
+      "Bash(kill 61058)",
+      "Bash(kill 65051)",
+      "Bash(sips:*)",
+      "Bash(kill 67836:*)",
+      "Skill(commit-commands:commit)"
     ]
   }
 }
