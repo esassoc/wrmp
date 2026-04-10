@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+
+# Editor / tool config
+.vscode/
+.claude/
+
+# Reference materials (large binaries, PDFs, Word docs)
+reference/
+
+# Progress screenshots (loose PNGs in root)
+/step*.png
+/v2-step*.png
