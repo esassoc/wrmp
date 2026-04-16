@@ -3,15 +3,70 @@
    and spacing. No selectors — just custom properties.
    Exhibits can override any token in their own <style>. */
 
+/* ── Self-hosted brand fonts ─────────────────────
+   Source Sans Pro (body) and Source Serif Pro (headings)
+   served from shared/fonts/ — no CDN dependency.
+   Paths are relative to the CSS file location.       */
+
+@font-face {
+    font-family: "Source Sans Pro";
+    src: url("../fonts/SourceSansPro-Light.otf") format("opentype");
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Source Sans Pro";
+    src: url("../fonts/SourceSansPro-Regular.otf") format("opentype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Source Sans Pro";
+    src: url("../fonts/SourceSansPro-Semibold.otf") format("opentype");
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Source Serif Pro";
+    src: url("../fonts/SourceSerifPro-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Source Serif Pro";
+    src: url("../fonts/SourceSerifPro-SemiBold.ttf") format("truetype");
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
 :root {
-    /* Typography — matches wrmp.org */
-    --font-body: "Source Sans 3", "Source Sans Pro", Helvetica, Arial, sans-serif;
-    --font-heading: "Source Serif 4", Georgia, serif;
-    --size-base: 16px;
-    --size-sm: 14px;
-    --size-lg: 20px;
-    --size-xl: 26px;
-    --size-xxl: 34px;
+    /* Typography — self-hosted, with Google Fonts variable versions as upgrade fallbacks */
+    --font-body: "Source Sans Pro", "Source Sans 3", Helvetica, Arial, sans-serif;
+    --font-heading: "Source Serif Pro", "Source Serif 4", Georgia, serif;
+
+    /* Fluid type scale — Utopia @link https://utopia.fyi/type/calculator?c=360,14,1.2,1240,16,1.25,4,1,&s=0.75|0.5|0.25,1.5|2|3|4|6,s-l&g=s,l,xl,12 */
+    --step--1: clamp(0.7292rem, 0.7002rem + 0.1288vw, 0.8rem);   /* ~12–13px · kicker, captions, labels */
+    --step-0:  clamp(0.875rem,  0.8239rem + 0.2273vw, 1rem);      /* ~14–16px · body small, nav, legend  */
+    --step-1:  clamp(1.05rem,   0.9682rem + 0.3636vw, 1.25rem);   /* ~17–20px · body                     */
+    --step-2:  clamp(1.26rem,   1.1363rem + 0.55vw,   1.5625rem); /* ~20–25px · stat numbers             */
+    --step-3:  clamp(1.512rem,  1.3315rem + 0.802vw,  1.9531rem); /* ~24–31px · h2, panel heading        */
+    --step-4:  clamp(1.8144rem, 1.5579rem + 1.14vw,   2.4414rem); /* ~29–39px · h1, cover title          */
+
+    /* Semantic font sizes — alias the fluid scale (used by design-system, leaflet-overrides, some exhibits) */
+    --size-sm:   var(--step-0);
+    --size-base: var(--step-1);
+    --size-lg:   var(--step-2);
+    --size-xl:   var(--step-3);
+    --size-xxl:  var(--step-4);
 
     /* Spacing */
     --space-xs: 4px;

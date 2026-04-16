@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WRMP Design System</title>
+    <!-- Real shared stylesheets — edit those files, refresh here to see changes -->
+    <link rel="stylesheet" href="../shared/css/tokens.css">
+    <link rel="stylesheet" href="../shared/css/exhibit-frame.css">
+    <style>
+        /* ── Override exhibit-frame.css global body styles ──
+           exhibit-frame.css centers body for 16:9 exhibit use.
+           This page needs normal document flow instead.        */
+        body {
+            display: block;
+            min-height: unset;
+            padding: 0;
+            background: #f2f4f5;
+            align-items: unset;
+            justify-content: unset;
+        }
+
+        /* ── Specimen page chrome ─────────────────────────── */
+        .ds-header {
+            background: var(--wrmp-ada-teal);
+            color: #fff;
+            padding: 32px 48px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .ds-header img { height: 48px; }
+
+        .ds-header-text h1 {
+            font-family: var(--font-heading);
+            font-size: var(--size-xxl);
+            font-weight: 600;
+            line-height: 1.1;
+            /* reset exhibit-frame.css h2 styles that bleed in */
+            color: #fff;
+            margin-bottom: 0;
+        }
+
+        .ds-header-text p {
+            font-size: var(--size-sm);
+            opacity: 0.75;
+            margin-top: 4px;
+            color: #fff;
+        }
+
+        .ds-nav {
+            background: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 0 48px;
+            display: flex;
+            gap: 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+        }
+
+        .ds-nav a {
+            display: block;
+            padding: 14px 16px;
+            font-size: var(--size-sm);
+            font-weight: 600;
+            color: #555;
+            text-decoration: none;
+            border-bottom: 3px solid transparent;
+            transition: color 0.15s, border-color 0.15s;
+        }
+
+        .ds-nav a:hover {
+            color: var(--wrmp-ada-teal);
+            border-bottom-color: var(--wrmp-teal);
+        }
+
+        .ds-content {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 48px 48px 96px;
+            display: flex;
+            flex-direction: column;
+            gap: 64px;
+        }
+
+        /* ── Section layout ───────────────────────────────── */
+        .ds-section > h2 {
+            /* override exhibit-frame.css .step h2 */
+            font-family: var(--font-heading) !important;
+            font-size: var(--size-xl) !important;
+            font-weight: 600 !important;
+            color: var(--wrmp-ada-teal) !important;
+            margin-bottom: 4px !important;
+            animation: none !important;
+            transition: none !important;
+        }
+
+        .ds-section .section-desc {
+            font-size: var(--size-sm);
+            color: #777;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 16px;
+        }
+
+        .ds-group { margin-bottom: 32px; }
+
+        .ds-group-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #999;
+            margin-bottom: 12px;
+        }
+
+        .ds-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        /* White card wrapper for specimens on light background */
+        .ds-card {
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 10px;
+            padding: 24px;
+        }
+
+        /* Dark/photo background wrapper for components that live on top of maps/images */
+        .ds-bg-dark {
+            background: linear-gradient(135deg, #2a6b7c 0%, #1a4a55 100%);
+            border-radius: 10px;
+            padding: 24px;
+        }
+
+        .ds-bg-green {
+            background: linear-gradient(135deg, #3a7a6c 0%, #2a5a4c 100%);
+            border-radius: 10px;
+            padding: 24px;
+        }
+
+        .specimen-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #bbb;
+            margin-bottom: 16px;
+        }
+
+        /* ── Colors ───────────────────────────────────────── */
+        .swatch-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .swatch {
+            width: 100px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.07);
+        }
+
+        .swatch-color { height: 64px; }
+
+        .swatch-info {
+            background: #fff;
+            padding: 8px 10px;
+        }
+
+        .swatch-name {
+            font-size: 11px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .swatch-hex {
+            font-size: 10px;
+            color: #999;
+            font-family: monospace;
+            line-height: 1.4;
+        }
+
+        /* ── Typography ───────────────────────────────────── */
+        .type-ramp {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .type-specimen {
+            display: flex;
+            align-items: baseline;
+            gap: 24px;
+            padding: 20px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .type-specimen:last-child { border-bottom: none; }
+
+        .type-meta {
+            width: 160px;
+            flex-shrink: 0;
+        }
+
+        .type-meta .type-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #999;
+        }
+
+        .type-meta .type-token {
+            font-size: 10px;
+            color: #ccc;
+            font-family: monospace;
+            margin-top: 2px;
+            line-height: 1.5;
+        }
+
+        /* ── Spacing ──────────────────────────────────────── */
+        .spacing-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .spacing-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .spacing-block {
+            background: var(--wrmp-teal);
+            opacity: 0.35;
+            height: 24px;
+            border-radius: 3px;
+        }
+
+        .spacing-label {
+            font-size: 12px;
+            color: #555;
+            width: 90px;
+            flex-shrink: 0;
+        }
+
+        .spacing-token {
+            font-size: 11px;
+            color: #bbb;
+            font-family: monospace;
+        }
+
+        /* ── Logo specimens ───────────────────────────────── */
+        .logo-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+        }
+
+        .logo-specimen {
+            border-radius: 8px;
+            padding: 24px 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-specimen.light { background: #fff; border: 1px solid #e0e0e0; }
+        .logo-specimen.dark  { background: var(--wrmp-ada-teal); }
+        .logo-specimen.mid   { background: #f0f4f5; border: 1px solid #e0e0e0; }
+        .logo-specimen img   { height: 40px; }
+
+        .logo-specimen .logo-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #aaa;
+        }
+
+        .logo-specimen.dark .logo-label { color: rgba(255,255,255,0.5); }
+
+        /* ── Mini exhibit-frame mock ────────────────────────
+           Wraps story-panel specimens so position:absolute works
+           the same way it does inside a real exhibit.          */
+        .mini-frame {
+            position: relative;
+            width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #2a6b7c 0%, #1a4a55 100%);
+            /* fixed height instead of 16:9 aspect ratio */
+            height: 300px;
+        }
+
+        /* inside mini-frame, constrain panel to demo width */
+        .mini-frame .story-panel {
+            width: 300px;
+        }
+
+        /* ── Step context wrapper ───────────────────────────
+           Components like .kicker, h2, .stat-pill, .callout
+           are scoped to .step in exhibit-frame.css.
+           Wrap them in .step.active so the real styles apply. */
+        .step-context {
+            /* behaves like an active step but doesn't hide itself */
+        }
+
+        /* ── Stat row / pill specimens ────────────────────── */
+        .stat-specimen-dark {
+            background: rgba(10,10,10,0.65);
+            border-radius: 8px;
+            padding: 16px;
+            flex: 1;
+            min-width: 260px;
+        }
+
+        /* ── Note callout ─────────────────────────────────── */
+        .ds-note {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────── -->
+<header class="ds-header">
+    <img src="../shared/img/WRMP_Logo_RGB_ADA_Trans_DarkMode_Website_1850.png" alt="WRMP Logo">
+    <div class="ds-header-text">
+        <h1>Design System</h1>
+        <p>Component inventory · Waterways Regional Monitoring Program · April 2026</p>
+    </div>
+</header>
+
+<!-- ── Sticky nav ──────────────────────────────── -->
+<nav class="ds-nav">
+    <a href="#colors">Colors</a>
+    <a href="#typography">Typography</a>
+    <a href="#spacing">Spacing</a>
+    <a href="#logos">Logos</a>
+    <a href="#panel">Story Panel</a>
+    <a href="#step-content">Step Content</a>
+    <a href="#stat-pills">Stat Pills</a>
+    <a href="#callouts">Callouts</a>
+    <a href="#nav-bar">Nav Bar</a>
+    <a href="#legend">Map Legend</a>
+    <a href="#gear-cards">Gear Cards</a>
+    <a href="#labels">Map Labels</a>
+</nav>
+
+<main class="ds-content">
+
+    <!-- ── Colors ───────────────────────────────── -->
+    <section class="ds-section" id="colors">
+        <h2>Colors</h2>
+        <p class="section-desc">Brand palette from WRMP branding guidelines. ADA teal passes WCAG AA on white. Use standard teal for decorative or large-text contexts only.</p>
+
+        <div class="ds-group">
+            <div class="ds-group-label">Brand Colors</div>
+            <div class="swatch-grid">
+                <div class="swatch">
+                    <div class="swatch-color" style="background: var(--wrmp-teal);"></div>
+                    <div class="swatch-info"><div class="swatch-name">Teal</div><div class="swatch-hex">--wrmp-teal<br>#228b9c</div></div>
+                </div>
+                <div class="swatch">
+                    <div class="swatch-color" style="background: var(--wrmp-ada-teal);"></div>
+                    <div class="swatch-info"><div class="swatch-name">ADA Teal ✓</div><div class="swatch-hex">--wrmp-ada-teal<br>#005e6a</div></div>
+                </div>
+                <div class="swatch">
+                    <div class="swatch-color" style="background: var(--wrmp-orange);"></div>
+                    <div class="swatch-info"><div class="swatch-name">Orange</div><div class="swatch-hex">--wrmp-orange<br>#e09337</div></div>
+                </div>
+                <div class="swatch">
+                    <div class="swatch-color" style="background: var(--wrmp-dark-orange);"></div>
+                    <div class="swatch-info"><div class="swatch-name">Dark Orange</div><div class="swatch-hex">--wrmp-dark-orange<br>#d66b2c</div></div>
+                </div>
+                <div class="swatch">
+                    <div class="swatch-color" style="background: var(--wrmp-green);"></div>
+                    <div class="swatch-info"><div class="swatch-name">Green</div><div class="swatch-hex">--wrmp-green<br>#379352</div></div>
+                </div>
+                <div class="swatch">
+                    <div class="swatch-color" style="background: var(--wrmp-light-green);"></div>
+                    <div class="swatch-info"><div class="swatch-name">Light Green</div><div class="swatch-hex">--wrmp-light-green<br>#92bb4d</div></div>
+                </div>
+                <div class="swatch">
+                    <div class="swatch-color" style="background: var(--wrmp-sky-blue);"></div>
+                    <div class="swatch-info"><div class="swatch-name">Sky Blue</div><div class="swatch-hex">--wrmp-sky-blue<br>#00acec</div></div>
+                </div>
+                <div class="swatch">
+                    <div class="swatch-color" style="background: var(--wrmp-earth);"></div>
+                    <div class="swatch-info"><div class="swatch-name">Earth</div><div class="swatch-hex">--wrmp-earth<br>#664d26</div></div>
+                </div>
+                <div class="swatch">
+                    <div class="swatch-color" style="background: var(--wrmp-dark);"></div>
+                    <div class="swatch-info"><div class="swatch-name">Dark</div><div class="swatch-hex">--wrmp-dark<br>#4e4e50</div></div>
+                </div>
+                <div class="swatch">
+                    <div class="swatch-color" style="background: var(--wrmp-text);"></div>
+                    <div class="swatch-info"><div class="swatch-name">Text</div><div class="swatch-hex">--wrmp-text<br>#272525</div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ds-group">
+            <div class="ds-group-label">Region Colors</div>
+            <div class="swatch-grid">
+                <div class="swatch">
+                    <div class="swatch-color" style="background: var(--color-south-bay);"></div>
+                    <div class="swatch-info"><div class="swatch-name">South Bay</div><div class="swatch-hex">--color-south-bay<br>#005e6a</div></div>
+                </div>
+                <div class="swatch">
+                    <div class="swatch-color" style="background: var(--color-north-bay);"></div>
+                    <div class="swatch-info"><div class="swatch-name">North Bay</div><div class="swatch-hex">--color-north-bay<br>#379352</div></div>
+                </div>
+                <div class="swatch">
+                    <div class="swatch-color" style="background: var(--color-suisun);"></div>
+                    <div class="swatch-info"><div class="swatch-name">Suisun</div><div class="swatch-hex">--color-suisun<br>#e09337</div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Typography ───────────────────────────── -->
+    <section class="ds-section" id="typography">
+        <h2>Typography</h2>
+        <p class="section-desc">Self-hosted Source Sans Pro (body) and Source Serif Pro (headings). All text 16px+ at body level — ADA minimum. Kicker (11px) and caption (12px) are display-only; never used for body copy.</p>
+
+        <div class="ds-card">
+            <div class="type-ramp">
+
+                <div class="type-specimen">
+                    <div class="type-meta">
+                        <div class="type-label">Panel h2</div>
+                        <div class="type-token">--step-3 · 24–31px<br>font-heading · 400<br>.step h2</div>
+                    </div>
+                    <div class="step active step-context" style="flex:1;display:block;">
+                        <h2>Where We're Watching</h2>
+                    </div>
+                </div>
+
+                <div class="type-specimen">
+                    <div class="type-meta">
+                        <div class="type-label">Body Small</div>
+                        <div class="type-token">--step-0 · 14–16px<br>font-body · 400<br>.step .body p</div>
+                    </div>
+                    <div class="step active step-context" style="flex:1;display:block;">
+                        <div class="body">
+                            <p>Sampling occurs quarterly using standardized gear across Benchmark, Reference, and Project site types. Data informs restoration effectiveness assessments.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="type-specimen">
+                    <div class="type-meta">
+                        <div class="type-label">Kicker</div>
+                        <div class="type-token">--step--1 · 12–13px<br>700 · caps<br>.step .kicker</div>
+                    </div>
+                    <div class="step active step-context" style="flex:1;display:block;">
+                        <span class="kicker">Station Network</span>
+                    </div>
+                </div>
+
+                <div class="type-specimen">
+                    <div class="type-meta">
+                        <div class="type-label">Stat Number</div>
+                        <div class="type-token">--step-2 · 20–25px<br>font-body · 700<br>.stat-pill .num</div>
+                    </div>
+                    <div class="step active step-context" style="flex:1;display:block;">
+                        <div class="stat-row" style="max-width:200px;">
+                            <div class="stat-pill">
+                                <div class="num">119</div>
+                                <div class="lbl">Stations</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="type-specimen">
+                    <div class="type-meta">
+                        <div class="type-label">Caption / Label</div>
+                        <div class="type-token">--step--1 · 12–13px<br>font-body · 400<br>.photo-credit</div>
+                    </div>
+                    <div class="photo-credit" style="position:static;color:#aaa;">
+                        Photo credit: CDFW / Used with permission
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Spacing ───────────────────────────────── -->
+    <section class="ds-section" id="spacing">
+        <h2>Spacing</h2>
+        <p class="section-desc">4/8/16/24/40 scale. All layout and padding uses these tokens.</p>
+
+        <div class="ds-card">
+            <div class="spacing-grid">
+                <div class="spacing-row">
+                    <div class="spacing-label"><strong>xs</strong> · 4px</div>
+                    <div class="spacing-block" style="width: var(--space-xs);"></div>
+                    <div class="spacing-token">--space-xs</div>
+                </div>
+                <div class="spacing-row">
+                    <div class="spacing-label"><strong>sm</strong> · 8px</div>
+                    <div class="spacing-block" style="width: var(--space-sm);"></div>
+                    <div class="spacing-token">--space-sm</div>
+                </div>
+                <div class="spacing-row">
+                    <div class="spacing-label"><strong>md</strong> · 16px</div>
+                    <div class="spacing-block" style="width: var(--space-md);"></div>
+                    <div class="spacing-token">--space-md</div>
+                </div>
+                <div class="spacing-row">
+                    <div class="spacing-label"><strong>lg</strong> · 24px</div>
+                    <div class="spacing-block" style="width: var(--space-lg);"></div>
+                    <div class="spacing-token">--space-lg</div>
+                </div>
+                <div class="spacing-row">
+                    <div class="spacing-label"><strong>xl</strong> · 40px</div>
+                    <div class="spacing-block" style="width: var(--space-xl);"></div>
+                    <div class="spacing-token">--space-xl</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Logos ─────────────────────────────────── -->
+    <section class="ds-section" id="logos">
+        <h2>Logos</h2>
+        <p class="section-desc">ADA variants for all digital use. Dark-mode version on teal/dark backgrounds (nav bar, cover slides, dark panels).</p>
+
+        <div class="logo-grid">
+            <div class="logo-specimen light">
+                <img src="../shared/img/WRMP_Logo_4in_RGB_ADA.png" alt="WRMP Logo ADA">
+                <div class="logo-label">Standard ADA · Light bg</div>
+            </div>
+            <div class="logo-specimen dark">
+                <img src="../shared/img/WRMP_Logo_RGB_ADA_Trans_DarkMode_Website_1850.png" alt="WRMP Logo Dark Mode">
+                <div class="logo-label">Dark Mode · Dark bg</div>
+            </div>
+            <div class="logo-specimen mid">
+                <img src="../shared/img/WRMP_Logo_2in_RGB_ADA_Transparent.png" alt="WRMP Logo Transparent">
+                <div class="logo-label">Transparent · Any bg</div>
+            </div>
+            <div class="logo-specimen light">
+                <img src="../shared/img/wrmp-logo-only.png" alt="WRMP Icon">
+                <div class="logo-label">Icon mark only</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Story Panel ───────────────────────────── -->
+    <section class="ds-section" id="panel">
+        <h2>Story Panel</h2>
+        <p class="section-desc">Glassmorphism left panel — 42% width, 16px inset from the exhibit frame edges. Two variants: light (default) and dark. Rendered here inside a mock exhibit frame so positioning matches production.</p>
+
+        <div class="ds-row">
+            <div style="flex:1;min-width:320px;">
+                <div class="ds-group-label">Light panel (default)</div>
+                <!-- Real .exhibit-frame + .story-panel — real CSS applies -->
+                <div class="exhibit-frame" style="height:260px;aspect-ratio:unset;">
+                    <div class="bg-layer bg-gradient active"></div>
+                    <div class="story-panel">
+                        <div class="story-panel-inner">
+                            <div class="step active">
+                                <span class="kicker">Station Network</span>
+                                <h2>Where We're Watching</h2>
+                                <div class="body">
+                                    <p>The WRMP network spans 119 stations across three Bay-Delta regions.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="nav-bar">
+                            <button disabled>← Back</button>
+                            <div class="step-dots">
+                                <button class="step-dot active"></button>
+                                <button class="step-dot"></button>
+                                <button class="step-dot"></button>
+                            </div>
+                            <button>Next →</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="flex:1;min-width:320px;">
+                <div class="ds-group-label">Dark panel (.panel-dark)</div>
+                <div class="exhibit-frame" style="height:260px;aspect-ratio:unset;">
+                    <div class="bg-layer bg-gradient active" style="background:linear-gradient(135deg,#1a3a4a 0%,#0d2030 100%);"></div>
+                    <div class="story-panel panel-dark">
+                        <div class="story-panel-inner">
+                            <div class="step active">
+                                <span class="kicker">Station Network</span>
+                                <h2>Where We're Watching</h2>
+                                <div class="body">
+                                    <p>The WRMP network spans 119 stations across three Bay-Delta regions.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="nav-bar">
+                            <button disabled>← Back</button>
+                            <div class="step-dots">
+                                <button class="step-dot active"></button>
+                                <button class="step-dot"></button>
+                                <button class="step-dot"></button>
+                            </div>
+                            <button>Next →</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Step Content ──────────────────────────── -->
+    <section class="ds-section" id="step-content">
+        <h2>Step Content</h2>
+        <p class="section-desc">Content hierarchy inside a step: kicker → h2 → body. The kicker provides thematic context; h2 is the narrative beat title.</p>
+
+        <div class="ds-card" style="max-width:420px;">
+            <!-- Real .step.active — real exhibit-frame.css styles apply -->
+            <div class="step active" style="position:static;display:block;animation:none;">
+                <span class="kicker">Biodiversity</span>
+                <h2>Native vs. Invasive</h2>
+                <div class="body">
+                    <p>Of the 237 species recorded, 113 are native fish and 38 are native invertebrates. A dramatic regime shift occurred during the 2014–2015 drought.</p>
+                    <p>Invasive species now dominate biomass in South Bay and Suisun regions during dry years.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Stat Pills ────────────────────────────── -->
+    <section class="ds-section" id="stat-pills">
+        <h2>Stat Pills</h2>
+        <p class="section-desc">Key metrics in a flex row — typically 3-up. Background and text colors respond to the dark panel variant via <code>.story-panel.panel-dark</code> descendant selectors.</p>
+
+        <div class="ds-row">
+            <div style="flex:1;min-width:260px;">
+                <div class="ds-group-label">Light panel context</div>
+                <div class="ds-card">
+                    <!-- Real classes: .step > .stat-row > .stat-pill -->
+                    <div class="step active" style="position:static;display:block;animation:none;">
+                        <div class="stat-row">
+                            <div class="stat-pill">
+                                <div class="num">119</div>
+                                <div class="lbl">Stations</div>
+                            </div>
+                            <div class="stat-pill">
+                                <div class="num">9</div>
+                                <div class="lbl">Networks</div>
+                            </div>
+                            <div class="stat-pill">
+                                <div class="num">3</div>
+                                <div class="lbl">Regions</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="flex:1;min-width:260px;">
+                <div class="ds-group-label">Dark panel context</div>
+                <!-- Wrap in real .story-panel.panel-dark so descendant rules fire -->
+                <div class="story-panel panel-dark" style="position:static;display:block;border-radius:10px;overflow:hidden;box-shadow:none;width:100%;">
+                    <div class="story-panel-inner" style="border-radius:10px;">
+                        <div class="step active" style="position:static;display:block;animation:none;">
+                            <div class="stat-row">
+                                <div class="stat-pill">
+                                    <div class="num">237</div>
+                                    <div class="lbl">Species</div>
+                                </div>
+                                <div class="stat-pill">
+                                    <div class="num">146</div>
+                                    <div class="lbl">Fish</div>
+                                </div>
+                                <div class="stat-pill">
+                                    <div class="num">91</div>
+                                    <div class="lbl">Inverts</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Callouts ──────────────────────────────── -->
+    <section class="ds-section" id="callouts">
+        <h2>Callouts</h2>
+        <p class="section-desc">Left-bordered contextual boxes. Two variants: default (teal) and warning (orange). Also shown in dark panel context.</p>
+
+        <div class="ds-row">
+
+            <div style="flex:1;min-width:240px;">
+                <div class="ds-group-label">Default (teal)</div>
+                <div class="ds-card">
+                    <div class="step active" style="position:static;display:block;animation:none;">
+                        <div class="callout">
+                            Delta Smelt is listed as Threatened under the California Endangered Species Act and is considered a sentinel species for ecosystem health.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="flex:1;min-width:240px;">
+                <div class="ds-group-label">Warning (orange)</div>
+                <div class="ds-card">
+                    <div class="step active" style="position:static;display:block;animation:none;">
+                        <div class="callout warning">
+                            Data collection was suspended at 12 stations during the 2021 drought. Interpret trend lines with caution for this period.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="flex:1;min-width:240px;">
+                <div class="ds-group-label">Dark panel context</div>
+                <div class="story-panel panel-dark" style="position:static;display:block;border-radius:10px;overflow:hidden;box-shadow:none;width:100%;">
+                    <div class="story-panel-inner" style="border-radius:10px;">
+                        <div class="step active" style="position:static;display:block;animation:none;">
+                            <div class="callout">
+                                WRMP partners with CDFW, USGS, and 12 local agencies to maintain this monitoring network.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ── Nav Bar ───────────────────────────────── -->
+    <section class="ds-section" id="nav-bar">
+        <h2>Nav Bar</h2>
+        <p class="section-desc">Bottom bar of the story panel. Back/Next buttons, step dots (inactive 8×8px → active 36×8px pill), WRMP logo. Shown at step 2 of 5.</p>
+
+        <div class="ds-row">
+            <div style="flex:1;min-width:300px;">
+                <div class="ds-group-label">Light nav (default)</div>
+                <div class="nav-bar" style="border-radius:10px;">
+                    <button disabled>← Back</button>
+                    <div class="step-dots">
+                        <button class="step-dot"></button>
+                        <button class="step-dot active"></button>
+                        <button class="step-dot"></button>
+                        <button class="step-dot"></button>
+                        <button class="step-dot"></button>
+                    </div>
+                    <button>Next →</button>
+                    <img src="../shared/img/wrmp-logo.png" alt="WRMP" class="nav-logo">
+                </div>
+            </div>
+
+            <div style="flex:1;min-width:300px;">
+                <div class="ds-group-label">Dark nav (.panel-dark)</div>
+                <!-- Wrap in panel-dark so descendant selectors fire -->
+                <div class="story-panel panel-dark" style="position:static;display:block;border-radius:10px;overflow:hidden;box-shadow:none;width:100%;">
+                    <div class="nav-bar" style="border-radius:10px;">
+                        <button disabled>← Back</button>
+                        <div class="step-dots">
+                            <button class="step-dot"></button>
+                            <button class="step-dot active"></button>
+                            <button class="step-dot"></button>
+                            <button class="step-dot"></button>
+                            <button class="step-dot"></button>
+                        </div>
+                        <button>Next →</button>
+                        <img src="../shared/img/WRMP_Logo_RGB_ADA_Trans_DarkMode_Website_1850.png" alt="WRMP" class="nav-logo">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Map Legend ────────────────────────────── -->
+    <section class="ds-section" id="legend">
+        <h2>Map Legend Chips</h2>
+        <p class="section-desc">Floating glassmorphism chips, top-right of the map. Clickable to filter map layers. Three states: default, active (bolder + elevated shadow), dimmed (45% opacity).</p>
+
+        <div class="ds-bg-dark">
+            <!-- Real .map-legend + .map-legend-chip + .map-legend-dot classes -->
+            <div class="map-legend" style="position:static;display:flex;">
+                <div class="map-legend-chip active">
+                    <div class="map-legend-dot" style="background: var(--color-south-bay);"></div>
+                    South Bay
+                </div>
+                <div class="map-legend-chip">
+                    <div class="map-legend-dot" style="background: var(--color-north-bay);"></div>
+                    North Bay
+                </div>
+                <div class="map-legend-chip dimmed">
+                    <div class="map-legend-dot" style="background: var(--color-suisun);"></div>
+                    Suisun
+                </div>
+            </div>
+        </div>
+        <p class="ds-note">States — active: brighter bg + bold weight + stronger shadow &nbsp;·&nbsp; default: standard &nbsp;·&nbsp; dimmed: 45% opacity</p>
+    </section>
+
+    <!-- ── Gear Cards ────────────────────────────── -->
+    <section class="ds-section" id="gear-cards">
+        <h2>Gear Cards</h2>
+        <p class="section-desc">Glassmorphism floating cards used in the "How We Monitor" exhibit. Currently defined inline in that exhibit — candidate for promotion to <code>exhibit-frame.css</code>.</p>
+
+        <!-- Gear card styles are exhibit-local, so we inline them here until promoted -->
+        <style>
+            .gear-card {
+                background: rgba(255,255,255,0.88);
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                border: 1px solid rgba(255,255,255,0.6);
+                border-radius: 10px;
+                box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+                padding: 14px;
+                text-align: center;
+                width: 150px;
+            }
+            .gear-card .gear-name {
+                font-family: var(--font-heading);
+                font-size: 15px;
+                font-weight: 400;
+                color: var(--wrmp-ada-teal);
+                margin-bottom: 3px;
+            }
+            .gear-card .gear-spec {
+                font-size: 12px;
+                color: #555;
+                line-height: 1.3;
+            }
+            .gear-card .gear-stat {
+                font-size: var(--size-lg);
+                font-weight: 700;
+                color: var(--wrmp-ada-teal);
+                line-height: 1;
+                margin-top: 6px;
+            }
+            .gear-card .gear-stat-label {
+                font-size: 11px;
+                color: #888;
+                margin-top: 2px;
+            }
+        </style>
+
+        <div class="ds-bg-green" style="display:flex;gap:12px;flex-wrap:wrap;">
+            <div class="gear-card">
+                <div class="gear-name">Otter Trawl</div>
+                <div class="gear-spec">Bottom-contact net, 1.5 kts, 5 min tow</div>
+                <div class="gear-stat">82</div>
+                <div class="gear-stat-label">Stations</div>
+            </div>
+            <div class="gear-card">
+                <div class="gear-name">Beach Seine</div>
+                <div class="gear-spec">Shoreline enclosure, 37m × 1.2m, two-person haul</div>
+                <div class="gear-stat">24</div>
+                <div class="gear-stat-label">Stations</div>
+            </div>
+            <div class="gear-card">
+                <div class="gear-name">Gill Net</div>
+                <div class="gear-spec">Multi-mesh panel, overnight set, 100m length</div>
+                <div class="gear-stat">13</div>
+                <div class="gear-stat-label">Stations</div>
+            </div>
+        </div>
+        <p class="ds-note">⚠ Styles defined inline above until promoted to exhibit-frame.css — once moved, remove the &lt;style&gt; block from this page.</p>
+    </section>
+
+    <!-- ── Map Labels ────────────────────────────── -->
+    <section class="ds-section" id="labels">
+        <h2>Map Labels</h2>
+        <p class="section-desc">Non-interactive Leaflet DivIcon labels. <code>.poi-label</code> for key landmarks, <code>.station-label</code> for individual monitoring sites.</p>
+
+        <div class="ds-bg-dark" style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+            <!-- Real .poi-label and .station-label from exhibit-frame.css -->
+            <div class="poi-label">South Bay</div>
+            <div class="poi-label">North Bay</div>
+            <div class="station-label">ALVS-01</div>
+            <div class="station-label">SB-REF-04</div>
+        </div>
+    </section>
+
+</main>
+
+</body>
+</html>
