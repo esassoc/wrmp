@@ -3,9 +3,14 @@
    and spacing. No selectors — just custom properties.
    Exhibits can override any token in their own <style>. */
 
+/* ── Radix Colors ────────────────────────────────
+   Gray scale via CDN. Provides --gray-1 through
+   --gray-12 (light) on :root (see gray.css).
+   Pin to a published version — @3.0.3 does not exist on npm (404). */
+@import url('https://cdn.jsdelivr.net/npm/@radix-ui/colors@3.0.0/gray.css');
+
 /* ── Self-hosted brand fonts ─────────────────────
-   Source Sans Pro (body) and Source Serif Pro (headings)
-   served from shared/fonts/ — no CDN dependency.
+   Source Sans Pro (all UI typography — body and headings).
    Paths are relative to the CSS file location.       */
 
 @font-face {
@@ -32,34 +37,18 @@
     font-display: swap;
 }
 
-@font-face {
-    font-family: "Source Serif Pro";
-    src: url("../fonts/SourceSerifPro-Regular.ttf") format("truetype");
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Source Serif Pro";
-    src: url("../fonts/SourceSerifPro-SemiBold.ttf") format("truetype");
-    font-weight: 600;
-    font-style: normal;
-    font-display: swap;
-}
-
 :root {
     /* Typography — self-hosted, with Google Fonts variable versions as upgrade fallbacks */
     --font-body: "Source Sans Pro", "Source Sans 3", Helvetica, Arial, sans-serif;
-    --font-heading: "Source Serif Pro", "Source Serif 4", Georgia, serif;
+    --font-heading: var(--font-body);
 
     /* Fluid type scale — Utopia @link https://utopia.fyi/type/calculator?c=360,14,1.2,1240,16,1.25,4,1,&s=0.75|0.5|0.25,1.5|2|3|4|6,s-l&g=s,l,xl,12 */
-    --step--1: clamp(0.7292rem, 0.7002rem + 0.1288vw, 0.8rem);   /* ~12–13px · kicker, captions, labels */
-    --step-0:  clamp(0.875rem,  0.8239rem + 0.2273vw, 1rem);      /* ~14–16px · body small, nav, legend  */
-    --step-1:  clamp(1.05rem,   0.9682rem + 0.3636vw, 1.25rem);   /* ~17–20px · body                     */
-    --step-2:  clamp(1.26rem,   1.1363rem + 0.55vw,   1.5625rem); /* ~20–25px · stat numbers             */
-    --step-3:  clamp(1.512rem,  1.3315rem + 0.802vw,  1.9531rem); /* ~24–31px · h2, panel heading        */
-    --step-4:  clamp(1.8144rem, 1.5579rem + 1.14vw,   2.4414rem); /* ~29–39px · h1, cover title          */
+    --step--1: clamp(0.7292rem, 0.7002rem + 0.1288vw, 0.8rem);   /* ~12–13px · kicker, captions, labels  */
+    --step-0:  clamp(0.875rem,  0.8239rem + 0.2273vw, 1rem);      /* ~14–16px · body, nav, legend         */
+    --step-1:  clamp(1.05rem,   0.9682rem + 0.3636vw, 1.25rem);   /* ~17–20px · heading-sm, stat, callout */
+    --step-2:  clamp(1.26rem,   1.1363rem + 0.55vw,   1.5625rem); /* ~20–25px · heading-md                */
+    --step-3:  clamp(1.512rem,  1.3315rem + 0.802vw,  1.9531rem); /* ~24–31px · heading-lg                */
+    --step-4:  clamp(1.8144rem, 1.5579rem + 1.14vw,   2.4414rem); /* ~29–39px · display, cover title      */
 
     /* Semantic font sizes — alias the fluid scale (used by design-system, leaflet-overrides, some exhibits) */
     --size-sm:   var(--step-0);
@@ -68,6 +57,31 @@
     --size-xl:   var(--step-3);
     --size-xxl:  var(--step-4);
 
+    /* Heading type tokens — grouped by style level */
+    --type-display-size:      var(--step-3);  /* 29–39px · cover title      */
+    --type-display-weight:    400;
+    --type-display-line:      1.1;
+
+    --type-heading-lg-size:   var(--step-2);  /* 24–31px · main panel title */
+    --type-heading-lg-weight: 400;
+    --type-heading-lg-line:   1.15;
+
+    --type-heading-md-size:   var(--step-1);  /* 20–25px · section title    */
+    --type-heading-md-weight: 600;
+    --type-heading-md-line:   1.2;
+
+    --type-heading-sm-size:   var(--step-0);  /* 17–20px · subsection label */
+    --type-heading-sm-weight: 600;
+    --type-heading-sm-line:   1.3;
+
+    --type-body-size:   var(--step-0);  /* 14–16px · body copy          */
+    --type-body-weight: 400;
+    --type-body-line:   1.7;
+
+    /* Text color roles */
+    --color-text:        var(--gray-12); /* primary text, headings       */
+    --color-text-subtle: var(--gray-11); /* de-emphasized / secondary    */
+
     /* Spacing */
     --space-xs: 4px;
     --space-sm: 8px;
@@ -75,22 +89,45 @@
     --space-lg: 24px;
     --space-xl: 40px;
 
-    /* WRMP brand colors */
-    --wrmp-teal: #228b9c;
-    --wrmp-ada-teal: #005e6a;
-    --wrmp-orange: #e09337;
-    --wrmp-green: #379352;
-    --wrmp-light-green: #92bb4d;
-    --wrmp-dark: #4e4e50;
-    --wrmp-sky-blue: #00acec;
-    --wrmp-dark-orange: #d66b2c;
-    --wrmp-earth: #664d26;
-    --wrmp-text: #272525;
+    /* Border radius */
+    --radius-sm: 4px;   /* chips, tags             */
+    --radius-md: 6px;   /* images, inner cards      */
+    --radius-lg: 8px;   /* popup card, map controls */
+    --radius-xl: 12px;  /* story panel, exhibits    */
 
-    /* Region colors */
-    --color-south-bay: #005e6a;
-    --color-north-bay: #379352;
-    --color-suisun: #e09337;
+    /* ── WRMP brand palette — reference only ────────
+       Original hex values. Swap these into the active
+       tokens below to restore color.                  */
+    --wrmp-teal-brand:        #228b9c;
+    --wrmp-ada-teal-brand:    #005e6a;
+    --wrmp-orange-brand:      #e09337;
+    --wrmp-dark-orange-brand: #d66b2c;
+    --wrmp-green-brand:       #379352;
+    --wrmp-light-green-brand: #92bb4d;
+    --wrmp-dark-brand:        #4e4e50;
+    --wrmp-sky-blue-brand:    #00acec;
+    --wrmp-earth-brand:       #664d26;
+    --wrmp-text-brand:        #272525;
+
+    /* ── Active semantic palette → Radix Gray ───────
+       Replace var(--gray-*) with var(--*-brand) above
+       to bring color back per token.                  */
+    --wrmp-ada-teal:    var(--gray-12); /* headings, primary text, links  */
+    --wrmp-teal:        var(--gray-9);  /* decorative, step dots, accents */
+    --wrmp-dark:        var(--gray-11); /* secondary text, UI chrome      */
+    --wrmp-text:        var(--gray-12); /* body text                      */
+    --wrmp-light-green: var(--gray-8);  /* kicker, callout bar            */
+    --wrmp-orange:      var(--gray-9);  /* accent, warning                */
+    --wrmp-dark-orange: var(--gray-10); /* dark accent                    */
+    --wrmp-green:       var(--gray-9);  /* heritage green                 */
+    --wrmp-sky-blue:    var(--gray-8);  /* sky blue                       */
+    --wrmp-earth:       var(--gray-10); /* earth tone                     */
+
+    /* ── Region colors → Radix Gray ─────────────────
+       Differentiated by luminance; swap for brand hues later. */
+    --color-south-bay: var(--gray-12);
+    --color-north-bay: var(--gray-10);
+    --color-suisun:    var(--gray-8);
 
     /* Panel */
     --panel-bg: rgba(255, 255, 255, 0.5);

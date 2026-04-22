@@ -7,13 +7,14 @@
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
-            href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:wght@400;600;700&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap"
             rel="stylesheet"
         />
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
         <link rel="stylesheet" href="../../shared/css/tokens.css" />
         <link rel="stylesheet" href="../../shared/css/exhibit-frame.css" />
-        <link rel="stylesheet" href="../../shared/css/leaflet-overrides.css" />
+        <link rel="stylesheet" href="../../shared/css/leaflet-overrides.css?v=2" />
+        <link rel="stylesheet" href="../../shared/css/marker-popup.css" />
         <style>
             /* ── Exhibit-specific styles ─────────────────── */
 
@@ -173,8 +174,21 @@
             <div class="story-panel">
                 <div class="story-panel-inner">
                     <div class="step active" data-step="0">
-                        <span class="kicker">Biodiversity</span>
-                        <h2>237 Species Call It Home</h2>
+                        <div class="step-header">
+                            <img
+                                class="step-header-mark"
+                                src="../../shared/img/WRMP_Logo_2in_RGB_ADA_Transparent crop.png"
+                                alt=""
+                                width="40"
+                                height="40"
+                                decoding="async"
+                            />
+                            <div class="step-header-text">
+                                <span class="kicker">Biodiversity</span>
+                                <h2>237 Species Call It Home</h2>
+                            </div>
+                        </div>
+
                         <div class="body">
                             <p>
                                 The San Francisco Estuary supports incredible biodiversity. From sharks to shrimp,
@@ -203,8 +217,21 @@
                     </div>
 
                     <div class="step" data-step="1">
-                        <span class="kicker">Native Species</span>
-                        <h2>The Home Team</h2>
+                        <div class="step-header">
+                            <img
+                                class="step-header-mark"
+                                src="../../shared/img/WRMP_Logo_2in_RGB_ADA_Transparent crop.png"
+                                alt=""
+                                width="40"
+                                height="40"
+                                decoding="async"
+                            />
+                            <div class="step-header-text">
+                                <span class="kicker">Native Species</span>
+                                <h2>The Home Team</h2>
+                            </div>
+                        </div>
+
                         <div class="body">
                             <p>
                                 <strong>151 native species</strong> have been documented in the estuary. From
@@ -229,8 +256,21 @@
                     </div>
 
                     <div class="step" data-step="2">
-                        <span class="kicker">Invasive Species</span>
-                        <h2>The Uninvited</h2>
+                        <div class="step-header">
+                            <img
+                                class="step-header-mark"
+                                src="../../shared/img/WRMP_Logo_2in_RGB_ADA_Transparent crop.png"
+                                alt=""
+                                width="40"
+                                height="40"
+                                decoding="async"
+                            />
+                            <div class="step-header-text">
+                                <span class="kicker">Invasive Species</span>
+                                <h2>The Uninvited</h2>
+                            </div>
+                        </div>
+
                         <div class="body">
                             <p>
                                 <strong>50 invasive species</strong> have been documented in the estuary.
@@ -255,8 +295,21 @@
                     </div>
 
                     <div class="step" data-step="3">
-                        <span class="kicker">Alviso Marsh</span>
-                        <h2>Where They Meet</h2>
+                        <div class="step-header">
+                            <img
+                                class="step-header-mark"
+                                src="../../shared/img/WRMP_Logo_2in_RGB_ADA_Transparent crop.png"
+                                alt=""
+                                width="40"
+                                height="40"
+                                decoding="async"
+                            />
+                            <div class="step-header-text">
+                                <span class="kicker">Alviso Marsh</span>
+                                <h2>Where They Meet</h2>
+                            </div>
+                        </div>
+
                         <div class="body">
                             <p>
                                 Zoom into Alviso Marsh — <strong>21 monitoring stations</strong> where scientists
@@ -274,8 +327,21 @@
                     </div>
 
                     <div class="step" data-step="4">
-                        <span class="kicker">The Balance</span>
-                        <h2>Counting the Balance</h2>
+                        <div class="step-header">
+                            <img
+                                class="step-header-mark"
+                                src="../../shared/img/WRMP_Logo_2in_RGB_ADA_Transparent crop.png"
+                                alt=""
+                                width="40"
+                                height="40"
+                                decoding="async"
+                            />
+                            <div class="step-header-text">
+                                <span class="kicker">The Balance</span>
+                                <h2>Counting the Balance</h2>
+                            </div>
+                        </div>
+
                         <div class="body">
                             <p>
                                 Monitoring tracks the balance between native and invasive species across every
@@ -301,7 +367,6 @@
 
                 <!-- Navigation -->
                 <div class="nav-bar">
-                    <img src="../../shared/img/wrmp-logo.png" alt="WRMP" class="nav-logo" />
                     <button id="btn-prev" disabled>Back</button>
                     <div class="step-dots">
                         <button class="step-dot active" data-step="0" aria-label="Step 1"></button>
@@ -319,6 +384,7 @@
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
         <script src="../../shared/js/data-loader.js"></script>
         <script src="../../shared/js/map-init.js"></script>
+        <script src="../../shared/js/marker-popup.js"></script>
         <script src="../../shared/js/stepper.js"></script>
         <script>
             // ── Exhibit Config ─────────────────────────────
@@ -350,6 +416,7 @@
             };
 
             var STEP_TYPES = ["map", "gallery", "gallery", "map", "infographic"];
+            var activeHabitatFilter = null;
 
             // ── Map Init ───────────────────────────────────
             var map = WRMP.initMap("map", { bounds: BAY_FULL });
@@ -647,39 +714,77 @@
                         L.circleMarker([s.lat, s.lon], {
                             radius: 5, fillColor: "#228B9C", color: "#fff",
                             weight: 1.5, opacity: 0.8, fillOpacity: 0.5,
-                        }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
+                        }).bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: "#228B9C", showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] })).addTo(markerLayer);
                     });
                     WRMP.flyTo(map, BAY_FULL);
                 } else if (stepper.currentStep === 3) {
-                    var alviso = STATIONS.filter(function (s) { return s.subregion === "Alviso Marsh"; });
-                    alviso.forEach(function (s) {
-                        var habitat = (s.habitat || "").trim();
-                        var color = STATION_HABITAT_COLORS[habitat] || "#999";
-                        L.circleMarker([s.lat, s.lon], {
-                            radius: 8, fillColor: color, color: "#fff",
-                            weight: 2, opacity: 1, fillOpacity: 0.85,
-                        }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
-                    });
+                    activeHabitatFilter = null;
 
-                    STATIONS.forEach(function (s) {
-                        if (s.subregion === "Alviso Marsh") return;
-                        L.circleMarker([s.lat, s.lon], {
-                            radius: 3, fillColor: "#bbb", color: "#ddd",
-                            weight: 1, opacity: 0.3, fillOpacity: 0.15,
-                        }).addTo(markerLayer);
-                    });
+                    function renderHabitatMarkers() {
+                        markerLayer.clearLayers();
+                        var alviso = STATIONS.filter(function (s) { return s.subregion === "Alviso Marsh"; });
+                        alviso.forEach(function (s) {
+                            var habitat = (s.habitat || "").trim();
+                            var match = !activeHabitatFilter || habitat === activeHabitatFilter;
+                            var color = STATION_HABITAT_COLORS[habitat] || "#999";
+                            L.circleMarker([s.lat, s.lon], {
+                                radius: match ? 8 : 4,
+                                fillColor: match ? color : "#aaa", color: "#fff",
+                                weight: match ? 2 : 1, opacity: match ? 1 : 0.3,
+                                fillOpacity: match ? 0.85 : 0.2,
+                            }).bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: color, showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] })).addTo(markerLayer);
+                        });
+                        STATIONS.forEach(function (s) {
+                            if (s.subregion === "Alviso Marsh") return;
+                            L.circleMarker([s.lat, s.lon], {
+                                radius: 3, fillColor: "#bbb", color: "#ddd",
+                                weight: 1, opacity: 0.3, fillOpacity: 0.15,
+                            }).addTo(markerLayer);
+                        });
+                    }
 
-                    Object.keys(STATION_HABITAT_COLORS).forEach(function (hab) {
-                        var chip = document.createElement("div");
-                        chip.className = "map-legend-chip";
-                        var dot = document.createElement("span");
-                        dot.className = "map-legend-dot";
-                        dot.style.background = STATION_HABITAT_COLORS[hab];
-                        chip.appendChild(dot);
-                        chip.appendChild(document.createTextNode(hab));
-                        legendEl.appendChild(chip);
-                    });
+                    function buildHabitatLegend() {
+                        legendEl.replaceChildren();
 
+                        var allChip = document.createElement("button");
+                        allChip.className = "map-legend-chip" + (!activeHabitatFilter ? " active" : "");
+                        var allLabel = document.createElement("span");
+                        allLabel.className = "map-legend-chip-label";
+                        allLabel.setAttribute("data-label", "All");
+                        allLabel.textContent = "All";
+                        allChip.appendChild(allLabel);
+                        allChip.addEventListener("click", function () {
+                            activeHabitatFilter = null;
+                            buildHabitatLegend();
+                            renderHabitatMarkers();
+                        });
+                        legendEl.appendChild(allChip);
+
+                        Object.keys(STATION_HABITAT_COLORS).forEach(function (hab) {
+                            var isActive = activeHabitatFilter === hab;
+                            var isDimmed = activeHabitatFilter && !isActive;
+                            var chip = document.createElement("button");
+                            chip.className = "map-legend-chip" + (isActive ? " active" : "") + (isDimmed ? " dimmed" : "");
+                            var dot = document.createElement("span");
+                            dot.className = "map-legend-dot";
+                            dot.style.background = STATION_HABITAT_COLORS[hab];
+                            chip.appendChild(dot);
+                            var lbl = document.createElement("span");
+                            lbl.className = "map-legend-chip-label";
+                            lbl.setAttribute("data-label", hab);
+                            lbl.textContent = hab;
+                            chip.appendChild(lbl);
+                            chip.addEventListener("click", function () {
+                                activeHabitatFilter = activeHabitatFilter === hab ? null : hab;
+                                buildHabitatLegend();
+                                renderHabitatMarkers();
+                            });
+                            legendEl.appendChild(chip);
+                        });
+                    }
+
+                    renderHabitatMarkers();
+                    buildHabitatLegend();
                     WRMP.flyTo(map, ALVISO, { duration: 1.5 });
                 }
             }

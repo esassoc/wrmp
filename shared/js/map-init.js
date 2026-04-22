@@ -4,9 +4,9 @@
 
    Usage:
      var map = WRMP.initMap("map", { bounds: BAY_FULL });
-     var popup = WRMP.makePopup(station, ["Region", "Network"]);
      WRMP.flyTo(map, bounds);
      WRMP.addPOI(poiLayer, lat, lon, "Label text");
+     // For marker popups see: shared/js/marker-popup.js → WRMP.makeMarkerPopup()
 */
 
 var WRMP = window.WRMP || {};
@@ -73,34 +73,7 @@ var WRMP = window.WRMP || {};
         map.flyToBounds(bounds, opts);
     };
 
-    /**
-     * Build a DOM-based popup for a station.
-     * @param {Object} station - Station data object
-     * @param {Array} fields - Array of [label, key] pairs, e.g. [["Region", "region"]]
-     * @returns {HTMLElement}
-     */
-    WRMP.makePopup = function (station, fields) {
-        var container = document.createElement("div");
-        var title = document.createElement("div");
-        title.className = "popup-title";
-        title.textContent = station.station_code + " — " + station.station_name;
-        container.appendChild(title);
-
-        fields.forEach(function (pair) {
-            var row = document.createElement("div");
-            row.className = "popup-row";
-            var k = document.createElement("span");
-            k.className = "k";
-            k.textContent = pair[0];
-            var v = document.createElement("span");
-            v.className = "v";
-            v.textContent = station[pair[1]] || "—";
-            row.appendChild(k);
-            row.appendChild(v);
-            container.appendChild(row);
-        });
-        return container;
-    };
+    // Popup building is handled by WRMP.makeMarkerPopup() in marker-popup.js.
 
     /**
      * Add a floating text label to the map (non-interactive).

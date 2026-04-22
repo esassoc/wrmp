@@ -7,13 +7,14 @@
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
-            href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:wght@400;600;700&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap"
             rel="stylesheet"
         />
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
         <link rel="stylesheet" href="../../shared/css/tokens.css" />
         <link rel="stylesheet" href="../../shared/css/exhibit-frame.css" />
-        <link rel="stylesheet" href="../../shared/css/leaflet-overrides.css" />
+        <link rel="stylesheet" href="../../shared/css/leaflet-overrides.css?v=2" />
+        <link rel="stylesheet" href="../../shared/css/marker-popup.css" />
     </head>
     <body>
         <div class="exhibit-frame">
@@ -24,8 +25,20 @@
                 <div class="story-panel-inner">
                     <!-- Step 1: The Estuary -->
                     <div class="step active" data-step="0">
-                        <span class="kicker">SF Estuary</span>
-                        <h2>The Estuary</h2>
+                        <div class="step-header">
+                            <img
+                                class="step-header-mark"
+                                src="../../shared/img/WRMP_Logo_2in_RGB_ADA_Transparent crop.png"
+                                alt=""
+                                width="40"
+                                height="40"
+                                decoding="async"
+                            />
+                            <div class="step-header-text">
+                                <span class="kicker">SF Estuary</span>
+                                <h2>The Estuary</h2>
+                            </div>
+                        </div>
                         <div class="body">
                             <p>
                                 The San Francisco Estuary is the largest on North America's Pacific coast — a vast
@@ -59,7 +72,20 @@
 
                     <!-- Step 2: Three Worlds -->
                     <div class="step" data-step="1">
-                        <h2>Three Worlds</h2>
+                        <div class="step-header">
+                            <img
+                                class="step-header-mark"
+                                src="../../shared/img/WRMP_Logo_2in_RGB_ADA_Transparent crop.png"
+                                alt=""
+                                width="40"
+                                height="40"
+                                decoding="async"
+                            />
+                            <div class="step-header-text">
+                                <span class="kicker">Salinity Gradient</span>
+                                <h2>Three Worlds</h2>
+                            </div>
+                        </div>
                         <div class="body">
                             <p>
                                 You can't study the estuary as one thing. It's three distinct ecological zones, shaped
@@ -85,7 +111,20 @@
 
                     <!-- Step 3: The Network -->
                     <div class="step" data-step="2">
-                        <h2>The Network</h2>
+                        <div class="step-header">
+                            <img
+                                class="step-header-mark"
+                                src="../../shared/img/WRMP_Logo_2in_RGB_ADA_Transparent crop.png"
+                                alt=""
+                                width="40"
+                                height="40"
+                                decoding="async"
+                            />
+                            <div class="step-header-text">
+                                <span class="kicker">Nine Networks</span>
+                                <h2>The Network</h2>
+                            </div>
+                        </div>
                         <div class="body">
                             <p>
                                 Scientists cover this vast territory through nine sampling networks — circuits that
@@ -110,7 +149,20 @@
 
                     <!-- Step 4: Restoration in Progress -->
                     <div class="step" data-step="3">
-                        <h2>Restoration in Progress</h2>
+                        <div class="step-header">
+                            <img
+                                class="step-header-mark"
+                                src="../../shared/img/WRMP_Logo_2in_RGB_ADA_Transparent crop.png"
+                                alt=""
+                                width="40"
+                                height="40"
+                                decoding="async"
+                            />
+                            <div class="step-header-text">
+                                <span class="kicker">Wetland Restoration</span>
+                                <h2>Restoration in Progress</h2>
+                            </div>
+                        </div>
                         <div class="body">
                             <p>
                                 The South Bay is home to the
@@ -134,7 +186,20 @@
 
                     <!-- Step 5: What Comes Next -->
                     <div class="step" data-step="4">
-                        <h2>What Comes Next</h2>
+                        <div class="step-header">
+                            <img
+                                class="step-header-mark"
+                                src="../../shared/img/WRMP_Logo_2in_RGB_ADA_Transparent crop.png"
+                                alt=""
+                                width="40"
+                                height="40"
+                                decoding="async"
+                            />
+                            <div class="step-header-text">
+                                <span class="kicker">Future Monitoring</span>
+                                <h2>What Comes Next</h2>
+                            </div>
+                        </div>
                         <div class="body">
                             <p>
                                 Across the Bay, <strong>17 planned restoration sites</strong> mark where the next
@@ -165,7 +230,6 @@
 
                 <!-- Navigation -->
                 <div class="nav-bar">
-                    <img src="../../shared/img/wrmp-logo.png" alt="WRMP" class="nav-logo" />
                     <button id="btn-prev" disabled>Back</button>
                     <div class="step-dots">
                         <button class="step-dot active" data-step="0" aria-label="Step 1"></button>
@@ -183,6 +247,7 @@
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
         <script src="../../shared/js/data-loader.js"></script>
         <script src="../../shared/js/map-init.js"></script>
+        <script src="../../shared/js/marker-popup.js"></script>
         <script src="../../shared/js/stepper.js"></script>
         <script>
             // ── Exhibit Config ─────────────────────────────
@@ -243,7 +308,7 @@
                             L.circleMarker([s.lat, s.lon], {
                                 radius: 5, fillColor: "#228B9C", color: "#fff",
                                 weight: 1.5, opacity: 0.8, fillOpacity: 0.5,
-                            }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
+                            }).bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: "#228B9C", showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] })).addTo(markerLayer);
                         });
                     },
                 },
@@ -256,11 +321,7 @@
                     field: "region",
                     colors: REGION_COLORS,
                     bounds: BAY_FULL,
-                    pois: [
-                        [38.1, -121.95, "Freshwater"],
-                        [37.95, -122.4, "Brackish"],
-                        [37.5, -122.05, "Saline"],
-                    ],
+                    pois: [],
                     render: function (stations, filter) {
                         var colors = this.colors;
                         stations.forEach(function (s) {
@@ -271,7 +332,7 @@
                                 fillColor: match ? color : "#aaa", color: "#fff",
                                 weight: match ? 2 : 1, opacity: match ? 1 : 0.3,
                                 fillOpacity: match ? 0.85 : 0.25,
-                            }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
+                            }).bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: color, showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] })).addTo(markerLayer);
                         });
                     },
                 },
@@ -290,7 +351,7 @@
                     field: "WRMP_Network",
                     colors: NETWORK_COLORS,
                     bounds: BAY_FULL,
-                    pois: [[37.44, -121.96, "68 trawl samples — Q2 2025"]],
+                    pois: [],
                     render: function (stations, filter) {
                         var colors = this.colors;
                         var field = this.field;
@@ -303,7 +364,7 @@
                                 fillColor: match ? color : "#aaa", color: "#fff",
                                 weight: match ? 2 : 1, opacity: match ? 1 : 0.3,
                                 fillOpacity: match ? 0.85 : 0.25,
-                            }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
+                            }).bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: color, showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] })).addTo(markerLayer);
                         });
                     },
                 },
@@ -319,7 +380,7 @@
                     colors: SITE_COLORS,
                     bounds: SOUTH_BAY,
                     boundsOpts: { duration: 1.5 },
-                    pois: [[37.47, -121.97, "14 years of monitoring"]],
+                    pois: [],
                     render: function (stations, filter) {
                         var colors = this.colors;
                         var field = this.field;
@@ -332,7 +393,7 @@
                                 fillColor: match ? color : "#aaa", color: "#fff",
                                 weight: match ? 2 : 1, opacity: match ? 1 : 0.3,
                                 fillOpacity: match ? 0.9 : 0.25,
-                            }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
+                            }).bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: color, showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] })).addTo(markerLayer);
                         });
                     },
                 },
@@ -360,7 +421,7 @@
                                 weight: match ? (isPlanned ? 2.5 : 1.5) : 1,
                                 opacity: match ? 1 : 0.3,
                                 fillOpacity: match ? (isPlanned ? 0.9 : 0.5) : 0.12,
-                            }).bindPopup(WRMP.makePopup(s, POPUP_FIELDS)).addTo(markerLayer);
+                            }).bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: isPlanned ? "#E09337" : "#888", showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] })).addTo(markerLayer);
                         });
                     },
                 },
@@ -377,7 +438,11 @@
 
                 var allChip = document.createElement("button");
                 allChip.className = "map-legend-chip" + (!activeFilter ? " active" : "");
-                allChip.textContent = "All";
+                var allLabel = document.createElement("span");
+                allLabel.className = "map-legend-chip-label";
+                allLabel.setAttribute("data-label", "All");
+                allLabel.textContent = "All";
+                allChip.appendChild(allLabel);
                 allChip.addEventListener("click", function () {
                     activeFilter = null;
                     buildLegend();
@@ -394,7 +459,11 @@
                     dot.className = "map-legend-dot";
                     dot.style.background = item.color;
                     chip.appendChild(dot);
-                    chip.appendChild(document.createTextNode(item.label));
+                    var lbl = document.createElement("span");
+                    lbl.className = "map-legend-chip-label";
+                    lbl.setAttribute("data-label", item.label);
+                    lbl.textContent = item.label;
+                    chip.appendChild(lbl);
                     chip.addEventListener("click", function () {
                         activeFilter = activeFilter === item.value ? null : item.value;
                         buildLegend();

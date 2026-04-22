@@ -89,10 +89,9 @@ Extracted from wrmp.org. All exhibits must use these tokens.
 
 ### Typography
 
-- **Headings:** `Source Serif 4`, weight 400, color `#005E6A`
-- **Body:** `Source Sans 3` (fallback: Source Sans Pro, Helvetica, Arial), weight 400
+- **Font stack:** Self-hosted Source Sans Pro and `Source Sans 3` (Google Fonts in exhibits), then Helvetica, Arial — same stack for headings and body (`--font-heading` aliases `--font-body` in tokens).
+- **Heading color:** ADA teal `#005E6A` where the brand specifies it
 - **Base size:** 16px minimum (ADA requirement)
-- Load from Google Fonts: `Source+Sans+3` and `Source+Serif+4`
 
 ### Brand Colors
 

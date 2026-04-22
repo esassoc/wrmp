@@ -79,7 +79,7 @@ Catch data (CPUE time series, species counts) is pending from UC Davis.
 
 Follows the WRMP brand identity:
 
-- **Typography:** Source Serif 4 (headings), Source Sans 3 (body)
+- **Typography:** Source Sans 3 (and self-hosted Source Sans Pro) for all headings and body
 - **Primary palette:** Teal `#228B9C`, ADA Teal `#005E6A`, Orange `#E09337`, Green `#379352`
 - **UI:** 16:9 frame, glassmorphism story panel, Apple-style dot navigation
 - **ADA:** 16px minimum text, WCAG contrast ratios, VoiceOver tested
