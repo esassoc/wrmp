@@ -65,6 +65,8 @@
       "Bash(node -e ' *)",
       "Bash(node --check /tmp/exhibit-check.js)",
       "WebFetch(domain:cdn.jsdelivr.net)"
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "mcp__e700257d-8295-439d-b1c4-b450a131a5d4__use_figma"
     ]
   }
 }
