@@ -15,11 +15,49 @@
         <link rel="stylesheet" href="../../shared/css/exhibit-frame.css" />
         <link rel="stylesheet" href="../../shared/css/leaflet-overrides.css?v=2" />
         <link rel="stylesheet" href="../../shared/css/marker-popup.css" />
+        <style>
+            .exhibit-cover {
+                z-index: 31;
+            }
+        </style>
     </head>
     <body>
         <div class="exhibit-frame">
             <div id="map"></div>
             <div class="map-legend" id="map-legend"></div>
+            <div id="exhibit-cover" class="overlay-screen overlay-screen--grass-3 exhibit-cover">
+                <div class="overlay-card">
+                    <span class="kicker">WRMP exhibit</span>
+                    <h2 class="heading-display">The Bay: Where We're Watching</h2>
+                    <p class="body-text">
+                        Explore how WRMP monitors the San Francisco Estuary across regions,
+                        networks, and restoration sites.
+                    </p>
+                    <button id="btn-enter" class="overlay-button">Enter</button>
+                </div>
+            </div>
+            <div id="exhibit-end-card" class="overlay-screen overlay-screen--grass-2 is-hidden">
+                <div class="overlay-card">
+                    <span class="kicker">Thanks for exploring</span>
+                    <h2 class="heading-display">Continue the WRMP story</h2>
+                    <p class="body-text">
+                        This exhibit introduced where WRMP watches fish and fish habitat across the
+                        estuary. The next layer is what the long-term data reveals over time.
+                    </p>
+                    <p class="body-text">
+                        Use the links below to dig deeper into the program, methods, and species stories.
+                    </p>
+                    <ul class="overlay-links">
+                        <li><a href="https://www.wrmp.org/" target="_blank" rel="noopener noreferrer">WRMP home and program updates</a></li>
+                        <li><a href="../2026-04-10-how-we-look/" target="_blank" rel="noopener noreferrer">How We Monitor exhibit (gear + methods)</a></li>
+                        <li><a href="../2026-04-10-delta-smelt/" target="_blank" rel="noopener noreferrer">Delta Smelt exhibit (featured species)</a></li>
+                    </ul>
+                    <div class="overlay-actions">
+                        <button id="btn-restart" class="overlay-button">Restart Exhibit</button>
+                        <a class="overlay-button" href="../../gallery/">View All Exhibits</a>
+                    </div>
+                </div>
+            </div>
 
             <div class="story-panel">
                 <div class="story-panel-inner">
@@ -92,17 +130,17 @@
                                 by a single force: <strong>salinity</strong>.
                             </p>
                             <p>
-                                <strong style="color: var(--color-suisun)">Suisun Bay</strong> in the east is nearly
+                                <strong style="color: var(--amber-11)">Suisun Bay</strong> in the east is nearly
                                 fresh — fed by the Sacramento and San Joaquin rivers. It hosts freshwater species like
                                 Threespine Stickleback and Siberian Prawn.
                             </p>
                             <p>
-                                <strong style="color: var(--color-north-bay)">North Bay</strong> is the mixing zone —
+                                <strong style="color: var(--grass-11)">North Bay</strong> is the mixing zone —
                                 brackish water where freshwater and marine species overlap. The most dynamic habitat,
                                 shifting with the tides and seasons.
                             </p>
                             <p>
-                                <strong style="color: var(--color-south-bay)">South Bay</strong> is the most saline,
+                                <strong style="color: var(--cyan-11)">South Bay</strong> is the most saline,
                                 connected to the Pacific. Here you find marine species — jellyfish, tunicates, English
                                 Sole — alongside estuary residents.
                             </p>
@@ -252,33 +290,47 @@
         <script>
             // ── Exhibit Config ─────────────────────────────
             var STATIONS = [];
+            function tokenColor(name, fallback) {
+                var v = getComputedStyle(document.documentElement).getPropertyValue(name);
+                return v ? v.trim() || fallback : fallback;
+            }
+            var C = {
+                ADA_TEAL: tokenColor("--wrmp-ada-teal", "#005E6A"),
+                GREEN: tokenColor("--wrmp-green", "#379352"),
+                ORANGE: tokenColor("--wrmp-orange", "#E09337"),
+                TEAL: tokenColor("--wrmp-teal", "#228B9C"),
+                LIGHT_GREEN: tokenColor("--wrmp-light-green", "#92BB4D"),
+                SKY_BLUE: tokenColor("--wrmp-sky-blue", "#00ACEC"),
+                EARTH: tokenColor("--wrmp-earth", "#664D26"),
+                DARK_ORANGE: tokenColor("--wrmp-dark-orange", "#D66B2C"),
+            };
 
             var REGION_COLORS = {
-                "South Bay": "#005E6A",
-                "North Bay": "#379352",
-                "Suisun Bay": "#E09337",
+                "South Bay": C.ADA_TEAL,
+                "North Bay": C.GREEN,
+                "Suisun Bay": C.ORANGE,
             };
 
             var NETWORK_COLORS = {
-                "Santa Clara - Primary": "#005E6A",
-                "Alameda - Primary": "#228B9C",
+                "Santa Clara - Primary": C.ADA_TEAL,
+                "Alameda - Primary": C.TEAL,
                 "Belmon-Redwood - Secondary": "#6BB5C2",
-                "Wildcat Creek - Primary": "#00ACEC",
-                "Novato-Gallinas/West San Pablo Bay - Primary": "#379352",
-                "Napa-Sonoma - Primary": "#92BB4D",
-                "Petaluma River - Secondary": "#664D26",
-                "Suisun Slough - Primary": "#E09337",
-                "Montezuma - Delta - Secondary": "#D66B2C",
+                "Wildcat Creek - Primary": C.SKY_BLUE,
+                "Novato-Gallinas/West San Pablo Bay - Primary": C.GREEN,
+                "Napa-Sonoma - Primary": C.LIGHT_GREEN,
+                "Petaluma River - Secondary": C.EARTH,
+                "Suisun Slough - Primary": C.ORANGE,
+                "Montezuma - Delta - Secondary": C.DARK_ORANGE,
             };
 
             var SITE_COLORS = {
-                Benchmark: "#92BB4D",
+                Benchmark: C.LIGHT_GREEN,
                 "Benchmark-Reference": "#C7D865",
-                Reference: "#005E6A",
-                "Reference Site Candidate": "#228B9C",
-                Project: "#379352",
+                Reference: C.ADA_TEAL,
+                "Reference Site Candidate": C.TEAL,
+                Project: C.GREEN,
                 "Other Restored Site": "#6A9E3A",
-                "Planned Restoration": "#E09337",
+                "Planned Restoration": C.ORANGE,
                 NA: "#bbb",
             };
 
@@ -291,6 +343,37 @@
                 ["Habitat", "habitat"],
                 ["Site Type", "WRMP_Site_Type"],
             ];
+            var POPUP_IMAGES = [
+                "../2026-04-10-how-we-look/otter-trawl.jpg",
+                "../2026-04-10-how-we-look/beach-seine.jpg",
+                "../2026-04-10-how-we-look/gill-net.jpg",
+            ];
+
+            function popupImageForStation(station) {
+                var code = String(station.station_code || "");
+                if (!code) return null;
+                var hash = 0;
+                for (var i = 0; i < code.length; i++) hash += code.charCodeAt(i);
+                // Show images for a subset of stations only.
+                if (hash % 4 !== 0) return null;
+                return POPUP_IMAGES[hash % POPUP_IMAGES.length];
+            }
+
+            function makeStationPopup(station, dotColor) {
+                var image = popupImageForStation(station);
+                return WRMP.makeMarkerPopup({
+                    code: station.station_code,
+                    name: station.station_name,
+                    dotColor: dotColor,
+                    image: image,
+                    showImage: !!image,
+                    sections: [{
+                        rows: POPUP_FIELDS.map(function (p) {
+                            return { type: "row", label: station[p[1]] || "—", value: p[0] };
+                        }),
+                    }],
+                });
+            }
 
             // ── Map Init ───────────────────────────────────
             var map = WRMP.initMap("map", { bounds: BAY_FULL });
@@ -306,17 +389,17 @@
                     render: function (stations, filter) {
                         stations.forEach(function (s) {
                             L.circleMarker([s.lat, s.lon], {
-                                radius: 5, fillColor: "#228B9C", color: "#fff",
+                                radius: 5, fillColor: C.TEAL, color: "#fff",
                                 weight: 1.5, opacity: 0.8, fillOpacity: 0.5,
-                            }).bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: "#228B9C", showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] })).addTo(markerLayer);
+                            }).bindPopup(makeStationPopup(s, C.TEAL)).addTo(markerLayer);
                         });
                     },
                 },
                 {
                     legend: [
-                        { label: "Suisun Bay", color: "#E09337", value: "Suisun Bay" },
-                        { label: "North Bay", color: "#379352", value: "North Bay" },
-                        { label: "South Bay", color: "#005E6A", value: "South Bay" },
+                        { label: "Suisun Bay", color: C.ORANGE, value: "Suisun Bay" },
+                        { label: "North Bay", color: C.GREEN, value: "North Bay" },
+                        { label: "South Bay", color: C.ADA_TEAL, value: "South Bay" },
                     ],
                     field: "region",
                     colors: REGION_COLORS,
@@ -332,20 +415,20 @@
                                 fillColor: match ? color : "#aaa", color: "#fff",
                                 weight: match ? 2 : 1, opacity: match ? 1 : 0.3,
                                 fillOpacity: match ? 0.85 : 0.25,
-                            }).bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: color, showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] })).addTo(markerLayer);
+                            }).bindPopup(makeStationPopup(s, color)).addTo(markerLayer);
                         });
                     },
                 },
                 {
                     legend: [
-                        { label: "Santa Clara", color: "#005E6A", value: "Santa Clara - Primary" },
-                        { label: "Alameda", color: "#228B9C", value: "Alameda - Primary" },
-                        { label: "Wildcat", color: "#00ACEC", value: "Wildcat Creek - Primary" },
-                        { label: "Novato", color: "#379352", value: "Novato-Gallinas/West San Pablo Bay - Primary" },
-                        { label: "Napa", color: "#92BB4D", value: "Napa-Sonoma - Primary" },
-                        { label: "Suisun", color: "#E09337", value: "Suisun Slough - Primary" },
-                        { label: "Montezuma", color: "#D66B2C", value: "Montezuma - Delta - Secondary" },
-                        { label: "Petaluma", color: "#664D26", value: "Petaluma River - Secondary" },
+                        { label: "Santa Clara", color: C.ADA_TEAL, value: "Santa Clara - Primary" },
+                        { label: "Alameda", color: C.TEAL, value: "Alameda - Primary" },
+                        { label: "Wildcat", color: C.SKY_BLUE, value: "Wildcat Creek - Primary" },
+                        { label: "Novato", color: C.GREEN, value: "Novato-Gallinas/West San Pablo Bay - Primary" },
+                        { label: "Napa", color: C.LIGHT_GREEN, value: "Napa-Sonoma - Primary" },
+                        { label: "Suisun", color: C.ORANGE, value: "Suisun Slough - Primary" },
+                        { label: "Montezuma", color: C.DARK_ORANGE, value: "Montezuma - Delta - Secondary" },
+                        { label: "Petaluma", color: C.EARTH, value: "Petaluma River - Secondary" },
                         { label: "Belmont", color: "#6BB5C2", value: "Belmon-Redwood - Secondary" },
                     ],
                     field: "WRMP_Network",
@@ -364,17 +447,17 @@
                                 fillColor: match ? color : "#aaa", color: "#fff",
                                 weight: match ? 2 : 1, opacity: match ? 1 : 0.3,
                                 fillOpacity: match ? 0.85 : 0.25,
-                            }).bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: color, showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] })).addTo(markerLayer);
+                            }).bindPopup(makeStationPopup(s, color)).addTo(markerLayer);
                         });
                     },
                 },
                 {
                     legend: [
-                        { label: "Benchmark", color: "#92BB4D", value: "Benchmark" },
-                        { label: "Reference", color: "#005E6A", value: "Reference" },
-                        { label: "Project", color: "#379352", value: "Project" },
+                        { label: "Benchmark", color: C.LIGHT_GREEN, value: "Benchmark" },
+                        { label: "Reference", color: C.ADA_TEAL, value: "Reference" },
+                        { label: "Project", color: C.GREEN, value: "Project" },
                         { label: "Other Restored", color: "#6A9E3A", value: "Other Restored Site" },
-                        { label: "Planned", color: "#E09337", value: "Planned Restoration" },
+                        { label: "Planned", color: C.ORANGE, value: "Planned Restoration" },
                     ],
                     field: "WRMP_Site_Type",
                     colors: SITE_COLORS,
@@ -393,13 +476,13 @@
                                 fillColor: match ? color : "#aaa", color: "#fff",
                                 weight: match ? 2 : 1, opacity: match ? 1 : 0.3,
                                 fillOpacity: match ? 0.9 : 0.25,
-                            }).bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: color, showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] })).addTo(markerLayer);
+                            }).bindPopup(makeStationPopup(s, color)).addTo(markerLayer);
                         });
                     },
                 },
                 {
                     legend: [
-                        { label: "Planned Restoration", color: "#E09337", value: "Planned Restoration" },
+                        { label: "Planned Restoration", color: C.ORANGE, value: "Planned Restoration" },
                         { label: "Existing Stations", color: "#bbb", value: "_other" },
                     ],
                     field: "WRMP_Site_Type",
@@ -416,12 +499,12 @@
 
                             L.circleMarker([s.lat, s.lon], {
                                 radius: match ? (isPlanned ? 9 : 6) : 4,
-                                fillColor: match ? (isPlanned ? "#E09337" : "#888") : "#aaa",
+                                fillColor: match ? (isPlanned ? C.ORANGE : "#888") : "#aaa",
                                 color: match ? "#fff" : "#ccc",
                                 weight: match ? (isPlanned ? 2.5 : 1.5) : 1,
                                 opacity: match ? 1 : 0.3,
                                 fillOpacity: match ? (isPlanned ? 0.9 : 0.5) : 0.12,
-                            }).bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: isPlanned ? "#E09337" : "#888", showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] })).addTo(markerLayer);
+                            }).bindPopup(makeStationPopup(s, isPlanned ? C.ORANGE : "#888")).addTo(markerLayer);
                         });
                     },
                 },
@@ -506,8 +589,60 @@
                     activeFilter = null;
                     buildLegend();
                     if (STATIONS.length > 0) renderCurrentStep();
+                    if (btnNext) {
+                        if (n === STEP_DEFS.length - 1) {
+                            btnNext.disabled = false;
+                            btnNext.textContent = "Finish";
+                        } else {
+                            btnNext.textContent = "Next";
+                        }
+                    }
                 },
             });
+            var enterBtn = document.getElementById("btn-enter");
+            var exhibitCover = document.getElementById("exhibit-cover");
+            var btnNext = document.getElementById("btn-next");
+            var endCard = document.getElementById("exhibit-end-card");
+            var restartBtn = document.getElementById("btn-restart");
+
+            function showEndCard() {
+                if (!endCard) return;
+                endCard.classList.remove("is-hidden");
+                endCard.classList.remove("is-leaving");
+            }
+
+            function hideEndCard() {
+                if (!endCard) return;
+                endCard.classList.add("is-leaving");
+                window.setTimeout(function () {
+                    endCard.classList.add("is-hidden");
+                    endCard.classList.remove("is-leaving");
+                }, 800);
+            }
+
+            if (enterBtn) {
+                enterBtn.addEventListener("click", function () {
+                    if (exhibitCover) {
+                        exhibitCover.classList.add("is-leaving");
+                        window.setTimeout(function () {
+                            exhibitCover.classList.add("is-hidden");
+                        }, 800);
+                    }
+                    stepper.goToStep(0);
+                });
+            }
+            if (btnNext) {
+                btnNext.addEventListener("click", function () {
+                    if (stepper.currentStep !== STEP_DEFS.length - 1) return;
+                    showEndCard();
+                });
+            }
+            if (restartBtn) {
+                restartBtn.addEventListener("click", function () {
+                    hideEndCard();
+                    stepper.goToStep(0);
+                });
+            }
 
             // ── Load Data ──────────────────────────────────
             WRMP.loadData({ stations: true }).then(function (data) {

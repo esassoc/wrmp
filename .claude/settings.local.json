@@ -63,7 +63,8 @@
       "Bash(python3)",
       "Bash(node --input-type=module)",
       "Bash(node -e ' *)",
-      "Bash(node --check /tmp/exhibit-check.js)"
+      "Bash(node --check /tmp/exhibit-check.js)",
+      "WebFetch(domain:cdn.jsdelivr.net)"
     ]
   }
 }

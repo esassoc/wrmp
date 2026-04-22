@@ -127,7 +127,7 @@
                                 drought, it contracts inland. The fish follow the water.
                             </p>
                             <div class="callout">
-                                <span id="suisun-count">27</span> monitoring stations track
+                                27 monitoring stations track
                                 conditions in Delta Smelt's core habitat &mdash; salinity,
                                 temperature, turbidity, and the communities that share this water.
                             </div>
@@ -330,6 +330,15 @@
             // ── Exhibit Config ─────────────────────────────
             var STATIONS = [];
             var SPECIES = [];
+            function tokenColor(name, fallback) {
+                var v = getComputedStyle(document.documentElement).getPropertyValue(name);
+                return v ? v.trim() || fallback : fallback;
+            }
+            var C = {
+                ADA_TEAL: tokenColor("--wrmp-ada-teal", "#005E6A"),
+                GREEN: tokenColor("--wrmp-green", "#379352"),
+                ORANGE: tokenColor("--wrmp-orange", "#E09337"),
+            };
 
             var STEP_CONFIG = [
                 { bg: "video", panel: "dark"  },
@@ -344,9 +353,9 @@
             var BAY_FULL = [[37.4, -122.55], [38.28, -121.85]];
 
             var REGION_COLORS = {
-                "South Bay": "#005E6A",
-                "North Bay": "#379352",
-                "Suisun Bay": "#E09337",
+                "South Bay": C.ADA_TEAL,
+                "North Bay": C.GREEN,
+                "Suisun Bay": C.ORANGE,
             };
 
             var POPUP_FIELDS = [
@@ -365,9 +374,9 @@
                 var suisun = STATIONS.filter(function (s) { return s.region === "Suisun Bay"; });
                 suisun.forEach(function (s) {
                     L.circleMarker([s.lat, s.lon], {
-                        radius: 7, fillColor: "#E09337", color: "#fff",
+                        radius: 7, fillColor: C.ORANGE, color: "#fff",
                         weight: 2, fillOpacity: 0.85,
-                    }).bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: "#E09337", showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] })).addTo(markerLayer);
+                    }).bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: C.ORANGE, showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] })).addTo(markerLayer);
                 });
                 WRMP.flyTo(map, SUISUN_BOUNDS);
             }
@@ -475,6 +484,7 @@
 
             // Apply dark panel immediately for video step
             storyPanel.classList.add("panel-dark");
+            storyPanel.classList.add("dark-theme");
 
             // ── Stepper ────────────────────────────────────
             var stepper = WRMP.createStepper({
@@ -484,6 +494,7 @@
 
                     // Panel theme
                     storyPanel.classList.toggle("panel-dark", config.panel === "dark");
+                    storyPanel.classList.toggle("dark-theme", config.panel === "dark");
 
                     // Background layers
                     bgLayers.forEach(function (layer) { layer.classList.remove("active"); });
@@ -503,14 +514,14 @@
 
                     if ((n === 1 || n === 2) && STATIONS.length > 0) {
                         setTimeout(function () { renderSuisunStations(); }, 100);
-                        buildLegend([{ label: "Suisun Bay stations", color: "#E09337" }]);
+                        buildLegend([{ label: "Suisun Bay stations", color: C.ORANGE }]);
                     } else if ((n === 4 || n === 5) && STATIONS.length > 0) {
                         activeFilter = null;
                         setTimeout(function () { renderAllStations(); }, 100);
                         buildLegend([
-                            { label: "Suisun Bay", color: "#E09337", value: "Suisun Bay" },
-                            { label: "North Bay", color: "#379352", value: "North Bay" },
-                            { label: "South Bay", color: "#005E6A", value: "South Bay" },
+                            { label: "Suisun Bay", color: C.ORANGE, value: "Suisun Bay" },
+                            { label: "North Bay", color: C.GREEN, value: "North Bay" },
+                            { label: "South Bay", color: C.ADA_TEAL, value: "South Bay" },
                         ], { clickable: true });
                     }
                 },

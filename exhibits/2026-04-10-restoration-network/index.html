@@ -40,7 +40,7 @@
                 font-family: var(--font-heading);
                 font-size: 15px;
                 font-weight: 600;
-                color: var(--wrmp-ada-teal, #005e6a);
+                color: var(--gray-12);
                 margin: 0 0 10px 0;
                 text-align: center;
             }
@@ -331,15 +331,26 @@
         <script>
             // ── Exhibit Config ─────────────────────────────
             var STATIONS = [];
+            function tokenColor(name, fallback) {
+                var v = getComputedStyle(document.documentElement).getPropertyValue(name);
+                return v ? v.trim() || fallback : fallback;
+            }
+            var C = {
+                ADA_TEAL: tokenColor("--wrmp-ada-teal", "#005E6A"),
+                GREEN: tokenColor("--wrmp-green", "#379352"),
+                ORANGE: tokenColor("--wrmp-orange", "#E09337"),
+                TEAL: tokenColor("--wrmp-teal", "#228B9C"),
+                LIGHT_GREEN: tokenColor("--wrmp-light-green", "#92BB4D"),
+            };
 
             var SITE_COLORS = {
-                Benchmark: "#92BB4D",
+                Benchmark: C.LIGHT_GREEN,
                 "Benchmark-Reference": "#C7D865",
-                Reference: "#005E6A",
-                "Reference Site Candidate": "#228B9C",
-                Project: "#379352",
+                Reference: C.ADA_TEAL,
+                "Reference Site Candidate": C.TEAL,
+                Project: C.GREEN,
                 "Other Restored Site": "#6A9E3A",
-                "Planned Restoration": "#E09337",
+                "Planned Restoration": C.ORANGE,
                 NA: "#bbb",
             };
 
@@ -391,20 +402,20 @@
                         stations.forEach(function (s) {
                             L.circleMarker([s.lat, s.lon], {
                                 radius: 5,
-                                fillColor: "#228B9C",
+                                fillColor: C.TEAL,
                                 color: "#fff",
                                 weight: 1.5,
                                 opacity: 0.8,
                                 fillOpacity: 0.5,
                             })
-                                .bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: "#228B9C", showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] }))
+                                .bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: C.TEAL, showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] }))
                                 .addTo(markerLayer);
                         });
                     },
                 },
                 {
                     legend: [
-                        { label: "Benchmark", color: "#92BB4D", value: "Benchmark" },
+                        { label: "Benchmark", color: C.LIGHT_GREEN, value: "Benchmark" },
                         { label: "Benchmark-Reference", color: "#C7D865", value: "Benchmark-Reference" },
                     ],
                     field: "WRMP_Site_Type",
@@ -429,8 +440,8 @@
                 },
                 {
                     legend: [
-                        { label: "Reference", color: "#005E6A", value: "Reference" },
-                        { label: "Reference Candidate", color: "#228B9C", value: "Reference Site Candidate" },
+                        { label: "Reference", color: C.ADA_TEAL, value: "Reference" },
+                        { label: "Reference Candidate", color: C.TEAL, value: "Reference Site Candidate" },
                     ],
                     field: "WRMP_Site_Type",
                     bounds: BAY_FULL,
@@ -454,7 +465,7 @@
                 },
                 {
                     legend: [
-                        { label: "Project", color: "#379352", value: "Project" },
+                        { label: "Project", color: C.GREEN, value: "Project" },
                         { label: "Other Restored", color: "#6A9E3A", value: "Other Restored Site" },
                     ],
                     field: "WRMP_Site_Type",
@@ -480,7 +491,7 @@
                 },
                 {
                     legend: [
-                        { label: "Planned Restoration", color: "#E09337", value: "Planned Restoration" },
+                        { label: "Planned Restoration", color: C.ORANGE, value: "Planned Restoration" },
                         { label: "Existing Stations", color: "#bbb", value: "_other" },
                     ],
                     field: "WRMP_Site_Type",
@@ -496,26 +507,26 @@
 
                             L.circleMarker([s.lat, s.lon], {
                                 radius: match ? (planned ? 9 : 5) : 4,
-                                fillColor: match ? (planned ? "#E09337" : "#888") : "#aaa",
+                                fillColor: match ? (planned ? C.ORANGE : "#888") : "#aaa",
                                 color: match ? "#fff" : "#ccc",
                                 weight: match ? (planned ? 2.5 : 1.5) : 1,
                                 opacity: match ? 1 : 0.3,
                                 fillOpacity: match ? (planned ? 0.9 : 0.4) : 0.12,
                             })
-                                .bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: planned ? "#E09337" : "#888", showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] }))
+                                .bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: planned ? C.ORANGE : "#888", showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] }))
                                 .addTo(markerLayer);
                         });
                     },
                 },
                 {
                     legend: [
-                        { label: "Benchmark", color: "#92BB4D", value: "Benchmark" },
+                        { label: "Benchmark", color: C.LIGHT_GREEN, value: "Benchmark" },
                         { label: "Benchmark-Ref", color: "#C7D865", value: "Benchmark-Reference" },
-                        { label: "Reference", color: "#005E6A", value: "Reference" },
-                        { label: "Ref Candidate", color: "#228B9C", value: "Reference Site Candidate" },
-                        { label: "Project", color: "#379352", value: "Project" },
+                        { label: "Reference", color: C.ADA_TEAL, value: "Reference" },
+                        { label: "Ref Candidate", color: C.TEAL, value: "Reference Site Candidate" },
+                        { label: "Project", color: C.GREEN, value: "Project" },
                         { label: "Other Restored", color: "#6A9E3A", value: "Other Restored Site" },
-                        { label: "Planned", color: "#E09337", value: "Planned Restoration" },
+                        { label: "Planned", color: C.ORANGE, value: "Planned Restoration" },
                     ],
                     field: "WRMP_Site_Type",
                     colors: SITE_COLORS,
