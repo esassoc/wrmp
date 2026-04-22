@@ -209,7 +209,7 @@ var SUISUN = [[38.03, -122.15], [38.22, -121.75]];
 - [ ] Each step includes `.step-header` with mark, kicker, and `h2`
 - [ ] First step has `class="step active"`
 - [ ] `btn-prev` starts with `disabled` attribute
-- [ ] Popup uses `WRMP.makePopup()` (DOM-built, no innerHTML)
+- [ ] Popup uses `WRMP.makeMarkerPopup()` (DOM-built, no innerHTML; `marker-popup.js` + `marker-popup.css` linked)
 - [ ] Colors use CSS custom properties from tokens.css where possible
 - [ ] Body text is at least 16px (ADA requirement)
 - [ ] Photo/video backgrounds include `.photo-credit` attribution

@@ -48,22 +48,29 @@ Interactive exhibit experiences ("natural history museum type exhibitions") that
 wrmp/
 ├── CLAUDE.md                          # AI collaborator context (this file)
 ├── README.md                          # Human collaborator onboarding
+├── gallery/
+│   └── index.html                     # Hub: iframed exhibits + link to design-system
+├── design-system/
+│   └── index.html                     # Token/component specimens (loads shared/css)
 ├── data/                              # JSON metadata converted from Excel sources
 │   ├── stations.json                  # 119 stations with lat/lon, region, network, habitat, site type
 │   ├── species.json                   # 237 species with taxonomy, native/invasive status, habitat
 │   ├── gear.json                      # 9 sampling gear types with descriptions
 │   └── benthos.json                   # 31 substrate/benthos classification types
-├── shared/                            # Single source of truth for CSS, JS, images
+├── shared/                            # Single source of truth for CSS, JS, images, fonts
 │   ├── css/
-│   │   ├── tokens.css                 # Design tokens (colors, typography, spacing)
+│   │   ├── tokens.css                 # Design tokens + Radix color @imports
 │   │   ├── exhibit-frame.css          # Structural CSS (frame, panel, legend, nav, backgrounds)
-│   │   └── leaflet-overrides.css      # Popup and control styling
+│   │   ├── leaflet-overrides.css      # Leaflet control + base popup styling
+│   │   ├── marker-popup.css           # Station marker popup chrome
+│   │   └── metrics-card.css           # Metric card pattern
 │   ├── js/
 │   │   ├── data-loader.js             # WRMP.loadData() — fetch JSON relative to exhibit
-│   │   ├── map-init.js                # WRMP.initMap(), flyTo(), makePopup(), addPOI()
-│   │   └── stepper.js                 # WRMP.createStepper() — config-driven step navigation
-│   └── img/
-│       └── wrmp-logo.png              # Nav bar logo
+│   │   ├── map-init.js                # WRMP.initMap(), flyTo(), addPOI() (popups → marker-popup.js)
+│   │   ├── stepper.js                 # WRMP.createStepper() — config-driven step navigation
+│   │   └── marker-popup.js            # WRMP.makeMarkerPopup() — DOM-built marker popups
+│   ├── fonts/                         # Self-hosted Source Sans Pro (see tokens.css)
+│   └── img/                           # Logos, marks (nav + step header)
 ├── exhibits/                          # Date-versioned exhibit prototypes
 │   ├── 2026-04-03-station-map-stepper/
 │   ├── 2026-04-10-delta-smelt/        # includes delta-smelt.mp4 (2.9 MB)
@@ -73,7 +80,8 @@ wrmp/
 ├── reference/                         # Branding assets + source data (gitignored)
 │   ├── WRMP branding elements/        # Official fonts, color swatches, logos
 │   └── WRMP data examples.../         # Source Excel files for JSON conversion
-└── design-system/                     # Reserved for formal design system docs
+├── .claude/                           # launch.json, skills/wrmp-exhibit (Claude Code)
+└── .cursor/                           # Optional workspace settings (e.g. Figma plugin)
 ```
 
 ### Conventions
@@ -95,14 +103,16 @@ Extracted from wrmp.org. All exhibits must use these tokens.
 
 ### Brand Colors
 
-| Token                | Hex       | Usage                                     |
-| -------------------- | --------- | ----------------------------------------- |
-| `--wrmp-teal`        | `#228B9C` | Primary brand teal                        |
-| `--wrmp-ada-teal`    | `#005E6A` | Dark teal (headings, links, ADA contrast) |
-| `--wrmp-orange`      | `#E09337` | Accent orange                             |
-| `--wrmp-green`       | `#379352` | Heritage green                            |
-| `--wrmp-light-green` | `#92BB4D` | Light green accent                        |
-| `--wrmp-dark`        | `#4E4E50` | Dark gray (text, UI)                      |
+Official hex values live in `tokens.css` as `--wrmp-*-brand`. The **active** tokens (`--wrmp-teal`, `--wrmp-ada-teal`, …) point at Radix CSS variables (e.g. `--cyan-9`, `--cyan-12`); treat the hex column below as the **brand reference**, not a guarantee of computed `--wrmp-*` pixel values.
+
+| Token (use in CSS)   | Reference hex (`--wrmp-*-brand`) | Usage                                     |
+| -------------------- | -------------------------------- | ----------------------------------------- |
+| `--wrmp-teal`        | `#228B9C`                        | Primary brand teal                        |
+| `--wrmp-ada-teal`    | `#005E6A`                        | Dark teal (headings, links, ADA contrast) |
+| `--wrmp-orange`      | `#E09337`                        | Accent orange                             |
+| `--wrmp-green`       | `#379352`                        | Heritage green                            |
+| `--wrmp-light-green` | `#92BB4D`                        | Light green accent                        |
+| `--wrmp-dark`        | `#4E4E50`                        | Dark gray (text, UI)                      |
 
 ### Map Color Palettes
 
@@ -119,18 +129,18 @@ Extracted from wrmp.org. All exhibits must use these tokens.
 - **Map legend:** Floating top-right, glassmorphism chips, clickable to filter/zoom, "All" option resets
 - **Navigation:** Apple-style dots (active = wide teal pill 36px, inactive = 8px circle), Back/Next buttons
 - **Map offset:** `paddingTopLeft` in Leaflet accounts for panel overlay so stations render in visible area
-- **Popups:** DOM-built (no innerHTML), show station code, name, region, network, habitat, site type
+- **Popups:** `WRMP.makeMarkerPopup()` — DOM-built (no innerHTML); station fields vary by exhibit
 
 ## Shared JavaScript API (`WRMP.*`)
 
-All exhibits use the `WRMP` namespace. Scripts must load in this order: `data-loader.js` → `map-init.js` → `stepper.js`.
+All exhibits use the `WRMP` namespace. Scripts must load in this order: `data-loader.js` → `map-init.js` → `marker-popup.js` → `stepper.js`.
 
 | Function | Purpose | Example |
 |----------|---------|---------|
 | `WRMP.loadData({ stations: true })` | Fetch JSON files, returns Promise | `.then(function(data) { data.stations })` |
 | `WRMP.initMap("map", { bounds })` | Create Leaflet map with WRMP defaults | `var map = WRMP.initMap("map", { bounds: BAY_FULL })` |
 | `WRMP.flyTo(map, bounds, opts)` | Animated pan with panel-aware padding | `WRMP.flyTo(map, SOUTH_BAY)` |
-| `WRMP.makePopup(station, fields)` | DOM-built popup (no innerHTML) | `WRMP.makePopup(s, [["Region", "region"]])` |
+| `WRMP.makeMarkerPopup(opts)` | DOM-built marker popup card (no innerHTML); requires `marker-popup.css` | See `shared/js/marker-popup.js` header for `opts` shape |
 | `WRMP.addPOI(layer, lat, lon, text)` | Floating non-interactive label | `WRMP.addPOI(poiLayer, 37.5, -122, "Label")` |
 | `WRMP.createStepper({ totalSteps, onStepEnter })` | Config-driven step navigation | Returns controller with `goToStep(n)` and `currentStep` |
 | `WRMP.getMapPadding()` | Calculate padding for story panel overlay | Used internally by `initMap` and `flyTo` |
@@ -138,10 +148,10 @@ All exhibits use the `WRMP` namespace. Scripts must load in this order: `data-lo
 ### Exhibit HTML Pattern
 
 Every exhibit follows this structure:
-1. **Head:** Google Fonts + Leaflet CSS + `shared/css/` (tokens, exhibit-frame, leaflet-overrides)
+1. **Head:** Google Fonts + Leaflet CSS + `shared/css/` (tokens, exhibit-frame, leaflet-overrides, marker-popup when using map markers)
 2. **Body:** `.exhibit-frame` > background layers + `#map` + `.map-legend` + `.story-panel`
 3. **Story panel:** `.story-panel-inner` with `.step[data-step="N"]` divs + `.nav-bar` with dots
-4. **Scripts:** Leaflet JS + `shared/js/` (data-loader, map-init, stepper) + exhibit-specific `<script>`
+4. **Scripts:** Leaflet JS + `shared/js/` (data-loader, map-init, marker-popup, stepper) + exhibit-specific `<script>`
 5. **Exhibit script:** Config objects, `STEP_DEFS` array, legend builder, render function, stepper init
 
 ### Background Layer Types
