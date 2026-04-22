@@ -146,7 +146,7 @@ Every step must start with a **step header** row: transparent icon mark (WRMP lo
 <div class="step-header">
   <img
     class="step-header-mark"
-    src="../../shared/img/wrmp-logo-only.png"
+    src="../../shared/img/wrmp-logo-2in-mark-crop.png"
     alt=""
     width="40"
     height="40"
