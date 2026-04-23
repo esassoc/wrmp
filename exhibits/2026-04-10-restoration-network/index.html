@@ -1,4 +1,4 @@
-2<!doctype html>
+<!doctype html>
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
@@ -7,13 +7,14 @@
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
-            href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:wght@400;600;700&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap"
             rel="stylesheet"
         />
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
         <link rel="stylesheet" href="../../shared/css/tokens.css" />
         <link rel="stylesheet" href="../../shared/css/exhibit-frame.css" />
-        <link rel="stylesheet" href="../../shared/css/leaflet-overrides.css" />
+        <link rel="stylesheet" href="../../shared/css/leaflet-overrides.css?v=2" />
+        <link rel="stylesheet" href="../../shared/css/marker-popup.css" />
         <style>
             .site-chart-card {
                 position: absolute;
@@ -36,10 +37,10 @@
                 opacity: 1;
             }
             .site-chart-title {
-                font-family: var(--font-heading, "Source Serif 4", serif);
+                font-family: var(--font-heading);
                 font-size: 15px;
                 font-weight: 600;
-                color: var(--wrmp-ada-teal, #005e6a);
+                color: var(--gray-12);
                 margin: 0 0 10px 0;
                 text-align: center;
             }
@@ -59,8 +60,21 @@
                 <div class="story-panel-inner">
                     <!-- Step 1: Designing the Experiment -->
                     <div class="step active" data-step="0">
-                        <span class="kicker">How Science Works</span>
-                        <h2>Designing the Experiment</h2>
+                        <div class="step-header">
+                            <img
+                                class="step-header-mark"
+                                src="../../shared/img/wrmp-logo-2in-mark-crop.png"
+                                alt=""
+                                width="40"
+                                height="40"
+                                decoding="async"
+                            />
+                            <div class="step-header-text">
+                                <span class="kicker">How Science Works</span>
+                                <h2>Designing the Experiment</h2>
+                            </div>
+                        </div>
+
                         <div class="body">
                             <p>
                                 Before you can measure restoration success, you need a plan. WRMP's 119 monitoring
@@ -90,8 +104,21 @@
 
                     <!-- Step 2: Benchmarks -->
                     <div class="step" data-step="1">
-                        <span class="kicker">The Control Group</span>
-                        <h2>Benchmarks: The Gold Standard</h2>
+                        <div class="step-header">
+                            <img
+                                class="step-header-mark"
+                                src="../../shared/img/wrmp-logo-2in-mark-crop.png"
+                                alt=""
+                                width="40"
+                                height="40"
+                                decoding="async"
+                            />
+                            <div class="step-header-text">
+                                <span class="kicker">The Control Group</span>
+                                <h2>Benchmarks: The Gold Standard</h2>
+                            </div>
+                        </div>
+
                         <div class="body">
                             <p>
                                 Benchmark sites are healthy, undisturbed habitats that define what "good" looks like.
@@ -117,8 +144,21 @@
 
                     <!-- Step 3: Reference Sites -->
                     <div class="step" data-step="2">
-                        <span class="kicker">The Comparison</span>
-                        <h2>Reference Sites</h2>
+                        <div class="step-header">
+                            <img
+                                class="step-header-mark"
+                                src="../../shared/img/wrmp-logo-2in-mark-crop.png"
+                                alt=""
+                                width="40"
+                                height="40"
+                                decoding="async"
+                            />
+                            <div class="step-header-text">
+                                <span class="kicker">The Comparison</span>
+                                <h2>Reference Sites</h2>
+                            </div>
+                        </div>
+
                         <div class="body">
                             <p>
                                 Reference sites are natural areas adjacent to restoration projects. They show what the
@@ -144,8 +184,21 @@
 
                     <!-- Step 4: Project Sites -->
                     <div class="step" data-step="3">
-                        <span class="kicker">Restoration in Action</span>
-                        <h2>Project Sites</h2>
+                        <div class="step-header">
+                            <img
+                                class="step-header-mark"
+                                src="../../shared/img/wrmp-logo-2in-mark-crop.png"
+                                alt=""
+                                width="40"
+                                height="40"
+                                decoding="async"
+                            />
+                            <div class="step-header-text">
+                                <span class="kicker">Restoration in Action</span>
+                                <h2>Project Sites</h2>
+                            </div>
+                        </div>
+
                         <div class="body">
                             <p>
                                 These are the restored wetlands being actively monitored — former salt ponds, diked
@@ -175,8 +228,21 @@
 
                     <!-- Step 5: What Comes Next -->
                     <div class="step" data-step="4">
-                        <span class="kicker">Future Monitoring</span>
-                        <h2>What Comes Next</h2>
+                        <div class="step-header">
+                            <img
+                                class="step-header-mark"
+                                src="../../shared/img/wrmp-logo-2in-mark-crop.png"
+                                alt=""
+                                width="40"
+                                height="40"
+                                decoding="async"
+                            />
+                            <div class="step-header-text">
+                                <span class="kicker">Future Monitoring</span>
+                                <h2>What Comes Next</h2>
+                            </div>
+                        </div>
+
                         <div class="body">
                             <p>
                                 Across the Bay, <strong>17 planned restoration sites</strong> mark where the next
@@ -203,8 +269,21 @@
 
                     <!-- Step 6: The Full Picture -->
                     <div class="step" data-step="5">
-                        <span class="kicker">All Together</span>
-                        <h2>The Full Picture</h2>
+                        <div class="step-header">
+                            <img
+                                class="step-header-mark"
+                                src="../../shared/img/wrmp-logo-2in-mark-crop.png"
+                                alt=""
+                                width="40"
+                                height="40"
+                                decoding="async"
+                            />
+                            <div class="step-header-text">
+                                <span class="kicker">All Together</span>
+                                <h2>The Full Picture</h2>
+                            </div>
+                        </div>
+
                         <div class="body">
                             <p>
                                 Benchmark, Reference, Project, Planned — each station type plays a distinct role in the
@@ -229,7 +308,6 @@
 
                 <!-- Navigation -->
                 <div class="nav-bar">
-                    <img src="../../shared/img/wrmp-logo.png" alt="WRMP" class="nav-logo" />
                     <button id="btn-prev" disabled>Back</button>
                     <div class="step-dots">
                         <button class="step-dot active" data-step="0" aria-label="Step 1"></button>
@@ -248,19 +326,31 @@
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
         <script src="../../shared/js/data-loader.js"></script>
         <script src="../../shared/js/map-init.js"></script>
+        <script src="../../shared/js/marker-popup.js"></script>
         <script src="../../shared/js/stepper.js"></script>
         <script>
             // ── Exhibit Config ─────────────────────────────
             var STATIONS = [];
+            function tokenColor(name, fallback) {
+                var v = getComputedStyle(document.documentElement).getPropertyValue(name);
+                return v ? v.trim() || fallback : fallback;
+            }
+            var C = {
+                ADA_TEAL: tokenColor("--wrmp-ada-teal", "#005E6A"),
+                GREEN: tokenColor("--wrmp-green", "#379352"),
+                ORANGE: tokenColor("--wrmp-orange", "#E09337"),
+                TEAL: tokenColor("--wrmp-teal", "#228B9C"),
+                LIGHT_GREEN: tokenColor("--wrmp-light-green", "#92BB4D"),
+            };
 
             var SITE_COLORS = {
-                Benchmark: "#92BB4D",
+                Benchmark: C.LIGHT_GREEN,
                 "Benchmark-Reference": "#C7D865",
-                Reference: "#005E6A",
-                "Reference Site Candidate": "#228B9C",
-                Project: "#379352",
+                Reference: C.ADA_TEAL,
+                "Reference Site Candidate": C.TEAL,
+                Project: C.GREEN,
                 "Other Restored Site": "#6A9E3A",
-                "Planned Restoration": "#E09337",
+                "Planned Restoration": C.ORANGE,
                 NA: "#bbb",
             };
 
@@ -312,20 +402,20 @@
                         stations.forEach(function (s) {
                             L.circleMarker([s.lat, s.lon], {
                                 radius: 5,
-                                fillColor: "#228B9C",
+                                fillColor: C.TEAL,
                                 color: "#fff",
                                 weight: 1.5,
                                 opacity: 0.8,
                                 fillOpacity: 0.5,
                             })
-                                .bindPopup(WRMP.makePopup(s, POPUP_FIELDS))
+                                .bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: C.TEAL, showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] }))
                                 .addTo(markerLayer);
                         });
                     },
                 },
                 {
                     legend: [
-                        { label: "Benchmark", color: "#92BB4D", value: "Benchmark" },
+                        { label: "Benchmark", color: C.LIGHT_GREEN, value: "Benchmark" },
                         { label: "Benchmark-Reference", color: "#C7D865", value: "Benchmark-Reference" },
                     ],
                     field: "WRMP_Site_Type",
@@ -343,15 +433,15 @@
                                 opacity: match ? 1 : 0.3,
                                 fillOpacity: match ? 0.85 : 0.15,
                             })
-                                .bindPopup(WRMP.makePopup(s, POPUP_FIELDS))
+                                .bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: color, showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] }))
                                 .addTo(markerLayer);
                         });
                     },
                 },
                 {
                     legend: [
-                        { label: "Reference", color: "#005E6A", value: "Reference" },
-                        { label: "Reference Candidate", color: "#228B9C", value: "Reference Site Candidate" },
+                        { label: "Reference", color: C.ADA_TEAL, value: "Reference" },
+                        { label: "Reference Candidate", color: C.TEAL, value: "Reference Site Candidate" },
                     ],
                     field: "WRMP_Site_Type",
                     bounds: BAY_FULL,
@@ -368,20 +458,20 @@
                                 opacity: match ? 1 : 0.3,
                                 fillOpacity: match ? 0.85 : 0.15,
                             })
-                                .bindPopup(WRMP.makePopup(s, POPUP_FIELDS))
+                                .bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: color, showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] }))
                                 .addTo(markerLayer);
                         });
                     },
                 },
                 {
                     legend: [
-                        { label: "Project", color: "#379352", value: "Project" },
+                        { label: "Project", color: C.GREEN, value: "Project" },
                         { label: "Other Restored", color: "#6A9E3A", value: "Other Restored Site" },
                     ],
                     field: "WRMP_Site_Type",
                     bounds: SOUTH_BAY,
                     boundsOpts: { duration: 1.5 },
-                    pois: [[37.47, -121.97, "15,000-acre restoration"]],
+                    pois: [],
                     render: function (stations, filter) {
                         stations.forEach(function (s) {
                             var match = !filter ? isProject(s) : (s.WRMP_Site_Type || "").trim() === filter;
@@ -394,23 +484,19 @@
                                 opacity: match ? 1 : 0.3,
                                 fillOpacity: match ? 0.9 : 0.15,
                             })
-                                .bindPopup(WRMP.makePopup(s, POPUP_FIELDS))
+                                .bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: color, showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] }))
                                 .addTo(markerLayer);
                         });
                     },
                 },
                 {
                     legend: [
-                        { label: "Planned Restoration", color: "#E09337", value: "Planned Restoration" },
+                        { label: "Planned Restoration", color: C.ORANGE, value: "Planned Restoration" },
                         { label: "Existing Stations", color: "#bbb", value: "_other" },
                     ],
                     field: "WRMP_Site_Type",
                     bounds: BAY_FULL,
-                    pois: [
-                        [37.46, -121.97, "Alviso Marsh (10 sites)"],
-                        [37.58, -122.08, "Eden Landing (3 sites)"],
-                        [38.15, -121.95, "Suisun Marsh (6 sites)"],
-                    ],
+                    pois: [],
                     render: function (stations, filter) {
                         stations.forEach(function (s) {
                             var planned = isPlanned(s);
@@ -421,26 +507,26 @@
 
                             L.circleMarker([s.lat, s.lon], {
                                 radius: match ? (planned ? 9 : 5) : 4,
-                                fillColor: match ? (planned ? "#E09337" : "#888") : "#aaa",
+                                fillColor: match ? (planned ? C.ORANGE : "#888") : "#aaa",
                                 color: match ? "#fff" : "#ccc",
                                 weight: match ? (planned ? 2.5 : 1.5) : 1,
                                 opacity: match ? 1 : 0.3,
                                 fillOpacity: match ? (planned ? 0.9 : 0.4) : 0.12,
                             })
-                                .bindPopup(WRMP.makePopup(s, POPUP_FIELDS))
+                                .bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: planned ? C.ORANGE : "#888", showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] }))
                                 .addTo(markerLayer);
                         });
                     },
                 },
                 {
                     legend: [
-                        { label: "Benchmark", color: "#92BB4D", value: "Benchmark" },
+                        { label: "Benchmark", color: C.LIGHT_GREEN, value: "Benchmark" },
                         { label: "Benchmark-Ref", color: "#C7D865", value: "Benchmark-Reference" },
-                        { label: "Reference", color: "#005E6A", value: "Reference" },
-                        { label: "Ref Candidate", color: "#228B9C", value: "Reference Site Candidate" },
-                        { label: "Project", color: "#379352", value: "Project" },
+                        { label: "Reference", color: C.ADA_TEAL, value: "Reference" },
+                        { label: "Ref Candidate", color: C.TEAL, value: "Reference Site Candidate" },
+                        { label: "Project", color: C.GREEN, value: "Project" },
                         { label: "Other Restored", color: "#6A9E3A", value: "Other Restored Site" },
-                        { label: "Planned", color: "#E09337", value: "Planned Restoration" },
+                        { label: "Planned", color: C.ORANGE, value: "Planned Restoration" },
                     ],
                     field: "WRMP_Site_Type",
                     colors: SITE_COLORS,
@@ -460,7 +546,7 @@
                                 opacity: match ? 1 : 0.3,
                                 fillOpacity: match ? 0.85 : 0.15,
                             })
-                                .bindPopup(WRMP.makePopup(s, POPUP_FIELDS))
+                                .bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: color, showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] }))
                                 .addTo(markerLayer);
                         });
                     },
@@ -570,7 +656,11 @@
 
                 var allChip = document.createElement("button");
                 allChip.className = "map-legend-chip" + (!activeFilter ? " active" : "");
-                allChip.textContent = "All";
+                var allLabel = document.createElement("span");
+                allLabel.className = "map-legend-chip-label";
+                allLabel.setAttribute("data-label", "All");
+                allLabel.textContent = "All";
+                allChip.appendChild(allLabel);
                 allChip.addEventListener("click", function () {
                     activeFilter = null;
                     buildLegend();
@@ -587,7 +677,11 @@
                     dot.className = "map-legend-dot";
                     dot.style.background = item.color;
                     chip.appendChild(dot);
-                    chip.appendChild(document.createTextNode(item.label));
+                    var lbl = document.createElement("span");
+                    lbl.className = "map-legend-chip-label";
+                    lbl.setAttribute("data-label", item.label);
+                    lbl.textContent = item.label;
+                    chip.appendChild(lbl);
                     chip.addEventListener("click", function () {
                         activeFilter = activeFilter === item.value ? null : item.value;
                         buildLegend();

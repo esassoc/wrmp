@@ -1,0 +1,3433 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WRMP Design System</title>
+    <!-- Real shared stylesheets — edit those files, refresh here to see changes -->
+    <link rel="stylesheet" href="../shared/css/tokens.css" />
+    <link rel="stylesheet" href="../shared/css/exhibit-frame.css" />
+    <link rel="stylesheet" href="../shared/css/leaflet-overrides.css?v=2" />
+    <link rel="stylesheet" href="../shared/css/marker-popup.css" />
+    <link rel="stylesheet" href="../shared/css/metrics-card.css" />
+    <style>
+      /* ── Override exhibit-frame.css global body styles ──
+           exhibit-frame.css centers body for 16:9 exhibit use.
+           This page needs normal document flow instead.        */
+      body {
+        display: block;
+        min-height: unset;
+        padding: 0;
+        background: #f2f4f5;
+        align-items: unset;
+        justify-content: unset;
+      }
+
+      /* ── Specimen page chrome ─────────────────────────── */
+      .ds-header {
+        background: var(--wrmp-ada-teal);
+        color: #fff;
+        padding: 32px 48px;
+        display: flex;
+        align-items: center;
+        gap: 24px;
+      }
+
+      .ds-header img {
+        height: 48px;
+      }
+
+      .ds-header-text h1 {
+        font-family: var(--font-heading);
+        font-size: var(--size-xxl);
+        font-weight: 600;
+        line-height: 1.1;
+        /* reset exhibit-frame.css h2 styles that bleed in */
+        color: #fff;
+        margin-bottom: 0;
+      }
+
+      .ds-header-text p {
+        font-size: var(--size-sm);
+        opacity: 0.75;
+        margin-top: 4px;
+        color: #fff;
+      }
+
+      .ds-nav {
+        background: #fff;
+        border-bottom: 1px solid #e0e0e0;
+        padding: 0 48px;
+        display: flex;
+        gap: 0;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        flex-wrap: wrap;
+      }
+
+      .ds-nav a {
+        display: block;
+        padding: 14px 16px;
+        font-size: var(--size-sm);
+        font-weight: 600;
+        color: #555;
+        text-decoration: none;
+        border-bottom: 3px solid transparent;
+        transition:
+          color 0.15s,
+          border-color 0.15s;
+      }
+
+      .ds-nav a:hover {
+        color: var(--wrmp-ada-teal);
+        border-bottom-color: var(--wrmp-teal);
+      }
+
+      .ds-content {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 48px 48px 96px;
+        display: flex;
+        flex-direction: column;
+        gap: 64px;
+      }
+
+      /* ── Section layout ───────────────────────────────── */
+      .ds-section > h2 {
+        /* override exhibit-frame.css .step h2 */
+        font-family: var(--font-heading) !important;
+        font-size: var(--size-xl) !important;
+        font-weight: 600 !important;
+        color: var(--wrmp-ada-teal) !important;
+        margin-bottom: 4px !important;
+        animation: none !important;
+        transition: none !important;
+      }
+
+      .ds-section .section-desc {
+        font-size: var(--size-sm);
+        color: #777;
+        margin-bottom: 24px;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 16px;
+      }
+
+      .ds-group {
+        margin-bottom: 32px;
+      }
+
+      .ds-group-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #999;
+        margin-bottom: 12px;
+      }
+
+      .ds-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-items: flex-start;
+      }
+
+      /* White card wrapper for specimens on light background */
+      .ds-card {
+        background: #fff;
+        border: 1px solid #e8e8e8;
+        border-radius: 10px;
+        padding: 24px;
+      }
+
+      /* Dark/photo background wrapper for components that live on top of maps/images */
+      .ds-bg-dark {
+        background: linear-gradient(135deg, #2a6b7c 0%, #1a4a55 100%);
+        border-radius: 10px;
+        padding: 24px;
+      }
+
+      .ds-bg-green {
+        background: linear-gradient(135deg, #3a7a6c 0%, #2a5a4c 100%);
+        border-radius: 10px;
+        padding: 24px;
+      }
+
+      .specimen-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #bbb;
+        margin-bottom: 16px;
+      }
+
+      /* ── Colors ───────────────────────────────────────── */
+      .swatch-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .swatch {
+        width: 100px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid rgba(0, 0, 0, 0.07);
+      }
+
+      .swatch-color {
+        height: 64px;
+      }
+
+      .swatch-info {
+        background: #fff;
+        padding: 8px 10px;
+      }
+
+      .swatch-name {
+        font-size: 11px;
+        font-weight: 700;
+        color: #333;
+      }
+
+      .swatch-hex {
+        font-size: 10px;
+        color: #999;
+        font-family: monospace;
+        line-height: 1.4;
+      }
+
+      /* Radix dark scales: same --gray-* names, scoped to .dark / .dark-theme */
+      .dark-theme-preview.dark-theme {
+        margin-top: 12px;
+        padding: 16px;
+        border-radius: 12px;
+        background: var(--gray-1);
+      }
+      .dark-theme-preview.dark-theme .swatch {
+        border-color: rgba(255, 255, 255, 0.12);
+      }
+      .dark-theme-preview.dark-theme .swatch-info {
+        background: var(--gray-2);
+      }
+      .dark-theme-preview.dark-theme .swatch-name {
+        color: var(--gray-12);
+      }
+      .dark-theme-preview.dark-theme .swatch-hex {
+        color: var(--gray-11);
+      }
+
+      /* Compact 1–12 ramps inside .dark-theme (same --*-N names, dark values) */
+      .dark-theme-preview .radix-ramp-row {
+        display: flex;
+        align-items: stretch;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+      .dark-theme-preview .radix-ramp-row:last-child {
+        margin-bottom: 0;
+      }
+      .dark-theme-preview .radix-ramp-label {
+        flex: 0 0 76px;
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1.25;
+        color: var(--gray-12);
+        padding-top: 4px;
+      }
+      .dark-theme-preview .radix-ramp-steps {
+        display: flex;
+        gap: 3px;
+        flex-wrap: wrap;
+        flex: 1;
+        align-items: center;
+      }
+      .dark-theme-preview .radix-ramp-chip {
+        width: 20px;
+        height: 36px;
+        border-radius: 3px;
+        flex-shrink: 0;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+      }
+
+      /* ── Typography ───────────────────────────────────── */
+      .type-ramp {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+
+      .type-specimen {
+        display: flex;
+        align-items: baseline;
+        gap: 24px;
+        padding: 20px 0;
+        border-bottom: 1px solid #eee;
+      }
+
+      .type-specimen:last-child {
+        border-bottom: none;
+      }
+
+      .type-meta {
+        width: 160px;
+        flex-shrink: 0;
+      }
+
+      .type-meta .type-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #999;
+      }
+
+      .type-meta .type-token {
+        font-size: 10px;
+        color: #ccc;
+        font-family: monospace;
+        margin-top: 2px;
+        line-height: 1.5;
+      }
+
+      .type-variant-label {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #ccc;
+        margin-bottom: 4px;
+      }
+
+      /* ── Spacing ──────────────────────────────────────── */
+      .spacing-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .spacing-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .spacing-block {
+        background: var(--wrmp-teal);
+        opacity: 0.35;
+        height: 24px;
+        border-radius: 3px;
+      }
+
+      .spacing-label {
+        font-size: 12px;
+        color: #555;
+        width: 90px;
+        flex-shrink: 0;
+      }
+
+      .spacing-token {
+        font-size: 11px;
+        color: #bbb;
+        font-family: monospace;
+      }
+
+      /* ── Logo specimens ───────────────────────────────── */
+      .logo-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+      }
+
+      .logo-specimen {
+        border-radius: 8px;
+        padding: 24px 32px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .logo-specimen.light {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+      }
+      .logo-specimen.dark {
+        background: var(--wrmp-ada-teal);
+      }
+      .logo-specimen.mid {
+        background: #f0f4f5;
+        border: 1px solid #e0e0e0;
+      }
+      .logo-specimen img {
+        height: 40px;
+      }
+
+      .logo-specimen .logo-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #aaa;
+      }
+
+      .logo-specimen.dark .logo-label {
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      /* ── Mini exhibit-frame mock ────────────────────────
+           Wraps story-panel specimens so position:absolute works
+           the same way it does inside a real exhibit.          */
+      .mini-frame {
+        position: relative;
+        width: 100%;
+        border-radius: 10px;
+        overflow: hidden;
+        background: linear-gradient(135deg, #2a6b7c 0%, #1a4a55 100%);
+        /* fixed height instead of 16:9 aspect ratio */
+        height: 300px;
+      }
+
+      /* inside mini-frame, constrain panel to demo width */
+      .mini-frame .story-panel {
+        width: 300px;
+      }
+
+      /* ── Step context wrapper ───────────────────────────
+           Components like .kicker, h2, .stat-pill, .callout
+           are scoped to .step in exhibit-frame.css.
+           Wrap them in .step.active so the real styles apply. */
+      .step-context {
+        display: block;
+      }
+
+      /* ── Stat row / pill specimens ────────────────────── */
+      .stat-specimen-dark {
+        background: rgba(10, 10, 10, 0.65);
+        border-radius: 8px;
+        padding: 16px;
+        flex: 1;
+        min-width: 260px;
+      }
+
+      /* ── Note callout ─────────────────────────────────── */
+      .ds-note {
+        font-size: 12px;
+        color: #aaa;
+        margin-top: 8px;
+      }
+
+      /* ── Mini map frame for overlay specimens (scoped clones
+           of exhibit-local patterns — see native-vs-invasive,
+           restoration-network, how-we-look.) ───────────────── */
+      .ds-map-mini {
+        position: relative;
+        width: 100%;
+        max-width: 640px;
+        aspect-ratio: 16 / 9;
+        border-radius: 10px;
+        overflow: hidden;
+        background: linear-gradient(
+          160deg,
+          #8aa9b4 0%,
+          #5a7a85 42%,
+          #3d5c68 100%
+        );
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+      }
+
+      .ds-map-mini .ds-fake-story {
+        position: absolute;
+        z-index: 4;
+        top: var(--panel-inset);
+        left: var(--panel-inset);
+        bottom: var(--panel-inset);
+        width: var(--panel-width);
+        max-width: 42%;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        padding: 10px 12px;
+        font-family: var(--font-body);
+        font-size: 11px;
+        color: #666;
+        line-height: 1.35;
+        pointer-events: none;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      }
+
+      .ds-map-mini .ds-fake-story strong {
+        display: block;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--wrmp-ada-teal);
+        margin-bottom: 4px;
+      }
+
+      /* content-area — native-vs-invasive */
+      .ds-map-mini .content-area {
+        position: absolute;
+        top: var(--panel-inset);
+        left: calc(
+          var(--panel-width) + var(--panel-inset) + var(--panel-inset)
+        );
+        right: var(--panel-inset);
+        bottom: var(--panel-inset);
+        z-index: 5;
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        padding: var(--space-lg);
+        overflow: hidden;
+      }
+
+      .ds-map-mini .content-area.active {
+        display: flex;
+      }
+
+      /* infographic-bg — how-we-look */
+      .ds-map-mini .infographic-bg {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        background-size: cover;
+        background-position: center;
+        display: none;
+        align-items: flex-end;
+        justify-content: flex-end;
+        padding: 16px;
+        padding-left: calc(var(--panel-width) + var(--panel-inset) + 16px);
+      }
+
+      .ds-map-mini .infographic-bg::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          to right,
+          rgba(0, 0, 0, 0.4) 0%,
+          rgba(0, 0, 0, 0.1) 45%,
+          rgba(0, 0, 0, 0.05) 100%
+        );
+        z-index: -1;
+      }
+
+      .ds-map-mini .infographic-bg .photo-credit {
+        position: absolute;
+        bottom: 6px;
+        right: 10px;
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.65);
+        z-index: 3;
+      }
+
+      .ds-map-mini .infographic-bg.active {
+        display: flex;
+      }
+
+      .ds-map-mini .infographic-bg .ds-infographic-chip {
+        z-index: 1;
+        font-size: 11px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.95);
+        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+        max-width: 55%;
+        text-align: right;
+        line-height: 1.35;
+      }
+
+      /* site-chart-card — restoration-network */
+      .ds-map-mini .site-chart-card {
+        position: absolute;
+        top: 50%;
+        right: 24px;
+        transform: translateY(-50%);
+        z-index: 500;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 12px;
+        padding: 16px 18px 12px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.35s ease;
+      }
+
+      .ds-map-mini .site-chart-card.visible {
+        opacity: 1;
+      }
+
+      .ds-map-mini .site-chart-title {
+        font-family: var(--font-heading);
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--wrmp-ada-teal, #005e6a);
+        margin: 0 0 8px;
+        text-align: center;
+      }
+
+      .ds-map-mini .site-chart-canvas-mock {
+        width: 200px;
+        height: 130px;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.12);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.45);
+      }
+
+      /* species-treemap — how-we-look */
+      .ds-map-mini .species-treemap {
+        position: absolute;
+        inset: 0;
+        z-index: 5;
+        display: none;
+        pointer-events: none;
+        background: #fff;
+      }
+
+      .ds-map-mini .species-treemap.active {
+        display: block;
+      }
+
+      .ds-map-mini .species-treemap-card {
+        width: 100%;
+        height: 100%;
+        padding: 12px 12px 12px
+          calc(var(--panel-width) + var(--panel-inset) + var(--panel-inset));
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .ds-map-mini .species-treemap-title {
+        font-family: var(--font-heading);
+        font-size: 14px;
+        font-weight: 400;
+        color: var(--wrmp-ada-teal);
+        margin-bottom: 6px;
+      }
+
+      .ds-map-mini .species-treemap-canvas {
+        flex: 1;
+        width: 100%;
+        min-height: 0;
+        border-radius: 8px;
+        background: #f6f8f8;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ── Header ──────────────────────────────────── -->
+    <header class="ds-header">
+      <img
+        src="../shared/img/WRMP_Logo_RGB_ADA_Trans_DarkMode_Website_1850.png"
+        alt="WRMP Logo"
+      />
+      <div class="ds-header-text">
+        <h1>Design System</h1>
+        <p>
+          Component inventory · Waterways Regional Monitoring Program · April
+          2026
+        </p>
+      </div>
+    </header>
+
+    <!-- ── Sticky nav ──────────────────────────────── -->
+    <nav class="ds-nav">
+      <a href="#colors">Colors</a>
+      <a href="#typography">Typography</a>
+      <a href="#typography-map-marker">Map &amp; marker type</a>
+      <a href="#spacing">Spacing</a>
+      <a href="#logos">Logos</a>
+      <a href="#panel">Story Panel</a>
+      <a href="#step-content">Step Content</a>
+      <a href="#stat-pills">Stat Pills</a>
+      <a href="#callouts">Callouts</a>
+      <a href="#nav-bar">Nav Bar</a>
+      <a href="#legend">Map Legend</a>
+      <a href="#metrics-card">Metrics Card</a>
+      <a href="#species-gallery">Species Gallery</a>
+      <a href="#bar-chart">Bar Chart</a>
+      <a href="#content-area">Content Area</a>
+      <a href="#site-chart-card">Site Chart Card</a>
+      <a href="#infographic-bg">Infographic BG</a>
+      <a href="#treemap">Treemap</a>
+      <a href="#labels">Map Labels</a>
+      <a href="#marker-popup">Marker Popup</a>
+    </nav>
+
+    <main class="ds-content">
+      <!-- ── Colors ───────────────────────────────── -->
+      <section class="ds-section" id="colors">
+        <h2>Colors</h2>
+        <p class="section-desc">
+          Active palette maps WRMP semantic tokens to Radix color scales
+          (Cyan, Amber, Orange, Grass, Lime, Sky, Brown) via CDN
+          <code>@radix-ui/colors@3.0.0</code>. Alpha scales
+          (<code>--{color}-a1</code>, <code>--{color}-a2</code>, …) are also
+          imported for subtle tints. Dark scale files redefine the
+          <strong>same</strong> variable names (<code>--gray-1</code> …
+          <code>--gray-12</code>, <code>--cyan-a1</code> …) under
+          <code>.dark</code> or <code>.dark-theme</code> — they do not add
+          separate <code>--gray-dark-1</code> names. Wrap dark UI in one of
+          those classes so <code>var(--gray-12)</code> resolves to the dark
+          palette. WRMP original hex values are preserved as
+          <code>--wrmp-*-brand</code> reference tokens below.
+        </p>
+
+        <div class="ds-group">
+          <div class="ds-group-label">Active Semantic Palette — Radix Colors</div>
+          <div class="swatch-grid">
+            <div class="swatch">
+              <div class="swatch-color" style="background: var(--wrmp-teal)"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Teal</div>
+                <div class="swatch-hex">--wrmp-teal<br />Cyan 9</div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-color" style="background: var(--wrmp-ada-teal)"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">ADA Teal ✓</div>
+                <div class="swatch-hex">--wrmp-ada-teal<br />Cyan 12</div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-color" style="background: var(--wrmp-orange)"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Orange</div>
+                <div class="swatch-hex">--wrmp-orange<br />Amber 9</div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-color" style="background: var(--wrmp-dark-orange)"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Dark Orange</div>
+                <div class="swatch-hex">--wrmp-dark-orange<br />Orange 9</div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-color" style="background: var(--wrmp-green)"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Green</div>
+                <div class="swatch-hex">--wrmp-green<br />Grass 9</div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-color" style="background: var(--wrmp-light-green)"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Light Green</div>
+                <div class="swatch-hex">--wrmp-light-green<br />Lime 9</div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-color" style="background: var(--wrmp-sky-blue)"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Sky Blue</div>
+                <div class="swatch-hex">--wrmp-sky-blue<br />Sky 9</div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-color" style="background: var(--wrmp-earth)"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Earth</div>
+                <div class="swatch-hex">--wrmp-earth<br />Brown 9</div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-color" style="background: var(--wrmp-dark)"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Dark</div>
+                <div class="swatch-hex">--wrmp-dark<br />Gray 11</div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-color" style="background: var(--wrmp-text)"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Text</div>
+                <div class="swatch-hex">--wrmp-text<br />Gray 12</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ds-group">
+          <div class="ds-group-label">Radix Gray — Neutral Scale</div>
+          <div class="swatch-grid">
+            <div class="swatch">
+              <div class="swatch-color" style="background: var(--gray-1); border: 1px solid #eee"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Gray 1</div>
+                <div class="swatch-hex">--gray-1<br />App bg</div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-color" style="background: var(--gray-2)"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Gray 2</div>
+                <div class="swatch-hex">--gray-2<br />Subtle bg</div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-color" style="background: var(--gray-3)"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Gray 3</div>
+                <div class="swatch-hex">--gray-3<br />UI bg</div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-color" style="background: var(--gray-4)"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Gray 4</div>
+                <div class="swatch-hex">--gray-4<br />Hover bg</div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-color" style="background: var(--gray-5)"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Gray 5</div>
+                <div class="swatch-hex">--gray-5<br />Active bg</div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-color" style="background: var(--gray-6)"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Gray 6</div>
+                <div class="swatch-hex">--gray-6<br />Subtle border</div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-color" style="background: var(--gray-7)"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Gray 7</div>
+                <div class="swatch-hex">--gray-7<br />Border</div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-color" style="background: var(--gray-8)"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Gray 8</div>
+                <div class="swatch-hex">--gray-8<br />Strong border</div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-color" style="background: var(--gray-9)"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Gray 9</div>
+                <div class="swatch-hex">--gray-9<br />Solid bg</div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-color" style="background: var(--gray-10)"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Gray 10</div>
+                <div class="swatch-hex">--gray-10<br />Solid hover</div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-color" style="background: var(--gray-11)"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Gray 11</div>
+                <div class="swatch-hex">--gray-11<br />Lo-contrast text</div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-color" style="background: var(--gray-12)"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Gray 12</div>
+                <div class="swatch-hex">--gray-12<br />Hi-contrast text</div>
+              </div>
+            </div>
+          </div>
+          <p class="ds-note" style="margin-top: 12px">
+            Below, the same <code>--gray-*</code> slots are shown inside
+            <code>.dark-theme</code> (from <code>gray-dark.css</code>) so you
+            can see the dark scale values.
+          </p>
+          <div class="dark-theme dark-theme-preview">
+            <div class="swatch-grid">
+              <div class="swatch">
+                <div
+                  class="swatch-color"
+                  style="background: var(--gray-1); border-bottom: 1px solid var(--gray-6)"
+                ></div>
+                <div class="swatch-info">
+                  <div class="swatch-name">Gray 1</div>
+                  <div class="swatch-hex">--gray-1<br />App bg (dark)</div>
+                </div>
+              </div>
+              <div class="swatch">
+                <div class="swatch-color" style="background: var(--gray-2)"></div>
+                <div class="swatch-info">
+                  <div class="swatch-name">Gray 2</div>
+                  <div class="swatch-hex">--gray-2</div>
+                </div>
+              </div>
+              <div class="swatch">
+                <div class="swatch-color" style="background: var(--gray-3)"></div>
+                <div class="swatch-info">
+                  <div class="swatch-name">Gray 3</div>
+                  <div class="swatch-hex">--gray-3</div>
+                </div>
+              </div>
+              <div class="swatch">
+                <div class="swatch-color" style="background: var(--gray-4)"></div>
+                <div class="swatch-info">
+                  <div class="swatch-name">Gray 4</div>
+                  <div class="swatch-hex">--gray-4</div>
+                </div>
+              </div>
+              <div class="swatch">
+                <div class="swatch-color" style="background: var(--gray-5)"></div>
+                <div class="swatch-info">
+                  <div class="swatch-name">Gray 5</div>
+                  <div class="swatch-hex">--gray-5</div>
+                </div>
+              </div>
+              <div class="swatch">
+                <div class="swatch-color" style="background: var(--gray-6)"></div>
+                <div class="swatch-info">
+                  <div class="swatch-name">Gray 6</div>
+                  <div class="swatch-hex">--gray-6</div>
+                </div>
+              </div>
+              <div class="swatch">
+                <div class="swatch-color" style="background: var(--gray-7)"></div>
+                <div class="swatch-info">
+                  <div class="swatch-name">Gray 7</div>
+                  <div class="swatch-hex">--gray-7</div>
+                </div>
+              </div>
+              <div class="swatch">
+                <div class="swatch-color" style="background: var(--gray-8)"></div>
+                <div class="swatch-info">
+                  <div class="swatch-name">Gray 8</div>
+                  <div class="swatch-hex">--gray-8</div>
+                </div>
+              </div>
+              <div class="swatch">
+                <div class="swatch-color" style="background: var(--gray-9)"></div>
+                <div class="swatch-info">
+                  <div class="swatch-name">Gray 9</div>
+                  <div class="swatch-hex">--gray-9</div>
+                </div>
+              </div>
+              <div class="swatch">
+                <div class="swatch-color" style="background: var(--gray-10)"></div>
+                <div class="swatch-info">
+                  <div class="swatch-name">Gray 10</div>
+                  <div class="swatch-hex">--gray-10</div>
+                </div>
+              </div>
+              <div class="swatch">
+                <div class="swatch-color" style="background: var(--gray-11)"></div>
+                <div class="swatch-info">
+                  <div class="swatch-name">Gray 11</div>
+                  <div class="swatch-hex">--gray-11</div>
+                </div>
+              </div>
+              <div class="swatch">
+                <div class="swatch-color" style="background: var(--gray-12)"></div>
+                <div class="swatch-info">
+                  <div class="swatch-name">Gray 12</div>
+                  <div class="swatch-hex">--gray-12</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ds-group">
+          <div class="ds-group-label">
+            Radix accent scales — dark theme (<code>.dark-theme</code>)
+          </div>
+          <p class="section-desc" style="margin-bottom: 12px">
+            The same step names as light (<code>--cyan-1</code> …
+            <code>--cyan-12</code>, etc.); only values change under
+            <code>.dark</code> / <code>.dark-theme</code>. Hover a chip for
+            the token name.
+          </p>
+          <div class="dark-theme dark-theme-preview">
+            <div class="radix-ramp-row">
+              <div class="radix-ramp-label">Cyan</div>
+              <div class="radix-ramp-steps">
+                <div class="radix-ramp-chip" style="background: var(--cyan-1)" title="--cyan-1"></div>
+                <div class="radix-ramp-chip" style="background: var(--cyan-2)" title="--cyan-2"></div>
+                <div class="radix-ramp-chip" style="background: var(--cyan-3)" title="--cyan-3"></div>
+                <div class="radix-ramp-chip" style="background: var(--cyan-4)" title="--cyan-4"></div>
+                <div class="radix-ramp-chip" style="background: var(--cyan-5)" title="--cyan-5"></div>
+                <div class="radix-ramp-chip" style="background: var(--cyan-6)" title="--cyan-6"></div>
+                <div class="radix-ramp-chip" style="background: var(--cyan-7)" title="--cyan-7"></div>
+                <div class="radix-ramp-chip" style="background: var(--cyan-8)" title="--cyan-8"></div>
+                <div class="radix-ramp-chip" style="background: var(--cyan-9)" title="--cyan-9"></div>
+                <div class="radix-ramp-chip" style="background: var(--cyan-10)" title="--cyan-10"></div>
+                <div class="radix-ramp-chip" style="background: var(--cyan-11)" title="--cyan-11"></div>
+                <div class="radix-ramp-chip" style="background: var(--cyan-12)" title="--cyan-12"></div>
+              </div>
+            </div>
+            <div class="radix-ramp-row">
+              <div class="radix-ramp-label">Amber</div>
+              <div class="radix-ramp-steps">
+                <div class="radix-ramp-chip" style="background: var(--amber-1)" title="--amber-1"></div>
+                <div class="radix-ramp-chip" style="background: var(--amber-2)" title="--amber-2"></div>
+                <div class="radix-ramp-chip" style="background: var(--amber-3)" title="--amber-3"></div>
+                <div class="radix-ramp-chip" style="background: var(--amber-4)" title="--amber-4"></div>
+                <div class="radix-ramp-chip" style="background: var(--amber-5)" title="--amber-5"></div>
+                <div class="radix-ramp-chip" style="background: var(--amber-6)" title="--amber-6"></div>
+                <div class="radix-ramp-chip" style="background: var(--amber-7)" title="--amber-7"></div>
+                <div class="radix-ramp-chip" style="background: var(--amber-8)" title="--amber-8"></div>
+                <div class="radix-ramp-chip" style="background: var(--amber-9)" title="--amber-9"></div>
+                <div class="radix-ramp-chip" style="background: var(--amber-10)" title="--amber-10"></div>
+                <div class="radix-ramp-chip" style="background: var(--amber-11)" title="--amber-11"></div>
+                <div class="radix-ramp-chip" style="background: var(--amber-12)" title="--amber-12"></div>
+              </div>
+            </div>
+            <div class="radix-ramp-row">
+              <div class="radix-ramp-label">Orange</div>
+              <div class="radix-ramp-steps">
+                <div class="radix-ramp-chip" style="background: var(--orange-1)" title="--orange-1"></div>
+                <div class="radix-ramp-chip" style="background: var(--orange-2)" title="--orange-2"></div>
+                <div class="radix-ramp-chip" style="background: var(--orange-3)" title="--orange-3"></div>
+                <div class="radix-ramp-chip" style="background: var(--orange-4)" title="--orange-4"></div>
+                <div class="radix-ramp-chip" style="background: var(--orange-5)" title="--orange-5"></div>
+                <div class="radix-ramp-chip" style="background: var(--orange-6)" title="--orange-6"></div>
+                <div class="radix-ramp-chip" style="background: var(--orange-7)" title="--orange-7"></div>
+                <div class="radix-ramp-chip" style="background: var(--orange-8)" title="--orange-8"></div>
+                <div class="radix-ramp-chip" style="background: var(--orange-9)" title="--orange-9"></div>
+                <div class="radix-ramp-chip" style="background: var(--orange-10)" title="--orange-10"></div>
+                <div class="radix-ramp-chip" style="background: var(--orange-11)" title="--orange-11"></div>
+                <div class="radix-ramp-chip" style="background: var(--orange-12)" title="--orange-12"></div>
+              </div>
+            </div>
+            <div class="radix-ramp-row">
+              <div class="radix-ramp-label">Grass</div>
+              <div class="radix-ramp-steps">
+                <div class="radix-ramp-chip" style="background: var(--grass-1)" title="--grass-1"></div>
+                <div class="radix-ramp-chip" style="background: var(--grass-2)" title="--grass-2"></div>
+                <div class="radix-ramp-chip" style="background: var(--grass-3)" title="--grass-3"></div>
+                <div class="radix-ramp-chip" style="background: var(--grass-4)" title="--grass-4"></div>
+                <div class="radix-ramp-chip" style="background: var(--grass-5)" title="--grass-5"></div>
+                <div class="radix-ramp-chip" style="background: var(--grass-6)" title="--grass-6"></div>
+                <div class="radix-ramp-chip" style="background: var(--grass-7)" title="--grass-7"></div>
+                <div class="radix-ramp-chip" style="background: var(--grass-8)" title="--grass-8"></div>
+                <div class="radix-ramp-chip" style="background: var(--grass-9)" title="--grass-9"></div>
+                <div class="radix-ramp-chip" style="background: var(--grass-10)" title="--grass-10"></div>
+                <div class="radix-ramp-chip" style="background: var(--grass-11)" title="--grass-11"></div>
+                <div class="radix-ramp-chip" style="background: var(--grass-12)" title="--grass-12"></div>
+              </div>
+            </div>
+            <div class="radix-ramp-row">
+              <div class="radix-ramp-label">Lime</div>
+              <div class="radix-ramp-steps">
+                <div class="radix-ramp-chip" style="background: var(--lime-1)" title="--lime-1"></div>
+                <div class="radix-ramp-chip" style="background: var(--lime-2)" title="--lime-2"></div>
+                <div class="radix-ramp-chip" style="background: var(--lime-3)" title="--lime-3"></div>
+                <div class="radix-ramp-chip" style="background: var(--lime-4)" title="--lime-4"></div>
+                <div class="radix-ramp-chip" style="background: var(--lime-5)" title="--lime-5"></div>
+                <div class="radix-ramp-chip" style="background: var(--lime-6)" title="--lime-6"></div>
+                <div class="radix-ramp-chip" style="background: var(--lime-7)" title="--lime-7"></div>
+                <div class="radix-ramp-chip" style="background: var(--lime-8)" title="--lime-8"></div>
+                <div class="radix-ramp-chip" style="background: var(--lime-9)" title="--lime-9"></div>
+                <div class="radix-ramp-chip" style="background: var(--lime-10)" title="--lime-10"></div>
+                <div class="radix-ramp-chip" style="background: var(--lime-11)" title="--lime-11"></div>
+                <div class="radix-ramp-chip" style="background: var(--lime-12)" title="--lime-12"></div>
+              </div>
+            </div>
+            <div class="radix-ramp-row">
+              <div class="radix-ramp-label">Sky</div>
+              <div class="radix-ramp-steps">
+                <div class="radix-ramp-chip" style="background: var(--sky-1)" title="--sky-1"></div>
+                <div class="radix-ramp-chip" style="background: var(--sky-2)" title="--sky-2"></div>
+                <div class="radix-ramp-chip" style="background: var(--sky-3)" title="--sky-3"></div>
+                <div class="radix-ramp-chip" style="background: var(--sky-4)" title="--sky-4"></div>
+                <div class="radix-ramp-chip" style="background: var(--sky-5)" title="--sky-5"></div>
+                <div class="radix-ramp-chip" style="background: var(--sky-6)" title="--sky-6"></div>
+                <div class="radix-ramp-chip" style="background: var(--sky-7)" title="--sky-7"></div>
+                <div class="radix-ramp-chip" style="background: var(--sky-8)" title="--sky-8"></div>
+                <div class="radix-ramp-chip" style="background: var(--sky-9)" title="--sky-9"></div>
+                <div class="radix-ramp-chip" style="background: var(--sky-10)" title="--sky-10"></div>
+                <div class="radix-ramp-chip" style="background: var(--sky-11)" title="--sky-11"></div>
+                <div class="radix-ramp-chip" style="background: var(--sky-12)" title="--sky-12"></div>
+              </div>
+            </div>
+            <div class="radix-ramp-row">
+              <div class="radix-ramp-label">Brown</div>
+              <div class="radix-ramp-steps">
+                <div class="radix-ramp-chip" style="background: var(--brown-1)" title="--brown-1"></div>
+                <div class="radix-ramp-chip" style="background: var(--brown-2)" title="--brown-2"></div>
+                <div class="radix-ramp-chip" style="background: var(--brown-3)" title="--brown-3"></div>
+                <div class="radix-ramp-chip" style="background: var(--brown-4)" title="--brown-4"></div>
+                <div class="radix-ramp-chip" style="background: var(--brown-5)" title="--brown-5"></div>
+                <div class="radix-ramp-chip" style="background: var(--brown-6)" title="--brown-6"></div>
+                <div class="radix-ramp-chip" style="background: var(--brown-7)" title="--brown-7"></div>
+                <div class="radix-ramp-chip" style="background: var(--brown-8)" title="--brown-8"></div>
+                <div class="radix-ramp-chip" style="background: var(--brown-9)" title="--brown-9"></div>
+                <div class="radix-ramp-chip" style="background: var(--brown-10)" title="--brown-10"></div>
+                <div class="radix-ramp-chip" style="background: var(--brown-11)" title="--brown-11"></div>
+                <div class="radix-ramp-chip" style="background: var(--brown-12)" title="--brown-12"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ds-group">
+          <div class="ds-group-label">
+            WRMP Brand Reference (--wrmp-*-brand)
+          </div>
+          <div class="swatch-grid">
+            <div class="swatch">
+              <div
+                class="swatch-color"
+                style="background: var(--wrmp-teal-brand)"
+              ></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Teal</div>
+                <div class="swatch-hex">--wrmp-teal-brand<br />#228b9c</div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div
+                class="swatch-color"
+                style="background: var(--wrmp-ada-teal-brand)"
+              ></div>
+              <div class="swatch-info">
+                <div class="swatch-name">ADA Teal ✓</div>
+                <div class="swatch-hex">--wrmp-ada-teal-brand<br />#005e6a</div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div
+                class="swatch-color"
+                style="background: var(--wrmp-orange-brand)"
+              ></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Orange</div>
+                <div class="swatch-hex">--wrmp-orange-brand<br />#e09337</div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div
+                class="swatch-color"
+                style="background: var(--wrmp-dark-orange-brand)"
+              ></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Dark Orange</div>
+                <div class="swatch-hex">
+                  --wrmp-dark-orange-brand<br />#d66b2c
+                </div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div
+                class="swatch-color"
+                style="background: var(--wrmp-green-brand)"
+              ></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Green</div>
+                <div class="swatch-hex">--wrmp-green-brand<br />#379352</div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div
+                class="swatch-color"
+                style="background: var(--wrmp-light-green-brand)"
+              ></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Light Green</div>
+                <div class="swatch-hex">
+                  --wrmp-light-green-brand<br />#92bb4d
+                </div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div
+                class="swatch-color"
+                style="background: var(--wrmp-sky-blue-brand)"
+              ></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Sky Blue</div>
+                <div class="swatch-hex">--wrmp-sky-blue-brand<br />#00acec</div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div
+                class="swatch-color"
+                style="background: var(--wrmp-earth-brand)"
+              ></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Earth</div>
+                <div class="swatch-hex">--wrmp-earth-brand<br />#664d26</div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div
+                class="swatch-color"
+                style="background: var(--wrmp-dark-brand)"
+              ></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Dark</div>
+                <div class="swatch-hex">--wrmp-dark-brand<br />#4e4e50</div>
+              </div>
+            </div>
+            <div class="swatch">
+              <div
+                class="swatch-color"
+                style="background: var(--wrmp-text-brand)"
+              ></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Text</div>
+                <div class="swatch-hex">--wrmp-text-brand<br />#272525</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Typography ───────────────────────────── -->
+      <section class="ds-section" id="typography">
+        <h2>Typography</h2>
+        <p class="section-desc">
+          Self-hosted Source Sans Pro. Apply text style classes to any semantic
+          element —
+          <code>.heading-display</code>, <code>.heading-lg</code>,
+          <code>.heading-md</code>, <code>.heading-sm</code>. Add
+          <code>.subtle</code> for de-emphasized color. ADA minimum: 16px body
+          copy. Map overlays (DivIcon labels and marker popups) use the same
+          step scale; they are grouped under
+          <a href="#typography-map-marker">Map &amp; marker typography</a>
+          below.
+        </p>
+
+        <!-- ── Heading styles ──────────────────────── -->
+        <div class="ds-group">
+          <div class="ds-group-label">Heading styles</div>
+          <div class="ds-card">
+            <div class="type-ramp">
+              <div class="type-specimen">
+                <div class="type-meta">
+                  <div class="type-label">.heading-display</div>
+                  <div class="type-token">
+                    --step-3 · 24–31px<br />weight 400 · line 1.1
+                  </div>
+                </div>
+                <div
+                  style="
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                  "
+                >
+                  <span class="heading-display">The Bay-Delta Estuary</span>
+                  <span class="heading-display subtle"
+                    >The Bay-Delta Estuary</span
+                  >
+                  <div class="type-variant-label" style="margin-top: 2px">
+                    default · subtle
+                  </div>
+                </div>
+              </div>
+
+              <div class="type-specimen">
+                <div class="type-meta">
+                  <div class="type-label">.heading-lg</div>
+                  <div class="type-token">
+                    --step-2 · 20–25px<br />weight 400 · line 1.15
+                  </div>
+                </div>
+                <div
+                  style="
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                  "
+                >
+                  <span class="heading-lg">Where We're Watching</span>
+                  <span class="heading-lg subtle">Where We're Watching</span>
+                  <div class="type-variant-label" style="margin-top: 2px">
+                    default · subtle
+                  </div>
+                </div>
+              </div>
+
+              <div class="type-specimen">
+                <div class="type-meta">
+                  <div class="type-label">.heading-md</div>
+                  <div class="type-token">
+                    --step-1 · 17–20px<br />weight 600 · line 1.2
+                  </div>
+                </div>
+                <div
+                  style="
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                  "
+                >
+                  <span class="heading-md">Restoration Sites</span>
+                  <span class="heading-md subtle">Restoration Sites</span>
+                  <div class="type-variant-label" style="margin-top: 2px">
+                    default · subtle
+                  </div>
+                </div>
+              </div>
+
+              <div class="type-specimen">
+                <div class="type-meta">
+                  <div class="type-label">.heading-sm</div>
+                  <div class="type-token">
+                    --step-0 · 14–16px<br />weight 600 · line 1.3
+                  </div>
+                </div>
+                <div
+                  style="
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                  "
+                >
+                  <span class="heading-sm">Benchmark vs. Project</span>
+                  <span class="heading-sm subtle">Benchmark vs. Project</span>
+                  <div class="type-variant-label" style="margin-top: 2px">
+                    default · subtle
+                  </div>
+                </div>
+              </div>
+
+              <div class="type-specimen">
+                <div class="type-meta">
+                  <div class="type-label">.body-text</div>
+                  <div class="type-token">
+                    --step-0 · 14–16px<br />weight 400 · line 1.7
+                  </div>
+                </div>
+                <div
+                  style="
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                  "
+                >
+                  <span class="body-text"
+                    >Sampling occurs quarterly using standardized gear across
+                    Benchmark, Reference, and Project site types.</span
+                  >
+                  <span class="body-text subtle"
+                    >Sampling occurs quarterly using standardized gear across
+                    Benchmark, Reference, and Project site types.</span
+                  >
+                  <div class="type-variant-label" style="margin-top: 2px">
+                    default · subtle
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Other text roles ────────────────────── -->
+        <div class="ds-group">
+          <div class="ds-group-label">Other text roles</div>
+          <div class="ds-card">
+            <div class="type-ramp">
+              <!-- step-1 · body 700 -->
+              <div class="type-specimen">
+                <div class="type-meta">
+                  <div class="type-label">Stat Number</div>
+                  <div class="type-token">
+                    --step-1 · 17–20px<br />font-body · 700<br />.stat-pill .num
+                  </div>
+                </div>
+                <div
+                  class="step active step-context"
+                  style="flex: 1; display: block"
+                >
+                  <div class="stat-row" style="max-width: 200px">
+                    <div class="stat-pill">
+                      <div class="num">119</div>
+                      <div class="lbl">Stations</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- step-1 · body 500 -->
+              <div class="type-specimen">
+                <div class="type-meta">
+                  <div class="type-label">Callout</div>
+                  <div class="type-token">
+                    --step-1 · 17–20px<br />font-body · 500<br />.step .callout
+                  </div>
+                </div>
+                <div
+                  class="step active step-context"
+                  style="flex: 1; display: block"
+                >
+                  <div class="callout">
+                    Delta Smelt is listed as Threatened under the California
+                    Endangered Species Act.
+                  </div>
+                </div>
+              </div>
+
+              <!-- step-0 · body 600 -->
+              <div class="type-specimen">
+                <div class="type-meta">
+                  <div class="type-label">Nav Button</div>
+                  <div class="type-token">
+                    --step-0 · 14–16px<br />font-body · 600<br />.nav-bar button
+                  </div>
+                </div>
+                <div style="flex: 1">
+                  <button
+                    class="nav-bar-button-specimen"
+                    style="
+                      font-family: var(--font-body);
+                      font-size: var(--step-0);
+                      font-weight: 600;
+                      color: var(--gray-12);
+                      background: #fff;
+                      border: 1px solid #ccc;
+                      border-radius: 6px;
+                      padding: 4px 16px;
+                      cursor: pointer;
+                    "
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+
+              <!-- step-0 · body 500 -->
+              <div class="type-specimen">
+                <div class="type-meta">
+                  <div class="type-label">Legend Chip</div>
+                  <div class="type-token">
+                    --step-0 · 14–16px<br />font-body · 500<br />.map-legend-chip
+                  </div>
+                </div>
+                <div style="flex: 1">
+                  <span
+                    style="
+                      font-family: var(--font-body);
+                      font-size: var(--step-0);
+                      font-weight: 500;
+                      color: var(--gray-12);
+                    "
+                    >South Bay</span
+                  >
+                </div>
+              </div>
+
+              <!-- step-0 · body 400 -->
+              <div class="type-specimen">
+                <div class="type-meta">
+                  <div class="type-label">Body</div>
+                  <div class="type-token">
+                    --step-0 · 14–16px<br />font-body · 400<br />.step .body p
+                  </div>
+                </div>
+                <div
+                  class="step active step-context"
+                  style="flex: 1; display: block"
+                >
+                  <div class="body">
+                    <p>
+                      Sampling occurs quarterly using standardized gear across
+                      Benchmark, Reference, and Project site types.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- step--1 · body 700 -->
+              <div class="type-specimen">
+                <div class="type-meta">
+                  <div class="type-label">Kicker</div>
+                  <div class="type-token">
+                    --step--1 · 12–13px<br />font-body · 700 · caps · ls 4px<br />.step-header-text
+                    .kicker
+                  </div>
+                </div>
+                <div
+                  class="step active step-context"
+                  style="flex: 1; display: block"
+                >
+                  <div class="step-header" style="margin-bottom: 0">
+                    <img
+                      class="step-header-mark"
+                      src="../shared/img/wrmp-logo-2in-mark-crop.png"
+                      alt=""
+                      width="40"
+                      height="40"
+                      decoding="async"
+                    />
+                    <div class="step-header-text">
+                      <span class="kicker">Station Network</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- step--1 · body 500 -->
+              <div class="type-specimen">
+                <div class="type-meta">
+                  <div class="type-label">Stat Label</div>
+                  <div class="type-token">
+                    --step--1 · 12–13px<br />font-body · 500 · caps<br />.stat-pill
+                    .lbl
+                  </div>
+                </div>
+                <div
+                  style="
+                    flex: 1;
+                    font-family: var(--font-body);
+                    font-size: var(--step--1);
+                    font-weight: 500;
+                    text-transform: uppercase;
+                    letter-spacing: 0.04em;
+                    color: var(--gray-11);
+                  "
+                >
+                  Project Sites
+                </div>
+              </div>
+
+              <!-- step--1 · body 400 -->
+              <div class="type-specimen">
+                <div class="type-meta">
+                  <div class="type-label">Caption / Sublabel</div>
+                  <div class="type-token">
+                    --step--1 · 12–13px<br />font-body · 400<br />.photo-credit
+                    · .stat-pill .sub
+                  </div>
+                </div>
+                <div style="flex: 1">
+                  <div
+                    class="photo-credit"
+                    style="position: static; color: var(--gray-11)"
+                  >
+                    Photo: CDFW / Used with permission
+                  </div>
+                </div>
+              </div>
+
+              <!-- step--1 · body 400 · italic -->
+              <div class="type-specimen">
+                <div class="type-meta">
+                  <div class="type-label">Card Subtitle</div>
+                  <div class="type-token">
+                    --step--1 · 12–13px<br />font-body · 400 · italic<br />.metrics-card__subtitle
+                  </div>
+                </div>
+                <div style="flex: 1">
+                  <p class="metrics-card__subtitle" style="margin: 0;">
+                    Multi-mesh panel, overnight set, 100m length
+                  </p>
+                </div>
+              </div>
+
+              <!-- step-0 · body 600 · uppercase -->
+              <div class="type-specimen">
+                <div class="type-meta">
+                  <div class="type-label">Card Title</div>
+                  <div class="type-token">
+                    --step-0 · 14–16px<br />font-body · 600 · caps · ls 0.04em<br />.metrics-card__title
+                  </div>
+                </div>
+                <div style="flex: 1">
+                  <p class="metrics-card__title" style="margin: 0;">Gill Net</p>
+                </div>
+              </div>
+
+              <!-- step-3 · body 600 · card stat -->
+              <div class="type-specimen">
+                <div class="type-meta">
+                  <div class="type-label">Card Stat Number</div>
+                  <div class="type-token">
+                    --step-3 · 24–31px<br />font-body · 600<br />.metrics-card__stat-number
+                  </div>
+                </div>
+                <div style="flex: 1; display: flex; align-items: flex-end; gap: var(--space-xs);">
+                  <span class="metrics-card__stat-number">13</span>
+                  <span class="metrics-card__stat-label" style="padding-bottom: 0.2em;">Stations</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Map & marker typography (shared overlay text) ─ -->
+        <div class="ds-group" id="typography-map-marker">
+          <div class="ds-group-label">Map &amp; marker typography</div>
+          <p
+            class="section-desc"
+            style="
+              margin-top: 0;
+              margin-bottom: 16px;
+              padding-bottom: 0;
+              border-bottom: none;
+            "
+          >
+            Non-story text that sits on the Leaflet map: fixed DivIcon chips
+            from
+            <code>shared/css/exhibit-frame.css</code> and rich popups from
+            <code>shared/css/marker-popup.css</code>. All use
+            <code>var(--font-body)</code> / <code>var(--font-heading)</code> and
+            the step scale (<code>--step-*</code>). Full layout specimens:
+            <a href="#labels">Map labels</a> ·
+            <a href="#marker-popup">Marker popup</a>.
+          </p>
+          <div class="ds-card">
+            <div class="type-ramp">
+              <div class="type-specimen">
+                <div class="type-meta">
+                  <div class="type-label">Map labels</div>
+                  <div class="type-token">
+                    --step--1 · 12–13px<br />font-body · 600 · gray-12<br /><code
+                      >.poi-label</code
+                    >
+                    · <code>.station-label</code>
+                  </div>
+                </div>
+                <div
+                  style="
+                    flex: 1;
+                    display: flex;
+                    gap: 12px;
+                    align-items: center;
+                    flex-wrap: wrap;
+                  "
+                >
+                  <div class="poi-label" style="position: static">
+                    South Bay
+                  </div>
+                  <div class="station-label" style="position: static">
+                    ALVS-01
+                  </div>
+                </div>
+              </div>
+
+              <div class="type-specimen">
+                <div class="type-meta">
+                  <div class="type-label">Popup title</div>
+                  <div class="type-token">
+                    --step-0 · font-heading · 600 · line 1.5<br /><code
+                      >.mp-title</code
+                    >
+                    · <code>.mp-title-code</code> (700)
+                  </div>
+                </div>
+                <div
+                  class="mp-card"
+                  style="width: auto; min-width: 0; max-width: 360px"
+                >
+                  <div class="mp-body" style="padding-top: var(--space-xs)">
+                    <p class="mp-title" style="margin: 0">
+                      <span class="mp-title-code">OBP 1</span> — Outer Bair
+                      Restoration
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="type-specimen">
+                <div class="type-meta">
+                  <div class="type-label">Popup category</div>
+                  <div class="type-token">
+                    --step-0 · font-body · 400 · line 1.5<br /><code
+                      >.mp-category</code
+                    >
+                    ·
+                    <code>--color-text-subtle</code>
+                  </div>
+                </div>
+                <div
+                  class="mp-card"
+                  style="width: auto; min-width: 0; max-width: 360px"
+                >
+                  <div class="mp-body" style="padding-top: var(--space-xs)">
+                    <p class="mp-category">Tidal Pond Slough</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="type-specimen">
+                <div class="type-meta">
+                  <div class="type-label">Popup image placeholder</div>
+                  <div class="type-token">
+                    --step--1 · font-body<br /><code>.mp-image-label</code>
+                  </div>
+                </div>
+                <div
+                  class="mp-card"
+                  style="width: auto; min-width: 0; max-width: 360px"
+                >
+                  <div class="mp-image" style="height: 72px">
+                    <span class="mp-image-label">No image</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="type-specimen">
+                <div class="type-meta">
+                  <div class="type-label">Popup attribute row</div>
+                  <div class="type-token">
+                    --step-0 / --step--1 · font-body<br /><code
+                      >.mp-row-label</code
+                    >
+                    ·
+                    <code>.mp-row-value</code>
+                  </div>
+                </div>
+                <div
+                  class="mp-card"
+                  style="width: auto; min-width: 0; max-width: 360px"
+                >
+                  <div class="mp-body" style="padding-top: var(--space-xs)">
+                    <div class="mp-row">
+                      <span class="mp-row-label">Project</span>
+                      <span class="mp-row-value">Site Type</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="type-specimen">
+                <div class="type-meta">
+                  <div class="type-label">Popup group label</div>
+                  <div class="type-token">
+                    --step--1 · font-body · 600 · caps · ls 0.08em<br /><code
+                      >.mp-group-label</code
+                    >
+                  </div>
+                </div>
+                <div
+                  class="mp-card"
+                  style="width: auto; min-width: 0; max-width: 360px"
+                >
+                  <div class="mp-body" style="padding-top: var(--space-xs)">
+                    <span class="mp-group-label">Location</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="type-specimen">
+                <div class="type-meta">
+                  <div class="type-label">Popup tags</div>
+                  <div class="type-token">
+                    --step--1 · font-body · 500<br /><code>.mp-tag</code> ·
+                    <code>.mp-chevron</code> uses <code>--step-0</code>
+                  </div>
+                </div>
+                <div
+                  class="mp-card"
+                  style="width: auto; min-width: 0; max-width: 360px"
+                >
+                  <div class="mp-body" style="padding-top: var(--space-xs)">
+                    <div class="mp-tag-row">
+                      <span class="mp-tag">South Bay</span>
+                      <span class="mp-chevron">›</span>
+                      <span class="mp-tag">Bair Island Marsh</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Spacing ───────────────────────────────── -->
+      <section class="ds-section" id="spacing">
+        <h2>Spacing</h2>
+        <p class="section-desc">
+          4/8/16/24/40 scale. All layout and padding uses these tokens.
+        </p>
+
+        <div class="ds-card">
+          <div class="spacing-grid">
+            <div class="spacing-row">
+              <div class="spacing-label"><strong>xs</strong> · 4px</div>
+              <div class="spacing-block" style="width: var(--space-xs)"></div>
+              <div class="spacing-token">--space-xs</div>
+            </div>
+            <div class="spacing-row">
+              <div class="spacing-label"><strong>sm</strong> · 8px</div>
+              <div class="spacing-block" style="width: var(--space-sm)"></div>
+              <div class="spacing-token">--space-sm</div>
+            </div>
+            <div class="spacing-row">
+              <div class="spacing-label"><strong>md</strong> · 16px</div>
+              <div class="spacing-block" style="width: var(--space-md)"></div>
+              <div class="spacing-token">--space-md</div>
+            </div>
+            <div class="spacing-row">
+              <div class="spacing-label"><strong>lg</strong> · 24px</div>
+              <div class="spacing-block" style="width: var(--space-lg)"></div>
+              <div class="spacing-token">--space-lg</div>
+            </div>
+            <div class="spacing-row">
+              <div class="spacing-label"><strong>xl</strong> · 40px</div>
+              <div class="spacing-block" style="width: var(--space-xl)"></div>
+              <div class="spacing-token">--space-xl</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Logos ─────────────────────────────────── -->
+      <section class="ds-section" id="logos">
+        <h2>Logos</h2>
+        <p class="section-desc">
+          ADA variants for all digital use. Dark-mode version on teal/dark
+          backgrounds (nav bar, cover slides, dark panels).
+        </p>
+
+        <div class="logo-grid">
+          <div class="logo-specimen light">
+            <img
+              src="../shared/img/WRMP_Logo_4in_RGB_ADA.png"
+              alt="WRMP Logo ADA"
+            />
+            <div class="logo-label">Standard ADA · Light bg</div>
+          </div>
+          <div class="logo-specimen dark">
+            <img
+              src="../shared/img/WRMP_Logo_RGB_ADA_Trans_DarkMode_Website_1850.png"
+              alt="WRMP Logo Dark Mode"
+            />
+            <div class="logo-label">Dark Mode · Dark bg</div>
+          </div>
+          <div class="logo-specimen mid">
+            <img
+              src="../shared/img/WRMP_Logo_2in_RGB_ADA_Transparent.png"
+              alt="WRMP Logo Transparent"
+            />
+            <div class="logo-label">Transparent · Any bg</div>
+          </div>
+          <div class="logo-specimen light">
+            <img src="../shared/img/wrmp-logo-2in-mark-crop.png" alt="WRMP Icon" />
+            <div class="logo-label">Icon mark only</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Story Panel ───────────────────────────── -->
+      <section class="ds-section" id="panel">
+        <h2>Story Panel</h2>
+        <p class="section-desc">
+          Glassmorphism left panel — 42% width, 16px inset from the exhibit
+          frame edges. Two variants: light (default) and dark. Step copy uses
+          the shared <code>.step-header</code> pattern (icon mark, kicker,
+          title) before the body. Rendered here inside a mock exhibit frame so
+          positioning matches production.
+        </p>
+
+        <div class="ds-row">
+          <div style="flex: 1; min-width: 320px">
+            <div class="ds-group-label">Light panel (default)</div>
+            <!-- Real .exhibit-frame + .story-panel — real CSS applies -->
+            <div
+              class="exhibit-frame"
+              style="height: 260px; aspect-ratio: unset"
+            >
+              <div class="bg-layer bg-gradient active"></div>
+              <div class="story-panel">
+                <div class="story-panel-inner">
+                  <div class="step active">
+                    <div class="step-header">
+                      <img
+                        class="step-header-mark"
+                        src="../shared/img/wrmp-logo-2in-mark-crop.png"
+                        alt=""
+                        width="40"
+                        height="40"
+                        decoding="async"
+                      />
+                      <div class="step-header-text">
+                        <span class="kicker">Station Network</span>
+                        <h2>Where We're Watching</h2>
+                      </div>
+                    </div>
+                    <div class="body">
+                      <p>
+                        The WRMP network spans 119 stations across three
+                        Bay-Delta regions.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div class="nav-bar">
+                  <button disabled>Back</button>
+                  <div class="step-dots">
+                    <button class="step-dot active"></button>
+                    <button class="step-dot"></button>
+                    <button class="step-dot"></button>
+                  </div>
+                  <button>Next</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="flex: 1; min-width: 320px">
+            <div class="ds-group-label">Dark panel (.panel-dark)</div>
+            <div
+              class="exhibit-frame"
+              style="height: 260px; aspect-ratio: unset"
+            >
+              <div
+                class="bg-layer bg-gradient active"
+                style="
+                  background: linear-gradient(135deg, #1a3a4a 0%, #0d2030 100%);
+                "
+              ></div>
+              <div class="story-panel panel-dark dark-theme">
+                <div class="story-panel-inner">
+                  <div class="step active">
+                    <div class="step-header">
+                      <img
+                        class="step-header-mark"
+                        src="../shared/img/wrmp-logo-2in-mark-crop.png"
+                        alt=""
+                        width="40"
+                        height="40"
+                        decoding="async"
+                      />
+                      <div class="step-header-text">
+                        <span class="kicker">Station Network</span>
+                        <h2>Where We're Watching</h2>
+                      </div>
+                    </div>
+                    <div class="body">
+                      <p>
+                        The WRMP network spans 119 stations across three
+                        Bay-Delta regions.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div class="nav-bar">
+                  <button disabled>Back</button>
+                  <div class="step-dots">
+                    <button class="step-dot active"></button>
+                    <button class="step-dot"></button>
+                    <button class="step-dot"></button>
+                  </div>
+                  <button>Next</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Step Content ──────────────────────────── -->
+      <section class="ds-section" id="step-content">
+        <h2>Step Content</h2>
+        <p class="section-desc">
+          Each step opens with a <strong>step header</strong> row: the
+          transparent WRMP icon mark (<code>wrmp-logo-2in-mark-crop.png</code>) on the
+          left, then <code>.step-header-text</code> containing the kicker
+          (thematic label, required on every step) and the
+          <code>h2</code> title. Below that: <code>h3</code> → <code>h4</code> →
+          body → stat pills → callout → caption as needed.
+        </p>
+
+        <div class="ds-card" style="max-width: 480px">
+          <div
+            class="step active"
+            style="position: static; display: block; animation: none"
+          >
+            <div class="step-header">
+              <img
+                class="step-header-mark"
+                src="../shared/img/wrmp-logo-2in-mark-crop.png"
+                alt=""
+                width="40"
+                height="40"
+                decoding="async"
+              />
+              <div class="step-header-text">
+                <span class="kicker">Biodiversity</span>
+                <h2>Native vs. Invasive</h2>
+              </div>
+            </div>
+
+            <h3>The 2014–2015 Drought Shift</h3>
+            <div class="body">
+              <p>
+                Of the 237 species recorded, 113 are native fish and 38 are
+                native invertebrates. A dramatic regime shift occurred during
+                the 2014–2015 drought as salinity and temperature extremes
+                favored non-native species.
+              </p>
+            </div>
+
+            <h4>South Bay Response</h4>
+            <div class="body">
+              <p>
+                Invasive species now dominate biomass in South Bay and Suisun
+                regions during dry years. Shimofuri goby and yellowfin goby
+                increased by 340% between 2013 and 2016.
+              </p>
+            </div>
+
+            <div class="stat-row">
+              <div class="stat-pill">
+                <div class="num">237</div>
+                <div class="lbl">Species</div>
+              </div>
+              <div class="stat-pill">
+                <div class="num">113</div>
+                <div class="lbl">Native Fish</div>
+              </div>
+              <div class="stat-pill">
+                <div class="num">14</div>
+                <div class="lbl">Invasive</div>
+              </div>
+            </div>
+
+            <div class="callout">
+              Delta Smelt detections dropped to near zero in South Bay by 2016 —
+              a sentinel signal for ecosystem-wide stress.
+            </div>
+
+            <div
+              class="photo-credit"
+              style="position: static; margin-top: 12px"
+            >
+              Data: SBOTS 2010–2024 · UC Davis / CDFW
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Stat Pills ────────────────────────────── -->
+      <section class="ds-section" id="stat-pills">
+        <h2>Stat Pills</h2>
+        <p class="section-desc">
+          No fill — label on top (uppercase, muted), bold number below, optional
+          sublabel. Pills in a row are separated by a vertical divider on
+          <code>:not(:last-child)</code>. Optional <code>.sub</code> adds a
+          contextual line below the number.
+        </p>
+
+        <div class="ds-row">
+          <div style="flex: 1; min-width: 260px">
+            <div class="ds-group-label">Light panel context</div>
+            <div class="ds-card">
+              <div
+                class="step active"
+                style="position: static; display: block; animation: none"
+              >
+                <div class="stat-row">
+                  <div class="stat-pill">
+                    <div class="num">119</div>
+                    <div class="lbl">Stations</div>
+                  </div>
+                  <div class="stat-pill">
+                    <div class="num">9</div>
+                    <div class="lbl">Networks</div>
+                  </div>
+                  <div class="stat-pill">
+                    <div class="num">3</div>
+                    <div class="lbl">Regions</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="flex: 1; min-width: 260px">
+            <div class="ds-group-label">Dark panel context</div>
+            <div
+              class="story-panel panel-dark dark-theme"
+              style="
+                position: static;
+                display: block;
+                border-radius: 10px;
+                overflow: hidden;
+                box-shadow: none;
+                width: 100%;
+              "
+            >
+              <div class="story-panel-inner" style="border-radius: 10px">
+                <div
+                  class="step active"
+                  style="position: static; display: block; animation: none"
+                >
+                  <div class="stat-row">
+                    <div class="stat-pill">
+                      <div class="num">237</div>
+                      <div class="lbl">Species</div>
+                    </div>
+                    <div class="stat-pill">
+                      <div class="num">40</div>
+                      <div class="lbl">Project Sites</div>
+                      <div class="sub">5 more before summer</div>
+                    </div>
+                    <div class="stat-pill">
+                      <div class="num">91</div>
+                      <div class="lbl">Inverts</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Callouts ──────────────────────────────── -->
+      <section class="ds-section" id="callouts">
+        <h2>Callouts</h2>
+        <p class="section-desc">
+          4px light-green left bar, no fill, medium weight body text. Warning
+          variant uses orange bar. Also shown in dark panel context.
+        </p>
+
+        <div class="ds-row">
+          <div style="flex: 1; min-width: 240px">
+            <div class="ds-group-label">Default (teal)</div>
+            <div class="ds-card">
+              <div
+                class="step active"
+                style="position: static; display: block; animation: none"
+              >
+                <div class="callout">
+                  Delta Smelt is listed as Threatened under the California
+                  Endangered Species Act and is considered a sentinel species
+                  for ecosystem health.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="flex: 1; min-width: 240px">
+            <div class="ds-group-label">Warning (orange)</div>
+            <div class="ds-card">
+              <div
+                class="step active"
+                style="position: static; display: block; animation: none"
+              >
+                <div class="callout warning">
+                  Data collection was suspended at 12 stations during the 2021
+                  drought. Interpret trend lines with caution for this period.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="flex: 1; min-width: 240px">
+            <div class="ds-group-label">Dark panel context</div>
+            <div
+              class="story-panel panel-dark dark-theme"
+              style="
+                position: static;
+                display: block;
+                border-radius: 10px;
+                overflow: hidden;
+                box-shadow: none;
+                width: 100%;
+              "
+            >
+              <div class="story-panel-inner" style="border-radius: 10px">
+                <div
+                  class="step active"
+                  style="position: static; display: block; animation: none"
+                >
+                  <div class="callout">
+                    WRMP partners with CDFW, USGS, and 12 local agencies to
+                    maintain this monitoring network.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Nav Bar ───────────────────────────────── -->
+      <section class="ds-section" id="nav-bar">
+        <h2>Nav Bar</h2>
+        <p class="section-desc">
+          Bottom bar of the story panel. Back/Next buttons and step dots
+          (inactive 8×8px circle → active 36×8px pill). Shown at step 2 of 5.
+        </p>
+
+        <div class="ds-row">
+          <div style="flex: 1; min-width: 300px">
+            <div class="ds-group-label">Light nav (default)</div>
+            <div class="nav-bar" style="border-radius: 10px">
+              <button disabled>Back</button>
+              <div class="step-dots">
+                <button class="step-dot"></button>
+                <button class="step-dot active"></button>
+                <button class="step-dot"></button>
+                <button class="step-dot"></button>
+                <button class="step-dot"></button>
+              </div>
+              <button>Next</button>
+            </div>
+          </div>
+
+          <div style="flex: 1; min-width: 300px">
+            <div class="ds-group-label">Dark nav (.panel-dark)</div>
+            <!-- Wrap in panel-dark so descendant selectors fire -->
+            <div
+              class="panel-dark dark-theme"
+              style="border-radius: 10px; overflow: hidden; padding: 0"
+            >
+              <div class="nav-bar" style="border-radius: 10px">
+                <button disabled>Back</button>
+                <div class="step-dots">
+                  <button class="step-dot"></button>
+                  <button class="step-dot active"></button>
+                  <button class="step-dot"></button>
+                  <button class="step-dot"></button>
+                  <button class="step-dot"></button>
+                </div>
+                <button>Next</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Map Legend ────────────────────────────── -->
+      <section class="ds-section" id="legend">
+        <h2>Map Legend Chips</h2>
+        <p class="section-desc">
+          Floating glassmorphism chips, top-right of the map. Clickable to
+          filter map layers. Three states: default, active (bolder + elevated
+          shadow), dimmed (45% opacity).
+        </p>
+
+        <div class="ds-bg-dark">
+          <!-- Real .map-legend + .map-legend-chip + .map-legend-dot classes -->
+          <div class="map-legend" style="position: static; display: flex">
+            <div class="map-legend-chip active">
+              <div
+                class="map-legend-dot"
+                style="background: var(--color-south-bay)"
+              ></div>
+              South Bay
+            </div>
+            <div class="map-legend-chip">
+              <div
+                class="map-legend-dot"
+                style="background: var(--color-north-bay)"
+              ></div>
+              North Bay
+            </div>
+            <div class="map-legend-chip dimmed">
+              <div
+                class="map-legend-dot"
+                style="background: var(--color-suisun)"
+              ></div>
+              Suisun
+            </div>
+          </div>
+        </div>
+        <p class="ds-note">
+          States — active: brighter bg + bold weight + stronger shadow
+          &nbsp;·&nbsp; default: standard &nbsp;·&nbsp; dimmed: 45% opacity
+        </p>
+      </section>
+
+      <!-- ── Metrics Card ──────────────────────────── -->
+      <section class="ds-section" id="metrics-card">
+        <h2>Metrics Card</h2>
+        <p class="section-desc">
+          Flexible info card from <code>shared/css/metrics-card.css</code>.
+          Slots: colored marker strip, kicker, title, subtitle, stat number,
+          percentage container (trend icon + badge), info list (plain, labeled
+          key-value, color indicator, tag). Omit any slot from the HTML to
+          collapse it — no modifier classes needed. Set
+          <code>--card-marker-color</code> inline to match semantic context;
+          set <code>--percentage-bg</code> / <code>--percentage-color</code>
+          for negative trend states. For media overlays (photo/video), add
+          <code>.metrics-card--dark.dark-theme</code> to switch to the dark
+          glass variant with dark-resolved token text.
+        </p>
+
+        <!-- Full component — all slots visible -->
+        <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; margin-bottom: 24px;">
+          <div class="metrics-card" style="--card-marker-color: #228B9C; width: 220px;">
+            <div class="metrics-card__marker"></div>
+            <div class="metrics-card__body">
+              <div class="metrics-card__info">
+                <p class="metrics-card__kicker">Kicker</p>
+                <p class="metrics-card__title">Gill Net</p>
+                <p class="metrics-card__subtitle">Multi-mesh panel, overnight set, 100m length</p>
+              </div>
+              <div class="metrics-card__details">
+                <div class="metrics-card__stat-row">
+                  <span class="metrics-card__stat-number">13</span>
+                  <span class="metrics-card__stat-label">Stations</span>
+                  <div class="metrics-card__percentage">
+                    <span class="metrics-card__trend-icon">↑</span>
+                    <span class="metrics-card__percentage-badge">+3.2%</span>
+                  </div>
+                </div>
+                <div class="metrics-card__list">
+                  <div class="metrics-card__item">
+                    <p class="metrics-card__item-value">Multi-mesh panel, overnight set, 100m length</p>
+                  </div>
+                  <div class="metrics-card__indicator-row">
+                    <span class="metrics-card__indicator-dot" style="--indicator-dot-color: #228B9C"></span>
+                    <p class="metrics-card__indicator-label">Slough</p>
+                  </div>
+                  <div class="metrics-card__item">
+                    <p class="metrics-card__item-label">Label</p>
+                    <p class="metrics-card__item-value">Multi-mesh panel, overnight set, 100m length</p>
+                  </div>
+                  <div class="metrics-card__tag-row">
+                    <p class="metrics-card__tag-label">Label</p>
+                    <span class="metrics-card__tag">tag</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gear card variant — kicker + title + stat + plain items only -->
+          <div class="metrics-card" style="width: 180px;">
+            <div class="metrics-card__body">
+              <div class="metrics-card__info">
+                <p class="metrics-card__kicker">Otter Trawl</p>
+                <p class="metrics-card__title">OT14</p>
+              </div>
+              <div class="metrics-card__details">
+                <div class="metrics-card__stat-row">
+                  <span class="metrics-card__stat-number">82</span>
+                  <span class="metrics-card__stat-label">Stations</span>
+                </div>
+                <div class="metrics-card__list">
+                  <div class="metrics-card__item">
+                    <p class="metrics-card__item-value">Bottom-contact net, 1.5 kts, 5 min tow</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="metrics-card" style="width: 180px;">
+            <div class="metrics-card__body">
+              <div class="metrics-card__info">
+                <p class="metrics-card__kicker">Beach Seine</p>
+                <p class="metrics-card__title">20' Seine</p>
+              </div>
+              <div class="metrics-card__details">
+                <div class="metrics-card__stat-row">
+                  <span class="metrics-card__stat-number">24</span>
+                  <span class="metrics-card__stat-label">Stations</span>
+                </div>
+                <div class="metrics-card__list">
+                  <div class="metrics-card__item">
+                    <p class="metrics-card__item-value">Shoreline enclosure, 37m × 1.2m</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="metrics-card" style="width: 180px;">
+            <div class="metrics-card__body">
+              <div class="metrics-card__info">
+                <p class="metrics-card__kicker">Trap</p>
+                <p class="metrics-card__title">Fyke Trap</p>
+              </div>
+              <div class="metrics-card__details">
+                <div class="metrics-card__stat-row">
+                  <span class="metrics-card__stat-number">100</span>
+                  <span class="metrics-card__stat-label">ft of leads</span>
+                </div>
+                <div class="metrics-card__list">
+                  <div class="metrics-card__item">
+                    <p class="metrics-card__item-value">3' × 6' frame</p>
+                  </div>
+                  <div class="metrics-card__item">
+                    <p class="metrics-card__item-value">Two 50' lead nets</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="ds-note">
+          First card shows all slots. Remaining cards show the gear variant
+          (kicker + title + stat + plain info items only — unused slots omitted
+          from HTML). Set <code>--card-marker-color</code> inline per card.
+        </p>
+        <div class="ds-group" style="margin-top: 12px">
+          <div class="ds-group-label">Dark Overlay Variant (.metrics-card--dark)</div>
+          <div
+            style="
+              max-width: 360px;
+              padding: 16px;
+              border-radius: 12px;
+              background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            "
+          >
+            <div class="metrics-card metrics-card--dark dark-theme" style="--card-marker-color: #228B9C;">
+              <div class="metrics-card__marker"></div>
+              <div class="metrics-card__body">
+                <div class="metrics-card__info">
+                  <p class="metrics-card__kicker">Overlay</p>
+                  <p class="metrics-card__title">Gill Net</p>
+                  <p class="metrics-card__subtitle">Dark treatment over media</p>
+                </div>
+                <div class="metrics-card__details">
+                  <div class="metrics-card__stat-row">
+                    <span class="metrics-card__stat-number">13</span>
+                    <span class="metrics-card__stat-label">Stations</span>
+                  </div>
+                  <div class="metrics-card__list">
+                    <div class="metrics-card__indicator-row">
+                      <span class="metrics-card__indicator-dot" style="--indicator-dot-color: #228B9C"></span>
+                      <p class="metrics-card__indicator-label">Slough</p>
+                    </div>
+                    <div class="metrics-card__tag-row">
+                      <p class="metrics-card__tag-label">Mode</p>
+                      <span class="metrics-card__tag">Dark</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Species Gallery ─────────────────────────── -->
+      <section class="ds-section" id="species-gallery">
+        <h2>Species Gallery</h2>
+        <p class="section-desc">
+          Species cards use <code>.metrics-card</code> from
+          <code>shared/css/metrics-card.css</code>. Groups use
+          <code>.heading-md</code> as the group label. Rows are flex
+          <code>.gallery-row</code> under a <code>.gallery-group</code>.
+          Native cards set <code>--card-marker-color: #228B9C</code>;
+          invasive cards use <code>--card-marker-color: #E09337</code>.
+          Slots used: marker, kicker, title, subtitle, indicator row.
+        </p>
+
+        <style>
+          .gallery-group { margin-bottom: var(--space-md); }
+          .gallery-group:last-child { margin-bottom: 0; }
+          .gallery-group > .heading-md { margin-bottom: var(--space-sm); }
+          .gallery-row { display: flex; gap: 12px; }
+          .gallery-row .metrics-card { flex: 1; min-width: 0; }
+        </style>
+
+        <div class="ds-card" style="max-width: 600px">
+          <div class="gallery-group">
+            <div class="heading-md">Native</div>
+            <div class="gallery-row">
+              <div class="metrics-card" style="--card-marker-color: #228B9C">
+                <div class="metrics-card__marker"></div>
+                <div class="metrics-card__body">
+                  <div class="metrics-card__info">
+                    <p class="metrics-card__kicker">Native</p>
+                    <p class="metrics-card__title">Longfin Smelt</p>
+                    <p class="metrics-card__subtitle">Spirinchus thaleichthys</p>
+                  </div>
+                  <div class="metrics-card__details">
+                    <div class="metrics-card__list">
+                      <div class="metrics-card__indicator-row">
+                        <span class="metrics-card__indicator-dot" style="--indicator-dot-color: #228B9C"></span>
+                        <p class="metrics-card__indicator-label">Benthic</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="metrics-card" style="--card-marker-color: #228B9C">
+                <div class="metrics-card__marker"></div>
+                <div class="metrics-card__body">
+                  <div class="metrics-card__info">
+                    <p class="metrics-card__kicker">Native</p>
+                    <p class="metrics-card__title">Chinook Salmon</p>
+                    <p class="metrics-card__subtitle">Oncorhynchus tshawytscha</p>
+                  </div>
+                  <div class="metrics-card__details">
+                    <div class="metrics-card__list">
+                      <div class="metrics-card__indicator-row">
+                        <span class="metrics-card__indicator-dot" style="--indicator-dot-color: #379352"></span>
+                        <p class="metrics-card__indicator-label">Pelagic</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="gallery-group">
+            <div class="heading-md">Invasive</div>
+            <div class="gallery-row">
+              <div class="metrics-card" style="--card-marker-color: #E09337">
+                <div class="metrics-card__marker"></div>
+                <div class="metrics-card__body">
+                  <div class="metrics-card__info">
+                    <p class="metrics-card__kicker">Invasive</p>
+                    <p class="metrics-card__title">Shimofuri Goby</p>
+                    <p class="metrics-card__subtitle">Tridentiger bifasciatus</p>
+                  </div>
+                  <div class="metrics-card__details">
+                    <div class="metrics-card__list">
+                      <div class="metrics-card__indicator-row">
+                        <span class="metrics-card__indicator-dot" style="--indicator-dot-color: #228B9C"></span>
+                        <p class="metrics-card__indicator-label">Benthic</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="metrics-card" style="--card-marker-color: #E09337">
+                <div class="metrics-card__marker"></div>
+                <div class="metrics-card__body">
+                  <div class="metrics-card__info">
+                    <p class="metrics-card__kicker">Invasive</p>
+                    <p class="metrics-card__title">Yellowfin Goby</p>
+                    <p class="metrics-card__subtitle">Acanthogobius flavimanus</p>
+                  </div>
+                  <div class="metrics-card__details">
+                    <div class="metrics-card__list">
+                      <div class="metrics-card__indicator-row">
+                        <span class="metrics-card__indicator-dot" style="--indicator-dot-color: #E09337"></span>
+                        <p class="metrics-card__indicator-label">Pelagic</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="ds-note">
+          Slots used: marker (native=teal, invasive=orange), kicker, title,
+          subtitle, indicator row. Stat row and percentage container omitted —
+          no numeric metric for species cards.
+        </p>
+      </section>
+
+      <!-- ── Bar Chart ────────────────────────────────── -->
+      <section class="ds-section" id="bar-chart">
+        <h2>Stacked Bar Chart</h2>
+        <p class="section-desc">
+          <strong>Classes:</strong>
+          <code>.bar-group</code>, <code>.bar-label</code>,
+          <code>.bar-sublabel</code>, <code>.bar-track</code>,
+          <code>.bar-segment.native</code> / <code>.bar-segment.invasive</code>,
+          <code>.bar-legend-row</code>, <code>.bar-legend-item</code>,
+          <code>.bar-legend-swatch</code>. Proportional stacked bars for native
+          vs. invasive composition from
+          <code>exhibits/2026-04-10-native-vs-invasive/</code>; segment widths
+          are set inline as percentages. Exhibit-local styles.
+        </p>
+
+        <style>
+          .bar-group {
+            margin-bottom: var(--space-lg);
+          }
+          .bar-group:last-child {
+            margin-bottom: 0;
+          }
+          .bar-label {
+            font-family: var(--font-heading);
+            font-size: var(--size-lg);
+            font-weight: 400;
+            color: var(--gray-12);
+            margin-bottom: var(--space-xs);
+          }
+          .bar-sublabel {
+            font-size: 12px;
+            color: var(--gray-11);
+            margin-bottom: var(--space-sm);
+          }
+          .bar-track {
+            display: flex;
+            gap: 4px;
+            height: 36px;
+            border-radius: 6px;
+            overflow: hidden;
+          }
+          .bar-segment {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            font-size: var(--size-sm);
+            font-weight: 700;
+            color: var(--gray-12);
+            transition: width 0.8s ease;
+            min-width: 36px;
+          }
+          .bar-segment.native {
+            background: var(--wrmp-teal);
+            color: var(--cyan-12);
+          }
+          .bar-segment.invasive {
+            background: var(--wrmp-orange);
+            color: var(--amber-12);
+          }
+          .bar-legend-row {
+            display: flex;
+            gap: var(--space-lg);
+            margin-top: var(--space-md);
+          }
+          .bar-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: var(--size-sm);
+            color: var(--gray-11);
+          }
+          .bar-legend-swatch {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            flex-shrink: 0;
+          }
+        </style>
+
+        <div class="ds-card" style="max-width: 520px">
+          <div class="bar-group">
+            <div class="bar-label">South Bay</div>
+            <div class="bar-sublabel">Tidal marshes · 82 stations</div>
+            <div class="bar-track">
+              <div class="bar-segment native" style="width: 38%">38%</div>
+              <div class="bar-segment invasive" style="width: 62%">62%</div>
+            </div>
+          </div>
+          <div class="bar-group">
+            <div class="bar-label">Suisun Bay</div>
+            <div class="bar-sublabel">Brackish marshes · 24 stations</div>
+            <div class="bar-track">
+              <div class="bar-segment native" style="width: 71%">71%</div>
+              <div class="bar-segment invasive" style="width: 29%">29%</div>
+            </div>
+          </div>
+          <div class="bar-legend-row">
+            <div class="bar-legend-item">
+              <div
+                class="bar-legend-swatch"
+                style="background: var(--wrmp-teal)"
+              ></div>
+              Native
+            </div>
+            <div class="bar-legend-item">
+              <div
+                class="bar-legend-swatch"
+                style="background: var(--wrmp-orange)"
+              ></div>
+              Invasive
+            </div>
+          </div>
+        </div>
+        <p class="ds-note">
+          ⚠ Styles defined inline above until promoted to exhibit-frame.css —
+          once moved, remove the &lt;style&gt; block from this page.
+        </p>
+      </section>
+
+      <!-- ── Content Area Overlay ──────────────────────── -->
+      <section class="ds-section" id="content-area">
+        <h2>Content Area Overlay</h2>
+        <p class="section-desc">
+          <strong>Class:</strong> <code>.content-area</code> (toggle
+          <code>.content-area.active</code>). Absolutely positioned region to
+          the right of the story panel inside <code>.exhibit-frame</code>; hosts
+          species gallery, bar charts, etc. Source:
+          <code>exhibits/2026-04-10-native-vs-invasive/index.html</code> (steps
+          2, 3, 5). Below, the same layout is simulated inside
+          <code>.ds-map-mini</code> (design system only).
+        </p>
+
+        <div class="ds-map-mini" aria-hidden="true">
+          <div class="ds-fake-story">
+            <strong>Story panel</strong>
+            Fixed glass panel — narrative lives here in a real exhibit.
+          </div>
+          <div class="content-area active">
+            <div
+              style="
+                font-family: var(--font-body);
+                font-size: var(--size-sm);
+                color: var(--wrmp-text);
+                line-height: 1.45;
+              "
+            >
+              <strong style="color: var(--wrmp-ada-teal)">.content-area</strong>
+              fills the map-visible band beside the panel. Exhibit default is
+              <code>display: none</code>; script adds <code>.active</code> on
+              map-off steps.
+            </div>
+          </div>
+        </div>
+
+        <div class="ds-card" style="margin-top: 16px">
+          <div
+            style="
+              font-family: var(--font-body);
+              font-size: var(--size-sm);
+              color: #555;
+              line-height: 1.7;
+            "
+          >
+            <p>
+              In production, place <code>.content-area</code> siblings next to
+              <code>#map</code> under <code>.exhibit-frame</code> (same stacking
+              context as the real exhibit).
+            </p>
+            <pre
+              style="
+                background: #f5f5f5;
+                border-radius: 6px;
+                padding: 16px;
+                font-size: 12px;
+                overflow-x: auto;
+                margin-top: 12px;
+              "
+            >
+.content-area {
+  position: absolute;
+  top: var(--panel-inset);
+  left: calc(var(--panel-width) + var(--panel-inset) + var(--panel-inset));
+  right: var(--panel-inset);
+  bottom: var(--panel-inset);
+  z-index: 5;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--space-lg);
+  overflow: hidden;
+}
+.content-area.active { display: flex; }</pre
+            >
+          </div>
+        </div>
+        <p class="ds-note">
+          Toggle with JS by adding or removing <code>.active</code> on the
+          content root.
+        </p>
+      </section>
+
+      <!-- ── Site Chart Card ──────────────────────────── -->
+      <section class="ds-section" id="site-chart-card">
+        <h2>Site Chart Card</h2>
+        <p class="section-desc">
+          <strong>Classes:</strong> <code>.site-chart-card</code>,
+          <code>.site-chart-card.visible</code>, <code>.site-chart-title</code>.
+          Glassmorphism card anchored mid-right on the map; hosts a
+          <code>&lt;canvas&gt;</code> in
+          <code>exhibits/2026-04-10-restoration-network/index.html</code>.
+          Opacity transitions on <code>.visible</code>. Scoped specimen uses
+          real class names inside <code>.ds-map-mini</code>.
+        </p>
+
+        <div class="ds-map-mini" aria-hidden="true">
+          <div class="ds-fake-story">
+            <strong>Story panel</strong>
+            Restoration experiment narrative.
+          </div>
+          <div class="site-chart-card visible">
+            <div class="site-chart-title">Stations by Role</div>
+            <div class="site-chart-canvas-mock">canvas</div>
+          </div>
+        </div>
+        <p class="ds-note">
+          Matches <code>restoration-network</code> (<code>right: 24px</code>,
+          blur card over the map). Exhibit-local CSS until promoted to shared
+          CSS.
+        </p>
+      </section>
+
+      <!-- ── Infographic Background ────────────────────── -->
+      <section class="ds-section" id="infographic-bg">
+        <h2>Infographic Background</h2>
+        <p class="section-desc">
+          <strong>Class:</strong> <code>.infographic-bg</code> (toggle
+          <code>.infographic-bg.active</code>). Full-bleed photo (or image)
+          layer for non-map steps in
+          <code>exhibits/2026-04-10-how-we-look/index.html</code>.
+          <code>::after</code> adds a left-to-right scrim for panel legibility;
+          optional <code>.photo-credit</code> in the corner. Typically wraps
+          <code>.gear-cards</code> bottom-right.
+        </p>
+
+        <div class="ds-map-mini" aria-hidden="true">
+          <div class="ds-fake-story">
+            <strong>Story panel</strong>
+            Gear narrative overlays the scrim.
+          </div>
+          <div
+            class="infographic-bg active"
+            style="
+              background-image: linear-gradient(
+                105deg,
+                #4a3528 0%,
+                #2d4a52 38%,
+                #5a7d6a 100%
+              );
+            "
+          >
+            <span class="photo-credit">Specimen gradient (not a photo)</span>
+            <div class="ds-infographic-chip">
+              Bottom-right slot for <code>.gear-cards</code> in the real
+              exhibit.
+            </div>
+          </div>
+        </div>
+
+        <div class="ds-card" style="margin-top: 16px">
+          <div
+            style="
+              font-family: var(--font-body);
+              font-size: var(--size-sm);
+              color: #555;
+              line-height: 1.7;
+            "
+          >
+            <p>
+              Set <code>background-image: url('…')</code> on
+              <code>.infographic-bg</code> for production photos (see exhibit
+              <code>index.html</code>).
+            </p>
+            <pre
+              style="
+                background: #f5f5f5;
+                border-radius: 6px;
+                padding: 16px;
+                font-size: 12px;
+                overflow-x: auto;
+                margin-top: 12px;
+              "
+            >
+.infographic-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background-size: cover;
+  background-position: center;
+  display: none;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 24px;
+  padding-left: calc(var(--panel-width) + var(--panel-inset) + 24px);
+}
+.infographic-bg::after { /* scrim */ }
+.infographic-bg.active { display: flex; }</pre
+            >
+          </div>
+        </div>
+        <p class="ds-note">
+          In how-we-look, each gear step uses an
+          <code>infographic-step*</code> layer with a JPEG
+          <code>background-image</code>. Toggle with JS via
+          <code>.active</code>.
+        </p>
+      </section>
+
+      <!-- ── Species Treemap ───────────────────────────── -->
+      <section class="ds-section" id="treemap">
+        <h2>Species Treemap</h2>
+        <p class="section-desc">
+          <strong>Classes:</strong> <code>.species-treemap</code>,
+          <code>.species-treemap.active</code>,
+          <code>.species-treemap-card</code>,
+          <code>.species-treemap-title</code>,
+          <code>.species-treemap-canvas</code>. Full-bleed white overlay in
+          <code>exhibits/2026-04-10-how-we-look/index.html</code>; canvas uses a
+          squarify layout (DPR-aware) with habitat colors. Panel offset is
+          applied as left padding on <code>.species-treemap-card</code>.
+        </p>
+
+        <div class="ds-map-mini" aria-hidden="true">
+          <div class="ds-fake-story">
+            <strong>Story panel</strong>
+            Step 0 narrative while treemap fills the frame.
+          </div>
+          <div class="species-treemap active">
+            <div class="species-treemap-card">
+              <div class="species-treemap-title">
+                Catch composition (specimen)
+              </div>
+              <canvas
+                class="species-treemap-canvas"
+                id="ds-treemap-specimen-canvas"
+                width="360"
+                height="160"
+              ></canvas>
+            </div>
+          </div>
+        </div>
+        <script>
+          (function () {
+            var el = document.getElementById("ds-treemap-specimen-canvas");
+            if (!el || !el.getContext) return;
+            var ctx = el.getContext("2d");
+            var w = el.width;
+            var h = el.height;
+            var rects = [
+              { x: 0, y: 0, w: w * 0.42, h: h * 0.55, c: "#228b9c" },
+              { x: w * 0.42, y: 0, w: w * 0.28, h: h * 0.55, c: "#379352" },
+              { x: w * 0.7, y: 0, w: w * 0.3, h: h * 0.38, c: "#92bb4d" },
+              {
+                x: w * 0.7,
+                y: h * 0.38,
+                w: w * 0.3,
+                h: h * 0.62,
+                c: "#005e6a",
+              },
+              { x: 0, y: h * 0.55, w: w * 0.7, h: h * 0.45, c: "#e09337" },
+            ];
+            rects.forEach(function (r) {
+              ctx.fillStyle = r.c;
+              ctx.fillRect(r.x + 1, r.y + 1, r.w - 2, r.h - 2);
+            });
+          })();
+        </script>
+
+        <div class="ds-card" style="margin-top: 16px">
+          <div
+            style="
+              font-family: var(--font-body);
+              font-size: var(--size-sm);
+              color: #555;
+              line-height: 1.7;
+            "
+          >
+            <p>
+              The specimen canvas is decorative; the exhibit draws cells from
+              catch data. Structure:
+            </p>
+            <pre
+              style="
+                background: #f5f5f5;
+                border-radius: 6px;
+                padding: 16px;
+                font-size: 12px;
+                overflow-x: auto;
+                margin-top: 12px;
+              "
+            >
+&lt;div class="species-treemap" id="species-treemap"&gt;
+  &lt;div class="species-treemap-card"&gt;
+    &lt;canvas class="species-treemap-canvas" id="treemap-canvas"&gt;&lt;/canvas&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre
+            >
+          </div>
+        </div>
+        <p class="ds-note">
+          Squarify and redraw logic lives in the exhibit script; colors follow
+          <code>:root</code> habitat tokens in that file.
+        </p>
+      </section>
+
+      <!-- ── Map Labels ────────────────────────────── -->
+      <section class="ds-section" id="labels">
+        <h2>Map Labels</h2>
+        <p class="section-desc">
+          Non-interactive Leaflet DivIcon labels. <code>.poi-label</code> for
+          key landmarks, <code>.station-label</code> for individual monitoring
+          sites. Type specs (step scale, weights) live with the rest of the ramp
+          in
+          <a href="#typography-map-marker"
+            >Typography → Map &amp; marker typography</a
+          >.
+        </p>
+
+        <div
+          class="ds-bg-dark"
+          style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap"
+        >
+          <!-- Real .poi-label and .station-label from exhibit-frame.css -->
+          <div class="poi-label">South Bay</div>
+          <div class="poi-label">North Bay</div>
+          <div class="station-label">ALVS-01</div>
+          <div class="station-label">SB-REF-04</div>
+        </div>
+      </section>
+      <!-- Map Popups → replaced by Marker Popup ──── -->
+      <!-- ── Marker Popup ──────────────────────────── -->
+      <section class="ds-section" id="marker-popup">
+        <h2>Marker Popup</h2>
+        <p class="section-desc">
+          Vanilla JS component — <code>WRMP.makeMarkerPopup(opts)</code> returns
+          an <code>HTMLElement</code>, consistent with the rest of the
+          <code>WRMP.*</code> API. All visual values use
+          <code>tokens.css</code> custom properties. Load
+          <code>marker-popup.css</code> and
+          <code>marker-popup.js</code> alongside the other shared assets. Text
+          role summary (<code>.mp-title</code>, <code>.mp-tag</code>, etc.):
+          <a href="#typography-map-marker"
+            >Typography → Map &amp; marker typography</a
+          >.
+        </p>
+
+        <!-- ── Specimens ───────────────────────────── -->
+        <div
+          class="ds-row"
+          style="align-items: flex-start; flex-wrap: wrap; gap: 24px"
+        >
+          <!-- A: image + row + hierarchy -->
+          <div>
+            <div class="ds-group-label">A — image · row · hierarchy</div>
+            <div class="mp-card">
+              <div class="mp-image">
+                <span class="mp-image-label">No image</span>
+              </div>
+              <div class="mp-body">
+                <div class="mp-group">
+                  <p class="mp-title">
+                    <span class="mp-title-code">OBP 1</span> — Outer Bair
+                    Restoration
+                  </p>
+                  <p class="mp-category">Tidal Pond Slough</p>
+                  <hr class="mp-divider" />
+                </div>
+                <div class="mp-section">
+                  <div class="mp-group">
+                    <div class="mp-row">
+                      <span class="mp-row-label">Project</span>
+                      <span class="mp-row-value">Site Type</span>
+                    </div>
+                    <div class="mp-group">
+                      <span class="mp-group-label">Location</span>
+                      <div class="mp-tag-row">
+                        <span class="mp-tag">South Bay</span>
+                        <span class="mp-chevron">›</span>
+                        <span class="mp-tag">Bair Island Marsh</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- B: no image, multiple groups, 3-level hierarchy -->
+          <div>
+            <div class="ds-group-label">
+              B — no image · multi-group · 3-level hierarchy
+            </div>
+            <div class="mp-card">
+              <div class="mp-body">
+                <div class="mp-group">
+                  <p class="mp-title">
+                    <span class="mp-title-code">RST 4</span> — North Delta Levee
+                    Breach
+                  </p>
+                  <p class="mp-category">Riparian Corridor</p>
+                  <hr class="mp-divider" />
+                </div>
+                <div class="mp-section">
+                  <div class="mp-group">
+                    <div class="mp-row">
+                      <span class="mp-row-label">Active</span
+                      ><span class="mp-row-value">Status</span>
+                    </div>
+                    <div class="mp-row">
+                      <span class="mp-row-label">142 ac</span
+                      ><span class="mp-row-value">Acres</span>
+                    </div>
+                  </div>
+                </div>
+                <hr class="mp-divider" />
+                <div class="mp-section">
+                  <div class="mp-group">
+                    <span class="mp-group-label">Habitat Types</span>
+                    <div class="mp-tag-row">
+                      <span class="mp-tag">Wetland</span>
+                      <span class="mp-tag">Riparian</span>
+                    </div>
+                  </div>
+                </div>
+                <hr class="mp-divider" />
+                <div class="mp-section">
+                  <div class="mp-group">
+                    <span class="mp-group-label">Location</span>
+                    <div class="mp-tag-row" style="align-items: center">
+                      <span class="mp-tag">Sacramento Delta</span>
+                      <span class="mp-chevron">›</span>
+                      <span class="mp-tag">North Sector</span>
+                      <span class="mp-chevron">›</span>
+                      <span class="mp-tag">Zone 3</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- C: tags with icons -->
+          <div>
+            <div class="ds-group-label">C — icon tags · grouped attrs</div>
+            <div class="mp-card">
+              <div class="mp-body">
+                <div class="mp-group">
+                  <p class="mp-title">Coyote Creek Fish Passage</p>
+                  <p class="mp-category">Stream Restoration</p>
+                  <hr class="mp-divider" />
+                </div>
+                <div class="mp-section">
+                  <div class="mp-group">
+                    <span class="mp-group-label">Classification</span>
+                    <div class="mp-row">
+                      <span class="mp-row-label">IRWM</span
+                      ><span class="mp-row-value">Program</span>
+                    </div>
+                    <div class="mp-group">
+                      <span class="mp-group-label">Keywords</span>
+                      <div class="mp-tag-row">
+                        <span class="mp-tag">🐟 Fish Passage</span>
+                        <span class="mp-tag">Monitoring</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <hr class="mp-divider" />
+                <div class="mp-section">
+                  <div class="mp-group">
+                    <span class="mp-group-label">Watershed</span>
+                    <div class="mp-tag-row" style="align-items: center">
+                      <span class="mp-tag">South Bay</span>
+                      <span class="mp-chevron">›</span>
+                      <span class="mp-tag">Coyote Creek</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Atom inventory ──────────────────────── -->
+        <div class="ds-group" style="margin-top: 32px">
+          <div class="ds-group-label">Atoms</div>
+          <div
+            class="ds-card"
+            style="display: flex; flex-direction: column; gap: 16px"
+          >
+            <div
+              style="
+                display: flex;
+                align-items: baseline;
+                gap: 24px;
+                border-bottom: 1px solid #eee;
+                padding-bottom: 12px;
+              "
+            >
+              <div style="width: 180px; flex-shrink: 0">
+                <div
+                  style="
+                    font-size: 11px;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.08em;
+                    color: #999;
+                  "
+                >
+                  MarkerImage
+                </div>
+                <div
+                  style="
+                    font-size: 10px;
+                    color: #ccc;
+                    font-family: monospace;
+                    margin-top: 2px;
+                  "
+                >
+                  src? · alt? · height?=180
+                </div>
+              </div>
+              <div
+                class="mp-image"
+                style="width: 120px; height: 60px; flex-shrink: 0"
+              >
+                <span class="mp-image-label">No image</span>
+              </div>
+            </div>
+
+            <div
+              style="
+                display: flex;
+                align-items: baseline;
+                gap: 24px;
+                border-bottom: 1px solid #eee;
+                padding-bottom: 12px;
+              "
+            >
+              <div style="width: 180px; flex-shrink: 0">
+                <div
+                  style="
+                    font-size: 11px;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.08em;
+                    color: #999;
+                  "
+                >
+                  MarkerTitle
+                </div>
+                <div
+                  style="
+                    font-size: 10px;
+                    color: #ccc;
+                    font-family: monospace;
+                    margin-top: 2px;
+                  "
+                >
+                  name · code?
+                </div>
+              </div>
+              <p class="mp-title" style="margin: 0">
+                <span class="mp-title-code">OBP 1</span> — Outer Bair
+                Restoration
+              </p>
+            </div>
+
+            <div
+              style="
+                display: flex;
+                align-items: baseline;
+                gap: 24px;
+                border-bottom: 1px solid #eee;
+                padding-bottom: 12px;
+              "
+            >
+              <div style="width: 180px; flex-shrink: 0">
+                <div
+                  style="
+                    font-size: 11px;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.08em;
+                    color: #999;
+                  "
+                >
+                  MarkerCategory
+                </div>
+                <div
+                  style="
+                    font-size: 10px;
+                    color: #ccc;
+                    font-family: monospace;
+                    margin-top: 2px;
+                  "
+                >
+                  label
+                </div>
+              </div>
+              <p class="mp-category" style="margin: 0">Tidal Pond Slough</p>
+            </div>
+
+            <div
+              style="
+                display: flex;
+                align-items: baseline;
+                gap: 24px;
+                border-bottom: 1px solid #eee;
+                padding-bottom: 12px;
+              "
+            >
+              <div style="width: 180px; flex-shrink: 0">
+                <div
+                  style="
+                    font-size: 11px;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.08em;
+                    color: #999;
+                  "
+                >
+                  AttributeLabel
+                </div>
+                <div
+                  style="
+                    font-size: 10px;
+                    color: #ccc;
+                    font-family: monospace;
+                    margin-top: 2px;
+                  "
+                >
+                  children
+                </div>
+              </div>
+              <span class="mp-group-label">Location</span>
+            </div>
+
+            <div
+              style="
+                display: flex;
+                align-items: baseline;
+                gap: 24px;
+                border-bottom: 1px solid #eee;
+                padding-bottom: 12px;
+              "
+            >
+              <div style="width: 180px; flex-shrink: 0">
+                <div
+                  style="
+                    font-size: 11px;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.08em;
+                    color: #999;
+                  "
+                >
+                  AttributeValue
+                </div>
+                <div
+                  style="
+                    font-size: 10px;
+                    color: #ccc;
+                    font-family: monospace;
+                    margin-top: 2px;
+                  "
+                >
+                  children
+                </div>
+              </div>
+              <span
+                style="
+                  font-family: var(--font-body);
+                  font-size: var(--step-0);
+                  font-weight: 400;
+                  color: var(--color-text);
+                "
+                >Benchmark</span
+              >
+            </div>
+
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: 24px;
+                border-bottom: 1px solid #eee;
+                padding-bottom: 12px;
+              "
+            >
+              <div style="width: 180px; flex-shrink: 0">
+                <div
+                  style="
+                    font-size: 11px;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.08em;
+                    color: #999;
+                  "
+                >
+                  AttributeTag
+                </div>
+                <div
+                  style="
+                    font-size: 10px;
+                    color: #ccc;
+                    font-family: monospace;
+                    margin-top: 2px;
+                  "
+                >
+                  value · icon?
+                </div>
+              </div>
+              <span class="mp-tag">South Bay</span>
+              <span class="mp-tag">🐟 Fish Passage</span>
+            </div>
+
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: 24px;
+                border-bottom: 1px solid #eee;
+                padding-bottom: 12px;
+              "
+            >
+              <div style="width: 180px; flex-shrink: 0">
+                <div
+                  style="
+                    font-size: 11px;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.08em;
+                    color: #999;
+                  "
+                >
+                  AttributeChevron
+                </div>
+                <div
+                  style="
+                    font-size: 10px;
+                    color: #ccc;
+                    font-family: monospace;
+                    margin-top: 2px;
+                  "
+                >
+                  no props
+                </div>
+              </div>
+              <span class="mp-chevron" style="font-size: 20px">›</span>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 24px">
+              <div style="width: 180px; flex-shrink: 0">
+                <div
+                  style="
+                    font-size: 11px;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.08em;
+                    color: #999;
+                  "
+                >
+                  AttributeDivider
+                </div>
+                <div
+                  style="
+                    font-size: 10px;
+                    color: #ccc;
+                    font-family: monospace;
+                    margin-top: 2px;
+                  "
+                >
+                  no props
+                </div>
+              </div>
+              <hr class="mp-divider" style="flex: 1" />
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Source ──────────────────────────────── -->
+        <p class="ds-note">
+          JS: <code>shared/js/marker-popup.js</code> →
+          <code>WRMP.makeMarkerPopup(opts)</code> returns an
+          <code>HTMLElement</code> &nbsp;·&nbsp; CSS:
+          <code>shared/css/marker-popup.css</code> · load alongside
+          <code>tokens.css</code>
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

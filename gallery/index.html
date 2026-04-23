@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WRMP — Gallery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../shared/css/tokens.css" />
+    <style>
+      body {
+        margin: 0;
+        padding: clamp(24px, 4vw, 48px);
+        font-family: var(--font-body);
+        font-size: var(--step-0, 1rem);
+        color: var(--color-text);
+        background: var(--gray-2);
+        line-height: 1.6;
+      }
+      h1 {
+        font-size: var(--step-3, 1.75rem);
+        font-weight: 400;
+        color: var(--wrmp-ada-teal);
+        margin: 0 0 8px;
+      }
+      .lede {
+        color: var(--color-text-subtle);
+        margin: 0 0 32px;
+        max-width: 52ch;
+      }
+      section {
+        margin-bottom: 40px;
+      }
+      h2 {
+        font-size: var(--step-1, 1.125rem);
+        font-weight: 600;
+        color: var(--wrmp-ada-teal);
+        margin: 0 0 16px;
+      }
+      .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+        gap: 20px;
+      }
+      .exhibit-card {
+        background: var(--gray-1);
+        border: 1px solid var(--gray-6);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .exhibit-frame {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        border: 0;
+        display: block;
+        background: var(--gray-3);
+      }
+      .exhibit-info {
+        padding: 12px 14px 14px;
+      }
+      a {
+        color: var(--wrmp-ada-teal);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+      a:hover {
+        color: var(--wrmp-teal);
+      }
+      .meta {
+        font-size: var(--step--1, 0.875rem);
+        color: var(--color-text-subtle);
+        margin-top: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>WRMP gallery</h1>
+    <p class="lede">
+      Exhibit prototypes and the design system. Run a local server from the
+      repo root (for example <code>python3 -m http.server 8765</code>) and open
+      these paths in the browser.
+    </p>
+
+    <section>
+      <h2>Exhibits</h2>
+      <div class="gallery-grid">
+        <article class="exhibit-card">
+          <iframe
+            class="exhibit-frame"
+            src="../exhibits/2026-04-03-station-map-stepper/"
+            loading="lazy"
+            title="The Bay: Where we’re watching"
+          ></iframe>
+          <div class="exhibit-info">
+            <a href="../exhibits/2026-04-03-station-map-stepper/">The Bay: Where we’re watching</a>
+            <div class="meta">2026-04-03-station-map-stepper</div>
+          </div>
+        </article>
+
+        <article class="exhibit-card">
+          <iframe
+            class="exhibit-frame"
+            src="../exhibits/2026-04-10-delta-smelt/"
+            loading="lazy"
+            title="Delta smelt: The smallest giant"
+          ></iframe>
+          <div class="exhibit-info">
+            <a href="../exhibits/2026-04-10-delta-smelt/">Delta smelt: The smallest giant</a>
+            <div class="meta">2026-04-10-delta-smelt</div>
+          </div>
+        </article>
+
+        <article class="exhibit-card">
+          <iframe
+            class="exhibit-frame"
+            src="../exhibits/2026-04-10-how-we-look/"
+            loading="lazy"
+            title="How we monitor"
+          ></iframe>
+          <div class="exhibit-info">
+            <a href="../exhibits/2026-04-10-how-we-look/">How we monitor</a>
+            <div class="meta">2026-04-10-how-we-look</div>
+          </div>
+        </article>
+
+        <article class="exhibit-card">
+          <iframe
+            class="exhibit-frame"
+            src="../exhibits/2026-04-10-native-vs-invasive/"
+            loading="lazy"
+            title="Native vs. invasive"
+          ></iframe>
+          <div class="exhibit-info">
+            <a href="../exhibits/2026-04-10-native-vs-invasive/">Native vs. invasive</a>
+            <div class="meta">2026-04-10-native-vs-invasive</div>
+          </div>
+        </article>
+
+        <article class="exhibit-card">
+          <iframe
+            class="exhibit-frame"
+            src="../exhibits/2026-04-10-restoration-network/"
+            loading="lazy"
+            title="Designing the experiment"
+          ></iframe>
+          <div class="exhibit-info">
+            <a href="../exhibits/2026-04-10-restoration-network/">Designing the experiment</a>
+            <div class="meta">2026-04-10-restoration-network</div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Design system</h2>
+      <p>
+        <a href="../design-system/index.html">WRMP design system documentation</a>
+      </p>
+    </section>
+  </body>
+</html>

@@ -55,6 +55,7 @@ All exhibits share this structure:
   └── .story-panel
        ├── .story-panel-inner
        │    └── .step[data-step="N"] (one per step)
+       │         └── .step-header → .step-header-mark + .step-header-text (.kicker + h2) + .body…
        └── .nav-bar
             ├── .nav-logo
             ├── #btn-prev
@@ -139,15 +140,28 @@ function showStep(n) {
 
 ## Step Content Elements
 
-Available content elements inside each `.step`:
+Every step must start with a **step header** row: transparent icon mark (WRMP logo only) on the left, then the kicker and `h2` inside `.step-header-text`.
 
 ```html
-<!-- Kicker (small caps label above title) -->
-<span class="kicker">Section Label</span>
+<div class="step-header">
+  <img
+    class="step-header-mark"
+    src="../../shared/img/wrmp-logo-2in-mark-crop.png"
+    alt=""
+    width="40"
+    height="40"
+    decoding="async"
+  />
+  <div class="step-header-text">
+    <span class="kicker">Section Label</span>
+    <h2>Step Title</h2>
+  </div>
+</div>
+```
 
-<!-- Title -->
-<h2>Step Title</h2>
+Then body and optional blocks:
 
+```html
 <!-- Body text -->
 <div class="body">
   <p>Paragraph text...</p>
@@ -192,9 +206,10 @@ var SUISUN = [[38.03, -122.15], [38.22, -121.75]];
 
 - [ ] All step dots match `totalSteps` count
 - [ ] `data-step` attributes are sequential starting from 0
+- [ ] Each step includes `.step-header` with mark, kicker, and `h2`
 - [ ] First step has `class="step active"`
 - [ ] `btn-prev` starts with `disabled` attribute
-- [ ] Popup uses `WRMP.makePopup()` (DOM-built, no innerHTML)
+- [ ] Popup uses `WRMP.makeMarkerPopup()` (DOM-built, no innerHTML; `marker-popup.js` + `marker-popup.css` linked)
 - [ ] Colors use CSS custom properties from tokens.css where possible
 - [ ] Body text is at least 16px (ADA requirement)
 - [ ] Photo/video backgrounds include `.photo-credit` attribution
