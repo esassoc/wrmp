@@ -56,6 +56,7 @@
       "Bash(kill 87457)",
       "mcp__e700257d-8295-439d-b1c4-b450a131a5d4__get_design_context",
       "mcp__e700257d-8295-439d-b1c4-b450a131a5d4__get_variable_defs",
+      "mcp__e700257d-8295-439d-b1c4-b450a131a5d4__use_figma",
       "Bash(npm install *)",
       "Bash(npx tsc *)",
       "Bash(python3 -)",
@@ -64,9 +65,12 @@
       "Bash(node --input-type=module)",
       "Bash(node -e ' *)",
       "Bash(node --check /tmp/exhibit-check.js)",
-      "WebFetch(domain:cdn.jsdelivr.net)"
-      "mcp__Claude_in_Chrome__tabs_context_mcp",
-      "mcp__e700257d-8295-439d-b1c4-b450a131a5d4__use_figma"
+      "WebFetch(domain:cdn.jsdelivr.net)",
+      "Bash(gh auth:*)",
+      "Bash(gh org:*)",
+      "Bash(gh repo:*)",
+      "mcp__atlassian__editJiraIssue",
+      "mcp__atlassian__addCommentToJiraIssue"
     ]
   }
 }

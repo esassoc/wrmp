@@ -1,0 +1,305 @@
+/* ── Exhibit Cover / End Card ──────────────────────
+   Shared "title screen" pattern for opening and closing
+   an exhibit. Used for:
+     - Cover:   <div id="exhibit-cover" class="exhibit-cover">
+     - End:     <div id="exhibit-end-card"
+                     class="exhibit-cover exhibit-cover--end is-hidden">
+
+   Each exhibit sets the hero image via a CSS custom property:
+     <div class="exhibit-cover" style="--cover-image: url('./cover.jpg');">
+*/
+
+/* ── Wrapper ──────────────────────────────────── */
+.exhibit-cover {
+  position: absolute;
+  inset: 0;
+  /* Stacked above every exhibit-internal layer, including step content
+     with custom z-index (e.g. floating chart cards). */
+  z-index: 1000;
+  display: block;
+  padding: 0;
+  background: var(--grass-3);
+  opacity: 1;
+  transition: opacity 0.8s ease;
+  overflow: hidden;
+}
+.exhibit-cover.is-leaving {
+  opacity: 0;
+  pointer-events: none;
+}
+.exhibit-cover.is-entering {
+  animation: cover-fade-in 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.exhibit-cover.is-hidden {
+  display: none;
+}
+@keyframes cover-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(1.015);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .exhibit-cover.is-entering {
+    animation: none;
+  }
+}
+
+/* ── Hero image + gradient ─────────────────────── */
+/* Each exhibit sets background-image inline on this div:
+     <div class="exhibit-cover-image" style="background-image: url('./cover.jpg');"></div>
+   Relative URLs are resolved against the HTML, which is what we want. */
+.exhibit-cover-image {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+
+.exhibit-cover-gradient {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      to top,
+      rgba(6, 20, 28, 0.88) 0%,
+      rgba(6, 20, 28, 0.55) 28%,
+      rgba(6, 20, 28, 0.2) 52%,
+      transparent 80%
+    ),
+    linear-gradient(to right, rgba(6, 20, 28, 0.35) 0%, transparent 45%);
+}
+
+/* ── Content block (cover variant) ─────────────── */
+.exhibit-cover-content {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: clamp(28px, 5vw, 56px);
+  color: #fff;
+  max-width: 680px;
+}
+
+.exhibit-cover-kicker {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 12px;
+}
+
+.exhibit-cover-title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.8rem, 3.6vw, 3rem);
+  font-weight: 600;
+  line-height: 1.08;
+  color: #fff;
+  margin: 0 0 14px;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.35);
+}
+
+.exhibit-cover-lede {
+  font-family: var(--font-body);
+  font-size: clamp(0.95rem, 1.3vw, 1.1rem);
+  font-weight: 400;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.88);
+  margin: 0 0 24px;
+  max-width: 52ch;
+}
+
+/* ── Primary CTA pill ──────────────────────────── */
+.exhibit-cover-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px 12px 20px;
+  border: none;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--wrmp-ada-teal);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  transition:
+    transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.25s ease,
+    background 0.15s ease;
+}
+.exhibit-cover-cta:hover,
+.exhibit-cover-cta:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.34);
+  outline: none;
+  background: #f6f8f9;
+}
+.exhibit-cover-cta svg {
+  width: 14px;
+  height: 14px;
+  fill: var(--wrmp-ada-teal);
+}
+
+/* ── Step-dot row (journey indicator) ──────────── */
+.exhibit-cover-journey {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.exhibit-cover-dots {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.exhibit-cover-dot {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.exhibit-cover-dot.is-pulsing {
+  background: #fff;
+  animation: cover-dot-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes cover-dot-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.55);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(255, 255, 255, 0);
+    transform: scale(1.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .exhibit-cover-dot.is-pulsing {
+    animation: none;
+  }
+}
+
+/* ── End-card variant (same hero, "journey complete") ── */
+.exhibit-cover--end .exhibit-cover-gradient {
+  background: linear-gradient(
+    to top,
+    rgba(6, 20, 28, 0.32) 0%,
+    rgba(6, 20, 28, 0.08) 45%,
+    transparent 75%
+  );
+}
+
+.exhibit-cover--end .exhibit-cover-content {
+  left: clamp(24px, 3.5vw, 48px);
+  right: auto;
+  bottom: clamp(24px, 3.5vw, 48px);
+  padding: clamp(28px, 3vw, 40px);
+  max-width: 560px;
+  background: rgba(8, 20, 28, 0.62);
+  backdrop-filter: blur(18px) saturate(1.1);
+  -webkit-backdrop-filter: blur(18px) saturate(1.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.4),
+    0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.exhibit-cover-dots--complete {
+  margin-bottom: 16px;
+}
+.exhibit-cover-dot.is-done {
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12);
+}
+
+.exhibit-cover-links-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.72);
+  margin: 0 0 10px;
+}
+
+.exhibit-cover-links {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 0 0 24px;
+}
+.exhibit-cover-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 999px;
+  color: #fff;
+  text-decoration: none;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+.exhibit-cover-link:hover,
+.exhibit-cover-link:focus-visible {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.42);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.exhibit-cover-link--featured {
+  background: rgba(34, 139, 156, 0.32);
+  border-color: rgba(134, 204, 216, 0.42);
+  font-weight: 600;
+  padding: 9px 16px;
+}
+.exhibit-cover-link--featured:hover,
+.exhibit-cover-link--featured:focus-visible {
+  background: rgba(34, 139, 156, 0.48);
+  border-color: rgba(134, 204, 216, 0.65);
+}
+
+.exhibit-cover-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.exhibit-cover-cta--secondary {
+  background: transparent;
+  color: #fff;
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
+  box-shadow: none;
+}
+.exhibit-cover-cta--secondary:hover,
+.exhibit-cover-cta--secondary:focus-visible {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.82);
+}

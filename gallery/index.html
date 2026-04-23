@@ -1,165 +1,428 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>WRMP — Gallery</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="../shared/css/tokens.css" />
-    <style>
-      body {
-        margin: 0;
-        padding: clamp(24px, 4vw, 48px);
-        font-family: var(--font-body);
-        font-size: var(--step-0, 1rem);
-        color: var(--color-text);
-        background: var(--gray-2);
-        line-height: 1.6;
-      }
-      h1 {
-        font-size: var(--step-3, 1.75rem);
-        font-weight: 400;
-        color: var(--wrmp-ada-teal);
-        margin: 0 0 8px;
-      }
-      .lede {
-        color: var(--color-text-subtle);
-        margin: 0 0 32px;
-        max-width: 52ch;
-      }
-      section {
-        margin-bottom: 40px;
-      }
-      h2 {
-        font-size: var(--step-1, 1.125rem);
-        font-weight: 600;
-        color: var(--wrmp-ada-teal);
-        margin: 0 0 16px;
-      }
-      .gallery-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
-        gap: 20px;
-      }
-      .exhibit-card {
-        background: var(--gray-1);
-        border: 1px solid var(--gray-6);
-        border-radius: 12px;
-        overflow: hidden;
-      }
-      .exhibit-frame {
-        width: 100%;
-        aspect-ratio: 16 / 9;
-        border: 0;
-        display: block;
-        background: var(--gray-3);
-      }
-      .exhibit-info {
-        padding: 12px 14px 14px;
-      }
-      a {
-        color: var(--wrmp-ada-teal);
-        text-decoration: underline;
-        text-underline-offset: 3px;
-      }
-      a:hover {
-        color: var(--wrmp-teal);
-      }
-      .meta {
-        font-size: var(--step--1, 0.875rem);
-        color: var(--color-text-subtle);
-        margin-top: 4px;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>WRMP gallery</h1>
-    <p class="lede">
-      Exhibit prototypes and the design system. Run a local server from the
-      repo root (for example <code>python3 -m http.server 8765</code>) and open
-      these paths in the browser.
-    </p>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>WRMP — Gallery</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="../shared/css/tokens.css" />
+        <style>
+            body {
+                margin: 0;
+                padding: clamp(24px, 4vw, 48px);
+                font-family: var(--font-body);
+                font-size: var(--step-0, 1rem);
+                color: var(--color-text);
+                background: var(--gray-2);
+                line-height: 1.6;
+            }
+            h1 {
+                font-size: var(--step-3, 1.75rem);
+                font-weight: 400;
+                color: var(--wrmp-ada-teal);
+                margin: 0 0 8px;
+            }
+            .lede {
+                color: var(--color-text-subtle);
+                margin: 0 0 32px;
+                max-width: 60ch;
+            }
+            section {
+                margin-bottom: 40px;
+            }
+            h2 {
+                font-size: var(--step-1, 1.125rem);
+                font-weight: 600;
+                color: var(--wrmp-ada-teal);
+                margin: 0 0 16px;
+            }
+            .gallery-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+                gap: 24px;
+            }
 
-    <section>
-      <h2>Exhibits</h2>
-      <div class="gallery-grid">
-        <article class="exhibit-card">
-          <iframe
-            class="exhibit-frame"
-            src="../exhibits/2026-04-03-station-map-stepper/"
-            loading="lazy"
-            title="The Bay: Where we’re watching"
-          ></iframe>
-          <div class="exhibit-info">
-            <a href="../exhibits/2026-04-03-station-map-stepper/">The Bay: Where we’re watching</a>
-            <div class="meta">2026-04-03-station-map-stepper</div>
-          </div>
-        </article>
+            /* ── Poster card ───────────────────────────── */
+            .exhibit-card {
+                position: relative;
+                display: block;
+                aspect-ratio: 16 / 9;
+                border-radius: 12px;
+                overflow: hidden;
+                text-decoration: none;
+                color: inherit;
+                background: var(--gray-5);
+                box-shadow:
+                    0 4px 16px rgba(0, 0, 0, 0.08),
+                    0 1px 2px rgba(0, 0, 0, 0.06);
+                transition:
+                    transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+                    box-shadow 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+                isolation: isolate;
+            }
+            .exhibit-card:hover,
+            .exhibit-card:focus-visible {
+                transform: translateY(-3px);
+                box-shadow:
+                    0 12px 32px rgba(0, 0, 0, 0.18),
+                    0 2px 6px rgba(0, 0, 0, 0.08);
+                outline: none;
+            }
 
-        <article class="exhibit-card">
-          <iframe
-            class="exhibit-frame"
-            src="../exhibits/2026-04-10-delta-smelt/"
-            loading="lazy"
-            title="Delta smelt: The smallest giant"
-          ></iframe>
-          <div class="exhibit-info">
-            <a href="../exhibits/2026-04-10-delta-smelt/">Delta smelt: The smallest giant</a>
-            <div class="meta">2026-04-10-delta-smelt</div>
-          </div>
-        </article>
+            .exhibit-card-image {
+                position: absolute;
+                inset: 0;
+                background-size: cover;
+                background-position: center;
+                transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+            }
+            .exhibit-card:hover .exhibit-card-image {
+                transform: scale(1.04);
+            }
 
-        <article class="exhibit-card">
-          <iframe
-            class="exhibit-frame"
-            src="../exhibits/2026-04-10-how-we-look/"
-            loading="lazy"
-            title="How we monitor"
-          ></iframe>
-          <div class="exhibit-info">
-            <a href="../exhibits/2026-04-10-how-we-look/">How we monitor</a>
-            <div class="meta">2026-04-10-how-we-look</div>
-          </div>
-        </article>
+            /* Lower-third gradient for title legibility */
+            .exhibit-card-gradient {
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(
+                    to top,
+                    rgba(0, 0, 0, 0.78) 0%,
+                    rgba(0, 0, 0, 0.4) 32%,
+                    rgba(0, 0, 0, 0.05) 58%,
+                    transparent 80%
+                );
+            }
 
-        <article class="exhibit-card">
-          <iframe
-            class="exhibit-frame"
-            src="../exhibits/2026-04-10-native-vs-invasive/"
-            loading="lazy"
-            title="Native vs. invasive"
-          ></iframe>
-          <div class="exhibit-info">
-            <a href="../exhibits/2026-04-10-native-vs-invasive/">Native vs. invasive</a>
-            <div class="meta">2026-04-10-native-vs-invasive</div>
-          </div>
-        </article>
+            .exhibit-card-content {
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                padding: 20px 22px;
+                color: #fff;
+            }
 
-        <article class="exhibit-card">
-          <iframe
-            class="exhibit-frame"
-            src="../exhibits/2026-04-10-restoration-network/"
-            loading="lazy"
-            title="Designing the experiment"
-          ></iframe>
-          <div class="exhibit-info">
-            <a href="../exhibits/2026-04-10-restoration-network/">Designing the experiment</a>
-            <div class="meta">2026-04-10-restoration-network</div>
-          </div>
-        </article>
-      </div>
-    </section>
+            .exhibit-card-kicker {
+                display: block;
+                font-size: 0.75rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                color: rgba(255, 255, 255, 0.82);
+                margin-bottom: 6px;
+            }
 
-    <section>
-      <h2>Design system</h2>
-      <p>
-        <a href="../design-system/index.html">WRMP design system documentation</a>
-      </p>
-    </section>
-  </body>
+            .exhibit-card-title {
+                font-family: var(--font-heading);
+                font-size: clamp(1.1rem, 1.6vw, 1.45rem);
+                font-weight: 600;
+                line-height: 1.2;
+                color: #fff;
+                margin: 0;
+            }
+
+            .exhibit-card-dots {
+                display: flex;
+                gap: 6px;
+                margin-top: 10px;
+            }
+            .exhibit-card-dot {
+                display: block;
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.55);
+            }
+
+            /* Hover "Begin" pill — YouTube-style affordance */
+            .exhibit-card-begin {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) scale(0.92);
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 10px 20px 10px 16px;
+                background: rgba(255, 255, 255, 0.96);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border-radius: 999px;
+                color: var(--wrmp-ada-teal);
+                font-family: var(--font-body);
+                font-size: 0.95rem;
+                font-weight: 600;
+                letter-spacing: 0.01em;
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+                opacity: 0;
+                pointer-events: none;
+                transition:
+                    opacity 0.25s ease,
+                    transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+            }
+            .exhibit-card:hover .exhibit-card-begin,
+            .exhibit-card:focus-visible .exhibit-card-begin {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            .exhibit-card-begin svg {
+                width: 14px;
+                height: 14px;
+                fill: var(--wrmp-ada-teal);
+            }
+
+            /* Placeholder card treatment (image not yet generated) */
+            .exhibit-card--placeholder .exhibit-card-image {
+                background: linear-gradient(
+                    135deg,
+                    var(--placeholder-from, var(--cyan-5)) 0%,
+                    var(--placeholder-to, var(--cyan-8)) 100%
+                );
+            }
+            .exhibit-card--placeholder::after {
+                content: "Hero image — TK";
+                position: absolute;
+                top: 12px;
+                right: 12px;
+                padding: 4px 10px;
+                background: rgba(0, 0, 0, 0.48);
+                color: rgba(255, 255, 255, 0.95);
+                font-size: 0.7rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.06em;
+                border-radius: 999px;
+                z-index: 2;
+            }
+
+            .design-system-link {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                color: var(--wrmp-ada-teal);
+                text-decoration: underline;
+                text-underline-offset: 3px;
+            }
+            .design-system-link:hover {
+                color: var(--wrmp-teal);
+            }
+        </style>
+    </head>
+    <body>
+        <h1>WRMP Data Visualization Gallery</h1>
+        <p class="lede">
+            Interactive museum-style exhibits exploring the San Francisco
+            Estuary's fish and fish habitat. Click any poster to step inside.
+        </p>
+
+        <section>
+            <h2>Exhibits — April 2026</h2>
+            <div class="gallery-grid">
+                <!-- The Bay — hero image generated -->
+                <article>
+                    <a
+                        class="exhibit-card"
+                        href="../exhibits/2026-04-03-station-map-stepper/"
+                        aria-label="Open exhibit: The Bay — Where We're Watching"
+                    >
+                        <div
+                            class="exhibit-card-image"
+                            style="background-image: url('../exhibits/2026-04-03-station-map-stepper/cover.jpg');"
+                        ></div>
+                        <div class="exhibit-card-gradient"></div>
+                        <div class="exhibit-card-content">
+                            <span class="exhibit-card-kicker">Overview</span>
+                            <h3 class="exhibit-card-title">
+                                The Bay: Where We're Watching
+                            </h3>
+                            <div
+                                class="exhibit-card-dots"
+                                aria-label="5 stops"
+                            >
+                                <span class="exhibit-card-dot"></span>
+                                <span class="exhibit-card-dot"></span>
+                                <span class="exhibit-card-dot"></span>
+                                <span class="exhibit-card-dot"></span>
+                                <span class="exhibit-card-dot"></span>
+                            </div>
+                        </div>
+                        <div class="exhibit-card-begin" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M8 5v14l11-7z" />
+                            </svg>
+                            Begin exhibit
+                        </div>
+                    </a>
+                </article>
+
+                <!-- Delta Smelt — hero generated -->
+                <article>
+                    <a
+                        class="exhibit-card"
+                        href="../exhibits/2026-04-10-delta-smelt/"
+                        aria-label="Open exhibit: Delta Smelt — The Smallest Giant"
+                    >
+                        <div
+                            class="exhibit-card-image"
+                            style="background-image: url('../exhibits/2026-04-10-delta-smelt/cover.jpg');"
+                        ></div>
+                        <div class="exhibit-card-gradient"></div>
+                        <div class="exhibit-card-content">
+                            <span class="exhibit-card-kicker"
+                                >Featured Species</span
+                            >
+                            <h3 class="exhibit-card-title">
+                                Delta Smelt: The Smallest Giant
+                            </h3>
+                            <div
+                                class="exhibit-card-dots"
+                                aria-label="6 stops"
+                            >
+                                <span class="exhibit-card-dot"></span>
+                                <span class="exhibit-card-dot"></span>
+                                <span class="exhibit-card-dot"></span>
+                                <span class="exhibit-card-dot"></span>
+                                <span class="exhibit-card-dot"></span>
+                                <span class="exhibit-card-dot"></span>
+                            </div>
+                        </div>
+                        <div class="exhibit-card-begin" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M8 5v14l11-7z" />
+                            </svg>
+                            Begin exhibit
+                        </div>
+                    </a>
+                </article>
+
+                <!-- How We Monitor — hero generated -->
+                <article>
+                    <a
+                        class="exhibit-card"
+                        href="../exhibits/2026-04-10-how-we-look/"
+                        aria-label="Open exhibit: How We Monitor"
+                    >
+                        <div
+                            class="exhibit-card-image"
+                            style="background-image: url('../exhibits/2026-04-10-how-we-look/cover.jpg');"
+                        ></div>
+                        <div class="exhibit-card-gradient"></div>
+                        <div class="exhibit-card-content">
+                            <span class="exhibit-card-kicker"
+                                >Field Methods</span
+                            >
+                            <h3 class="exhibit-card-title">How We Monitor</h3>
+                            <div
+                                class="exhibit-card-dots"
+                                aria-label="4 stops"
+                            >
+                                <span class="exhibit-card-dot"></span>
+                                <span class="exhibit-card-dot"></span>
+                                <span class="exhibit-card-dot"></span>
+                                <span class="exhibit-card-dot"></span>
+                            </div>
+                        </div>
+                        <div class="exhibit-card-begin" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M8 5v14l11-7z" />
+                            </svg>
+                            Begin exhibit
+                        </div>
+                    </a>
+                </article>
+
+                <!-- Native vs. Invasive — hero generated -->
+                <article>
+                    <a
+                        class="exhibit-card"
+                        href="../exhibits/2026-04-10-native-vs-invasive/"
+                        aria-label="Open exhibit: Native vs. Invasive"
+                    >
+                        <div
+                            class="exhibit-card-image"
+                            style="background-image: url('../exhibits/2026-04-10-native-vs-invasive/cover.jpg');"
+                        ></div>
+                        <div class="exhibit-card-gradient"></div>
+                        <div class="exhibit-card-content">
+                            <span class="exhibit-card-kicker">Data Story</span>
+                            <h3 class="exhibit-card-title">
+                                Native vs. Invasive
+                            </h3>
+                            <div
+                                class="exhibit-card-dots"
+                                aria-label="6 stops"
+                            >
+                                <span class="exhibit-card-dot"></span>
+                                <span class="exhibit-card-dot"></span>
+                                <span class="exhibit-card-dot"></span>
+                                <span class="exhibit-card-dot"></span>
+                                <span class="exhibit-card-dot"></span>
+                                <span class="exhibit-card-dot"></span>
+                            </div>
+                        </div>
+                        <div class="exhibit-card-begin" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M8 5v14l11-7z" />
+                            </svg>
+                            Begin exhibit
+                        </div>
+                    </a>
+                </article>
+
+                <!-- Designing the Experiment — hero generated -->
+                <article>
+                    <a
+                        class="exhibit-card"
+                        href="../exhibits/2026-04-10-restoration-network/"
+                        aria-label="Open exhibit: Designing the Experiment"
+                    >
+                        <div
+                            class="exhibit-card-image"
+                            style="background-image: url('../exhibits/2026-04-10-restoration-network/cover.jpg');"
+                        ></div>
+                        <div class="exhibit-card-gradient"></div>
+                        <div class="exhibit-card-content">
+                            <span class="exhibit-card-kicker"
+                                >Restoration Science</span
+                            >
+                            <h3 class="exhibit-card-title">
+                                Designing the Experiment
+                            </h3>
+                            <div
+                                class="exhibit-card-dots"
+                                aria-label="5 stops"
+                            >
+                                <span class="exhibit-card-dot"></span>
+                                <span class="exhibit-card-dot"></span>
+                                <span class="exhibit-card-dot"></span>
+                                <span class="exhibit-card-dot"></span>
+                                <span class="exhibit-card-dot"></span>
+                            </div>
+                        </div>
+                        <div class="exhibit-card-begin" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M8 5v14l11-7z" />
+                            </svg>
+                            Begin exhibit
+                        </div>
+                    </a>
+                </article>
+            </div>
+        </section>
+
+        <section>
+            <h2>Design system</h2>
+            <p>
+                <a class="design-system-link" href="../design-system/index.html"
+                    >WRMP design system documentation →</a
+                >
+            </p>
+        </section>
+    </body>
 </html>

@@ -18,78 +18,111 @@
     <link rel="stylesheet" href="../../shared/css/exhibit-frame.css" />
     <link rel="stylesheet" href="../../shared/css/leaflet-overrides.css?v=2" />
     <link rel="stylesheet" href="../../shared/css/marker-popup.css" />
-    <style>
-      .exhibit-cover {
-        z-index: 31;
-      }
-    </style>
+    <link rel="stylesheet" href="../../shared/css/exhibit-cover.css" />
   </head>
   <body>
     <div class="exhibit-frame">
       <div id="map"></div>
       <div class="map-legend" id="map-legend"></div>
-      <div
-        id="exhibit-cover"
-        class="overlay-screen overlay-screen--grass-3 exhibit-cover"
-      >
-        <div class="overlay-card">
-          <span class="kicker">WRMP exhibit</span>
-          <h2 class="heading-display">The Bay: Where We're Watching</h2>
-          <p class="body-text">
+      <div id="exhibit-cover" class="exhibit-cover">
+        <div
+          class="exhibit-cover-image"
+          style="background-image: url('./cover.jpg')"
+          aria-hidden="true"
+        ></div>
+        <div class="exhibit-cover-gradient" aria-hidden="true"></div>
+        <div class="exhibit-cover-content">
+          <span class="exhibit-cover-kicker">WRMP Exhibit · Overview</span>
+          <h2 class="exhibit-cover-title">The Bay: Where We're Watching</h2>
+          <p class="exhibit-cover-lede">
             Explore how WRMP monitors the San Francisco Estuary across regions,
             networks, and restoration sites.
           </p>
-          <button id="btn-enter" class="overlay-button">Enter</button>
+          <button id="btn-enter" class="exhibit-cover-cta" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            Step Inside
+          </button>
+          <div class="exhibit-cover-journey">
+            <div class="exhibit-cover-dots" aria-hidden="true">
+              <span class="exhibit-cover-dot is-pulsing"></span>
+              <span class="exhibit-cover-dot"></span>
+              <span class="exhibit-cover-dot"></span>
+              <span class="exhibit-cover-dot"></span>
+              <span class="exhibit-cover-dot"></span>
+            </div>
+            <span class="exhibit-cover-journey-label">5 stops · ~3 min</span>
+          </div>
         </div>
       </div>
       <div
         id="exhibit-end-card"
-        class="overlay-screen overlay-screen--grass-2 is-hidden"
+        class="exhibit-cover exhibit-cover--end is-hidden"
       >
-        <div class="overlay-card">
-          <span class="kicker">Thanks for exploring</span>
-          <h2 class="heading-display">Continue the WRMP story</h2>
-          <p class="body-text">
-            This exhibit introduced where WRMP watches fish and fish habitat
-            across the estuary. The next layer is what the long-term data
-            reveals over time.
+        <div
+          class="exhibit-cover-image"
+          style="background-image: url('./cover.jpg')"
+          aria-hidden="true"
+        ></div>
+        <div class="exhibit-cover-gradient" aria-hidden="true"></div>
+        <div class="exhibit-cover-content">
+          <div
+            class="exhibit-cover-dots exhibit-cover-dots--complete"
+            aria-label="5 of 5 stops complete"
+          >
+            <span class="exhibit-cover-dot is-done"></span>
+            <span class="exhibit-cover-dot is-done"></span>
+            <span class="exhibit-cover-dot is-done"></span>
+            <span class="exhibit-cover-dot is-done"></span>
+            <span class="exhibit-cover-dot is-done"></span>
+          </div>
+          <span class="exhibit-cover-kicker">Thanks for exploring</span>
+          <h2 class="exhibit-cover-title">The data runs deeper</h2>
+          <p class="exhibit-cover-lede">
+            This exhibit is one layer. WRMP's monitoring lives inside a larger
+            data ecosystem — from the Bay-wide EcoAtlas toolset to the raw
+            datasets scientists work with every day.
           </p>
-          <p class="body-text">
-            Use the links below to dig deeper into the program, methods, and
-            species stories.
-          </p>
-          <ul class="overlay-links">
-            <li>
-              <a
-                href="https://www.wrmp.org/"
-                target="_blank"
-                rel="noopener noreferrer"
-                >WRMP home and program updates</a
-              >
-            </li>
-            <li>
-              <a
-                href="../2026-04-10-how-we-look/"
-                target="_blank"
-                rel="noopener noreferrer"
-                >How We Monitor exhibit (gear + methods)</a
-              >
-            </li>
-            <li>
-              <a
-                href="../2026-04-10-delta-smelt/"
-                target="_blank"
-                rel="noopener noreferrer"
-                >Delta Smelt exhibit (featured species)</a
-              >
-            </li>
-          </ul>
-          <div class="overlay-actions">
-            <button id="btn-restart" class="overlay-button">
-              Restart Exhibit
+          <span class="exhibit-cover-links-label"
+            >Explore the data ecosystem</span
+          >
+          <div class="exhibit-cover-links">
+            <a
+              class="exhibit-cover-link exhibit-cover-link--featured"
+              href="https://www.ecoatlas.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+              >EcoAtlas ↗</a
+            >
+            <a
+              class="exhibit-cover-link exhibit-cover-link--featured"
+              href="https://www.wrmp.org/science-framework/"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Science Framework ↗</a
+            >
+            <a
+              class="exhibit-cover-link exhibit-cover-link--featured"
+              href="https://www.stateofourestuary.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+              >State of Our Estuary ↗</a
+            >
+          </div>
+          <div class="exhibit-cover-actions">
+            <button id="btn-restart" class="exhibit-cover-cta" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"
+                />
+              </svg>
+              Restart exhibit
             </button>
-            <a class="overlay-button" href="../../gallery/"
-              >View All Exhibits</a
+            <a
+              class="exhibit-cover-cta exhibit-cover-cta--secondary"
+              href="../../gallery/"
+              >View all exhibits</a
             >
           </div>
         </div>
@@ -347,6 +380,7 @@
     <script src="../../shared/js/map-init.js"></script>
     <script src="../../shared/js/marker-popup.js"></script>
     <script src="../../shared/js/stepper.js"></script>
+    <script src="../../shared/js/exhibit-screens.js"></script>
     <script>
       // ── Exhibit Config ─────────────────────────────
       var STATIONS = [];
@@ -731,67 +765,26 @@
         }
       }
 
-      // ── Stepper ────────────────────────────────────
-      var stepper = WRMP.createStepper({
-        totalSteps: 5,
+      // ── Stepper + cover/end-card screens ───────────
+      var screens = WRMP.wireExhibitScreens({
+        totalSteps: STEP_DEFS.length,
         onStepEnter: function (n) {
           activeFilter = null;
           buildLegend();
           if (STATIONS.length > 0) renderCurrentStep();
-          if (btnNext) {
-            if (n === STEP_DEFS.length - 1) {
-              btnNext.disabled = false;
-              btnNext.textContent = "Finish";
-            } else {
-              btnNext.textContent = "Next";
-            }
-          }
+        },
+        onEnter: function () {
+          stepper.goToStep(0);
+        },
+        onRestart: function () {
+          stepper.goToStep(0);
         },
       });
-      var enterBtn = document.getElementById("btn-enter");
-      var exhibitCover = document.getElementById("exhibit-cover");
-      var btnNext = document.getElementById("btn-next");
-      var endCard = document.getElementById("exhibit-end-card");
-      var restartBtn = document.getElementById("btn-restart");
 
-      function showEndCard() {
-        if (!endCard) return;
-        endCard.classList.remove("is-hidden");
-        endCard.classList.remove("is-leaving");
-      }
-
-      function hideEndCard() {
-        if (!endCard) return;
-        endCard.classList.add("is-leaving");
-        window.setTimeout(function () {
-          endCard.classList.add("is-hidden");
-          endCard.classList.remove("is-leaving");
-        }, 800);
-      }
-
-      if (enterBtn) {
-        enterBtn.addEventListener("click", function () {
-          if (exhibitCover) {
-            exhibitCover.classList.add("is-leaving");
-            window.setTimeout(function () {
-              exhibitCover.classList.add("is-hidden");
-            }, 800);
-          }
-          stepper.goToStep(0);
-        });
-      }
-      if (btnNext) {
-        btnNext.addEventListener("click", function () {
-          if (stepper.currentStep !== STEP_DEFS.length - 1) return;
-          showEndCard();
-        });
-      }
-      if (restartBtn) {
-        restartBtn.addEventListener("click", function () {
-          hideEndCard();
-          stepper.goToStep(0);
-        });
-      }
+      var stepper = WRMP.createStepper({
+        totalSteps: STEP_DEFS.length,
+        onStepEnter: screens.onStepEnter,
+      });
 
       // ── Load Data ──────────────────────────────────
       WRMP.loadData({ stations: true })
