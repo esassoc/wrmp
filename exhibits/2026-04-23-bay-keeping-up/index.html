@@ -1,0 +1,2064 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Is the Bay Keeping Up? — WRMP</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <link rel="stylesheet" href="../../shared/css/tokens.css" />
+        <link rel="stylesheet" href="../../shared/css/exhibit-frame.css" />
+        <link rel="stylesheet" href="../../shared/css/leaflet-overrides.css?v=2" />
+        <link rel="stylesheet" href="../../shared/css/marker-popup.css" />
+        <link rel="stylesheet" href="../../shared/css/metrics-card.css" />
+        <link rel="stylesheet" href="../../shared/css/exhibit-cover.css" />
+        <style>
+            .exhibit-frame {
+                background: #e8eef2;
+            }
+            #map {
+                width: 100%;
+                height: 100%;
+                position: static;
+            }
+
+            /* ── Prototype ribbon (meta indicator, allowed uppercase micro-size) ── */
+            .prototype-ribbon {
+                position: absolute;
+                top: 14px;
+                right: 14px;
+                z-index: 40;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 6px 12px;
+                background: rgba(255, 255, 255, 0.88);
+                backdrop-filter: blur(14px);
+                -webkit-backdrop-filter: blur(14px);
+                border: 1px solid rgba(0, 94, 106, 0.22);
+                border-radius: 999px;
+                font-family: var(--font-body);
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                color: var(--wrmp-ada-teal);
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                pointer-events: none;
+            }
+            .prototype-ribbon::before {
+                content: "";
+                display: block;
+                width: 7px;
+                height: 7px;
+                border-radius: 50%;
+                background: var(--wrmp-orange);
+                box-shadow: 0 0 0 3px rgba(224, 147, 55, 0.22);
+            }
+            .prototype-ribbon .sep {
+                opacity: 0.45;
+            }
+            .prototype-ribbon .muted {
+                font-weight: 500;
+                letter-spacing: 0.06em;
+                text-transform: none;
+                color: var(--wrmp-dark);
+            }
+
+            /* Legend offset so it doesn't collide with the ribbon */
+            .map-legend {
+                top: calc(var(--panel-inset) + 40px);
+            }
+
+            /* ── Step 1: painterly wetland gradient background ── */
+            .bg-wetland {
+                background:
+                    radial-gradient(ellipse at 70% 18%, rgba(255, 214, 170, 0.55) 0%, rgba(255, 214, 170, 0) 42%),
+                    linear-gradient(
+                        to bottom,
+                        #d6e6d0 0%,
+                        #b7d3bf 18%,
+                        #6fa884 42%,
+                        #3e7e78 66%,
+                        #1d4651 88%,
+                        #0e2a35 100%
+                    );
+            }
+            .bg-wetland::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(
+                    to right,
+                    rgba(0, 0, 0, 0.38) 0%,
+                    rgba(0, 0, 0, 0.08) 55%,
+                    rgba(0, 0, 0, 0) 100%
+                );
+            }
+            /* subtle horizon band */
+            .bg-wetland .horizon {
+                position: absolute;
+                left: 0;
+                right: 0;
+                top: 38%;
+                height: 1px;
+                background: linear-gradient(to right, transparent 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%);
+            }
+
+            /* ── Step 5 background gradient — calm, dignified, evening-water tone ── */
+            .bg-scorecard {
+                background: linear-gradient(135deg, var(--wrmp-ada-teal) 0%, #0e3844 48%, #1f4d3f 100%);
+            }
+            .bg-scorecard::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: radial-gradient(ellipse at 82% 24%, rgba(255, 255, 255, 0.08) 0%, transparent 55%);
+                pointer-events: none;
+            }
+
+            /* ── Hide prototype ribbon when cover or end-card is visible ── */
+            .exhibit-cover:not(.is-hidden) ~ .prototype-ribbon,
+            body:has(#exhibit-cover:not(.is-hidden)) .prototype-ribbon,
+            body:has(#exhibit-end-card:not(.is-hidden)) .prototype-ribbon {
+                display: none;
+            }
+
+            /* ── Chart sizing helpers ── */
+            .chart-wrap {
+                position: relative;
+                width: 100%;
+                margin-top: var(--space-sm);
+            }
+            .chart-wrap.sm {
+                height: 110px;
+            }
+            .chart-wrap.md {
+                height: 150px;
+            }
+            .chart-wrap.lg {
+                height: 210px;
+            }
+            /* SET chart needs room for 10 horizontal bars */
+            .chart-wrap.lg.set-chart {
+                min-height: 380px;
+                height: 380px;
+            }
+            .chart-wrap.xl {
+                height: 260px;
+            }
+            .chart-caption {
+                margin-top: 6px;
+                font-size: 12px;
+                color: var(--gray-11);
+                font-style: italic;
+            }
+
+            /* ── Step 1 hero chips (light panel variant) ── */
+            .hero-chips {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 8px;
+                margin: var(--space-md) 0 var(--space-sm);
+            }
+            .hero-chip {
+                padding: 12px 14px;
+                background: rgba(0, 94, 106, 0.05);
+                border: 1px solid rgba(0, 94, 106, 0.14);
+                border-radius: 10px;
+            }
+            .hero-chip .chip-lbl {
+                font-size: 12px;
+                font-weight: 600;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: var(--gray-11);
+                margin-bottom: 4px;
+            }
+            .hero-chip .chip-num {
+                font-size: 22px;
+                font-weight: 700;
+                color: var(--wrmp-ada-teal);
+                line-height: 1.1;
+            }
+            .hero-chip .chip-sub {
+                margin-top: 4px;
+                font-size: 13px;
+                color: var(--gray-11);
+                line-height: 1.3;
+            }
+            /* Dark-panel fallback (not used for step 1 now, but safe defaults) */
+            .story-panel.panel-dark .hero-chip {
+                background: rgba(255, 255, 255, 0.09);
+                border-color: rgba(255, 255, 255, 0.18);
+            }
+            .story-panel.panel-dark .hero-chip .chip-lbl {
+                color: rgba(255, 255, 255, 0.7);
+            }
+            .story-panel.panel-dark .hero-chip .chip-num {
+                color: #fff;
+            }
+            .story-panel.panel-dark .hero-chip .chip-sub {
+                color: rgba(255, 255, 255, 0.78);
+            }
+
+            /* ── Step 2 extent toggle ── */
+            .extent-toggle {
+                display: inline-flex;
+                gap: 4px;
+                padding: 4px;
+                background: rgba(0, 94, 106, 0.08);
+                border-radius: 10px;
+                margin: 6px 0 10px;
+            }
+            .extent-toggle button {
+                all: unset;
+                cursor: pointer;
+                padding: 6px 12px;
+                font-family: var(--font-body);
+                font-size: 14px;
+                font-weight: 600;
+                color: var(--wrmp-ada-teal);
+                border-radius: 7px;
+                transition: background 0.2s;
+            }
+            .extent-toggle button:hover {
+                background: rgba(255, 255, 255, 0.5);
+            }
+            .extent-toggle button.active {
+                background: #fff;
+                color: var(--wrmp-ada-teal);
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            }
+
+            /* ── Step 3 summary pill ── */
+            .summary-pill {
+                display: flex;
+                gap: 12px;
+                padding: 12px 14px;
+                background: rgba(0, 94, 106, 0.06);
+                border-radius: 8px;
+                margin-top: 10px;
+            }
+            .summary-pill-item {
+                flex: 1;
+            }
+            .summary-pill-num {
+                font-size: 22px;
+                font-weight: 700;
+                color: var(--wrmp-ada-teal);
+                line-height: 1;
+            }
+            .summary-pill-lbl {
+                font-size: 12px;
+                color: var(--gray-11);
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.06em;
+                margin-top: 4px;
+            }
+
+            /* ── Step 4 attribute toggle (in map-legend slot) ── */
+            .attr-toggle {
+                display: flex;
+                flex-direction: column;
+                gap: 3px;
+            }
+
+            /* ── Step 5 scorecard — right-stage layout ── */
+            .scorecard-stage {
+                display: grid;
+                grid-template-rows: 1fr 1fr 1fr;
+                gap: 12px;
+                width: 100%;
+                height: 100%;
+                min-height: 0;
+            }
+            .score-row {
+                display: grid;
+                grid-template-columns: 120px 1fr;
+                gap: 20px;
+                padding: 18px 22px;
+                background: rgba(255, 255, 255, 0.96);
+                border-radius: 14px;
+                box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22);
+                align-items: center;
+                min-height: 0;
+            }
+            .score-gauge-wrap {
+                position: relative;
+                width: 120px;
+                height: 120px;
+            }
+            .score-gauge-wrap .gauge-center {
+                position: absolute;
+                inset: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                pointer-events: none;
+            }
+            .score-gauge-wrap .gauge-value {
+                font-size: 24px;
+                font-weight: 700;
+                color: var(--wrmp-ada-teal);
+                line-height: 1;
+            }
+            .score-gauge-wrap .gauge-sub {
+                font-size: 11px;
+                color: var(--gray-11);
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.06em;
+                margin-top: 3px;
+            }
+            .score-body .score-label {
+                font-size: 13px;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: var(--gray-11);
+            }
+            .score-body .score-headline {
+                font-family: var(--font-heading);
+                font-size: 19px;
+                font-weight: 600;
+                color: var(--wrmp-ada-teal);
+                line-height: 1.25;
+                margin-top: 3px;
+            }
+            .score-body .score-sub {
+                font-size: 13.5px;
+                color: var(--gray-11);
+                line-height: 1.4;
+                margin-top: 6px;
+            }
+
+            /* Step 5 panel (dark) text overrides — force white-on-dark readability.
+         Shared panel-dark rules map to --gray-12 which resolves to near-black
+         because Radix defaults to the light theme; we force explicit light
+         tones here so titles and body text read on the dark panel. */
+            .story-panel.panel-dark .step h2 {
+                color: #fff;
+            }
+            .story-panel.panel-dark .step .kicker {
+                color: rgba(255, 255, 255, 0.72);
+            }
+            .story-panel.panel-dark .step .body p {
+                color: rgba(255, 255, 255, 0.88);
+            }
+            .story-panel.panel-dark .nav-bar button {
+                color: #fff;
+                background: rgba(255, 255, 255, 0.14);
+                border-color: rgba(255, 255, 255, 0.26);
+            }
+            .story-panel.panel-dark .nav-bar .step-counter {
+                color: rgba(255, 255, 255, 0.75);
+            }
+            .story-panel.panel-dark .nav-bar .step-dot {
+                background: rgba(255, 255, 255, 0.38);
+            }
+            .story-panel.panel-dark .nav-bar .step-dot.active {
+                background: #fff;
+            }
+
+            /* Step 5 panel (dark) — data-sources footer readability */
+            .score-footer {
+                margin-top: var(--space-md);
+                padding-top: 12px;
+                border-top: 1px solid rgba(255, 255, 255, 0.14);
+                font-size: 12.5px;
+                color: rgba(255, 255, 255, 0.7);
+                line-height: 1.5;
+            }
+            .score-footer strong {
+                color: rgba(255, 255, 255, 0.92);
+                font-weight: 600;
+            }
+            .score-footer .closing {
+                display: block;
+                font-size: 14px;
+                font-weight: 500;
+                color: #fff;
+                font-style: italic;
+                margin-bottom: 8px;
+                opacity: 0.92;
+            }
+
+            /* ── CRAM score-scale legend (Step 4) ── */
+            .cram-scale-legend {
+                position: absolute;
+                top: calc(var(--panel-inset) + 6px);
+                left: calc(var(--panel-width) + var(--panel-inset) * 2);
+                z-index: 15;
+                display: none;
+                flex-direction: column;
+                gap: 6px;
+                padding: 10px 12px 11px;
+                background: rgba(255, 255, 255, 0.94);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border: 1px solid rgba(0, 0, 0, 0.08);
+                border-radius: 10px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                pointer-events: none;
+            }
+            .cram-scale-legend.active {
+                display: flex;
+            }
+            .cram-scale-legend .cram-scale-title {
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: var(--gray-11);
+                margin-bottom: 2px;
+            }
+            .cram-scale-row {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 12.5px;
+                color: var(--wrmp-dark);
+                line-height: 1.3;
+            }
+            .cram-scale-swatch {
+                width: 14px;
+                height: 14px;
+                border-radius: 4px;
+                flex-shrink: 0;
+                border: 1px solid rgba(0, 0, 0, 0.08);
+            }
+            .cram-scale-row .cram-scale-range {
+                font-weight: 600;
+                color: var(--wrmp-ada-teal);
+                min-width: 52px;
+            }
+
+            /* ── Step 4 attribute toggle in legend: pill-style, distinct from swatches ── */
+            .map-legend.cram-attr-legend {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                padding: 10px 10px 11px;
+            }
+            .map-legend.cram-attr-legend::before {
+                content: "COLOR MARKERS BY";
+                display: block;
+                font-size: 10.5px;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+                color: var(--gray-11);
+                padding: 0 4px 2px;
+            }
+            .map-legend.cram-attr-legend .map-legend-chip {
+                border-radius: 7px;
+                padding: 6px 12px;
+                border: 1px solid transparent;
+                transition:
+                    background 0.15s ease,
+                    color 0.15s ease;
+            }
+            .map-legend.cram-attr-legend .map-legend-chip .map-legend-dot {
+                display: none;
+            }
+            .map-legend.cram-attr-legend .map-legend-chip.active {
+                background: var(--wrmp-ada-teal);
+                color: #fff;
+                border-color: var(--wrmp-ada-teal);
+            }
+            .map-legend.cram-attr-legend .map-legend-chip.active .map-legend-chip-label {
+                color: #fff;
+            }
+
+            /* ── Panel tweak to give chart room on shorter steps ── */
+            .story-panel-inner .step .body {
+                overflow-y: auto;
+            }
+
+            /* ── Right-stage content area (same pattern as Alviso step 4) ── */
+            .content-area {
+                position: absolute;
+                top: var(--panel-inset);
+                left: calc(var(--panel-width) + var(--panel-inset) + var(--panel-inset));
+                right: var(--panel-inset);
+                bottom: var(--panel-inset);
+                z-index: 5;
+                display: none;
+                flex-direction: column;
+                padding: var(--space-lg);
+                overflow: hidden;
+                pointer-events: none;
+            }
+            .content-area.active {
+                display: flex;
+            }
+            .content-area .stage-card {
+                pointer-events: auto;
+            }
+
+            /* ── Stage chart card (right-area chart container) ── */
+            .stage-card {
+                background: rgba(255, 255, 255, 0.92);
+                border: 1px solid rgba(0, 0, 0, 0.06);
+                border-radius: 12px;
+                padding: 18px 20px 16px;
+                box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+                display: flex;
+                flex-direction: column;
+                flex: 1;
+                min-height: 0;
+            }
+            .stage-card .stage-title {
+                font-family: var(--font-heading);
+                font-size: var(--step-1);
+                font-weight: 600;
+                color: var(--wrmp-ada-teal);
+                margin-bottom: 2px;
+            }
+            .stage-card .stage-subtitle {
+                font-size: var(--step-0);
+                color: var(--gray-11);
+                line-height: 1.4;
+                margin-bottom: 10px;
+            }
+            .stage-card .stage-chart-wrap {
+                position: relative;
+                flex: 1;
+                min-height: 0;
+                width: 100%;
+            }
+            .stage-card .stage-caption {
+                font-size: var(--step--1);
+                color: var(--gray-11);
+                font-style: italic;
+                line-height: 1.4;
+                margin-top: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="exhibit-frame">
+            <!-- ── Cover Screen ─────────────────────────────── -->
+            <div id="exhibit-cover" class="exhibit-cover">
+                <div
+                    class="exhibit-cover-image"
+                    style="background-image: url(&quot;./cover.jpg&quot;)"
+                    aria-hidden="true"
+                ></div>
+                <div class="exhibit-cover-gradient" aria-hidden="true"></div>
+                <div class="exhibit-cover-content">
+                    <span class="exhibit-cover-kicker">WRMP Exhibit · Wetland Resilience</span>
+                    <h2 class="exhibit-cover-title">Is the Bay Keeping Up?</h2>
+                    <p class="exhibit-cover-lede">
+                        Sea level is rising. Tidal wetlands are the Bay Area's living seawall — if they can keep pace.
+                        WRMP tracks three questions, every year: how much wetland is left, is it growing fast enough,
+                        and is it healthy?
+                    </p>
+                    <button id="btn-enter" class="exhibit-cover-cta" type="button">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M8 5v14l11-7z" />
+                        </svg>
+                        Step Inside
+                    </button>
+                    <div class="exhibit-cover-journey">
+                        <div class="exhibit-cover-dots" aria-hidden="true">
+                            <span class="exhibit-cover-dot is-pulsing"></span>
+                            <span class="exhibit-cover-dot"></span>
+                            <span class="exhibit-cover-dot"></span>
+                            <span class="exhibit-cover-dot"></span>
+                            <span class="exhibit-cover-dot"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── End Card ─────────────────────────────────── -->
+            <div id="exhibit-end-card" class="exhibit-cover exhibit-cover--end is-hidden">
+                <div
+                    class="exhibit-cover-image"
+                    style="background-image: url(&quot;./cover.jpg&quot;)"
+                    aria-hidden="true"
+                ></div>
+                <div class="exhibit-cover-gradient" aria-hidden="true"></div>
+                <div class="exhibit-cover-content">
+                    <div class="exhibit-cover-dots exhibit-cover-dots--complete" aria-label="5 of 5 stops complete">
+                        <span class="exhibit-cover-dot is-done"></span>
+                        <span class="exhibit-cover-dot is-done"></span>
+                        <span class="exhibit-cover-dot is-done"></span>
+                        <span class="exhibit-cover-dot is-done"></span>
+                        <span class="exhibit-cover-dot is-done"></span>
+                    </div>
+                    <span class="exhibit-cover-kicker">Thanks for exploring</span>
+                    <h2 class="exhibit-cover-title">When the data lands, the picture sharpens</h2>
+                    <p class="exhibit-cover-lede">
+                        This exhibit is a prototype — illustrative numbers in the right shape. When 2026 BHM data
+                        arrives, the scorecard updates automatically. Until then, explore the larger WRMP data
+                        ecosystem.
+                    </p>
+                    <span class="exhibit-cover-links-label">Explore the data ecosystem</span>
+                    <div class="exhibit-cover-links">
+                        <a
+                            class="exhibit-cover-link exhibit-cover-link--featured"
+                            href="https://www.ecoatlas.org/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            >EcoAtlas ↗</a
+                        >
+                        <a
+                            class="exhibit-cover-link exhibit-cover-link--featured"
+                            href="https://www.wrmp.org/science-framework/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            >Science Framework ↗</a
+                        >
+                        <a
+                            class="exhibit-cover-link exhibit-cover-link--featured"
+                            href="https://www.stateofourestuary.org/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            >State of Our Estuary ↗</a
+                        >
+                    </div>
+                    <div class="exhibit-cover-actions">
+                        <button id="btn-restart" class="exhibit-cover-cta" type="button">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path
+                                    d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"
+                                />
+                            </svg>
+                            Restart exhibit
+                        </button>
+                        <a class="exhibit-cover-cta exhibit-cover-cta--secondary" href="../../"
+                            >View all exhibits</a
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Prototype ribbon (persistent during steps 1-5) ───── -->
+            <div class="prototype-ribbon" aria-label="Prototype — illustrative data">
+                Prototype
+                <span class="sep">·</span>
+                <span class="muted">Illustrative data</span>
+            </div>
+
+            <!-- ── Background layers (one per step) ─────────── -->
+            <div class="bg-layer bg-wetland active" id="bg-0">
+                <div class="horizon" aria-hidden="true"></div>
+            </div>
+            <div class="bg-layer bg-map" id="bg-1"></div>
+            <div class="bg-layer bg-gradient" id="bg-2"></div>
+            <div class="bg-layer bg-map" id="bg-3"></div>
+            <div class="bg-layer bg-scorecard" id="bg-4"></div>
+
+            <!-- Map (shared across map steps) -->
+            <div
+                id="map"
+                style="
+                    position: absolute;
+                    inset: 0;
+                    z-index: 1;
+                    opacity: 0;
+                    transition: opacity 0.6s ease;
+                    pointer-events: none;
+                "
+            ></div>
+
+            <div class="map-legend" id="map-legend"></div>
+
+            <!-- ── Right-stage content areas (charts that live outside the panel) ── -->
+            <div class="content-area" id="content-step1">
+                <div class="stage-card">
+                    <div class="stage-title">Bay Area sea level, 1900–2100</div>
+                    <div class="stage-subtitle">
+                        Observed rise through today, with low / mid / high projection bands.
+                    </div>
+                    <div class="stage-chart-wrap">
+                        <canvas id="chart-slr"></canvas>
+                    </div>
+                    <div class="stage-caption">
+                        Bay Area relative sea level, NOAA observed + California State Guidance low/mid/high projections.
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-area" id="content-step3">
+                <div class="stage-card">
+                    <div class="stage-title">SET accretion rates — 10 Bay sites</div>
+                    <div class="stage-subtitle">
+                        Marsh surface growth compared to current SLR and the 2050 projection.
+                    </div>
+                    <div class="stage-chart-wrap">
+                        <canvas id="chart-set"></canvas>
+                    </div>
+                    <div class="stage-caption">
+                        Example SET rates, in realistic ranges. 2026 BHM data integration pending. SLR reference lines
+                        from NOAA &amp; California State Sea Level Rise Guidance.
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Step 4: CRAM score-scale legend ── -->
+            <div class="cram-scale-legend" id="cram-scale-legend">
+                <span class="cram-scale-title">CRAM score</span>
+                <div class="cram-scale-row">
+                    <span class="cram-scale-swatch" style="background: #379352"></span>
+                    <span class="cram-scale-range">80–100</span>
+                    <span>Excellent</span>
+                </div>
+                <div class="cram-scale-row">
+                    <span class="cram-scale-swatch" style="background: #92bb4d"></span>
+                    <span class="cram-scale-range">70–79</span>
+                    <span>Good</span>
+                </div>
+                <div class="cram-scale-row">
+                    <span class="cram-scale-swatch" style="background: #e09337"></span>
+                    <span class="cram-scale-range">60–69</span>
+                    <span>Fair</span>
+                </div>
+                <div class="cram-scale-row">
+                    <span class="cram-scale-swatch" style="background: #b45242"></span>
+                    <span class="cram-scale-range">&lt;60</span>
+                    <span>Poor</span>
+                </div>
+            </div>
+
+            <!-- ── Step 5: Scorecard right stage ── -->
+            <div class="content-area" id="content-step5">
+                <div class="scorecard-stage">
+                    <div class="score-row">
+                        <div class="score-gauge-wrap">
+                            <canvas id="gauge-extent"></canvas>
+                            <div class="gauge-center">
+                                <span class="gauge-value">45k</span>
+                                <span class="gauge-sub">of 100k</span>
+                            </div>
+                        </div>
+                        <div class="score-body">
+                            <div class="score-label">Extent</div>
+                            <div class="score-headline">45,000 acres · 45% of 2030 goal</div>
+                            <div class="score-sub">
+                                Up ~2,400 acres since 2015. Restoration is bending the curve, slowly.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="score-row">
+                        <div class="score-gauge-wrap">
+                            <canvas id="gauge-elevation"></canvas>
+                            <div class="gauge-center">
+                                <span class="gauge-value">4/10</span>
+                                <span class="gauge-sub">keeping pace</span>
+                            </div>
+                        </div>
+                        <div class="score-body">
+                            <div class="score-label">Elevation</div>
+                            <div class="score-headline">Four of ten SET sites hold current SLR</div>
+                            <div class="score-sub">
+                                Zero of ten keep pace with 2050 projections.
+                                <em>Illustrative.</em>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="score-row">
+                        <div class="score-gauge-wrap">
+                            <canvas id="gauge-condition"></canvas>
+                            <div class="gauge-center">
+                                <span class="gauge-value">74</span>
+                                <span class="gauge-sub">avg CRAM</span>
+                            </div>
+                        </div>
+                        <div class="score-body">
+                            <div class="score-label">Condition</div>
+                            <div class="score-headline">Average CRAM score 74 · range 62 – 91</div>
+                            <div class="score-sub">
+                                Reference marshes set the ceiling; restored sites climb toward it.
+                                <em>Illustrative.</em>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Story Panel ────────────────────────────── -->
+            <div class="story-panel" id="story-panel">
+                <div class="story-panel-inner">
+                    <!-- ── Step 1 ───────────────────────────── -->
+                    <div class="step active" data-step="0">
+                        <div class="step-header">
+                            <img
+                                class="step-header-mark"
+                                src="../../shared/img/wrmp-logo-2in-mark-crop.png"
+                                alt=""
+                                width="40"
+                                height="40"
+                                decoding="async"
+                            />
+                            <div class="step-header-text">
+                                <span class="kicker">Bay Wetland Scorecard</span>
+                                <h2>The Shield at the Water's Edge</h2>
+                            </div>
+                        </div>
+                        <div class="body">
+                            <p>
+                                7.7 million people live around San Francisco Bay. Tidal wetlands are the living seawall
+                                between them and a rising ocean — but only if the marsh can keep up.
+                            </p>
+                            <p>WRMP tracks three questions, every year.</p>
+                            <div class="hero-chips">
+                                <div class="hero-chip">
+                                    <div class="chip-lbl">How much?</div>
+                                    <div class="chip-num">Extent</div>
+                                    <div class="chip-sub">Acres of tidal wetland</div>
+                                </div>
+                                <div class="hero-chip">
+                                    <div class="chip-lbl">Rising fast enough?</div>
+                                    <div class="chip-num">Elevation</div>
+                                    <div class="chip-sub">Accretion vs. sea level</div>
+                                </div>
+                                <div class="hero-chip">
+                                    <div class="chip-lbl">Healthy?</div>
+                                    <div class="chip-num">Condition</div>
+                                    <div class="chip-sub">CRAM habitat score</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── Step 2 ───────────────────────────── -->
+                    <div class="step" data-step="1">
+                        <div class="step-header">
+                            <img
+                                class="step-header-mark"
+                                src="../../shared/img/wrmp-logo-2in-mark-crop.png"
+                                alt=""
+                                width="40"
+                                height="40"
+                                decoding="async"
+                            />
+                            <div class="step-header-text">
+                                <span class="kicker">Metric 1 · Extent</span>
+                                <h2>How Much Wetland Is Left?</h2>
+                            </div>
+                        </div>
+                        <div class="body">
+                            <p>
+                                Before California was dammed and diked, the Bay held roughly
+                                <strong>190,000 acres</strong> of tidal wetland. Today, about
+                                <strong>45,000 acres</strong> remain. The regional goal by 2030 is
+                                <strong>100,000 acres</strong>.
+                            </p>
+                            <div
+                                class="extent-toggle"
+                                id="extent-toggle"
+                                role="tablist"
+                                aria-label="Tidal wetland extent"
+                            >
+                                <button data-era="historical" role="tab">Historical (1850)</button>
+                                <button data-era="today" class="active" role="tab">Today (2025)</button>
+                                <button data-era="goal" role="tab">2030 Goal</button>
+                            </div>
+                            <div
+                                class="chart-wrap md"
+                                aria-label="Tidal wetland extent — historical, today, and 2030 goal"
+                            >
+                                <canvas id="chart-extent"></canvas>
+                            </div>
+                            <p class="chart-caption">
+                                Source: SFEI Baylands Goals Project. Map polygons are stylized regional representations,
+                                not precise boundaries.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- ── Step 3 ───────────────────────────── -->
+                    <div class="step" data-step="2">
+                        <div class="step-header">
+                            <img
+                                class="step-header-mark"
+                                src="../../shared/img/wrmp-logo-2in-mark-crop.png"
+                                alt=""
+                                width="40"
+                                height="40"
+                                decoding="async"
+                            />
+                            <div class="step-header-text">
+                                <span class="kicker">Metric 2 · Elevation</span>
+                                <h2>Is It Rising Fast Enough?</h2>
+                            </div>
+                        </div>
+                        <div class="body">
+                            <p>
+                                Marshes keep pace with sea level by trapping sediment.
+                                <strong>Surface Elevation Tables</strong> (SETs) measure that growth, in millimeters per
+                                year. If the marsh grows faster than the sea rises, it wins. If not, it drowns.
+                            </p>
+                            <div class="summary-pill">
+                                <div class="summary-pill-item">
+                                    <div class="summary-pill-num">4 / 10</div>
+                                    <div class="summary-pill-lbl">Pace current SLR</div>
+                                </div>
+                                <div class="summary-pill-item">
+                                    <div class="summary-pill-num">0 / 10</div>
+                                    <div class="summary-pill-lbl">Pace 2050 projections</div>
+                                </div>
+                            </div>
+                            <p class="chart-caption">
+                                Example SET rates, in realistic ranges. 2026 BHM data integration pending. SLR reference
+                                lines from NOAA &amp; California State Sea Level Rise Guidance.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- ── Step 4 ───────────────────────────── -->
+                    <div class="step" data-step="3">
+                        <div class="step-header">
+                            <img
+                                class="step-header-mark"
+                                src="../../shared/img/wrmp-logo-2in-mark-crop.png"
+                                alt=""
+                                width="40"
+                                height="40"
+                                decoding="async"
+                            />
+                            <div class="step-header-text">
+                                <span class="kicker">Metric 3 · Condition</span>
+                                <h2>Is It Healthy?</h2>
+                            </div>
+                        </div>
+                        <div class="body">
+                            <p>
+                                The <strong>California Rapid Assessment Method</strong> (CRAM) scores wetland condition
+                                across four attributes — Buffer, Biotic Structure, Physical Structure, and Hydrology —
+                                on a 0 to 100 scale.
+                            </p>
+                            <p>
+                                Tap a site on the map to see its attribute profile. Use the legend to recolor all sites
+                                by a single attribute.
+                            </p>
+                            <div
+                                id="cram-selected-name"
+                                style="font-size: 14px; font-weight: 600; color: var(--wrmp-ada-teal); margin-top: 6px"
+                            >
+                                Typical Bay wetland profile
+                            </div>
+                            <div class="chart-wrap md" aria-label="CRAM attribute profile radar">
+                                <canvas id="chart-cram"></canvas>
+                            </div>
+                            <p class="chart-caption">
+                                Example CRAM scores for ten illustrative sites. 2026 data integration pending.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- ── Step 5 ───────────────────────────── -->
+                    <div class="step" data-step="4">
+                        <div class="step-header">
+                            <img
+                                class="step-header-mark"
+                                src="../../shared/img/wrmp-logo-2in-mark-crop.png"
+                                alt=""
+                                width="40"
+                                height="40"
+                                decoding="async"
+                            />
+                            <div class="step-header-text">
+                                <span class="kicker">2026 Scorecard</span>
+                                <h2>The Bay's Report Card</h2>
+                            </div>
+                        </div>
+                        <div class="body">
+                            <p>
+                                Three numbers, one question — is the Bay keeping up? Each gauge tracks a different
+                                dimension of wetland resilience against a regional goal.
+                            </p>
+                            <div class="score-footer">
+                                <span class="closing">
+                                    WRMP tracks all three, every year. When 2026 BHM data arrives, this scorecard
+                                    updates automatically.
+                                </span>
+                                <strong>Data sources:</strong> Extent figures — SFEI Baylands Goals Project. Current SLR
+                                — NOAA SF tide gauge (3.1 mm/yr long-term). 2050 projections — California State Sea
+                                Level Rise Guidance. Per-site SET and CRAM values shown are illustrative, pending 2026
+                                BHM integration.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="nav-bar">
+                    <button id="btn-prev" disabled>Back</button>
+                    <div class="step-dots">
+                        <button class="step-dot active" data-step="0" aria-label="Step 1"></button>
+                        <button class="step-dot" data-step="1" aria-label="Step 2"></button>
+                        <button class="step-dot" data-step="2" aria-label="Step 3"></button>
+                        <button class="step-dot" data-step="3" aria-label="Step 4"></button>
+                        <button class="step-dot" data-step="4" aria-label="Step 5"></button>
+                    </div>
+                    <span class="step-counter">1 / 5</span>
+                    <button id="btn-next">Next</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Dependencies ─────────────────────────── -->
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+        <script src="../../shared/js/data-loader.js"></script>
+        <script src="../../shared/js/map-init.js"></script>
+        <script src="../../shared/js/marker-popup.js"></script>
+        <script src="../../shared/js/stepper.js"></script>
+        <script src="../../shared/js/exhibit-screens.js"></script>
+
+        <script>
+            // ── Brand color read from CSS tokens ──────────
+            function tokenColor(name, fallback) {
+                var v = getComputedStyle(document.documentElement).getPropertyValue(name);
+                return v ? v.trim() || fallback : fallback;
+            }
+            var C = {
+                ADA_TEAL: tokenColor("--wrmp-ada-teal-brand", "#005E6A"),
+                TEAL: tokenColor("--wrmp-teal-brand", "#228B9C"),
+                GREEN: tokenColor("--wrmp-green-brand", "#379352"),
+                LIGHT_GREEN: tokenColor("--wrmp-light-green-brand", "#92BB4D"),
+                ORANGE: tokenColor("--wrmp-orange-brand", "#E09337"),
+                DARK: tokenColor("--wrmp-dark-brand", "#4E4E50"),
+                RED: "#B45242", // brand-aligned muted brick
+            };
+
+            // ── Chart.js global defaults ───────────────────
+            Chart.defaults.font.family = "'Source Sans Pro', 'Source Sans 3', Helvetica, Arial, sans-serif";
+            Chart.defaults.font.size = 13;
+            Chart.defaults.color = C.DARK;
+            Chart.defaults.borderColor = "rgba(0,0,0,0.08)";
+            Chart.defaults.plugins.legend.display = false;
+            Chart.defaults.plugins.tooltip.backgroundColor = "rgba(24,24,24,0.88)";
+            Chart.defaults.plugins.tooltip.titleFont = {
+                size: 14,
+                weight: "600",
+                family: "'Source Sans Pro', 'Source Sans 3', Helvetica, Arial, sans-serif",
+            };
+            Chart.defaults.plugins.tooltip.bodyFont = {
+                size: 13,
+                family: "'Source Sans Pro', 'Source Sans 3', Helvetica, Arial, sans-serif",
+            };
+            Chart.defaults.plugins.tooltip.padding = 10;
+            Chart.defaults.plugins.tooltip.cornerRadius = 6;
+            Chart.defaults.plugins.tooltip.displayColors = false;
+
+            // ── Background + panel layer management ───────
+            var BG_IDS = ["bg-0", "bg-1", "bg-2", "bg-3", "bg-4"];
+            var STEP_USES_MAP = [false, true, false, true, false];
+            var STEP_DARK_PANEL = [false, false, false, false, true];
+            var mapEl = document.getElementById("map");
+            var panel = document.getElementById("story-panel");
+
+            function setBackground(step) {
+                BG_IDS.forEach(function (id, i) {
+                    var el = document.getElementById(id);
+                    if (!el) return;
+                    if (i === step) el.classList.add("active");
+                    else el.classList.remove("active");
+                });
+                // Map visibility
+                if (STEP_USES_MAP[step]) {
+                    mapEl.style.opacity = "1";
+                    mapEl.style.pointerEvents = "auto";
+                } else {
+                    mapEl.style.opacity = "0";
+                    mapEl.style.pointerEvents = "none";
+                }
+                // Panel light/dark
+                if (STEP_DARK_PANEL[step]) panel.classList.add("panel-dark");
+                else panel.classList.remove("panel-dark");
+                // Right-stage content areas
+                var c1 = document.getElementById("content-step1");
+                var c3 = document.getElementById("content-step3");
+                var c5 = document.getElementById("content-step5");
+                var cramScale = document.getElementById("cram-scale-legend");
+                if (c1) c1.classList.toggle("active", step === 0);
+                if (c3) c3.classList.toggle("active", step === 2);
+                if (c5) c5.classList.toggle("active", step === 4);
+                if (cramScale) cramScale.classList.toggle("active", step === 3);
+            }
+
+            // ── Map init ───────────────────────────────────
+            var BAY_BOUNDS = [
+                [37.42, -122.55],
+                [38.2, -121.75],
+            ];
+            var map = WRMP.initMap("map", { bounds: BAY_BOUNDS });
+            // Layer groups held in module scope; added/removed per step to prevent
+            // extent polygons bleeding into the CRAM step and vice versa.
+            var extentLayer = L.layerGroup();
+            var cramLayer = L.layerGroup();
+
+            // ── Stylized regional tidal-wetland polygons ──
+            // Generated as organic blobs (radial noise around an ellipse) so they
+            // read as marsh regions, not rectangles. Each region has a hand-tuned
+            // centroid, ellipse radii (lat/lon degrees), seed, and rotation.
+            // These are INTENTIONALLY simplified, not precise boundaries.
+            var REGION_DEFS = {
+                suisun: {
+                    cy: 38.1,
+                    cx: -121.95,
+                    rLat: 0.075,
+                    rLon: 0.16,
+                    rot: 0.1,
+                    seed: 11,
+                },
+                napaSonoma: {
+                    cy: 38.12,
+                    cx: -122.3,
+                    rLat: 0.09,
+                    rLon: 0.11,
+                    rot: -0.3,
+                    seed: 23,
+                },
+                northBay: {
+                    cy: 38.0,
+                    cx: -122.4,
+                    rLat: 0.07,
+                    rLon: 0.095,
+                    rot: 0.25,
+                    seed: 37,
+                },
+                centralBay: {
+                    cy: 37.8,
+                    cx: -122.34,
+                    rLat: 0.09,
+                    rLon: 0.1,
+                    rot: -0.1,
+                    seed: 53,
+                },
+                southBay: {
+                    cy: 37.58,
+                    cx: -122.12,
+                    rLat: 0.1,
+                    rLon: 0.12,
+                    rot: 0.45,
+                    seed: 71,
+                },
+                lowerSouthBay: {
+                    cy: 37.45,
+                    cx: -122.04,
+                    rLat: 0.045,
+                    rLon: 0.085,
+                    rot: 0.15,
+                    seed: 89,
+                },
+            };
+
+            // Seeded pseudo-random (Mulberry32) — keeps shapes stable across renders
+            function seededRand(seed) {
+                var t = seed + 0x6d2b79f5;
+                return function () {
+                    t = (t + 0x6d2b79f5) | 0;
+                    var r = Math.imul(t ^ (t >>> 15), 1 | t);
+                    r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r;
+                    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+                };
+            }
+
+            function buildOrganicPolygon(def) {
+                var N = 22; // vertices
+                var rand = seededRand(def.seed);
+                var pts = [];
+                var cosRot = Math.cos(def.rot);
+                var sinRot = Math.sin(def.rot);
+                for (var i = 0; i < N; i++) {
+                    var theta = (i / N) * Math.PI * 2;
+                    // Radial noise: gentle low-frequency variation + small jitter
+                    var lowFreq = 0.85 + 0.18 * Math.sin(theta * 2 + def.seed);
+                    var midFreq = 0.06 * Math.cos(theta * 3 + def.seed * 0.7);
+                    var jitter = (rand() - 0.5) * 0.08;
+                    var noise = lowFreq + midFreq + jitter;
+                    // Elliptical base shape
+                    var ex = Math.cos(theta) * def.rLon * noise;
+                    var ey = Math.sin(theta) * def.rLat * noise;
+                    // Rotate
+                    var rx = ex * cosRot - ey * sinRot;
+                    var ry = ex * sinRot + ey * cosRot;
+                    pts.push([def.cy + ry, def.cx + rx]);
+                }
+                return pts;
+            }
+
+            var REGION_POLYS = {};
+            Object.keys(REGION_DEFS).forEach(function (k) {
+                REGION_POLYS[k] = buildOrganicPolygon(REGION_DEFS[k]);
+            });
+            // Era presence weights per region (scaled area proportionally)
+            // Numbers represent *relative* extent share, not acres.
+            var ERA_WEIGHTS = {
+                historical: {
+                    suisun: 1.0,
+                    napaSonoma: 1.0,
+                    northBay: 1.0,
+                    centralBay: 0.7,
+                    southBay: 1.0,
+                    lowerSouthBay: 1.0,
+                },
+                today: {
+                    suisun: 0.55,
+                    napaSonoma: 0.5,
+                    northBay: 0.32,
+                    centralBay: 0.12,
+                    southBay: 0.28,
+                    lowerSouthBay: 0.35,
+                },
+                goal: {
+                    suisun: 0.75,
+                    napaSonoma: 0.8,
+                    northBay: 0.55,
+                    centralBay: 0.25,
+                    southBay: 0.6,
+                    lowerSouthBay: 0.65,
+                },
+            };
+
+            function scalePolygon(latlngs, factor) {
+                // Scale polygon toward its centroid by `factor` (0..1)
+                var cx = 0;
+                var cy = 0;
+                latlngs.forEach(function (p) {
+                    cx += p[1];
+                    cy += p[0];
+                });
+                cx /= latlngs.length;
+                cy /= latlngs.length;
+                return latlngs.map(function (p) {
+                    var dx = p[1] - cx;
+                    var dy = p[0] - cy;
+                    return [cy + dy * factor, cx + dx * factor];
+                });
+            }
+
+            function drawExtent(era) {
+                extentLayer.clearLayers();
+                var weights = ERA_WEIGHTS[era];
+                var color = era === "historical" ? C.LIGHT_GREEN : era === "today" ? C.ORANGE : C.GREEN;
+                var baseOpacity = era === "historical" ? 0.55 : era === "today" ? 0.7 : 0.6;
+                Object.keys(REGION_POLYS).forEach(function (k) {
+                    var w = weights[k];
+                    if (!w || w <= 0) return;
+                    // Use sqrt so visual area tracks weight
+                    var scale = Math.sqrt(w);
+                    var pts = scalePolygon(REGION_POLYS[k], scale);
+                    L.polygon(pts, {
+                        color: color,
+                        weight: 1.5,
+                        opacity: 0.9,
+                        fillColor: color,
+                        fillOpacity: baseOpacity,
+                        smoothFactor: 0.6,
+                        lineJoin: "round",
+                    }).addTo(extentLayer);
+                });
+            }
+
+            // ── Illustrative SET dataset ───────────────────
+            var SET_SITES = [
+                { name: "Napa Sonoma", rate: 5.1 },
+                { name: "China Camp", rate: 4.2 },
+                { name: "Petaluma Marsh", rate: 3.8 },
+                { name: "Palo Alto Baylands", rate: 3.4 },
+                { name: "Corte Madera", rate: 2.9 },
+                { name: "Dumbarton", rate: 2.7 },
+                { name: "Eden Landing", rate: 2.4 },
+                { name: "Rush Ranch (Suisun)", rate: 2.1 },
+                { name: "Hill Slough", rate: 1.8 },
+                { name: "Coon Island", rate: 1.5 },
+            ];
+            var SLR_CURRENT = 3.1;
+            var SLR_2050 = 7.0;
+            function setStatusColor(rate) {
+                if (rate >= 3.5) return C.GREEN;
+                if (rate >= 2.5) return C.ORANGE;
+                return C.RED;
+            }
+
+            // ── Illustrative CRAM dataset ──────────────────
+            // Generic labels — NOT real WRMP station codes.
+            var CRAM_SITES = [
+                {
+                    id: "NB-R1",
+                    name: "North Bay Reference Site 1",
+                    lat: 38.12,
+                    lon: -122.4,
+                    overall: 91,
+                    buffer: 92,
+                    biotic: 88,
+                    physical: 94,
+                    hydrology: 90,
+                },
+                {
+                    id: "NB-R2",
+                    name: "North Bay Reference Site 2",
+                    lat: 38.06,
+                    lon: -122.28,
+                    overall: 82,
+                    buffer: 78,
+                    biotic: 84,
+                    physical: 80,
+                    hydrology: 86,
+                },
+                {
+                    id: "SU-B1",
+                    name: "Suisun Benchmark A",
+                    lat: 38.13,
+                    lon: -121.98,
+                    overall: 85,
+                    buffer: 88,
+                    biotic: 82,
+                    physical: 86,
+                    hydrology: 84,
+                },
+                {
+                    id: "SU-B2",
+                    name: "Suisun Benchmark B",
+                    lat: 38.09,
+                    lon: -121.92,
+                    overall: 78,
+                    buffer: 72,
+                    biotic: 80,
+                    physical: 76,
+                    hydrology: 84,
+                },
+                {
+                    id: "NP-B1",
+                    name: "Napa Marsh Benchmark",
+                    lat: 38.17,
+                    lon: -122.3,
+                    overall: 80,
+                    buffer: 82,
+                    biotic: 78,
+                    physical: 78,
+                    hydrology: 82,
+                },
+                {
+                    id: "CB-P1",
+                    name: "Central Bay Project 1",
+                    lat: 37.88,
+                    lon: -122.35,
+                    overall: 72,
+                    buffer: 68,
+                    biotic: 70,
+                    physical: 74,
+                    hydrology: 76,
+                },
+                {
+                    id: "SB-R1",
+                    name: "South Bay Restored Site 1",
+                    lat: 37.56,
+                    lon: -122.12,
+                    overall: 74,
+                    buffer: 70,
+                    biotic: 72,
+                    physical: 78,
+                    hydrology: 76,
+                },
+                {
+                    id: "SB-R3",
+                    name: "South Bay Restored Site 3",
+                    lat: 37.49,
+                    lon: -122.02,
+                    overall: 68,
+                    buffer: 60,
+                    biotic: 66,
+                    physical: 72,
+                    hydrology: 74,
+                },
+                {
+                    id: "LSB-R1",
+                    name: "Lower South Bay Restored 1",
+                    lat: 37.46,
+                    lon: -122.04,
+                    overall: 65,
+                    buffer: 58,
+                    biotic: 64,
+                    physical: 70,
+                    hydrology: 68,
+                },
+                {
+                    id: "LSB-R2",
+                    name: "Lower South Bay Restored 2",
+                    lat: 37.44,
+                    lon: -122.0,
+                    overall: 62,
+                    buffer: 54,
+                    biotic: 60,
+                    physical: 66,
+                    hydrology: 68,
+                },
+            ];
+
+            function cramColor(score) {
+                if (score >= 80) return C.GREEN;
+                if (score >= 70) return C.LIGHT_GREEN;
+                if (score >= 60) return C.ORANGE;
+                return C.RED;
+            }
+
+            var cramAttr = "overall"; // current coloring attribute
+            var selectedCramSite = null;
+
+            function drawCram() {
+                cramLayer.clearLayers();
+                CRAM_SITES.forEach(function (s) {
+                    var v = s[cramAttr];
+                    var color = cramColor(v);
+                    var r = 7 + (v - 60) * 0.18; // subtle size variation
+                    var marker = L.circleMarker([s.lat, s.lon], {
+                        radius: r,
+                        fillColor: color,
+                        color: "#fff",
+                        weight: 2,
+                        fillOpacity: 0.88,
+                    });
+                    marker.bindTooltip(s.name + " — " + v, {
+                        direction: "top",
+                        offset: [0, -6],
+                        opacity: 0.95,
+                    });
+                    marker.on("click", function () {
+                        selectedCramSite = s;
+                        updateCramRadar();
+                    });
+                    marker.addTo(cramLayer);
+                });
+            }
+
+            // ── Legend builders ─────────────────────────
+            var legendEl = document.getElementById("map-legend");
+            function clearLegend() {
+                legendEl.replaceChildren();
+                legendEl.classList.remove("cram-attr-legend");
+            }
+            function buildExtentLegend() {
+                clearLegend();
+                var items = [
+                    { label: "Historical (1850)", color: C.LIGHT_GREEN },
+                    { label: "Today (2025)", color: C.ORANGE },
+                    { label: "2030 Goal", color: C.GREEN },
+                ];
+                items.forEach(function (item) {
+                    var chip = document.createElement("div");
+                    chip.className = "map-legend-chip";
+                    chip.style.cursor = "default";
+                    var dot = document.createElement("span");
+                    dot.className = "map-legend-dot";
+                    dot.style.background = item.color;
+                    chip.appendChild(dot);
+                    var lbl = document.createElement("span");
+                    lbl.className = "map-legend-chip-label";
+                    lbl.setAttribute("data-label", item.label);
+                    lbl.textContent = item.label;
+                    chip.appendChild(lbl);
+                    legendEl.appendChild(chip);
+                });
+            }
+            function buildCramLegend() {
+                clearLegend();
+                legendEl.classList.add("cram-attr-legend");
+                var attrs = [
+                    { key: "overall", label: "Overall" },
+                    { key: "buffer", label: "Buffer" },
+                    { key: "biotic", label: "Biotic Structure" },
+                    { key: "physical", label: "Physical Structure" },
+                    { key: "hydrology", label: "Hydrology" },
+                ];
+                attrs.forEach(function (a) {
+                    var chip = document.createElement("button");
+                    chip.className = "map-legend-chip" + (cramAttr === a.key ? " active" : "");
+                    var lbl = document.createElement("span");
+                    lbl.className = "map-legend-chip-label";
+                    lbl.setAttribute("data-label", a.label);
+                    lbl.textContent = a.label;
+                    chip.appendChild(lbl);
+                    chip.addEventListener("click", function () {
+                        cramAttr = a.key;
+                        buildCramLegend();
+                        drawCram();
+                    });
+                    legendEl.appendChild(chip);
+                });
+            }
+
+            // ── Chart: SLR (Step 1) ──────────────────────
+            var chartSlr;
+            function buildSlrChart() {
+                if (chartSlr) return;
+                var years = [];
+                var observed = [];
+                var lowBand = [];
+                var midBand = [];
+                var highBand = [];
+                // Historical: 0 at 1900, ~3.1 mm/yr (0.122 in/yr) → ~15 in by 2025
+                for (var y = 1900; y <= 2025; y += 5) {
+                    years.push(y);
+                    observed.push(+((y - 1900) * 0.122).toFixed(2));
+                    lowBand.push(null);
+                    midBand.push(null);
+                    highBand.push(null);
+                }
+                // Projections: 2025 base to 2100. Low ~0.5 ft (6in), Mid ~2.5 ft (30in), High ~6 ft (72in) added on top of 2025.
+                var base2025 = (2025 - 1900) * 0.122;
+                for (var yy = 2030; yy <= 2100; yy += 5) {
+                    years.push(yy);
+                    observed.push(null);
+                    var t = (yy - 2025) / (2100 - 2025); // 0..1
+                    lowBand.push(+(base2025 + 6 * t).toFixed(2));
+                    midBand.push(+(base2025 + 30 * Math.pow(t, 1.2)).toFixed(2));
+                    highBand.push(+(base2025 + 72 * Math.pow(t, 1.35)).toFixed(2));
+                }
+                // Bridge value at 2025 so projection lines connect smoothly
+                var idx2025 = years.indexOf(2025);
+                lowBand[idx2025] = base2025;
+                midBand[idx2025] = base2025;
+                highBand[idx2025] = base2025;
+                var ctx = document.getElementById("chart-slr").getContext("2d");
+                chartSlr = new Chart(ctx, {
+                    type: "line",
+                    data: {
+                        labels: years,
+                        datasets: [
+                            {
+                                label: "High projection",
+                                data: highBand,
+                                borderColor: "rgba(180, 82, 66, 0.85)",
+                                backgroundColor: "rgba(180, 82, 66, 0.12)",
+                                borderWidth: 1.5,
+                                borderDash: [4, 3],
+                                fill: false,
+                                pointRadius: 0,
+                                tension: 0.25,
+                            },
+                            {
+                                label: "Mid projection",
+                                data: midBand,
+                                borderColor: "rgba(224,147,55,0.95)",
+                                backgroundColor: "rgba(224,147,55,0.12)",
+                                borderWidth: 1.5,
+                                borderDash: [4, 3],
+                                fill: false,
+                                pointRadius: 0,
+                                tension: 0.25,
+                            },
+                            {
+                                label: "Low projection",
+                                data: lowBand,
+                                borderColor: "rgba(146,187,77,0.95)",
+                                borderWidth: 1.5,
+                                borderDash: [4, 3],
+                                fill: false,
+                                pointRadius: 0,
+                                tension: 0.25,
+                            },
+                            {
+                                label: "Observed",
+                                data: observed,
+                                borderColor: C.ADA_TEAL,
+                                backgroundColor: withAlpha(C.ADA_TEAL, 0.1),
+                                borderWidth: 2.5,
+                                fill: true,
+                                pointRadius: 0,
+                                tension: 0.2,
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: { duration: 900, easing: "easeOutCubic" },
+                        scales: {
+                            x: {
+                                grid: { display: false },
+                                ticks: {
+                                    color: C.DARK,
+                                    font: { size: 11 },
+                                    maxTicksLimit: 6,
+                                    callback: function (v, i) {
+                                        var y = years[i];
+                                        if (y % 25 === 0) return y;
+                                        return "";
+                                    },
+                                },
+                            },
+                            y: {
+                                grid: { color: "rgba(0,0,0,0.08)" },
+                                ticks: {
+                                    color: C.DARK,
+                                    font: { size: 11 },
+                                    callback: function (v) {
+                                        return v + '"';
+                                    },
+                                },
+                                title: {
+                                    display: true,
+                                    text: "Sea level rise (in)",
+                                    color: C.DARK,
+                                    font: { size: 12, weight: "600" },
+                                },
+                            },
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: "bottom",
+                                labels: {
+                                    color: C.DARK,
+                                    font: { size: 11 },
+                                    boxWidth: 10,
+                                    boxHeight: 2,
+                                    padding: 8,
+                                    filter: function (item) {
+                                        return item.text !== "Observed" || true;
+                                    },
+                                },
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    title: function (items) {
+                                        return items[0].label;
+                                    },
+                                    label: function (ctx) {
+                                        if (ctx.raw == null) return null;
+                                        return ctx.dataset.label + ": " + ctx.raw + " in";
+                                    },
+                                },
+                            },
+                        },
+                    },
+                });
+            }
+
+            // ── Chart: Extent bar (Step 2) ───────────────
+            var chartExtent;
+            var extentData = {
+                historical: 190000,
+                today: 45000,
+                goal: 100000,
+            };
+            function buildExtentChart(activeEra) {
+                var ctx = document.getElementById("chart-extent").getContext("2d");
+                if (chartExtent) {
+                    // update highlight colors
+                    chartExtent.data.datasets[0].backgroundColor = [
+                        activeEra === "historical" ? C.LIGHT_GREEN : withAlpha(C.LIGHT_GREEN, 0.35),
+                        activeEra === "today" ? C.ORANGE : withAlpha(C.ORANGE, 0.35),
+                        activeEra === "goal" ? C.GREEN : withAlpha(C.GREEN, 0.35),
+                    ];
+                    chartExtent.update("none");
+                    return;
+                }
+                chartExtent = new Chart(ctx, {
+                    type: "bar",
+                    data: {
+                        labels: ["Historical (1850)", "Today (2025)", "2030 Goal"],
+                        datasets: [
+                            {
+                                data: [extentData.historical, extentData.today, extentData.goal],
+                                backgroundColor: [
+                                    activeEra === "historical" ? C.LIGHT_GREEN : withAlpha(C.LIGHT_GREEN, 0.35),
+                                    activeEra === "today" ? C.ORANGE : withAlpha(C.ORANGE, 0.35),
+                                    activeEra === "goal" ? C.GREEN : withAlpha(C.GREEN, 0.35),
+                                ],
+                                borderRadius: 6,
+                                borderSkipped: false,
+                                barThickness: 22,
+                            },
+                        ],
+                    },
+                    options: {
+                        indexAxis: "y",
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: { duration: 900, easing: "easeOutCubic" },
+                        scales: {
+                            x: {
+                                grid: { color: "rgba(0,0,0,0.06)" },
+                                ticks: {
+                                    font: { size: 12 },
+                                    callback: function (v) {
+                                        return (v / 1000).toLocaleString() + "k";
+                                    },
+                                },
+                                title: {
+                                    display: true,
+                                    text: "Acres (thousands)",
+                                    font: { size: 12, weight: "600" },
+                                },
+                            },
+                            y: {
+                                grid: { display: false },
+                                ticks: { font: { size: 13, weight: "600" } },
+                            },
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function (ctx) {
+                                        return ctx.raw.toLocaleString() + " acres";
+                                    },
+                                },
+                            },
+                        },
+                    },
+                });
+            }
+
+            function withAlpha(hex, a) {
+                // accept #RRGGBB
+                var h = hex.replace("#", "");
+                var r = parseInt(h.substring(0, 2), 16);
+                var g = parseInt(h.substring(2, 4), 16);
+                var b = parseInt(h.substring(4, 6), 16);
+                return "rgba(" + r + "," + g + "," + b + "," + a + ")";
+            }
+
+            // ── Chart: SET dot-bar (Step 3) ───────────────
+            var chartSet;
+            function buildSetChart() {
+                if (chartSet) return;
+                var labels = SET_SITES.map(function (s) {
+                    return s.name;
+                });
+                var values = SET_SITES.map(function (s) {
+                    return s.rate;
+                });
+                var colors = SET_SITES.map(function (s) {
+                    return setStatusColor(s.rate);
+                });
+                var ctx = document.getElementById("chart-set").getContext("2d");
+                var refLinePlugin = {
+                    id: "refLines",
+                    afterDraw: function (chart) {
+                        var x = chart.scales.x;
+                        var y = chart.scales.y;
+                        var ctx2 = chart.ctx;
+                        function drawLine(val, label, color, dash, opts) {
+                            opts = opts || {};
+                            var xp = x.getPixelForValue(val);
+                            ctx2.save();
+                            ctx2.strokeStyle = color;
+                            ctx2.lineWidth = 1.5;
+                            ctx2.setLineDash(dash || [4, 4]);
+                            ctx2.beginPath();
+                            ctx2.moveTo(xp, y.top);
+                            ctx2.lineTo(xp, y.bottom);
+                            ctx2.stroke();
+                            ctx2.setLineDash([]);
+
+                            // Label pill (background for contrast) + text
+                            ctx2.font = "600 11px 'Source Sans Pro', sans-serif";
+                            var textW = ctx2.measureText(label).width;
+                            var padX = 6;
+                            var padY = 3;
+                            var ty = y.top - 26 + (opts.yOffset || 0); // above chart area
+                            // Horizontal anchor: caller can force "left" (right-anchored at line)
+                            // or "right" (left-anchored at line). Default: auto.
+                            var anchor = opts.anchor;
+                            if (!anchor) {
+                                anchor = xp + padX * 2 + textW > x.right - 2 ? "left" : "right";
+                            }
+                            var bx, tx, align;
+                            if (anchor === "left") {
+                                // label ends at the line (right-anchored)
+                                bx = xp - textW - padX * 2;
+                                tx = xp - padX;
+                                align = "right";
+                            } else {
+                                // label starts at the line (left-anchored)
+                                bx = xp;
+                                tx = xp + padX;
+                                align = "left";
+                            }
+                            // Clamp inside chart horizontally
+                            if (bx < x.left) bx = x.left;
+                            if (bx + textW + padX * 2 > x.right) bx = x.right - textW - padX * 2;
+
+                            // Pill background
+                            ctx2.fillStyle = "rgba(255,255,255,0.92)";
+                            ctx2.strokeStyle = color;
+                            ctx2.lineWidth = 1;
+                            var rx = 4;
+                            var pillW = textW + padX * 2;
+                            var pillH = 18;
+                            ctx2.beginPath();
+                            ctx2.moveTo(bx + rx, ty);
+                            ctx2.lineTo(bx + pillW - rx, ty);
+                            ctx2.quadraticCurveTo(bx + pillW, ty, bx + pillW, ty + rx);
+                            ctx2.lineTo(bx + pillW, ty + pillH - rx);
+                            ctx2.quadraticCurveTo(bx + pillW, ty + pillH, bx + pillW - rx, ty + pillH);
+                            ctx2.lineTo(bx + rx, ty + pillH);
+                            ctx2.quadraticCurveTo(bx, ty + pillH, bx, ty + pillH - rx);
+                            ctx2.lineTo(bx, ty + rx);
+                            ctx2.quadraticCurveTo(bx, ty, bx + rx, ty);
+                            ctx2.closePath();
+                            ctx2.fill();
+                            ctx2.stroke();
+
+                            ctx2.fillStyle = color;
+                            ctx2.textAlign = align === "right" ? "right" : "left";
+                            ctx2.textBaseline = "middle";
+                            ctx2.fillText(label, align === "right" ? bx + pillW - padX : bx + padX, ty + pillH / 2);
+                            ctx2.restore();
+                        }
+                        // Stagger labels vertically so they cannot overlap:
+                        // "Current SLR" label sits higher; "2050 projection" sits lower.
+                        drawLine(SLR_CURRENT, "Current SLR · 3.1 mm/yr", "rgba(34,139,156,0.95)", [5, 4], {
+                            anchor: "left",
+                            yOffset: 0,
+                        });
+                        drawLine(SLR_2050, "2050 projection · 7 mm/yr", "rgba(180,82,66,0.95)", [2, 3], {
+                            anchor: "left",
+                            yOffset: 22,
+                        });
+                    },
+                };
+                chartSet = new Chart(ctx, {
+                    type: "bar",
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                data: values,
+                                backgroundColor: colors,
+                                borderRadius: 4,
+                                borderSkipped: false,
+                                barThickness: 10,
+                            },
+                        ],
+                    },
+                    options: {
+                        indexAxis: "y",
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: { duration: 900, easing: "easeOutCubic" },
+                        layout: { padding: { top: 56, right: 16 } },
+                        scales: {
+                            x: {
+                                grid: { color: "rgba(0,0,0,0.06)" },
+                                ticks: {
+                                    font: { size: 11 },
+                                    callback: function (v) {
+                                        return v + " mm";
+                                    },
+                                },
+                                min: 0,
+                                max: 8,
+                                title: {
+                                    display: true,
+                                    text: "Accretion (mm / yr)",
+                                    font: { size: 12, weight: "600" },
+                                },
+                            },
+                            y: {
+                                grid: { display: false },
+                                ticks: { font: { size: 11.5, weight: "500" } },
+                            },
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function (ctx) {
+                                        return ctx.raw + " mm/yr";
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    plugins: [refLinePlugin],
+                });
+            }
+
+            // ── Chart: CRAM radar (Step 4) ────────────────
+            var chartCram;
+            function updateCramRadar() {
+                var s = selectedCramSite || {
+                    name: "Typical Bay wetland profile",
+                    buffer: 74,
+                    biotic: 74,
+                    physical: 76,
+                    hydrology: 76,
+                };
+                document.getElementById("cram-selected-name").textContent = s.name;
+                var values = [s.buffer, s.biotic, s.physical, s.hydrology];
+                if (chartCram) {
+                    chartCram.data.datasets[0].data = values;
+                    chartCram.update();
+                    return;
+                }
+                var ctx = document.getElementById("chart-cram").getContext("2d");
+                chartCram = new Chart(ctx, {
+                    type: "radar",
+                    data: {
+                        labels: ["Buffer", "Biotic", "Physical", "Hydrology"],
+                        datasets: [
+                            {
+                                data: values,
+                                backgroundColor: withAlpha(C.ADA_TEAL, 0.18),
+                                borderColor: C.ADA_TEAL,
+                                borderWidth: 2,
+                                pointBackgroundColor: C.GREEN,
+                                pointBorderColor: "#fff",
+                                pointRadius: 4,
+                                pointHoverRadius: 6,
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: { duration: 700, easing: "easeOutCubic" },
+                        scales: {
+                            r: {
+                                min: 0,
+                                max: 100,
+                                ticks: {
+                                    stepSize: 25,
+                                    color: "rgba(0,0,0,0.45)",
+                                    backdropColor: "transparent",
+                                    font: { size: 10 },
+                                },
+                                grid: { color: "rgba(0,0,0,0.1)" },
+                                angleLines: { color: "rgba(0,0,0,0.1)" },
+                                pointLabels: {
+                                    font: { size: 13, weight: "600" },
+                                    color: C.DARK,
+                                },
+                            },
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function (ctx) {
+                                        return ctx.label + ": " + ctx.raw + " / 100";
+                                    },
+                                },
+                            },
+                        },
+                    },
+                });
+            }
+
+            // ── Step 5 gauges ────────────────────────────
+            var gauges = {};
+            function buildGauge(canvasId, value, max, color) {
+                if (gauges[canvasId]) {
+                    gauges[canvasId].destroy();
+                }
+                var ctx = document.getElementById(canvasId).getContext("2d");
+                var pct = Math.min(1, value / max);
+                gauges[canvasId] = new Chart(ctx, {
+                    type: "doughnut",
+                    data: {
+                        datasets: [
+                            {
+                                data: [pct * 100, (1 - pct) * 100],
+                                backgroundColor: [color, "rgba(0,0,0,0.06)"],
+                                borderWidth: 0,
+                                circumference: 270,
+                                rotation: 225,
+                            },
+                        ],
+                    },
+                    options: {
+                        cutout: "78%",
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        animation: { duration: 1100, easing: "easeOutCubic" },
+                        plugins: {
+                            tooltip: { enabled: false },
+                            legend: { display: false },
+                        },
+                    },
+                });
+            }
+            function buildAllGauges() {
+                buildGauge("gauge-extent", 45, 100, C.ORANGE);
+                buildGauge("gauge-elevation", 4, 10, C.ORANGE);
+                buildGauge("gauge-condition", 74, 100, C.GREEN);
+            }
+
+            // ── Extent toggle wiring ─────────────────────
+            var currentEra = "today";
+            var extentBtns = document.querySelectorAll("#extent-toggle button");
+            extentBtns.forEach(function (btn) {
+                btn.addEventListener("click", function () {
+                    currentEra = btn.dataset.era;
+                    extentBtns.forEach(function (b) {
+                        b.classList.toggle("active", b === btn);
+                    });
+                    drawExtent(currentEra);
+                    buildExtentChart(currentEra);
+                });
+            });
+
+            // ── Stepper + cover/end-card wiring ──────────
+            function onStepEnter(n) {
+                setBackground(n);
+                clearLegend();
+
+                // Swap map layers so extent polygons and CRAM markers never share
+                // the map simultaneously.
+                if (map.hasLayer(extentLayer)) map.removeLayer(extentLayer);
+                if (map.hasLayer(cramLayer)) map.removeLayer(cramLayer);
+
+                if (n === 0) {
+                    buildSlrChart();
+                } else if (n === 1) {
+                    extentLayer.addTo(map);
+                    buildExtentLegend();
+                    buildExtentChart(currentEra);
+                    drawExtent(currentEra);
+                    WRMP.flyTo(map, BAY_BOUNDS);
+                } else if (n === 2) {
+                    buildSetChart();
+                } else if (n === 3) {
+                    cramLayer.addTo(map);
+                    buildCramLegend();
+                    drawCram();
+                    updateCramRadar();
+                    WRMP.flyTo(map, BAY_BOUNDS);
+                } else if (n === 4) {
+                    buildAllGauges();
+                }
+            }
+
+            var screens = WRMP.wireExhibitScreens({
+                totalSteps: 5,
+                onStepEnter: onStepEnter,
+                onEnter: function () {
+                    stepper.goToStep(0);
+                },
+                onRestart: function () {
+                    stepper.goToStep(0);
+                },
+            });
+
+            var stepper = WRMP.createStepper({
+                totalSteps: 5,
+                onStepEnter: screens.onStepEnter,
+            });
+
+            // Initial render
+            stepper.goToStep(0);
+            // Pre-render SLR chart once fonts settle
+            setTimeout(function () {
+                buildSlrChart();
+            }, 50);
+        </script>
+    </body>
+</html>
