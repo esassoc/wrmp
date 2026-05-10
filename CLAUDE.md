@@ -1,17 +1,10 @@
 # WRMP Data Visualization Project
 
-Interactive "museum exhibit" style visualizations for the Wetland Regional Monitoring Program (wrmp.org), focused on Fish & Fish Habitat (FFH) data from the San Francisco Estuary.
+Interactive "museum exhibit" style visualizations for the [Wetland Regional Monitoring Program](https://wrmp.org), focused on Fish & Fish Habitat (FFH) data from the San Francisco Estuary.
 
-## Project Context
+> **Project context** (engagement framing, contacts, data dependencies, meeting history) lives in `CLAUDE.local.md` — gitignored. Read it at session start when relevant to the current task.
 
-- **Client:** WRMP (Wetland Regional Monitoring Program)
-- **PM:** Andrew Lovseth at ESA
-- **Timeline:** Phase 3 visualization work through September 2026
-- **Website:** wrmp.org (WordPress, Divi theme)
-- **Data PI:** Dr. Levi Lewis, UC Davis
-- **Key contacts:** Sasha Harris-Lovett, Cristina Grosso, Tony Hale, Karen Verpeet
-
-### What We're Building
+## What We're Building
 
 Interactive exhibit experiences ("natural history museum type exhibitions") that embed into the WRMP WordPress site. Each exhibit is a self-contained HTML/CSS/JS artifact rendered inside a fixed 16:9 frame with a stepper/narrative panel overlaying an interactive background (Leaflet map, video, photo, or gradient).
 
@@ -27,8 +20,6 @@ Interactive exhibit experiences ("natural history museum type exhibitions") that
 
 ## Exhibits
 
-### Built
-
 | Exhibit | Directory | Steps | Background | Description |
 |---------|-----------|-------|------------|-------------|
 | **The Bay: Where We're Watching** | `2026-04-03-station-map-stepper/` | 5 | Leaflet map | Station network narrative — regions, networks, site types, planned restoration |
@@ -36,20 +27,18 @@ Interactive exhibit experiences ("natural history museum type exhibitions") that
 | **How We Monitor** | `2026-04-10-how-we-look/` | 4 | Photo backgrounds | Sampling gear infographic — otter trawl, beach seine, gill net |
 | **Native vs. Invasive** | `2026-04-10-native-vs-invasive/` | 6 | Map + gradient | Species composition timeline, drought regime shift story |
 | **Designing the Experiment** | `2026-04-10-restoration-network/` | 5 | Leaflet map | Restoration site network, benchmark vs. project sites |
-
-### Planned (needs catch data from Sasha/Levi)
-
-- **"What Changed"** — Temporal narrative with actual CPUE time series (2010-2024 SBOTS data). The marquee data story: drought regime shift.
-- **"Meet the Residents"** — Searchable species catalog, deep dives on featured species (Longfin Smelt, Chinook Salmon, Leopard Shark, Green Crab).
+| **A Decade in Alviso Marsh** | `2026-04-23-alviso-decade/` | 5 | Charts | Chart-forward data story from 14 years of SBOTS monitoring |
+| **Is the Bay Keeping Up?** | `2026-04-23-bay-keeping-up/` | 5 | Scorecard | Restoration progress at a glance |
 
 ## Project Structure
 
 ```
 wrmp/
 ├── CLAUDE.md                          # AI collaborator context (this file)
-├── README.md                          # Human collaborator onboarding
-├── gallery/
-│   └── index.html                     # Hub: iframed exhibits + link to design-system
+├── CLAUDE.local.md                    # Private project context (gitignored)
+├── README.md                          # Public project overview
+├── DEVELOPING.md                      # Local setup + exhibit-authoring guidance
+├── index.html                         # Gallery hub (poster cards) — site landing page
 ├── design-system/
 │   └── index.html                     # Token/component specimens (loads shared/css)
 ├── data/                              # JSON metadata converted from Excel sources
@@ -72,14 +61,7 @@ wrmp/
 │   ├── fonts/                         # Self-hosted Source Sans Pro (see tokens.css)
 │   └── img/                           # Logos, marks (nav + step header)
 ├── exhibits/                          # Date-versioned exhibit prototypes
-│   ├── 2026-04-03-station-map-stepper/
-│   ├── 2026-04-10-delta-smelt/        # includes delta-smelt.mp4 (2.9 MB)
-│   ├── 2026-04-10-how-we-look/        # includes gear photos (~9.6 MB)
-│   ├── 2026-04-10-native-vs-invasive/
-│   └── 2026-04-10-restoration-network/
 ├── reference/                         # Branding assets + source data (gitignored)
-│   ├── WRMP branding elements/        # Official fonts, color swatches, logos
-│   └── WRMP data examples.../         # Source Excel files for JSON conversion
 ├── .claude/                           # launch.json, skills/wrmp-exhibit (Claude Code)
 └── .cursor/                           # Optional workspace settings (e.g. Figma plugin)
 ```
@@ -127,7 +109,7 @@ Official hex values live in `tokens.css` as `--wrmp-*-brand`. The **active** tok
 - **Exhibit frame:** Fixed 16:9 aspect ratio, max-width 1200px, 10px border-radius
 - **Story panel:** Inset 16px from frame edges, 12px border-radius, glassmorphism (`backdrop-filter: blur(20px)`, ~8% white opacity), 42% width
 - **Map legend:** Floating top-right, glassmorphism chips, clickable to filter/zoom, "All" option resets
-- **Navigation:** Apple-style dots (active = wide teal pill 36px, inactive = 8px circle), Back/Next buttons
+- **Navigation:** Dot navigation (active = wide teal pill 36px, inactive = 8px circle), Back/Next buttons
 - **Map offset:** `paddingTopLeft` in Leaflet accounts for panel overlay so stations render in visible area
 - **Popups:** `WRMP.makeMarkerPopup()` — DOM-built (no innerHTML); station fields vary by exhibit
 
@@ -163,37 +145,20 @@ Exhibits can mix background types per step using `.bg-layer` divs:
 - `.bg-map` — step where the Leaflet map is visible
 - Panel switches between light (default) and dark (`.panel-dark`) variants depending on background
 
-## Data Sources
+## Data
 
-### What We Have (metadata only)
+### Reference data (in `data/`, committed)
 
-Converted from Excel files provided by Sasha. Source files in `reference/WRMP data examples for visualizations/` (gitignored).
+Converted from Excel files. Structural metadata only — small, stable, ships with the repo.
 
-- **Station metadata** → `data/stations.json` (119 records)
-- **Species metadata** → `data/species.json` (237 records)
-- **Gear metadata** → `data/gear.json` (9 records)
-- **Benthos metadata** → `data/benthos.json` (31 records)
+- **stations.json** — 119 monitoring stations (lat/lon, region, network, habitat, site type)
+- **species.json** — 237 species (taxonomy, native/invasive status, habitat)
+- **gear.json** — 9 sampling gear types
+- **benthos.json** — 31 substrate/benthos classification types
 
-### What We Need (data request backlog for Sasha/Levi)
+### Analytical data
 
-| Priority | Data                                                    | Format    | For Exhibit |
-| -------- | ------------------------------------------------------- | --------- | ----------- |
-| 1        | Annual CPUE time series by species (SBOTS 2010-2024)    | CSV       | 2, 3        |
-| 2        | Species catch by station (WRMP Q2+ 2025)                | CSV       | 1, 3        |
-| 3        | Environmental data by station/date (temp, salinity, DO) | CSV       | 1, 2        |
-| 4        | Monthly catch summaries                                 | CSV       | 2           |
-| 5        | Levi's R visualization code                             | R scripts | All         |
-| 6        | Water year type classifications (2010-2024)             | Any       | 2           |
-| 7        | Length frequency data by species                        | CSV       | 3           |
-
-### Key Research Documents (in `reference/`, gitignored)
-
-- `SBOTS_Report_2025_v3.pdf` — 14-year Alviso Marsh monitoring report (richest analytical findings)
-- `Otter Trawl Sampling Analysis_Alviso Marsh.pdf` — Gear/design pilot study
-- `SBOTS_Cluster_Ordinations.docx` — Multivariate community analysis
-- `SBSP_Gear_Comparisons.docx` — Gear selectivity study
-- `2026 Annual Report Draft Content_Data Highlights.docx` — Annual report template with "by the numbers" metrics
-- `TEMPLATE Metric Cards WRMP.docx` — Website metric card format
+Time-series and catch data (CPUE, environmental covariates, length-frequency) feed into specific exhibits as it's prepared by the field team. See `CLAUDE.local.md` for current data backlog and source-file pointers.
 
 ## Key Ecological Context
 
@@ -211,7 +176,7 @@ The FFH data tells several interconnected stories:
 
 ```bash
 python3 -m http.server 8765
-# Open http://localhost:8765/exhibits/2026-04-03-station-map-stepper/
+# Then open the URL the server prints
 ```
 
 ### Building New Exhibits
@@ -238,27 +203,3 @@ headers = [str(h).strip() for h in rows[0]]
 data = [{h: v for h, v in zip(headers, row)} for row in rows[1:]]
 json.dump(data, open('data/output.json', 'w'), indent=2)
 ```
-
-## Strategic Context (from meeting history)
-
-This section summarizes key decisions from 4 meetings (Sep 2025 – Mar 2026) that shaped the project direction. Full notes live in `~/Dev/andy-work/meetings/`.
-
-### Phase Arc
-- **Phase 2** (ended Sep 2025): WordPress site functionality complete, $3k remaining, pivot to UX
-- **Phase 3** (Feb–Sep 2026, $50k): Data visualization — the current work. 80% ready-to-go visualizations, 20% conceptual/exploratory
-- **Phase 4** (through Jun 2027): Annual report release, continued viz development
-
-### Key Decisions
-- **FFH dataset chosen** as primary focus for Phase 3 (Mar 2026 kickoff)
-- **"Natural history museum exhibitions"** as the design metaphor — not dashboards, not reports
-- **HTML/CSS/JS canonical atoms** — R Shiny produces widgets that embed, not page shells
-- **Design system required** for subcontractor handoff — they work in R, we provide CSS tokens
-- **ADA compliance** is a hard requirement (16px min, VoiceOver testing, color contrast)
-- **WordPress embed target** — exhibits will iframe into wrmp.org (Divi theme)
-
-### People
-- **Sasha Harris-Lovett** — data request point of contact, sends Excel files
-- **Dr. Levi Lewis (UC Davis)** — data PI, leads field team, produces R visualizations
-- **Cristina Grosso** — WRMP program lead
-- **Tony Hale** — technical oversight
-- **Karen Verpeet** — comms/website

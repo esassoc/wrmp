@@ -12,3 +12,6 @@ reference/
 
 # Reference archive
 reference.zip
+
+# Private project context (engagement framing, contacts, budgets, meeting history)
+CLAUDE.local.md
