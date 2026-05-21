@@ -1,0 +1,3211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WRMP — Level 3 Integration Specimen</title>
+<link rel="stylesheet" href="../shared/css/tokens.css" />
+<style>
+  /* ═══════════════════════════════════════════════════════════════
+     LEVEL 3 SPECIMEN
+     Exploration specimen: 3 handoff patterns × 5 content-density
+     options each. The thesis being tested — a single dark
+     "deeper-data layer" identity carried across every pattern, plus
+     real content substance (resource type · what-you'll-find · meta).
+     Tokens come from ../shared/css/tokens.css; everything else here.
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* ─── Reset ─── */
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; -webkit-font-smoothing: antialiased; }
+
+  /* ─── Page base ─── */
+  :root {
+    /* Dark deeper-data layer — the unifying identity under test.
+       One palette, used by inline / hub / drawer alike. */
+    --l3-bg:          #122026;          /* deep estuary slate            */
+    --l3-bg-raised:   #1b2e35;          /* nested card surface on dark   */
+    --l3-bg-hover:    #243d45;          /* hover surface                 */
+    --l3-border:      rgba(255,255,255,0.13);
+    --l3-border-strong: rgba(255,255,255,0.26);
+    --l3-text:        #f3f6f6;          /* primary text on dark (AA+)    */
+    --l3-text-subtle: #aec3c7;          /* secondary text on dark (AA)   */
+    --l3-accent:      #6fd3e3;          /* bright teal — links/icons     */
+    --l3-accent-soft: rgba(111,211,227,0.16);
+    --l3-download:    #f0b454;          /* amber — download actions      */
+    --l3-download-soft: rgba(240,180,84,0.16);
+  }
+
+  body {
+    font-family: var(--font-body);
+    color: var(--gray-12);
+    background: var(--gray-3);
+    line-height: 1.6;
+    font-size: 16px;
+  }
+
+  .page {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 48px 32px 96px;
+  }
+
+  /* ─── Page intro ─── */
+  .page-head h1 {
+    font-family: var(--font-heading);
+    font-size: var(--step-4);
+    font-weight: 600;
+    line-height: 1.1;
+    margin: 0 0 12px;
+    color: var(--gray-12);
+  }
+  .page-head .lede {
+    font-size: var(--step-1);
+    color: var(--gray-11);
+    max-width: 70ch;
+    margin: 0 0 16px;
+  }
+  .thesis {
+    display: flex;
+    gap: 16px;
+    max-width: 78ch;
+    padding: 16px 20px;
+    border-radius: var(--radius-lg);
+    background: var(--l3-bg);
+    color: var(--l3-text);
+  }
+  .thesis .thesis-mark {
+    flex-shrink: 0;
+    width: 36px; height: 36px;
+    border-radius: 999px;
+    background: var(--l3-accent-soft);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--l3-accent);
+    font-size: 20px;
+  }
+  .thesis p { margin: 0; font-size: var(--step-0); color: var(--l3-text); }
+  .thesis strong { color: #fff; font-weight: 600; }
+
+  /* ─── Pattern section scaffold ─── */
+  .pattern-section { margin-top: 64px; }
+  .pattern-section > .section-head {
+    border-bottom: 2px solid var(--gray-6);
+    padding-bottom: 12px;
+    margin-bottom: 8px;
+  }
+  .section-head h2 {
+    font-family: var(--font-heading);
+    font-size: var(--step-3);
+    font-weight: 600;
+    margin: 0;
+    color: var(--gray-12);
+  }
+  .section-head .section-desc {
+    font-size: var(--step-0);
+    color: var(--gray-11);
+    margin: 6px 0 0;
+    max-width: 76ch;
+  }
+
+  /* ─── Option ladder ─── */
+  .option {
+    display: grid;
+    grid-template-columns: 248px 1fr;
+    gap: 32px;
+    padding: 32px 0;
+    border-bottom: 1px solid var(--gray-5);
+    align-items: start;
+  }
+  .option:last-child { border-bottom: none; }
+
+  .option-caption .opt-index {
+    display: inline-block;
+    font-size: var(--step--1);
+    font-weight: 700;
+    color: var(--gray-9);
+    letter-spacing: 0.02em;
+  }
+  .option-caption h3 {
+    font-size: var(--step-1);
+    font-weight: 600;
+    margin: 4px 0 8px;
+    color: var(--gray-12);
+  }
+  .option-caption .opt-idea {
+    font-size: var(--step-0);
+    color: var(--gray-11);
+    margin: 0 0 12px;
+  }
+  .density-tag {
+    display: inline-block;
+    font-size: var(--step--1);
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+  }
+  .density-tag[data-density="Minimal"]  { background: var(--gray-4);  color: var(--gray-11); }
+  .density-tag[data-density="Moderate"] { background: var(--cyan-4);  color: var(--cyan-11); }
+  .density-tag[data-density="Rich"]     { background: var(--amber-4); color: var(--amber-11); }
+
+  /* ═══════════════════════════════════════════════════════════════
+     MOCK CONTEXTS — realistic frames each option sits inside
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* ── Light story-panel step (Pattern 1 inline lives here) ── */
+  .mock-step {
+    background: rgba(255,255,255,0.86);
+    backdrop-filter: blur(8px);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    max-width: 480px;
+    border: 1px solid var(--gray-5);
+  }
+  .mock-step .kicker {
+    font-size: var(--step--1);
+    font-weight: 600;
+    color: var(--wrmp-teal);
+    margin: 0 0 4px;
+  }
+  .mock-step h4 {
+    font-family: var(--font-heading);
+    font-size: var(--step-2);
+    font-weight: 400;
+    line-height: 1.15;
+    margin: 0 0 10px;
+    color: var(--cyan-12);
+  }
+  .mock-step p.step-body {
+    font-size: var(--step-0);
+    color: var(--gray-12);
+    margin: 0;
+    line-height: 1.7;
+  }
+
+  /* ── Dark end-card (Pattern 2 hub lives here) ── */
+  .mock-endcard {
+    background:
+      linear-gradient(155deg, rgba(18,32,38,0.96), rgba(11,21,25,0.98)),
+      radial-gradient(120% 80% at 80% 0%, rgba(111,211,227,0.14), transparent 60%);
+    border-radius: var(--radius-xl);
+    padding: 32px 36px;
+    color: var(--l3-text);
+  }
+  .mock-endcard .endcard-kicker {
+    font-size: var(--step--1);
+    font-weight: 600;
+    color: var(--l3-accent);
+    margin: 0 0 6px;
+  }
+  .mock-endcard h4 {
+    font-family: var(--font-heading);
+    font-size: var(--step-3);
+    font-weight: 400;
+    margin: 0 0 6px;
+    color: #fff;
+  }
+  .mock-endcard .endcard-sub {
+    font-size: var(--step-0);
+    color: var(--l3-text-subtle);
+    margin: 0 0 24px;
+    max-width: 60ch;
+  }
+
+  /* ── Drawer shell (Pattern 3 lives here) ── */
+  .mock-drawer-stage {
+    background:
+      linear-gradient(135deg, #2d4a52, #3f6a63);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    display: flex;
+    justify-content: flex-end;
+    min-height: 420px;
+  }
+  .mock-drawer {
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    background: var(--l3-bg);
+    border: 1px solid var(--l3-border);
+    box-shadow: -10px 0 40px rgba(0,0,0,0.34);
+  }
+  .drawer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px 13px;
+    border-bottom: 1px solid var(--l3-border);
+  }
+  .drawer-head .drawer-title {
+    font-family: var(--font-heading);
+    font-size: var(--step-1);
+    font-weight: 600;
+    color: #fff;
+    margin: 0;
+  }
+  .drawer-head .drawer-x {
+    width: 28px; height: 28px;
+    border: none;
+    background: var(--l3-bg-raised);
+    border-radius: var(--radius-sm);
+    color: var(--l3-text-subtle);
+    font-size: 16px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .drawer-body { padding: 16px 18px 20px; }
+
+  /* ═══════════════════════════════════════════════════════════════
+     SHARED LEVEL 3 PRIMITIVES — the dark "deeper-data" identity
+     used inside every pattern. Self-contained: works whether the
+     surrounding context is light or dark.
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* Resource-type chip — names WHAT KIND of resource it is */
+  .l3-type {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: var(--step--1);
+    font-weight: 600;
+    line-height: 1;
+    padding: 4px 9px;
+    border-radius: var(--radius-sm);
+    background: var(--l3-accent-soft);
+    color: var(--l3-accent);
+    white-space: nowrap;
+  }
+  .l3-type[data-kind="download"] {
+    background: var(--l3-download-soft);
+    color: var(--l3-download);
+  }
+  .l3-type .l3-type-glyph { font-size: 13px; }
+
+  /* Metadata footer — "119 records · JSON", "opens EcoAtlas", "PDF" */
+  .l3-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    font-size: var(--step--1);
+    color: var(--l3-text-subtle);
+  }
+  .l3-meta span { display: inline-flex; align-items: center; gap: 5px; }
+  .l3-meta span + span::before {
+    content: "·";
+    margin-right: 14px;
+    color: rgba(255,255,255,0.32);
+  }
+
+  /* Icon tile — the resource's visual anchor */
+  .l3-icon {
+    flex-shrink: 0;
+    width: 38px; height: 38px;
+    border-radius: var(--radius-md);
+    background: var(--l3-accent-soft);
+    color: var(--l3-accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 19px;
+  }
+  .l3-icon[data-kind="download"] {
+    background: var(--l3-download-soft);
+    color: var(--l3-download);
+  }
+
+  /* ── The dark module wrapper — Pattern 1 inline + reused widely ── */
+  .l3-module {
+    background: var(--l3-bg);
+    border-radius: var(--radius-lg);
+    color: var(--l3-text);
+  }
+  .l3-module-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: var(--step--1);
+    font-weight: 600;
+    color: var(--l3-accent);
+  }
+  .l3-module-eyebrow .dot {
+    width: 6px; height: 6px; border-radius: 999px;
+    background: var(--l3-accent);
+  }
+
+  /* Plain dark link row */
+  .l3-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: var(--step-0);
+    font-weight: 600;
+    color: var(--l3-accent);
+    text-decoration: none;
+  }
+  .l3-link::after { content: "↗"; font-weight: 400; }
+  .l3-link[data-kind="download"] { color: var(--l3-download); }
+  .l3-link[data-kind="download"]::after { content: "↓"; }
+  .l3-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+  /* Resource card — icon + body, used across patterns */
+  .l3-card {
+    display: flex;
+    gap: 13px;
+    padding: 14px;
+    border-radius: var(--radius-md);
+    background: var(--l3-bg-raised);
+    border: 1px solid var(--l3-border);
+    text-decoration: none;
+    color: var(--l3-text);
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .l3-card:hover {
+    background: var(--l3-bg-hover);
+    border-color: var(--l3-border-strong);
+  }
+  .l3-card-body { flex: 1; min-width: 0; }
+  .l3-card-title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .l3-card-title .name {
+    font-size: var(--step-0);
+    font-weight: 600;
+    color: #fff;
+  }
+  .l3-card-title .go {
+    flex-shrink: 0;
+    color: var(--l3-accent);
+    font-size: var(--step-0);
+  }
+  .l3-card[data-kind="download"] .l3-card-title .go { color: var(--l3-download); }
+  .l3-card-desc {
+    font-size: var(--step-0);
+    color: var(--l3-text-subtle);
+    margin: 4px 0 0;
+    line-height: 1.55;
+  }
+  .l3-card-foot { margin-top: 9px; }
+
+  /* Group label inside dark modules — readable word, not ornament */
+  .l3-group-label {
+    font-size: var(--step-0);
+    font-weight: 600;
+    color: var(--l3-text);
+    margin: 0 0 4px;
+  }
+  .l3-group-intro {
+    font-size: var(--step--1);
+    color: var(--l3-text-subtle);
+    margin: 0 0 10px;
+  }
+
+  /* ─── small layout helpers (specimen-local) ─── */
+  .stack-12 > * + * { margin-top: 12px; }
+  .stack-10 > * + * { margin-top: 10px; }
+  .stack-8  > * + * { margin-top: 8px; }
+  .stack-20 > * + * { margin-top: 20px; }
+
+  /* ═══════════════════════════════════════════════════════════════
+     PATTERN 1 · INLINE — variants
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* opt 1 — typed text link: eyebrow + type + link, no box */
+  .p1o1 { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--gray-5); }
+
+  /* opt 2 — label + link + type chip in a thin dark bar */
+  .p1o2 { margin-top: 16px; padding: 12px 14px; }
+  .p1o2 .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+  /* opt 3 — compact dark card: icon + title + type */
+  .p1o3 { margin-top: 16px; padding: 13px 14px; }
+  .p1o3 .card-row { display: flex; align-items: center; gap: 12px; }
+  .p1o3 .card-row .l3-card-title { flex: 1; }
+
+  /* opt 4 — card + one-line description */
+  .p1o4 { margin-top: 16px; padding: 15px; }
+
+  /* opt 5 — rich card: icon + title + description + metadata footer */
+  .p1o5 { margin-top: 16px; padding: 16px; }
+  .p1o5 .l3-module-eyebrow { margin-bottom: 11px; }
+
+  /* ═══════════════════════════════════════════════════════════════
+     PATTERN 2 · END-CARD HUB — variants
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* opt 1 — described full-width rows */
+  .hub-rows { display: flex; flex-direction: column; }
+  .hub-row {
+    display: flex;
+    gap: 15px;
+    padding: 16px 0;
+    border-top: 1px solid var(--l3-border);
+    text-decoration: none;
+    color: var(--l3-text);
+  }
+  .hub-row:last-child { border-bottom: 1px solid var(--l3-border); }
+  .hub-row:hover .hub-row-name { color: var(--l3-accent); }
+  .hub-row[data-kind="download"]:hover .hub-row-name { color: var(--l3-download); }
+  .hub-row-body { flex: 1; }
+  .hub-row-top {
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  }
+  .hub-row-name { font-size: var(--step-1); font-weight: 600; color: #fff; }
+  .hub-row-desc {
+    font-size: var(--step-0); color: var(--l3-text-subtle);
+    margin: 4px 0 0; max-width: 56ch;
+  }
+  .hub-row-go { flex-shrink: 0; color: var(--l3-accent); font-size: var(--step-1); align-self: center; }
+  .hub-row[data-kind="download"] .hub-row-go { color: var(--l3-download); }
+
+  /* opt 2 — destination card grid */
+  .hub-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .hub-grid .l3-card { flex-direction: column; gap: 11px; }
+  .hub-grid .l3-card .l3-card-title { align-items: center; }
+
+  /* opt 3 — categorized columns */
+  .hub-cols {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+  }
+  .hub-col-head {
+    display: flex; align-items: center; gap: 8px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid var(--l3-border);
+    margin-bottom: 12px;
+  }
+  .hub-col-head .l3-group-label { margin: 0; }
+  .hub-col .l3-link { display: flex; }
+  .hub-col-item + .hub-col-item { margin-top: 14px; }
+  .hub-col-item .item-name { font-size: var(--step-0); font-weight: 600; color: #fff; }
+  .hub-col-item .item-desc {
+    font-size: var(--step--1); color: var(--l3-text-subtle);
+    margin: 3px 0 0;
+  }
+  .hub-col-item a { text-decoration: none; }
+  .hub-col-item a:hover .item-name { color: var(--l3-accent); }
+
+  /* opt 4 — featured hero action + secondary list */
+  .hub-featured {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 20px;
+  }
+  .hub-hero {
+    display: flex;
+    flex-direction: column;
+    padding: 22px;
+    border-radius: var(--radius-lg);
+    background:
+      linear-gradient(150deg, rgba(240,180,84,0.22), rgba(240,180,84,0.06));
+    border: 1px solid rgba(240,180,84,0.34);
+    text-decoration: none;
+    color: var(--l3-text);
+  }
+  .hub-hero:hover { border-color: rgba(240,180,84,0.6); }
+  .hub-hero .hero-name {
+    font-family: var(--font-heading);
+    font-size: var(--step-2);
+    font-weight: 600;
+    color: #fff;
+    margin: 12px 0 6px;
+  }
+  .hub-hero .hero-desc {
+    font-size: var(--step-0);
+    color: var(--l3-text-subtle);
+    margin: 0 0 16px;
+  }
+  .hub-hero .hero-cta {
+    margin-top: auto;
+    display: inline-flex; align-items: center; gap: 7px;
+    align-self: flex-start;
+    font-size: var(--step-0); font-weight: 600;
+    color: #1c1206;
+    background: var(--l3-download);
+    padding: 9px 16px;
+    border-radius: var(--radius-sm);
+  }
+  .hub-secondary .l3-group-label { margin-bottom: 10px; }
+
+  /* opt 5 — directory / index style */
+  .hub-dir { display: flex; flex-direction: column; }
+  .hub-dir-item {
+    display: grid;
+    grid-template-columns: 132px 1fr auto;
+    gap: 18px;
+    padding: 15px 0;
+    border-top: 1px solid var(--l3-border);
+    text-decoration: none;
+    align-items: start;
+  }
+  .hub-dir-item:last-child { border-bottom: 1px solid var(--l3-border); }
+  .hub-dir-item:hover .dir-name { color: var(--l3-accent); }
+  .hub-dir-item[data-kind="download"]:hover .dir-name { color: var(--l3-download); }
+  .hub-dir-type { padding-top: 2px; }
+  .dir-name { font-size: var(--step-0); font-weight: 600; color: #fff; }
+  .dir-desc {
+    font-size: var(--step--1); color: var(--l3-text-subtle);
+    margin: 3px 0 0;
+  }
+  .hub-dir-meta {
+    font-size: var(--step--1);
+    color: var(--l3-text-subtle);
+    text-align: right;
+    white-space: nowrap;
+    padding-top: 2px;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     PATTERN 3 · DRAWER — variants (inner content density)
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* opt 1 — described link rows */
+  .dr-row {
+    display: block;
+    padding: 12px 0;
+    border-top: 1px solid var(--l3-border);
+    text-decoration: none;
+  }
+  .dr-row:last-child { border-bottom: 1px solid var(--l3-border); }
+  .dr-row:hover .dr-row-name { color: var(--l3-accent); }
+  .dr-row[data-kind="download"]:hover .dr-row-name { color: var(--l3-download); }
+  .dr-row-top { display: flex; align-items: baseline; gap: 8px; }
+  .dr-row-name { font-size: var(--step-0); font-weight: 600; color: #fff; flex: 1; }
+  .dr-row-go { color: var(--l3-accent); }
+  .dr-row[data-kind="download"] .dr-row-go { color: var(--l3-download); }
+  .dr-row-desc {
+    font-size: var(--step--1); color: var(--l3-text-subtle);
+    margin: 4px 0 0;
+  }
+
+  /* opt 4 — primary action pinned */
+  .dr-pinned {
+    display: flex;
+    gap: 11px;
+    padding: 14px;
+    border-radius: var(--radius-md);
+    background: linear-gradient(150deg, rgba(240,180,84,0.2), rgba(240,180,84,0.05));
+    border: 1px solid rgba(240,180,84,0.34);
+    text-decoration: none;
+    color: var(--l3-text);
+    margin-bottom: 18px;
+  }
+  .dr-pinned:hover { border-color: rgba(240,180,84,0.6); }
+  .dr-pinned .pin-name { font-size: var(--step-0); font-weight: 600; color: #fff; }
+  .dr-pinned .pin-desc {
+    font-size: var(--step--1); color: var(--l3-text-subtle); margin: 3px 0 0;
+  }
+  .dr-section-label {
+    font-size: var(--step-0); font-weight: 600; color: var(--l3-text);
+    margin: 0 0 4px;
+  }
+
+  /* footer note */
+  .specimen-foot {
+    margin-top: 72px;
+    padding-top: 20px;
+    border-top: 2px solid var(--gray-6);
+    font-size: var(--step-0);
+    color: var(--gray-11);
+  }
+
+  @media (max-width: 880px) {
+    .option { grid-template-columns: 1fr; gap: 16px; }
+    .hub-cols { grid-template-columns: 1fr; }
+    .hub-featured { grid-template-columns: 1fr; }
+    .hub-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     ROUND 2 · REFINEMENTS
+     Client picked directions. The big through-line: Data / Tools /
+     Science is now the consistent organizing taxonomy across ALL
+     three patterns. Each category = one icon + one accent, used
+     everywhere. Lucide icons replace the hand-rolled glyphs.
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* ── Category system — the spine ──────────────────────────────
+     Three categories, each with a fixed accent + Lucide icon:
+       Data    → database      → teal   (the brand spine color)
+       Tools   → compass       → green  (WRMP heritage green)
+       Science → flask-conical → amber
+     Accents are tuned bright enough for AA text on dark surfaces. */
+  :root {
+    --cat-data-accent:     #6fd3e3;   /* teal  — Data    */
+    --cat-data-soft:       rgba(111,211,227,0.16);
+    --cat-tools-accent:    #7fce8c;   /* green — Tools   */
+    --cat-tools-soft:      rgba(127,206,140,0.16);
+    --cat-science-accent:  #f0b454;   /* amber — Science */
+    --cat-science-soft:    rgba(240,180,84,0.16);
+  }
+
+  /* A category-scoped element reads its accent from one variable.
+     Set data-cat on any wrapper and the children inherit it. */
+  [data-cat="data"]    { --cat-accent: var(--cat-data-accent);    --cat-soft: var(--cat-data-soft); }
+  [data-cat="tools"]   { --cat-accent: var(--cat-tools-accent);   --cat-soft: var(--cat-tools-soft); }
+  [data-cat="science"] { --cat-accent: var(--cat-science-accent); --cat-soft: var(--cat-science-soft); }
+
+  /* Lucide icons render as inline <svg> — keep stroke weight uniform */
+  .lc {
+    width: 18px; height: 18px;
+    stroke-width: 2;
+    flex-shrink: 0;
+  }
+  .lc-sm { width: 15px; height: 15px; }
+  .lc-lg { width: 22px; height: 22px; }
+
+  /* Category icon tile — square, category-tinted */
+  .cat-icon {
+    flex-shrink: 0;
+    width: 36px; height: 36px;
+    border-radius: var(--radius-md);
+    background: var(--cat-soft);
+    color: var(--cat-accent);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .cat-icon-sm { width: 28px; height: 28px; }
+  .cat-icon .lc { width: 18px; height: 18px; }
+  .cat-icon-sm .lc { width: 15px; height: 15px; }
+
+  /* Category word + icon, used as a leading signal */
+  .cat-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--step--1);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    color: var(--cat-accent);
+  }
+  .cat-tag .lc { width: 15px; height: 15px; }
+
+  /* Round-2 caption marker — sits above a refinements block */
+  .round-divider {
+    grid-column: 1 / -1;
+    margin-top: 12px;
+    padding: 14px 0 4px;
+    border-top: 2px dashed var(--gray-6);
+  }
+  .round-divider .round-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: var(--step-0);
+    font-weight: 700;
+    color: var(--gray-12);
+  }
+  .round-divider .round-tag .lc { color: var(--wrmp-teal); }
+  .round-divider .round-note {
+    font-size: var(--step-0);
+    color: var(--gray-11);
+    margin: 6px 0 0;
+    max-width: 78ch;
+  }
+  /* Baseline callout — marks the chosen round-1 option */
+  .baseline-note {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    background: var(--cyan-3);
+    font-size: var(--step--1);
+    color: var(--cyan-12);
+  }
+  .baseline-note strong { font-weight: 700; }
+
+  /* ── PATTERN 1 · INLINE — round 2 ──────────────────────────────
+     Category folded into the compact inline form. */
+
+  /* r2.1 — category-led compact card */
+  .p1r1 { margin-top: 16px; padding: 13px 14px; }
+  .p1r1 .lead { display: flex; align-items: center; gap: 12px; }
+  .p1r1 .lead-body { flex: 1; min-width: 0; }
+  .p1r1 .lead-name { font-size: var(--step-0); font-weight: 600; color: #fff; }
+  .p1r1 .lead-go { color: var(--cat-accent); display: flex; }
+
+  /* r2.2 — category-tinted module (full module border + bg tint) */
+  .p1r2 {
+    margin-top: 16px;
+    padding: 14px;
+    border: 1px solid color-mix(in srgb, var(--cat-accent) 30%, transparent);
+    background:
+      linear-gradient(0deg, var(--l3-bg), var(--l3-bg)),
+      linear-gradient(0deg, var(--cat-soft), var(--cat-soft));
+    background-blend-mode: normal;
+  }
+  .p1r2 .tinted-head {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 9px;
+  }
+  .p1r2 .tinted-row { display: flex; align-items: center; gap: 11px; }
+  .p1r2 .tinted-name { font-size: var(--step-0); font-weight: 600; color: #fff; flex: 1; }
+  .p1r2 .tinted-go { color: var(--cat-accent); display: flex; }
+  .p1r2 .tinted-desc {
+    font-size: var(--step--1); color: var(--l3-text-subtle);
+    margin: 5px 0 0 39px;
+  }
+
+  /* r2.3 — "connects to → [Category]" framing */
+  .p1r3 { margin-top: 16px; padding: 13px 15px; }
+  .p1r3 .connects {
+    display: flex; align-items: center; gap: 8px;
+    font-size: var(--step--1); color: var(--l3-text-subtle);
+    margin-bottom: 8px;
+  }
+  .p1r3 .connects .arrow { color: var(--l3-text-subtle); display: flex; }
+  .p1r3 .connects .cat-tag { font-weight: 700; }
+  .p1r3 .connect-link {
+    display: flex; align-items: center; gap: 9px;
+    text-decoration: none;
+  }
+  .p1r3 .connect-link .name { font-size: var(--step-0); font-weight: 600; color: #fff; flex: 1; }
+  .p1r3 .connect-link .go { color: var(--cat-accent); display: flex; }
+  .p1r3 .connect-link:hover .name { color: var(--cat-accent); }
+
+  /* r2.4 — category strip: icon rail + content */
+  .p1r4 { margin-top: 16px; display: flex; overflow: hidden; }
+  .p1r4 .rail {
+    flex-shrink: 0;
+    width: 44px;
+    background: var(--cat-soft);
+    color: var(--cat-accent);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .p1r4 .strip-body { flex: 1; padding: 13px 15px; min-width: 0; }
+  .p1r4 .strip-top {
+    display: flex; align-items: baseline; gap: 8px;
+    margin-bottom: 4px;
+  }
+  .p1r4 .strip-name { font-size: var(--step-0); font-weight: 600; color: #fff; }
+  .p1r4 .strip-desc { font-size: var(--step--1); color: var(--l3-text-subtle); margin: 0; }
+  .p1r4 .strip-go { margin-left: auto; color: var(--cat-accent); display: flex; }
+
+  /* ── PATTERN 2 · HUB — round 2 (refines the categorized columns) ── */
+
+  /* shared: categorized-columns scaffold for round 2 */
+  .hub2-cols {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .hub2-col { display: flex; flex-direction: column; }
+
+  /* r2.1 — icon-chip headers, mini-card list */
+  .hub2-col-head-chip {
+    display: flex; align-items: center; gap: 9px;
+    margin-bottom: 14px;
+  }
+  .hub2-col-head-chip .cat-name {
+    font-size: var(--step-1); font-weight: 600; color: #fff;
+  }
+  .hub2-minicard {
+    display: block;
+    padding: 11px 12px;
+    border-radius: var(--radius-md);
+    background: var(--l3-bg-raised);
+    border: 1px solid var(--l3-border);
+    text-decoration: none;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .hub2-minicard + .hub2-minicard { margin-top: 8px; }
+  .hub2-minicard:hover {
+    background: var(--l3-bg-hover);
+    border-color: color-mix(in srgb, var(--cat-accent) 40%, transparent);
+  }
+  .hub2-minicard .mc-top {
+    display: flex; align-items: baseline; gap: 8px;
+  }
+  .hub2-minicard .mc-name { font-size: var(--step-0); font-weight: 600; color: #fff; flex: 1; }
+  .hub2-minicard .mc-go { color: var(--cat-accent); display: flex; align-self: center; }
+  .hub2-minicard .mc-desc {
+    font-size: var(--step--1); color: var(--l3-text-subtle); margin: 3px 0 0;
+  }
+
+  /* r2.2 — accent top-rule headers, plain link list */
+  .hub2-col-head-rule {
+    padding-bottom: 10px;
+    border-top: 3px solid var(--cat-accent);
+    padding-top: 10px;
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .hub2-col-head-rule .cat-name {
+    font-size: var(--step-1); font-weight: 600; color: #fff;
+  }
+  .hub2-col-head-rule .cat-icon { background: transparent; }
+  .hub2-linklist a {
+    display: flex; align-items: center; gap: 9px;
+    padding: 9px 0;
+    text-decoration: none;
+    border-bottom: 1px solid var(--l3-border);
+  }
+  .hub2-linklist a:last-child { border-bottom: none; }
+  .hub2-linklist .ll-name { font-size: var(--step-0); font-weight: 600; color: #fff; flex: 1; }
+  .hub2-linklist .ll-go { color: var(--cat-accent); display: flex; }
+  .hub2-linklist a:hover .ll-name { color: var(--cat-accent); }
+
+  /* r2.3 — tinted column panels */
+  .hub2-panel {
+    border-radius: var(--radius-lg);
+    background:
+      linear-gradient(180deg, var(--cat-soft), transparent 70%);
+    border: 1px solid color-mix(in srgb, var(--cat-accent) 22%, transparent);
+    padding: 16px;
+  }
+  .hub2-panel-head {
+    display: flex; align-items: center; gap: 9px;
+    margin-bottom: 12px;
+  }
+  .hub2-panel-head .cat-name { font-size: var(--step-1); font-weight: 600; color: #fff; }
+  .hub2-panel-item { display: block; text-decoration: none; }
+  .hub2-panel-item + .hub2-panel-item {
+    margin-top: 10px; padding-top: 10px;
+    border-top: 1px solid color-mix(in srgb, var(--cat-accent) 18%, transparent);
+  }
+  .hub2-panel-item .pi-top { display: flex; align-items: baseline; gap: 8px; }
+  .hub2-panel-item .pi-name { font-size: var(--step-0); font-weight: 600; color: #fff; flex: 1; }
+  .hub2-panel-item .pi-go { color: var(--cat-accent); display: flex; align-self: center; }
+  .hub2-panel-item .pi-desc {
+    font-size: var(--step--1); color: var(--l3-text-subtle); margin: 3px 0 0;
+  }
+  .hub2-panel-item:hover .pi-name { color: var(--cat-accent); }
+
+  /* r2.4 — dense directory inside columns (count badge per category) */
+  .hub2-dense-head {
+    display: flex; align-items: center; gap: 9px;
+    padding-bottom: 9px;
+    border-bottom: 2px solid color-mix(in srgb, var(--cat-accent) 55%, transparent);
+    margin-bottom: 6px;
+  }
+  .hub2-dense-head .cat-name { font-size: var(--step-0); font-weight: 700; color: #fff; }
+  .hub2-dense-head .cat-count {
+    margin-left: auto;
+    font-size: var(--step--1); font-weight: 700;
+    color: var(--cat-accent);
+    background: var(--cat-soft);
+    border-radius: 999px;
+    padding: 2px 9px;
+  }
+  .hub2-dense a {
+    display: flex; align-items: baseline; gap: 8px;
+    padding: 8px 0;
+    text-decoration: none;
+    border-bottom: 1px solid var(--l3-border);
+  }
+  .hub2-dense a:last-child { border-bottom: none; }
+  .hub2-dense .dn-name { font-size: var(--step-0); font-weight: 600; color: #fff; }
+  .hub2-dense .dn-meta {
+    margin-left: auto; font-size: var(--step--1);
+    color: var(--l3-text-subtle); white-space: nowrap;
+  }
+  .hub2-dense a:hover .dn-name { color: var(--cat-accent); }
+
+  /* ── PATTERN 3 · DRAWER — round 2 (described rows under D/T/S groups) ── */
+
+  /* shared: a drawer group with a category header */
+  .dr2-group + .dr2-group { margin-top: 22px; }
+  .dr2-grouphead {
+    display: flex; align-items: center; gap: 9px;
+    margin-bottom: 4px;
+  }
+  .dr2-grouphead .gh-name { font-size: var(--step-0); font-weight: 700; color: #fff; }
+
+  /* r2.1 — icon-tile group headers, described rows */
+  .dr2-row {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 11px 0;
+    border-top: 1px solid var(--l3-border);
+    text-decoration: none;
+  }
+  .dr2-row:last-child { border-bottom: 1px solid var(--l3-border); }
+  .dr2-row .rw-body { flex: 1; min-width: 0; }
+  .dr2-row .rw-top { display: flex; align-items: baseline; gap: 8px; }
+  .dr2-row .rw-name { font-size: var(--step-0); font-weight: 600; color: #fff; flex: 1; }
+  .dr2-row .rw-go { color: var(--cat-accent); display: flex; }
+  .dr2-row .rw-desc { font-size: var(--step--1); color: var(--l3-text-subtle); margin: 3px 0 0; }
+  .dr2-row:hover .rw-name { color: var(--cat-accent); }
+  .dr2-row .rw-icon { color: var(--cat-accent); display: flex; padding-top: 1px; }
+
+  /* r2.2 — accent-underline group headers, compact rows */
+  .dr2-grouphead-rule {
+    display: flex; align-items: center; gap: 8px;
+    padding-bottom: 7px;
+    border-bottom: 2px solid var(--cat-accent);
+    margin-bottom: 6px;
+  }
+  .dr2-grouphead-rule .gh-name { font-size: var(--step-0); font-weight: 700; color: #fff; }
+  .dr2-compact {
+    display: flex; align-items: baseline; gap: 8px;
+    padding: 9px 0;
+    text-decoration: none;
+    border-bottom: 1px solid var(--l3-border);
+  }
+  .dr2-compact:last-child { border-bottom: none; }
+  .dr2-compact .cp-name { font-size: var(--step-0); font-weight: 600; color: #fff; }
+  .dr2-compact .cp-meta {
+    margin-left: auto; font-size: var(--step--1);
+    color: var(--l3-text-subtle); white-space: nowrap;
+  }
+  .dr2-compact:hover .cp-name { color: var(--cat-accent); }
+
+  /* r2.3 — tinted group cards, roomy rows */
+  .dr2-card {
+    border-radius: var(--radius-md);
+    background: linear-gradient(180deg, var(--cat-soft), transparent 80%);
+    border: 1px solid color-mix(in srgb, var(--cat-accent) 22%, transparent);
+    padding: 13px 14px;
+  }
+  .dr2-card + .dr2-card { margin-top: 12px; }
+  .dr2-card .dc-head {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 10px;
+  }
+  .dr2-card .dc-name { font-size: var(--step-0); font-weight: 700; color: #fff; }
+  .dr2-card .dc-row {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 8px 0;
+    text-decoration: none;
+  }
+  .dr2-card .dc-row + .dc-row {
+    border-top: 1px solid color-mix(in srgb, var(--cat-accent) 16%, transparent);
+  }
+  .dr2-card .dc-rw-name { font-size: var(--step-0); font-weight: 600; color: #fff; flex: 1; }
+  .dr2-card .dc-rw-go { color: var(--cat-accent); display: flex; }
+  .dr2-card .dc-rw-desc { font-size: var(--step--1); color: var(--l3-text-subtle); margin: 2px 0 0; }
+  .dr2-card .dc-row:hover .dc-rw-name { color: var(--cat-accent); }
+
+  /* r2.4 — count-badged group headers, two-line rows + type */
+  .dr2-grouphead-count {
+    display: flex; align-items: center; gap: 9px;
+    margin-bottom: 8px;
+  }
+  .dr2-grouphead-count .gh-name { font-size: var(--step-0); font-weight: 700; color: #fff; }
+  .dr2-grouphead-count .gh-count {
+    margin-left: auto;
+    font-size: var(--step--1); font-weight: 700;
+    color: var(--cat-accent);
+    background: var(--cat-soft);
+    border-radius: 999px;
+    padding: 2px 8px;
+  }
+  .dr2-typed {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 0;
+    border-top: 1px solid var(--l3-border);
+    text-decoration: none;
+  }
+  .dr2-typed:last-child { border-bottom: 1px solid var(--l3-border); }
+  .dr2-typed .ty-body { flex: 1; min-width: 0; }
+  .dr2-typed .ty-top { display: flex; align-items: baseline; gap: 8px; }
+  .dr2-typed .ty-name { font-size: var(--step-0); font-weight: 600; color: #fff; flex: 1; }
+  .dr2-typed .ty-go { color: var(--cat-accent); display: flex; }
+  .dr2-typed .ty-foot {
+    display: flex; align-items: center; gap: 6px;
+    margin-top: 4px;
+    font-size: var(--step--1); color: var(--l3-text-subtle);
+  }
+  .dr2-typed .ty-icon { color: var(--cat-accent); display: flex; padding-top: 1px; }
+  .dr2-typed:hover .ty-name { color: var(--cat-accent); }
+
+  @media (max-width: 880px) {
+    .hub2-cols { grid-template-columns: 1fr; }
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     ROUND 3 · FINAL — locked directions
+     One chosen option per pattern, polished. Cross-cutting: every
+     Level 3 resource carries a real one-line "what you'll find"
+     description. These are the implementation targets.
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* Locked-direction callout — green, distinct from the round-2 baseline note */
+  .locked-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    padding: 9px 13px;
+    border-radius: var(--radius-sm);
+    background: var(--grass-3);
+    border: 1px solid var(--grass-6);
+    font-size: var(--step--1);
+    color: var(--grass-11);
+  }
+  .locked-note .lc { color: var(--grass-11); }
+  .locked-note strong { font-weight: 700; color: var(--grass-12); }
+  .round-divider .round-tag.is-final .lc { color: var(--wrmp-green); }
+
+  /* ── PATTERN 1 · INLINE — FINAL ────────────────────────────────
+     Category-led compact card + a "what you'll find" description.
+     Reads: category (icon + word) → resource name → description.
+     Sits at the foot of a light story-panel step. */
+  .p1f {
+    display: block;            /* it's an <a> — keep the dark card a block box */
+    margin-top: 16px;
+    padding: 14px 15px;
+    text-decoration: none;
+  }
+  .p1f .p1f-lead {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .p1f .p1f-body { flex: 1; min-width: 0; }
+  .p1f .p1f-cat {
+    margin-bottom: 3px;
+  }
+  .p1f .p1f-name {
+    font-size: var(--step-0);
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.3;
+  }
+  .p1f .p1f-desc {
+    font-size: var(--step--1);
+    color: var(--l3-text-subtle);
+    line-height: 1.5;
+    margin: 4px 0 0;
+  }
+  .p1f .p1f-go {
+    flex-shrink: 0;
+    color: var(--cat-accent);
+    display: flex;
+    align-items: center;
+    padding-top: 1px;
+  }
+  .p1f:hover .p1f-name { color: var(--cat-accent); }
+
+  /* ── PATTERN 2 · END-CARD HUB — FINAL ──────────────────────────
+     Tinted category panels in a flexible auto layout. 1, 2, or 3
+     panels sit naturally; each panel sizes to its own content.
+     flex-wrap + flex-basis gives content-driven, uneven columns. */
+  .hubf {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .hubf-panel {
+    /* Grow to share space, but never narrower than a readable column.
+       A panel with more items naturally claims more height; width is
+       shared. min-width keeps single panels from spanning too wide. */
+    flex: 1 1 240px;
+    min-width: 240px;
+    max-width: 420px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(180deg, var(--cat-soft), transparent 72%);
+    border: 1px solid color-mix(in srgb, var(--cat-accent) 24%, transparent);
+    padding: 18px;
+  }
+  .hubf-panel-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 12px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid color-mix(in srgb, var(--cat-accent) 22%, transparent);
+  }
+  .hubf-panel-head .cat-name {
+    font-size: var(--step-1);
+    font-weight: 600;
+    color: #fff;
+  }
+  .hubf-panel-head .cat-count {
+    margin-left: auto;
+    font-size: var(--step--1);
+    font-weight: 700;
+    color: var(--cat-accent);
+    background: var(--cat-soft);
+    border-radius: 999px;
+    padding: 2px 9px;
+  }
+  .hubf-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 13px 0;
+    text-decoration: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--cat-accent) 16%, transparent);
+  }
+  .hubf-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .hubf-item .hf-icon {
+    flex-shrink: 0;
+    color: var(--cat-accent);
+    display: flex;
+    padding-top: 1px;
+  }
+  .hubf-item .hf-body { flex: 1; min-width: 0; }
+  .hubf-item .hf-top {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .hubf-item .hf-name {
+    font-size: var(--step-0);
+    font-weight: 600;
+    color: #fff;
+    flex: 1;
+  }
+  .hubf-item .hf-go {
+    flex-shrink: 0;
+    color: var(--cat-accent);
+    display: flex;
+    align-self: center;
+  }
+  .hubf-item .hf-desc {
+    font-size: var(--step--1);
+    color: var(--l3-text-subtle);
+    line-height: 1.5;
+    margin: 4px 0 0;
+  }
+  .hubf-item:hover .hf-name { color: var(--cat-accent); }
+
+  /* Config caption — labels the two flex demo configurations */
+  .config-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: var(--step-0);
+    font-weight: 600;
+    color: var(--l3-text);
+    margin: 0 0 12px;
+  }
+  .config-label .config-tag {
+    font-size: var(--step--1);
+    font-weight: 700;
+    color: var(--l3-accent);
+    background: var(--l3-accent-soft);
+    border-radius: var(--radius-sm);
+    padding: 2px 9px;
+  }
+  .mock-endcard .config-block + .config-block { margin-top: 28px; }
+
+  /* ── PATTERN 3 · DRAWER — FINAL ────────────────────────────────
+     Icon-tile D/T/S group headers, small leading row icons, and a
+     fuller one-line description under each resource name. */
+  .drf-group + .drf-group { margin-top: 22px; }
+  .drf-grouphead {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .drf-grouphead .gh-name {
+    font-size: var(--step-0);
+    font-weight: 700;
+    color: #fff;
+  }
+  .drf-grouphead .gh-count {
+    margin-left: auto;
+    font-size: var(--step--1);
+    font-weight: 700;
+    color: var(--cat-accent);
+    background: var(--cat-soft);
+    border-radius: 999px;
+    padding: 2px 8px;
+  }
+  .drf-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 0;
+    border-top: 1px solid var(--l3-border);
+    text-decoration: none;
+  }
+  .drf-row:last-child { border-bottom: 1px solid var(--l3-border); }
+  .drf-row .rw-icon {
+    flex-shrink: 0;
+    color: var(--cat-accent);
+    display: flex;
+    padding-top: 2px;
+  }
+  .drf-row .rw-body { flex: 1; min-width: 0; }
+  .drf-row .rw-top {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .drf-row .rw-name {
+    font-size: var(--step-0);
+    font-weight: 600;
+    color: #fff;
+    flex: 1;
+    line-height: 1.3;
+  }
+  .drf-row .rw-go {
+    flex-shrink: 0;
+    color: var(--cat-accent);
+    display: flex;
+  }
+  .drf-row .rw-desc {
+    font-size: var(--step--1);
+    color: var(--l3-text-subtle);
+    line-height: 1.5;
+    margin: 4px 0 0;
+  }
+  .drf-row:hover .rw-name { color: var(--cat-accent); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ═══ Page intro ═══ -->
+  <header class="page-head">
+    <h1>Level 3 Integration — Component &amp; Content Specimen</h1>
+    <p class="lede">
+      Three handoff patterns for how a WRMP exhibit points a viewer to deeper
+      resources — inline per-step, end-card hub, persistent drawer. Rounds 1
+      and 2 explored fifteen options and their refinements;
+      <strong>round 3</strong> is convergence — the locked, polished final of
+      the one option the client chose per pattern. Rounds 1 and 2 stay below
+      for history; the <strong>Round 3 · Final</strong> block in each pattern
+      is the implementation target.
+    </p>
+    <div class="thesis">
+      <div class="thesis-mark">▾</div>
+      <p>
+        <strong>The locked system:</strong> <strong>Data · Tools ·
+        Science</strong> is the organizing taxonomy across all three patterns,
+        each category carrying one fixed Lucide icon and accent everywhere
+        (<strong>Data</strong> · database · teal, <strong>Tools</strong> ·
+        compass · green, <strong>Science</strong> · flask · amber). The
+        round-3 cross-cutting requirement: <strong>every Level 3 resource
+        carries a real one-line description</strong> of what the viewer will
+        find. The dark "deeper-data" identity from round 1 holds throughout.
+      </p>
+    </div>
+  </header>
+
+  <!-- ════════════════════════════════════════════════════════════
+       PATTERN 1 · INLINE PER-STEP
+       ════════════════════════════════════════════════════════════ -->
+  <section class="pattern-section">
+    <div class="section-head">
+      <h2>Pattern 1 · Inline per-step</h2>
+      <p class="section-desc">
+        A dark "go deeper" module at the foot of a story-panel step, linking
+        to the one Level 3 resource that matches that step. Sits inside a
+        <em>light</em> panel — so it's a self-contained dark mini-module.
+        The ladder adds content substance rung by rung.
+      </p>
+    </div>
+
+    <!-- Option 1 — Minimal -->
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">1 / 5</span>
+        <h3>Typed text link</h3>
+        <p class="opt-idea">Eyebrow plus a single typed link — the type word
+          tells the viewer what kind of resource waits, no box.</p>
+        <span class="density-tag" data-density="Minimal">Minimal</span>
+      </div>
+      <div class="mock-step">
+        <p class="kicker">Step 2 of 6</p>
+        <h4>One network, 119 monitoring stations</h4>
+        <p class="step-body">
+          The WRMP station network spans the whole estuary — South Bay to
+          Suisun Marsh — sampling fish and habitat on a shared schedule so
+          results compare cleanly across regions.
+        </p>
+        <div class="p1o1">
+          <div class="l3-module-eyebrow"><span class="dot"></span> Go deeper</div>
+          <p style="margin:6px 0 0;">
+            <span style="color:var(--l3-text-subtle);font-size:var(--step-0);">Interactive map — </span>
+            <a class="l3-link" href="#" style="color:var(--cyan-12);">See all 119 stations in EcoAtlas</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Option 2 — Minimal/Moderate -->
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">2 / 5</span>
+        <h3>Label + link + type chip</h3>
+        <p class="opt-idea">A thin dark bar: eyebrow, link, and a resource-type
+          chip pinned to the end so the kind of resource is unmistakable.</p>
+        <span class="density-tag" data-density="Minimal">Minimal</span>
+      </div>
+      <div class="mock-step">
+        <p class="kicker">Step 3 of 6</p>
+        <h4>Every fish, identified to species</h4>
+        <p class="step-body">
+          Field crews log each fish to species, building a catalog that now
+          covers 237 taxa across the estuary's open water, channels and
+          marsh edges.
+        </p>
+        <div class="l3-module p1o2">
+          <div class="row">
+            <div class="l3-module-eyebrow"><span class="dot"></span> Go deeper</div>
+            <a class="l3-link" href="#">Browse the species catalog</a>
+            <span class="l3-type"><span class="l3-type-glyph">▦</span> Dataset</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Option 3 — Moderate -->
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">3 / 5</span>
+        <h3>Compact card</h3>
+        <p class="opt-idea">Icon + title + type chip in a single dark card row
+          — scannable as an object, still one line tall.</p>
+        <span class="density-tag" data-density="Moderate">Moderate</span>
+      </div>
+      <div class="mock-step">
+        <p class="kicker">Step 4 of 6</p>
+        <h4>Mapping the estuary's wetlands</h4>
+        <p class="step-body">
+          Restoration projects, historical baylands and current habitat all
+          live in one geospatial picture — the foundation the monitoring
+          design is built on.
+        </p>
+        <div class="l3-module p1o3">
+          <div class="l3-module-eyebrow" style="margin-bottom:9px;"><span class="dot"></span> Go deeper</div>
+          <a class="l3-card" href="#" style="background:transparent;border:none;padding:0;">
+            <div class="l3-icon">◬</div>
+            <div class="l3-card-body card-row" style="display:flex;align-items:center;">
+              <div class="l3-card-title">
+                <span class="name">EcoAtlas — wetlands viewer</span>
+              </div>
+              <span class="l3-type"><span class="l3-type-glyph">◰</span> Interactive map</span>
+              <span class="go" style="margin-left:auto;">↗</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Option 4 — Moderate/Rich -->
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">4 / 5</span>
+        <h3>Card + one-line description</h3>
+        <p class="opt-idea">The compact card gains a "what you'll find" line —
+          the viewer knows why to go before they click.</p>
+        <span class="density-tag" data-density="Moderate">Moderate</span>
+      </div>
+      <div class="mock-step">
+        <p class="kicker">Step 5 of 6</p>
+        <h4>Why these questions, this design</h4>
+        <p class="step-body">
+          The monitoring program isn't ad hoc — every station and protocol
+          traces back to a set of regional management questions defined by
+          the WRMP partners.
+        </p>
+        <div class="l3-module p1o4">
+          <div class="l3-module-eyebrow" style="margin-bottom:11px;"><span class="dot"></span> Go deeper</div>
+          <a class="l3-card" href="#">
+            <div class="l3-icon">❖</div>
+            <div class="l3-card-body">
+              <div class="l3-card-title">
+                <span class="name">WRMP Science Framework</span>
+                <span class="go">↗</span>
+              </div>
+              <p class="l3-card-desc">
+                The full monitoring design — management questions, indicators,
+                and how the station network answers them.
+              </p>
+              <div class="l3-card-foot">
+                <span class="l3-type"><span class="l3-type-glyph">❖</span> Framework</span>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Option 5 — Rich -->
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">5 / 5</span>
+        <h3>Rich card</h3>
+        <p class="opt-idea">Icon + title + description + a metadata footer
+          (records, format, destination) — the fullest single-resource
+          handoff.</p>
+        <span class="density-tag" data-density="Rich">Rich</span>
+      </div>
+      <div class="mock-step">
+        <p class="kicker">Step 6 of 6</p>
+        <h4>Take the data with you</h4>
+        <p class="step-body">
+          Everything behind this exhibit — the stations, the catches, the
+          habitat layers — is open. Start with the raw station network.
+        </p>
+        <div class="l3-module p1o5">
+          <div class="l3-module-eyebrow"><span class="dot"></span> Go deeper</div>
+          <a class="l3-card" href="#" data-kind="download">
+            <div class="l3-icon" data-kind="download">⬇</div>
+            <div class="l3-card-body">
+              <div class="l3-card-title">
+                <span class="name">Station network dataset</span>
+                <span class="go">↓</span>
+              </div>
+              <p class="l3-card-desc">
+                Every WRMP monitoring station with coordinates, region, and
+                habitat type — the spatial backbone of the program.
+              </p>
+              <div class="l3-card-foot l3-meta">
+                <span class="l3-type" data-kind="download"><span class="l3-type-glyph">⬇</span> Dataset</span>
+                <span>119 records</span>
+                <span>GeoJSON · CSV</span>
+                <span>Geospatial Data Catalog</span>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ───── ROUND 2 · REFINEMENTS ───── -->
+    <div class="option">
+      <div class="round-divider">
+        <span class="round-tag"><i data-lucide="git-branch"></i> Round 2 · Refinements</span>
+        <p class="round-note">
+          Round-1 options 2 (label + link + type chip) and 3 (compact card)
+          were closest — these refinements build on that compact form and fold
+          the <strong>Data / Tools / Science</strong> category in as the
+          leading signal. Each category carries one fixed icon + accent
+          (Data · teal, Tools · green, Science · amber).
+        </p>
+        <span class="baseline-note">
+          <strong>Baseline:</strong> round-1 options 2 + 3 — the compact inline form.
+        </span>
+      </div>
+    </div>
+
+    <!-- R2.1 — category-led compact card -->
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">R2 · 1 / 4</span>
+        <h3>Category-led compact card</h3>
+        <p class="opt-idea">The category icon + word lead the card — the
+          viewer reads "this is Data" before the resource name.</p>
+        <span class="density-tag" data-density="Moderate">Moderate</span>
+      </div>
+      <div class="mock-step">
+        <p class="kicker">Step 2 of 6</p>
+        <h4>One network, 119 monitoring stations</h4>
+        <p class="step-body">
+          The WRMP station network spans the whole estuary — South Bay to
+          Suisun Marsh — sampling fish and habitat on a shared schedule.
+        </p>
+        <div class="l3-module p1r1" data-cat="data">
+          <div class="lead">
+            <div class="cat-icon"><i data-lucide="database" class="lc"></i></div>
+            <div class="lead-body">
+              <span class="cat-tag">Data</span>
+              <div class="lead-name">Station network — EcoAtlas</div>
+            </div>
+            <a class="lead-go" href="#" aria-label="Open">
+              <i data-lucide="arrow-up-right" class="lc"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- R2.2 — category-tinted module -->
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">R2 · 2 / 4</span>
+        <h3>Category-tinted module</h3>
+        <p class="opt-idea">The whole module takes the category's accent —
+          tint, border, icon — so the category reads at a glance, even
+          peripherally.</p>
+        <span class="density-tag" data-density="Moderate">Moderate</span>
+      </div>
+      <div class="mock-step">
+        <p class="kicker">Step 4 of 6</p>
+        <h4>Mapping the estuary's wetlands</h4>
+        <p class="step-body">
+          Restoration projects, historical baylands and current habitat all
+          live in one geospatial picture.
+        </p>
+        <div class="l3-module p1r2" data-cat="tools">
+          <div class="tinted-head">
+            <i data-lucide="compass" class="lc"></i>
+            <span class="cat-tag">Tools</span>
+          </div>
+          <div class="tinted-row">
+            <span class="tinted-name">EcoAtlas — wetlands viewer</span>
+            <a class="tinted-go" href="#" aria-label="Open">
+              <i data-lucide="arrow-up-right" class="lc"></i>
+            </a>
+          </div>
+          <p class="tinted-desc">Live geospatial maps of every wetland and
+            restoration project in the estuary.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- R2.3 — "connects to → [Category]" framing -->
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">R2 · 3 / 4</span>
+        <h3>"Connects to" framing</h3>
+        <p class="opt-idea">A per-step relationship line — "this step connects
+          to → Science" — framing the handoff as a thread, not a button.</p>
+        <span class="density-tag" data-density="Moderate">Moderate</span>
+      </div>
+      <div class="mock-step">
+        <p class="kicker">Step 5 of 6</p>
+        <h4>Why these questions, this design</h4>
+        <p class="step-body">
+          Every station and protocol traces back to a set of regional
+          management questions defined by the WRMP partners.
+        </p>
+        <div class="l3-module p1r3" data-cat="science">
+          <div class="connects">
+            <span>This step connects to</span>
+            <span class="arrow"><i data-lucide="arrow-right" class="lc-sm lc"></i></span>
+            <span class="cat-tag"><i data-lucide="flask-conical" class="lc"></i> Science</span>
+          </div>
+          <a class="connect-link" href="#">
+            <span class="name">WRMP Science Framework</span>
+            <span class="go"><i data-lucide="arrow-up-right" class="lc"></i></span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- R2.4 — category strip with icon rail -->
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">R2 · 4 / 4</span>
+        <h3>Category icon-rail strip</h3>
+        <p class="opt-idea">A tinted icon rail on the left names the category;
+          the rail is the category, the body is the resource.</p>
+        <span class="density-tag" data-density="Rich">Rich</span>
+      </div>
+      <div class="mock-step">
+        <p class="kicker">Step 6 of 6</p>
+        <h4>Take the data with you</h4>
+        <p class="step-body">
+          Everything behind this exhibit — the stations, the catches, the
+          habitat layers — is open.
+        </p>
+        <div class="l3-module p1r4" data-cat="data">
+          <div class="rail"><i data-lucide="database" class="lc lc-lg"></i></div>
+          <div class="strip-body">
+            <div class="strip-top">
+              <span class="cat-tag">Data</span>
+            </div>
+            <a class="connect-link" href="#" style="display:flex;align-items:center;gap:8px;text-decoration:none;">
+              <span class="strip-name">Station network dataset</span>
+              <span class="strip-go"><i data-lucide="arrow-down" class="lc"></i></span>
+            </a>
+            <p class="strip-desc">119 records · GeoJSON · CSV · Geospatial Data Catalog</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ───── ROUND 3 · FINAL ───── -->
+    <div class="option">
+      <div class="round-divider">
+        <span class="round-tag is-final"><i data-lucide="lock"></i> Round 3 · Final</span>
+        <p class="round-note">
+          Locked: round-2 option 1, the category-led compact card — polished,
+          and now carrying a one-line "what you'll find" description. The card
+          reads top to bottom: category (icon + word) → resource name →
+          description. Compact enough to live at the foot of a story-panel
+          step.
+        </p>
+        <span class="locked-note">
+          <i data-lucide="check" class="lc-sm lc"></i>
+          <span><strong>Locked direction.</strong> This is the inline
+          implementation target.</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">FINAL</span>
+        <h3>Category-led compact card</h3>
+        <p class="opt-idea">Category leads, name anchors, description tells the
+          viewer what they'll find before they leave the narrative.</p>
+        <span class="density-tag" data-density="Moderate">Moderate</span>
+      </div>
+      <div class="mock-step">
+        <p class="kicker">Step 2 of 6</p>
+        <h4>One network, 119 monitoring stations</h4>
+        <p class="step-body">
+          The WRMP station network spans the whole estuary — South Bay to
+          Suisun Marsh — sampling fish and habitat on a shared schedule so
+          results compare cleanly across regions.
+        </p>
+        <a class="l3-module p1f" data-cat="data" href="#">
+          <div class="p1f-lead">
+            <div class="cat-icon"><i data-lucide="database" class="lc"></i></div>
+            <div class="p1f-body">
+              <span class="cat-tag p1f-cat">Data</span>
+              <div class="p1f-name">Station network — EcoAtlas</div>
+              <p class="p1f-desc">
+                All 119 monitoring stations mapped, with coordinates, region
+                and habitat type — the spatial backbone of the program.
+              </p>
+            </div>
+            <span class="p1f-go"><i data-lucide="arrow-up-right" class="lc"></i></span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════
+       PATTERN 2 · END-CARD HUB
+       ════════════════════════════════════════════════════════════ -->
+  <section class="pattern-section">
+    <div class="section-head">
+      <h2>Pattern 2 · End-card hub</h2>
+      <p class="section-desc">
+        A grouped hub on the exhibit's closing card. The end-card is already
+        dark, so the deeper-data identity is the surface itself. Five
+        genuinely different <em>structures</em> — not five re-skins of one
+        flat link row.
+      </p>
+    </div>
+
+    <!-- Option 1 — Described full-width rows -->
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">1 / 5</span>
+        <h3>Described rows</h3>
+        <p class="opt-idea">Full-width rows, each a destination with type chip
+          and a description — generous, linear, easy to read top to bottom.</p>
+        <span class="density-tag" data-density="Moderate">Moderate</span>
+      </div>
+      <div class="mock-endcard">
+        <p class="endcard-kicker">▾ Go deeper</p>
+        <h4>Explore the data behind this exhibit</h4>
+        <p class="endcard-sub">Four ways to keep going — the live maps, the
+          raw datasets, and the science that frames it all.</p>
+        <div class="hub-rows">
+          <a class="hub-row" href="#">
+            <div class="l3-icon">◰</div>
+            <div class="hub-row-body">
+              <div class="hub-row-top">
+                <span class="hub-row-name">EcoAtlas</span>
+                <span class="l3-type"><span class="l3-type-glyph">◰</span> Interactive map</span>
+              </div>
+              <p class="hub-row-desc">Interactive geospatial maps and tools for
+                every wetland, restoration project and monitoring station in
+                the estuary.</p>
+            </div>
+            <span class="hub-row-go">↗</span>
+          </a>
+          <a class="hub-row" href="#">
+            <div class="l3-icon">❖</div>
+            <div class="hub-row-body">
+              <div class="hub-row-top">
+                <span class="hub-row-name">WRMP Science Framework</span>
+                <span class="l3-type"><span class="l3-type-glyph">❖</span> Framework</span>
+              </div>
+              <p class="hub-row-desc">The monitoring design — management
+                questions, indicators, and the logic linking them to the
+                station network.</p>
+            </div>
+            <span class="hub-row-go">↗</span>
+          </a>
+          <a class="hub-row" href="#" data-kind="download">
+            <div class="l3-icon" data-kind="download">⬇</div>
+            <div class="hub-row-body">
+              <div class="hub-row-top">
+                <span class="hub-row-name">Station network dataset</span>
+                <span class="l3-type" data-kind="download"><span class="l3-type-glyph">⬇</span> Dataset</span>
+              </div>
+              <p class="hub-row-desc">All 119 monitoring stations with
+                coordinates, region and habitat type — GeoJSON and CSV.</p>
+            </div>
+            <span class="hub-row-go">↓</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Option 2 — Destination card grid -->
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">2 / 5</span>
+        <h3>Destination card grid</h3>
+        <p class="opt-idea">A grid of equal-weight destination cards — each
+          icon, type and short blurb — for browsing by resource, not reading
+          a list.</p>
+        <span class="density-tag" data-density="Moderate">Moderate</span>
+      </div>
+      <div class="mock-endcard">
+        <p class="endcard-kicker">▾ Go deeper</p>
+        <h4>Where to go next</h4>
+        <p class="endcard-sub">Pick a destination — each opens a deeper layer
+          of the estuary's monitoring data.</p>
+        <div class="hub-grid">
+          <a class="l3-card" href="#">
+            <div class="l3-card-title">
+              <span class="name">EcoAtlas</span>
+              <span class="go">↗</span>
+            </div>
+            <span class="l3-type"><span class="l3-type-glyph">◰</span> Interactive map</span>
+            <p class="l3-card-desc">Live geospatial maps of wetlands,
+              restoration projects and stations.</p>
+          </a>
+          <a class="l3-card" href="#">
+            <div class="l3-card-title">
+              <span class="name">State of Our Estuary</span>
+              <span class="go">↗</span>
+            </div>
+            <span class="l3-type"><span class="l3-type-glyph">▤</span> Report</span>
+            <p class="l3-card-desc">Regional status reporting on the estuary's
+              health and trends.</p>
+          </a>
+          <a class="l3-card" href="#">
+            <div class="l3-card-title">
+              <span class="name">SF Estuary Wetlands Profile</span>
+              <span class="go">↗</span>
+            </div>
+            <span class="l3-type"><span class="l3-type-glyph">◧</span> Tool</span>
+            <p class="l3-card-desc">EcoAtlas restoration dashboard tracking
+              acres gained across the bay.</p>
+          </a>
+          <a class="l3-card" href="#" data-kind="download">
+            <div class="l3-card-title">
+              <span class="name">Species catalog</span>
+              <span class="go">↓</span>
+            </div>
+            <span class="l3-type" data-kind="download"><span class="l3-type-glyph">⬇</span> Dataset</span>
+            <p class="l3-card-desc">237 fish taxa logged across estuary
+              habitats — CSV.</p>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Option 3 — Categorized columns -->
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">3 / 5</span>
+        <h3>Categorized columns</h3>
+        <p class="opt-idea">Three labelled columns — Data, Tools, Science — so
+          the viewer self-sorts by what they want, not by scrolling a list.</p>
+        <span class="density-tag" data-density="Rich">Rich</span>
+      </div>
+      <div class="mock-endcard">
+        <p class="endcard-kicker">▾ Go deeper</p>
+        <h4>Three ways into the deeper data</h4>
+        <p class="endcard-sub">Sorted by intent — grab a dataset, open a live
+          tool, or read the science behind the program.</p>
+        <div class="hub-cols">
+          <div class="hub-col">
+            <div class="hub-col-head">
+              <div class="l3-icon" data-kind="download" style="width:30px;height:30px;font-size:15px;">⬇</div>
+              <p class="l3-group-label">Data</p>
+            </div>
+            <div class="hub-col-item">
+              <a href="#"><span class="item-name">Station network ↓</span>
+                <p class="item-desc">119 records · GeoJSON · CSV</p></a>
+            </div>
+            <div class="hub-col-item">
+              <a href="#"><span class="item-name">Species catalog ↓</span>
+                <p class="item-desc">237 records · CSV</p></a>
+            </div>
+            <div class="hub-col-item">
+              <a href="#"><span class="item-name">Geospatial Data Catalog ↗</span>
+                <p class="item-desc">Browse all WRMP raw datasets</p></a>
+            </div>
+          </div>
+          <div class="hub-col">
+            <div class="hub-col-head">
+              <div class="l3-icon" style="width:30px;height:30px;font-size:15px;">◰</div>
+              <p class="l3-group-label">Tools</p>
+            </div>
+            <div class="hub-col-item">
+              <a href="#"><span class="item-name">EcoAtlas ↗</span>
+                <p class="item-desc">Interactive estuary maps &amp; tools</p></a>
+            </div>
+            <div class="hub-col-item">
+              <a href="#"><span class="item-name">Wetlands Profile ↗</span>
+                <p class="item-desc">Restoration acreage dashboard</p></a>
+            </div>
+          </div>
+          <div class="hub-col">
+            <div class="hub-col-head">
+              <div class="l3-icon" style="width:30px;height:30px;font-size:15px;">❖</div>
+              <p class="l3-group-label">Science</p>
+            </div>
+            <div class="hub-col-item">
+              <a href="#"><span class="item-name">Science Framework ↗</span>
+                <p class="item-desc">Monitoring design &amp; questions</p></a>
+            </div>
+            <div class="hub-col-item">
+              <a href="#"><span class="item-name">State of Our Estuary ↗</span>
+                <p class="item-desc">Regional status reporting</p></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Option 4 — Featured hero + secondary list -->
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">4 / 5</span>
+        <h3>Featured hero + list</h3>
+        <p class="opt-idea">One big "download the data" hero action carries
+          the primary intent; a tighter secondary list holds the rest.</p>
+        <span class="density-tag" data-density="Rich">Rich</span>
+      </div>
+      <div class="mock-endcard">
+        <p class="endcard-kicker">▾ Go deeper</p>
+        <h4>Take the data further</h4>
+        <p class="endcard-sub">The whole exhibit runs on open data — start
+          there, then explore the wider toolset.</p>
+        <div class="hub-featured">
+          <a class="hub-hero" href="#" data-kind="download">
+            <span class="l3-type" data-kind="download" style="align-self:flex-start;">
+              <span class="l3-type-glyph">⬇</span> Dataset</span>
+            <span class="hero-name">Download the station network</span>
+            <span class="hero-desc">All 119 WRMP monitoring stations —
+              coordinates, region, habitat type. The spatial backbone of every
+              chart in this exhibit.</span>
+            <span class="hub-row-go" style="position:static;"></span>
+            <span class="hero-cta">Get the data ↓</span>
+          </a>
+          <div class="hub-secondary">
+            <p class="l3-group-label">Also worth a look</p>
+            <div class="stack-12">
+              <a class="l3-link" href="#" style="display:flex;">EcoAtlas — interactive estuary maps</a>
+              <a class="l3-link" href="#" style="display:flex;">WRMP Science Framework</a>
+              <a class="l3-link" href="#" style="display:flex;">State of Our Estuary report</a>
+              <a class="l3-link" href="#" data-kind="download" style="display:flex;">Species catalog (CSV)</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Option 5 — Directory / index -->
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">5 / 5</span>
+        <h3>Directory index</h3>
+        <p class="opt-idea">A dense directory — type, name + description, and
+          a metadata column — for the viewer who wants the full inventory at
+          a glance.</p>
+        <span class="density-tag" data-density="Rich">Rich</span>
+      </div>
+      <div class="mock-endcard">
+        <p class="endcard-kicker">▾ Go deeper</p>
+        <h4>The full Level 3 inventory</h4>
+        <p class="endcard-sub">Every deeper resource tied to this exhibit, with
+          what it is and what's inside.</p>
+        <div class="hub-dir">
+          <a class="hub-dir-item" href="#">
+            <div class="hub-dir-type">
+              <span class="l3-type"><span class="l3-type-glyph">◰</span> Interactive map</span>
+            </div>
+            <div>
+              <span class="dir-name">EcoAtlas</span>
+              <p class="dir-desc">Geospatial maps &amp; tools for estuary
+                wetlands and monitoring stations.</p>
+            </div>
+            <div class="hub-dir-meta">opens ecoatlas.org</div>
+          </a>
+          <a class="hub-dir-item" href="#" data-kind="download">
+            <div class="hub-dir-type">
+              <span class="l3-type" data-kind="download"><span class="l3-type-glyph">⬇</span> Dataset</span>
+            </div>
+            <div>
+              <span class="dir-name">Station network</span>
+              <p class="dir-desc">Monitoring stations with coordinates,
+                region and habitat type.</p>
+            </div>
+            <div class="hub-dir-meta">119 records<br />GeoJSON · CSV</div>
+          </a>
+          <a class="hub-dir-item" href="#" data-kind="download">
+            <div class="hub-dir-type">
+              <span class="l3-type" data-kind="download"><span class="l3-type-glyph">⬇</span> Dataset</span>
+            </div>
+            <div>
+              <span class="dir-name">Species catalog</span>
+              <p class="dir-desc">Every fish taxon logged across the
+                estuary's monitored habitats.</p>
+            </div>
+            <div class="hub-dir-meta">237 records<br />CSV · JSON</div>
+          </a>
+          <a class="hub-dir-item" href="#">
+            <div class="hub-dir-type">
+              <span class="l3-type"><span class="l3-type-glyph">❖</span> Framework</span>
+            </div>
+            <div>
+              <span class="dir-name">WRMP Science Framework</span>
+              <p class="dir-desc">Monitoring design, management questions and
+                indicators.</p>
+            </div>
+            <div class="hub-dir-meta">PDF · web</div>
+          </a>
+          <a class="hub-dir-item" href="#">
+            <div class="hub-dir-type">
+              <span class="l3-type"><span class="l3-type-glyph">▤</span> Report</span>
+            </div>
+            <div>
+              <span class="dir-name">State of Our Estuary</span>
+              <p class="dir-desc">Regional status reporting on estuary health
+                and long-term trends.</p>
+            </div>
+            <div class="hub-dir-meta">PDF</div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ───── ROUND 2 · REFINEMENTS ───── -->
+    <div class="option">
+      <div class="round-divider">
+        <span class="round-tag"><i data-lucide="git-branch"></i> Round 2 · Refinements</span>
+        <p class="round-note">
+          Refinements of the winning categorized-columns layout — varying the
+          column-header treatment, icon placement, list-vs-card density, and
+          how the category accent reads. Lucide icons replace the hand-rolled
+          glyphs; each category keeps one fixed icon + accent.
+        </p>
+        <span class="baseline-note">
+          <strong>Baseline:</strong> round-1 option 3 — categorized columns (Data | Tools | Science).
+        </span>
+      </div>
+    </div>
+
+    <!-- R2.1 — icon-chip headers, mini-card list -->
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">R2 · 1 / 4</span>
+        <h3>Icon-chip headers, mini-cards</h3>
+        <p class="opt-idea">Each column header is a category icon-tile + name;
+          resources are small raised mini-cards with a description line.</p>
+        <span class="density-tag" data-density="Moderate">Moderate</span>
+      </div>
+      <div class="mock-endcard">
+        <p class="endcard-kicker">▾ Go deeper</p>
+        <h4>Three ways into the deeper data</h4>
+        <p class="endcard-sub">Sorted by intent — grab a dataset, open a live
+          tool, or read the science behind the program.</p>
+        <div class="hub2-cols">
+          <div class="hub2-col" data-cat="data">
+            <div class="hub2-col-head-chip">
+              <div class="cat-icon"><i data-lucide="database" class="lc"></i></div>
+              <span class="cat-name">Data</span>
+            </div>
+            <a class="hub2-minicard" href="#">
+              <div class="mc-top">
+                <span class="mc-name">Station network</span>
+                <span class="mc-go"><i data-lucide="arrow-down" class="lc-sm lc"></i></span>
+              </div>
+              <p class="mc-desc">119 records · GeoJSON · CSV</p>
+            </a>
+            <a class="hub2-minicard" href="#">
+              <div class="mc-top">
+                <span class="mc-name">Species catalog</span>
+                <span class="mc-go"><i data-lucide="arrow-down" class="lc-sm lc"></i></span>
+              </div>
+              <p class="mc-desc">237 records · CSV</p>
+            </a>
+            <a class="hub2-minicard" href="#">
+              <div class="mc-top">
+                <span class="mc-name">Geospatial Data Catalog</span>
+                <span class="mc-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span>
+              </div>
+              <p class="mc-desc">Browse all WRMP raw datasets</p>
+            </a>
+          </div>
+          <div class="hub2-col" data-cat="tools">
+            <div class="hub2-col-head-chip">
+              <div class="cat-icon"><i data-lucide="compass" class="lc"></i></div>
+              <span class="cat-name">Tools</span>
+            </div>
+            <a class="hub2-minicard" href="#">
+              <div class="mc-top">
+                <span class="mc-name">EcoAtlas</span>
+                <span class="mc-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span>
+              </div>
+              <p class="mc-desc">Interactive estuary maps &amp; tools</p>
+            </a>
+            <a class="hub2-minicard" href="#">
+              <div class="mc-top">
+                <span class="mc-name">SF Estuary Wetlands Profile</span>
+                <span class="mc-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span>
+              </div>
+              <p class="mc-desc">Restoration acreage dashboard</p>
+            </a>
+          </div>
+          <div class="hub2-col" data-cat="science">
+            <div class="hub2-col-head-chip">
+              <div class="cat-icon"><i data-lucide="flask-conical" class="lc"></i></div>
+              <span class="cat-name">Science</span>
+            </div>
+            <a class="hub2-minicard" href="#">
+              <div class="mc-top">
+                <span class="mc-name">WRMP Science Framework</span>
+                <span class="mc-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span>
+              </div>
+              <p class="mc-desc">Monitoring design &amp; questions</p>
+            </a>
+            <a class="hub2-minicard" href="#">
+              <div class="mc-top">
+                <span class="mc-name">State of Our Estuary</span>
+                <span class="mc-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span>
+              </div>
+              <p class="mc-desc">Regional status reporting</p>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- R2.2 — accent top-rule headers, plain link list -->
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">R2 · 2 / 4</span>
+        <h3>Accent top-rule headers</h3>
+        <p class="opt-idea">A solid category-accent rule caps each column;
+          resources are a clean divided link list — lean and quick to scan.</p>
+        <span class="density-tag" data-density="Moderate">Moderate</span>
+      </div>
+      <div class="mock-endcard">
+        <p class="endcard-kicker">▾ Go deeper</p>
+        <h4>Explore the data behind this exhibit</h4>
+        <p class="endcard-sub">Three columns, sorted by what you want to do
+          next.</p>
+        <div class="hub2-cols">
+          <div class="hub2-col" data-cat="data">
+            <div class="hub2-col-head-rule">
+              <div class="cat-icon cat-icon-sm"><i data-lucide="database" class="lc"></i></div>
+              <span class="cat-name">Data</span>
+            </div>
+            <div class="hub2-linklist">
+              <a href="#"><span class="ll-name">Station network</span>
+                <span class="ll-go"><i data-lucide="arrow-down" class="lc-sm lc"></i></span></a>
+              <a href="#"><span class="ll-name">Species catalog</span>
+                <span class="ll-go"><i data-lucide="arrow-down" class="lc-sm lc"></i></span></a>
+              <a href="#"><span class="ll-name">Geospatial Data Catalog</span>
+                <span class="ll-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span></a>
+            </div>
+          </div>
+          <div class="hub2-col" data-cat="tools">
+            <div class="hub2-col-head-rule">
+              <div class="cat-icon cat-icon-sm"><i data-lucide="compass" class="lc"></i></div>
+              <span class="cat-name">Tools</span>
+            </div>
+            <div class="hub2-linklist">
+              <a href="#"><span class="ll-name">EcoAtlas</span>
+                <span class="ll-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span></a>
+              <a href="#"><span class="ll-name">SF Estuary Wetlands Profile</span>
+                <span class="ll-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span></a>
+            </div>
+          </div>
+          <div class="hub2-col" data-cat="science">
+            <div class="hub2-col-head-rule">
+              <div class="cat-icon cat-icon-sm"><i data-lucide="flask-conical" class="lc"></i></div>
+              <span class="cat-name">Science</span>
+            </div>
+            <div class="hub2-linklist">
+              <a href="#"><span class="ll-name">WRMP Science Framework</span>
+                <span class="ll-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span></a>
+              <a href="#"><span class="ll-name">State of Our Estuary</span>
+                <span class="ll-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- R2.3 — tinted column panels -->
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">R2 · 3 / 4</span>
+        <h3>Tinted column panels</h3>
+        <p class="opt-idea">Each column is its own softly category-tinted
+          panel — the three categories read as distinct zones, with described
+          rows inside.</p>
+        <span class="density-tag" data-density="Rich">Rich</span>
+      </div>
+      <div class="mock-endcard">
+        <p class="endcard-kicker">▾ Go deeper</p>
+        <h4>Where to go next</h4>
+        <p class="endcard-sub">Three deeper layers — pick the one that matches
+          what you came for.</p>
+        <div class="hub2-cols">
+          <div class="hub2-panel" data-cat="data">
+            <div class="hub2-panel-head">
+              <div class="cat-icon"><i data-lucide="database" class="lc"></i></div>
+              <span class="cat-name">Data</span>
+            </div>
+            <a class="hub2-panel-item" href="#">
+              <div class="pi-top"><span class="pi-name">Station network</span>
+                <span class="pi-go"><i data-lucide="arrow-down" class="lc-sm lc"></i></span></div>
+              <p class="pi-desc">All 119 stations — coordinates &amp; habitat.</p>
+            </a>
+            <a class="hub2-panel-item" href="#">
+              <div class="pi-top"><span class="pi-name">Species catalog</span>
+                <span class="pi-go"><i data-lucide="arrow-down" class="lc-sm lc"></i></span></div>
+              <p class="pi-desc">237 fish taxa across estuary habitats.</p>
+            </a>
+          </div>
+          <div class="hub2-panel" data-cat="tools">
+            <div class="hub2-panel-head">
+              <div class="cat-icon"><i data-lucide="compass" class="lc"></i></div>
+              <span class="cat-name">Tools</span>
+            </div>
+            <a class="hub2-panel-item" href="#">
+              <div class="pi-top"><span class="pi-name">EcoAtlas</span>
+                <span class="pi-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span></div>
+              <p class="pi-desc">Interactive maps of wetlands &amp; stations.</p>
+            </a>
+            <a class="hub2-panel-item" href="#">
+              <div class="pi-top"><span class="pi-name">Wetlands Profile</span>
+                <span class="pi-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span></div>
+              <p class="pi-desc">Restoration acreage dashboard.</p>
+            </a>
+          </div>
+          <div class="hub2-panel" data-cat="science">
+            <div class="hub2-panel-head">
+              <div class="cat-icon"><i data-lucide="flask-conical" class="lc"></i></div>
+              <span class="cat-name">Science</span>
+            </div>
+            <a class="hub2-panel-item" href="#">
+              <div class="pi-top"><span class="pi-name">Science Framework</span>
+                <span class="pi-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span></div>
+              <p class="pi-desc">Monitoring design &amp; management questions.</p>
+            </a>
+            <a class="hub2-panel-item" href="#">
+              <div class="pi-top"><span class="pi-name">State of Our Estuary</span>
+                <span class="pi-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span></div>
+              <p class="pi-desc">Regional status reporting.</p>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- R2.4 — dense directory inside columns -->
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">R2 · 4 / 4</span>
+        <h3>Dense directory columns</h3>
+        <p class="opt-idea">Each column header carries a count badge; rows are
+          a tight name + metadata directory — the fullest inventory per
+          category.</p>
+        <span class="density-tag" data-density="Rich">Rich</span>
+      </div>
+      <div class="mock-endcard">
+        <p class="endcard-kicker">▾ Go deeper</p>
+        <h4>The full Level 3 inventory</h4>
+        <p class="endcard-sub">Every deeper resource tied to this exhibit,
+          grouped and counted.</p>
+        <div class="hub2-cols">
+          <div class="hub2-col" data-cat="data">
+            <div class="hub2-dense-head">
+              <i data-lucide="database" class="lc-sm lc"></i>
+              <span class="cat-name">Data</span>
+              <span class="cat-count">3</span>
+            </div>
+            <div class="hub2-dense">
+              <a href="#"><span class="dn-name">Station network</span>
+                <span class="dn-meta">119 · GeoJSON</span></a>
+              <a href="#"><span class="dn-name">Species catalog</span>
+                <span class="dn-meta">237 · CSV</span></a>
+              <a href="#"><span class="dn-name">Data Catalog</span>
+                <span class="dn-meta">all sets</span></a>
+            </div>
+          </div>
+          <div class="hub2-col" data-cat="tools">
+            <div class="hub2-dense-head">
+              <i data-lucide="compass" class="lc-sm lc"></i>
+              <span class="cat-name">Tools</span>
+              <span class="cat-count">2</span>
+            </div>
+            <div class="hub2-dense">
+              <a href="#"><span class="dn-name">EcoAtlas</span>
+                <span class="dn-meta">web map</span></a>
+              <a href="#"><span class="dn-name">Wetlands Profile</span>
+                <span class="dn-meta">dashboard</span></a>
+            </div>
+          </div>
+          <div class="hub2-col" data-cat="science">
+            <div class="hub2-dense-head">
+              <i data-lucide="flask-conical" class="lc-sm lc"></i>
+              <span class="cat-name">Science</span>
+              <span class="cat-count">2</span>
+            </div>
+            <div class="hub2-dense">
+              <a href="#"><span class="dn-name">Science Framework</span>
+                <span class="dn-meta">PDF · web</span></a>
+              <a href="#"><span class="dn-name">State of Our Estuary</span>
+                <span class="dn-meta">PDF</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ───── ROUND 3 · FINAL ───── -->
+    <div class="option">
+      <div class="round-divider">
+        <span class="round-tag is-final"><i data-lucide="lock"></i> Round 3 · Final</span>
+        <p class="round-note">
+          Locked: round-2 option 3, the tinted category panels — with two
+          refinements. (1) <strong>Variable columns</strong>: the rigid
+          3-equal-column grid is dropped for a flex layout, so 1, 2 or 3
+          panels sit naturally and each panel sizes to its own content. (2)
+          Every item now carries a fuller "what you'll find" description. Two
+          configurations below prove the flex holds.
+        </p>
+        <span class="locked-note">
+          <i data-lucide="check" class="lc-sm lc"></i>
+          <span><strong>Locked direction.</strong> This is the end-card hub
+          implementation target.</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">FINAL</span>
+        <h3>Tinted category panels — flexible</h3>
+        <p class="opt-idea">Panels flex to content. Config A: all three
+          categories, uneven item counts. Config B: only two categories, no
+          Tools panel — still looks intentional.</p>
+        <span class="density-tag" data-density="Rich">Rich</span>
+      </div>
+      <div class="mock-endcard">
+        <p class="endcard-kicker">▾ Go deeper</p>
+        <h4>Explore the data behind this exhibit</h4>
+        <p class="endcard-sub">The deeper layers, grouped by what you came
+          for — datasets to take away, tools to explore, science to read.</p>
+
+        <!-- Config A — Data 2 · Tools 1 · Science 3 -->
+        <div class="config-block">
+          <p class="config-label">
+            <span class="config-tag">Config A</span>
+            Three categories · Data 2 · Tools 1 · Science 3
+          </p>
+          <div class="hubf">
+            <div class="hubf-panel" data-cat="data">
+              <div class="hubf-panel-head">
+                <div class="cat-icon"><i data-lucide="database" class="lc"></i></div>
+                <span class="cat-name">Data</span>
+                <span class="cat-count">2</span>
+              </div>
+              <a class="hubf-item" href="#">
+                <span class="hf-icon"><i data-lucide="download" class="lc-sm lc"></i></span>
+                <div class="hf-body">
+                  <div class="hf-top">
+                    <span class="hf-name">Station network</span>
+                    <span class="hf-go"><i data-lucide="arrow-down" class="lc-sm lc"></i></span>
+                  </div>
+                  <p class="hf-desc">All 119 monitoring stations with
+                    coordinates, region and habitat type — GeoJSON and CSV.</p>
+                </div>
+              </a>
+              <a class="hubf-item" href="#">
+                <span class="hf-icon"><i data-lucide="download" class="lc-sm lc"></i></span>
+                <div class="hf-body">
+                  <div class="hf-top">
+                    <span class="hf-name">Species catalog</span>
+                    <span class="hf-go"><i data-lucide="arrow-down" class="lc-sm lc"></i></span>
+                  </div>
+                  <p class="hf-desc">Every fish taxon logged across the
+                    estuary's monitored habitats — 237 records, CSV.</p>
+                </div>
+              </a>
+            </div>
+            <div class="hubf-panel" data-cat="tools">
+              <div class="hubf-panel-head">
+                <div class="cat-icon"><i data-lucide="compass" class="lc"></i></div>
+                <span class="cat-name">Tools</span>
+                <span class="cat-count">1</span>
+              </div>
+              <a class="hubf-item" href="#">
+                <span class="hf-icon"><i data-lucide="map" class="lc-sm lc"></i></span>
+                <div class="hf-body">
+                  <div class="hf-top">
+                    <span class="hf-name">EcoAtlas</span>
+                    <span class="hf-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span>
+                  </div>
+                  <p class="hf-desc">Interactive geospatial maps of every
+                    wetland, restoration project and monitoring station in the
+                    estuary.</p>
+                </div>
+              </a>
+            </div>
+            <div class="hubf-panel" data-cat="science">
+              <div class="hubf-panel-head">
+                <div class="cat-icon"><i data-lucide="flask-conical" class="lc"></i></div>
+                <span class="cat-name">Science</span>
+                <span class="cat-count">3</span>
+              </div>
+              <a class="hubf-item" href="#">
+                <span class="hf-icon"><i data-lucide="file-text" class="lc-sm lc"></i></span>
+                <div class="hf-body">
+                  <div class="hf-top">
+                    <span class="hf-name">WRMP Science Framework</span>
+                    <span class="hf-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span>
+                  </div>
+                  <p class="hf-desc">The full monitoring design — management
+                    questions, indicators, and how the station network answers
+                    them.</p>
+                </div>
+              </a>
+              <a class="hubf-item" href="#">
+                <span class="hf-icon"><i data-lucide="file-text" class="lc-sm lc"></i></span>
+                <div class="hf-body">
+                  <div class="hf-top">
+                    <span class="hf-name">State of Our Estuary</span>
+                    <span class="hf-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span>
+                  </div>
+                  <p class="hf-desc">Regional status reporting on the
+                    estuary's health, habitats and long-term trends.</p>
+                </div>
+              </a>
+              <a class="hubf-item" href="#">
+                <span class="hf-icon"><i data-lucide="file-text" class="lc-sm lc"></i></span>
+                <div class="hf-body">
+                  <div class="hf-top">
+                    <span class="hf-name">SF Estuary Wetlands Profile</span>
+                    <span class="hf-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span>
+                  </div>
+                  <p class="hf-desc">EcoAtlas restoration dashboard tracking
+                    wetland acres gained across the bay over time.</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Config B — Data 3 · Science 2, no Tools -->
+        <div class="config-block">
+          <p class="config-label">
+            <span class="config-tag">Config B</span>
+            Two categories · Data 3 · Science 2 · no Tools panel
+          </p>
+          <div class="hubf">
+            <div class="hubf-panel" data-cat="data">
+              <div class="hubf-panel-head">
+                <div class="cat-icon"><i data-lucide="database" class="lc"></i></div>
+                <span class="cat-name">Data</span>
+                <span class="cat-count">3</span>
+              </div>
+              <a class="hubf-item" href="#">
+                <span class="hf-icon"><i data-lucide="download" class="lc-sm lc"></i></span>
+                <div class="hf-body">
+                  <div class="hf-top">
+                    <span class="hf-name">Station network</span>
+                    <span class="hf-go"><i data-lucide="arrow-down" class="lc-sm lc"></i></span>
+                  </div>
+                  <p class="hf-desc">All 119 monitoring stations with
+                    coordinates, region and habitat type — GeoJSON and CSV.</p>
+                </div>
+              </a>
+              <a class="hubf-item" href="#">
+                <span class="hf-icon"><i data-lucide="download" class="lc-sm lc"></i></span>
+                <div class="hf-body">
+                  <div class="hf-top">
+                    <span class="hf-name">Species catalog</span>
+                    <span class="hf-go"><i data-lucide="arrow-down" class="lc-sm lc"></i></span>
+                  </div>
+                  <p class="hf-desc">Every fish taxon logged across the
+                    estuary's monitored habitats — 237 records, CSV.</p>
+                </div>
+              </a>
+              <a class="hubf-item" href="#">
+                <span class="hf-icon"><i data-lucide="folder-open" class="lc-sm lc"></i></span>
+                <div class="hf-body">
+                  <div class="hf-top">
+                    <span class="hf-name">Geospatial Data Catalog</span>
+                    <span class="hf-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span>
+                  </div>
+                  <p class="hf-desc">Browse every raw WRMP dataset behind the
+                    monitoring program in one indexed catalog.</p>
+                </div>
+              </a>
+            </div>
+            <div class="hubf-panel" data-cat="science">
+              <div class="hubf-panel-head">
+                <div class="cat-icon"><i data-lucide="flask-conical" class="lc"></i></div>
+                <span class="cat-name">Science</span>
+                <span class="cat-count">2</span>
+              </div>
+              <a class="hubf-item" href="#">
+                <span class="hf-icon"><i data-lucide="file-text" class="lc-sm lc"></i></span>
+                <div class="hf-body">
+                  <div class="hf-top">
+                    <span class="hf-name">WRMP Science Framework</span>
+                    <span class="hf-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span>
+                  </div>
+                  <p class="hf-desc">The full monitoring design — management
+                    questions, indicators, and how the station network answers
+                    them.</p>
+                </div>
+              </a>
+              <a class="hubf-item" href="#">
+                <span class="hf-icon"><i data-lucide="file-text" class="lc-sm lc"></i></span>
+                <div class="hf-body">
+                  <div class="hf-top">
+                    <span class="hf-name">State of Our Estuary</span>
+                    <span class="hf-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span>
+                  </div>
+                  <p class="hf-desc">Regional status reporting on the
+                    estuary's health, habitats and long-term trends.</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════
+       PATTERN 3 · DRAWER
+       ════════════════════════════════════════════════════════════ -->
+  <section class="pattern-section">
+    <div class="section-head">
+      <h2>Pattern 3 · Persistent drawer</h2>
+      <p class="section-desc">
+        A "Data &amp; tools" drawer that slides in from the right, openable
+        from any step. The drawer's dark style is the liked direction — these
+        five vary the <em>inner content richness</em> while keeping the dark
+        shell constant.
+      </p>
+    </div>
+
+    <!-- Option 1 — Described link rows -->
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">1 / 5</span>
+        <h3>Described link rows</h3>
+        <p class="opt-idea">Flat list of rows — name, type chip and a short
+          description line each. Lean, fast to scan in a narrow drawer.</p>
+        <span class="density-tag" data-density="Minimal">Minimal</span>
+      </div>
+      <div class="mock-drawer-stage">
+        <div class="mock-drawer">
+          <div class="drawer-head">
+            <p class="drawer-title">Data &amp; tools</p>
+            <button class="drawer-x" aria-label="Close">✕</button>
+          </div>
+          <div class="drawer-body">
+            <div class="hub-rows" style="margin-top:-12px;">
+              <a class="dr-row" href="#">
+                <div class="dr-row-top">
+                  <span class="dr-row-name">EcoAtlas</span>
+                  <span class="dr-row-go">↗</span>
+                </div>
+                <span class="l3-type" style="margin-top:6px;display:inline-flex;">
+                  <span class="l3-type-glyph">◰</span> Interactive map</span>
+                <p class="dr-row-desc">Geospatial maps of estuary wetlands and
+                  monitoring stations.</p>
+              </a>
+              <a class="dr-row" href="#" data-kind="download">
+                <div class="dr-row-top">
+                  <span class="dr-row-name">Station network</span>
+                  <span class="dr-row-go">↓</span>
+                </div>
+                <span class="l3-type" data-kind="download" style="margin-top:6px;display:inline-flex;">
+                  <span class="l3-type-glyph">⬇</span> Dataset</span>
+                <p class="dr-row-desc">119 stations — coordinates, region,
+                  habitat. GeoJSON &amp; CSV.</p>
+              </a>
+              <a class="dr-row" href="#">
+                <div class="dr-row-top">
+                  <span class="dr-row-name">Science Framework</span>
+                  <span class="dr-row-go">↗</span>
+                </div>
+                <span class="l3-type" style="margin-top:6px;display:inline-flex;">
+                  <span class="l3-type-glyph">❖</span> Framework</span>
+                <p class="dr-row-desc">The monitoring design and management
+                  questions.</p>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Option 2 — Stacked resource cards -->
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">2 / 5</span>
+        <h3>Stacked resource cards</h3>
+        <p class="opt-idea">Each resource is a raised card with icon, title and
+          description — more visual separation, reads as discrete objects.</p>
+        <span class="density-tag" data-density="Moderate">Moderate</span>
+      </div>
+      <div class="mock-drawer-stage">
+        <div class="mock-drawer">
+          <div class="drawer-head">
+            <p class="drawer-title">Data &amp; tools</p>
+            <button class="drawer-x" aria-label="Close">✕</button>
+          </div>
+          <div class="drawer-body">
+            <div class="stack-10">
+              <a class="l3-card" href="#">
+                <div class="l3-icon">◰</div>
+                <div class="l3-card-body">
+                  <div class="l3-card-title">
+                    <span class="name">EcoAtlas</span><span class="go">↗</span>
+                  </div>
+                  <p class="l3-card-desc">Interactive estuary maps &amp;
+                    tools.</p>
+                </div>
+              </a>
+              <a class="l3-card" href="#" data-kind="download">
+                <div class="l3-icon" data-kind="download">⬇</div>
+                <div class="l3-card-body">
+                  <div class="l3-card-title">
+                    <span class="name">Station network</span><span class="go">↓</span>
+                  </div>
+                  <p class="l3-card-desc">All 119 monitoring stations —
+                    GeoJSON &amp; CSV.</p>
+                </div>
+              </a>
+              <a class="l3-card" href="#">
+                <div class="l3-icon">❖</div>
+                <div class="l3-card-body">
+                  <div class="l3-card-title">
+                    <span class="name">Science Framework</span><span class="go">↗</span>
+                  </div>
+                  <p class="l3-card-desc">Monitoring design and management
+                    questions.</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Option 3 — Groups with category intro -->
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">3 / 5</span>
+        <h3>Groups with a category intro</h3>
+        <p class="opt-idea">Resources clustered under labelled groups, each
+          with a one-line intro explaining what the group is for.</p>
+        <span class="density-tag" data-density="Moderate">Moderate</span>
+      </div>
+      <div class="mock-drawer-stage">
+        <div class="mock-drawer">
+          <div class="drawer-head">
+            <p class="drawer-title">Data &amp; tools</p>
+            <button class="drawer-x" aria-label="Close">✕</button>
+          </div>
+          <div class="drawer-body">
+            <div class="stack-20">
+              <div>
+                <p class="l3-group-label">Datasets</p>
+                <p class="l3-group-intro">Raw, downloadable — open in your own
+                  tools.</p>
+                <div class="stack-8">
+                  <a class="l3-link" href="#" data-kind="download" style="display:flex;">Station network — 119 records</a>
+                  <a class="l3-link" href="#" data-kind="download" style="display:flex;">Species catalog — 237 records</a>
+                </div>
+              </div>
+              <div>
+                <p class="l3-group-label">Interactive tools</p>
+                <p class="l3-group-intro">Explore the estuary without
+                  downloading anything.</p>
+                <div class="stack-8">
+                  <a class="l3-link" href="#" style="display:flex;">EcoAtlas wetlands viewer</a>
+                  <a class="l3-link" href="#" style="display:flex;">SF Estuary Wetlands Profile</a>
+                </div>
+              </div>
+              <div>
+                <p class="l3-group-label">Science &amp; reports</p>
+                <p class="l3-group-intro">The thinking behind the monitoring
+                  program.</p>
+                <div class="stack-8">
+                  <a class="l3-link" href="#" style="display:flex;">WRMP Science Framework</a>
+                  <a class="l3-link" href="#" style="display:flex;">State of Our Estuary</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Option 4 — Primary action pinned + categorized list -->
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">4 / 5</span>
+        <h3>Pinned primary action</h3>
+        <p class="opt-idea">One "download the data" action pinned at the top of
+          the drawer; the rest follows as a categorized list.</p>
+        <span class="density-tag" data-density="Rich">Rich</span>
+      </div>
+      <div class="mock-drawer-stage">
+        <div class="mock-drawer">
+          <div class="drawer-head">
+            <p class="drawer-title">Data &amp; tools</p>
+            <button class="drawer-x" aria-label="Close">✕</button>
+          </div>
+          <div class="drawer-body">
+            <a class="dr-pinned" href="#" data-kind="download">
+              <div class="l3-icon" data-kind="download">⬇</div>
+              <div>
+                <span class="pin-name">Download the station network</span>
+                <p class="pin-desc">119 records · GeoJSON · CSV</p>
+              </div>
+            </a>
+            <div class="stack-20">
+              <div>
+                <p class="dr-section-label">Tools</p>
+                <div class="stack-8">
+                  <a class="l3-link" href="#" style="display:flex;">EcoAtlas</a>
+                  <a class="l3-link" href="#" style="display:flex;">SF Estuary Wetlands Profile</a>
+                </div>
+              </div>
+              <div>
+                <p class="dr-section-label">Science</p>
+                <div class="stack-8">
+                  <a class="l3-link" href="#" style="display:flex;">WRMP Science Framework</a>
+                  <a class="l3-link" href="#" style="display:flex;">State of Our Estuary</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Option 5 — Rich cards with metadata -->
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">5 / 5</span>
+        <h3>Rich cards with metadata</h3>
+        <p class="opt-idea">Full resource cards — icon, title, description and
+          a metadata footer (records, format, destination) per entry.</p>
+        <span class="density-tag" data-density="Rich">Rich</span>
+      </div>
+      <div class="mock-drawer-stage">
+        <div class="mock-drawer">
+          <div class="drawer-head">
+            <p class="drawer-title">Data &amp; tools</p>
+            <button class="drawer-x" aria-label="Close">✕</button>
+          </div>
+          <div class="drawer-body">
+            <div class="stack-10">
+              <a class="l3-card" href="#" data-kind="download">
+                <div class="l3-icon" data-kind="download">⬇</div>
+                <div class="l3-card-body">
+                  <div class="l3-card-title">
+                    <span class="name">Station network</span><span class="go">↓</span>
+                  </div>
+                  <p class="l3-card-desc">Every WRMP monitoring station with
+                    coordinates and habitat type.</p>
+                  <div class="l3-card-foot l3-meta">
+                    <span class="l3-type" data-kind="download"><span class="l3-type-glyph">⬇</span> Dataset</span>
+                    <span>119 records</span>
+                    <span>GeoJSON · CSV</span>
+                  </div>
+                </div>
+              </a>
+              <a class="l3-card" href="#">
+                <div class="l3-icon">◰</div>
+                <div class="l3-card-body">
+                  <div class="l3-card-title">
+                    <span class="name">EcoAtlas</span><span class="go">↗</span>
+                  </div>
+                  <p class="l3-card-desc">Interactive geospatial maps of
+                    wetlands, projects and stations.</p>
+                  <div class="l3-card-foot l3-meta">
+                    <span class="l3-type"><span class="l3-type-glyph">◰</span> Interactive map</span>
+                    <span>opens ecoatlas.org</span>
+                  </div>
+                </div>
+              </a>
+              <a class="l3-card" href="#">
+                <div class="l3-icon">❖</div>
+                <div class="l3-card-body">
+                  <div class="l3-card-title">
+                    <span class="name">Science Framework</span><span class="go">↗</span>
+                  </div>
+                  <p class="l3-card-desc">The monitoring design — management
+                    questions and indicators.</p>
+                  <div class="l3-card-foot l3-meta">
+                    <span class="l3-type"><span class="l3-type-glyph">❖</span> Framework</span>
+                    <span>PDF · web</span>
+                  </div>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ───── ROUND 2 · REFINEMENTS ───── -->
+    <div class="option">
+      <div class="round-divider">
+        <span class="round-tag"><i data-lucide="git-branch"></i> Round 2 · Refinements</span>
+        <p class="round-note">
+          The described-rows shape is the winner — these keep it and organize
+          the rows under <strong>Data / Tools / Science</strong> groups, with
+          better Lucide icons. Variations cover group-header treatment, row
+          density, and icon style.
+        </p>
+        <span class="baseline-note">
+          <strong>Baseline:</strong> round-1 option 1 — described link rows.
+        </span>
+      </div>
+    </div>
+
+    <!-- R2.1 — icon-tile group headers, described rows -->
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">R2 · 1 / 4</span>
+        <h3>Icon-tile group headers</h3>
+        <p class="opt-idea">Rows grouped under D/T/S; each group header is a
+          category icon-tile + name. Each row keeps a small leading icon.</p>
+        <span class="density-tag" data-density="Moderate">Moderate</span>
+      </div>
+      <div class="mock-drawer-stage">
+        <div class="mock-drawer">
+          <div class="drawer-head">
+            <p class="drawer-title">Data &amp; tools</p>
+            <button class="drawer-x" aria-label="Close">
+              <i data-lucide="x" class="lc-sm lc"></i>
+            </button>
+          </div>
+          <div class="drawer-body">
+            <div class="dr2-group" data-cat="data">
+              <div class="dr2-grouphead">
+                <div class="cat-icon cat-icon-sm"><i data-lucide="database" class="lc"></i></div>
+                <span class="gh-name">Data</span>
+              </div>
+              <a class="dr2-row" href="#">
+                <span class="rw-icon"><i data-lucide="download" class="lc-sm lc"></i></span>
+                <div class="rw-body">
+                  <div class="rw-top"><span class="rw-name">Station network</span>
+                    <span class="rw-go"><i data-lucide="arrow-down" class="lc-sm lc"></i></span></div>
+                  <p class="rw-desc">119 stations — coordinates, region, habitat.</p>
+                </div>
+              </a>
+              <a class="dr2-row" href="#">
+                <span class="rw-icon"><i data-lucide="download" class="lc-sm lc"></i></span>
+                <div class="rw-body">
+                  <div class="rw-top"><span class="rw-name">Species catalog</span>
+                    <span class="rw-go"><i data-lucide="arrow-down" class="lc-sm lc"></i></span></div>
+                  <p class="rw-desc">237 fish taxa logged across habitats.</p>
+                </div>
+              </a>
+            </div>
+            <div class="dr2-group" data-cat="tools">
+              <div class="dr2-grouphead">
+                <div class="cat-icon cat-icon-sm"><i data-lucide="compass" class="lc"></i></div>
+                <span class="gh-name">Tools</span>
+              </div>
+              <a class="dr2-row" href="#">
+                <span class="rw-icon"><i data-lucide="map" class="lc-sm lc"></i></span>
+                <div class="rw-body">
+                  <div class="rw-top"><span class="rw-name">EcoAtlas</span>
+                    <span class="rw-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span></div>
+                  <p class="rw-desc">Interactive estuary maps &amp; tools.</p>
+                </div>
+              </a>
+            </div>
+            <div class="dr2-group" data-cat="science">
+              <div class="dr2-grouphead">
+                <div class="cat-icon cat-icon-sm"><i data-lucide="flask-conical" class="lc"></i></div>
+                <span class="gh-name">Science</span>
+              </div>
+              <a class="dr2-row" href="#">
+                <span class="rw-icon"><i data-lucide="file-text" class="lc-sm lc"></i></span>
+                <div class="rw-body">
+                  <div class="rw-top"><span class="rw-name">Science Framework</span>
+                    <span class="rw-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span></div>
+                  <p class="rw-desc">Monitoring design &amp; management questions.</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- R2.2 — accent-underline headers, compact rows -->
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">R2 · 2 / 4</span>
+        <h3>Accent-underline headers</h3>
+        <p class="opt-idea">Group headers underlined in the category accent;
+          rows compress to name + metadata — most resources visible at once
+          in the narrow drawer.</p>
+        <span class="density-tag" data-density="Moderate">Moderate</span>
+      </div>
+      <div class="mock-drawer-stage">
+        <div class="mock-drawer">
+          <div class="drawer-head">
+            <p class="drawer-title">Data &amp; tools</p>
+            <button class="drawer-x" aria-label="Close">
+              <i data-lucide="x" class="lc-sm lc"></i>
+            </button>
+          </div>
+          <div class="drawer-body">
+            <div class="dr2-group" data-cat="data">
+              <div class="dr2-grouphead-rule">
+                <i data-lucide="database" class="lc-sm lc"></i>
+                <span class="gh-name">Data</span>
+              </div>
+              <a class="dr2-compact" href="#"><span class="cp-name">Station network</span>
+                <span class="cp-meta">119 · GeoJSON</span></a>
+              <a class="dr2-compact" href="#"><span class="cp-name">Species catalog</span>
+                <span class="cp-meta">237 · CSV</span></a>
+              <a class="dr2-compact" href="#"><span class="cp-name">Data Catalog</span>
+                <span class="cp-meta">all sets</span></a>
+            </div>
+            <div class="dr2-group" data-cat="tools">
+              <div class="dr2-grouphead-rule">
+                <i data-lucide="compass" class="lc-sm lc"></i>
+                <span class="gh-name">Tools</span>
+              </div>
+              <a class="dr2-compact" href="#"><span class="cp-name">EcoAtlas</span>
+                <span class="cp-meta">web map</span></a>
+              <a class="dr2-compact" href="#"><span class="cp-name">Wetlands Profile</span>
+                <span class="cp-meta">dashboard</span></a>
+            </div>
+            <div class="dr2-group" data-cat="science">
+              <div class="dr2-grouphead-rule">
+                <i data-lucide="flask-conical" class="lc-sm lc"></i>
+                <span class="gh-name">Science</span>
+              </div>
+              <a class="dr2-compact" href="#"><span class="cp-name">Science Framework</span>
+                <span class="cp-meta">PDF · web</span></a>
+              <a class="dr2-compact" href="#"><span class="cp-name">State of Our Estuary</span>
+                <span class="cp-meta">PDF</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- R2.3 — tinted group cards, roomy rows -->
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">R2 · 3 / 4</span>
+        <h3>Tinted group cards</h3>
+        <p class="opt-idea">Each D/T/S group is a softly tinted card — the
+          category zone is a contained surface, with roomy described rows
+          inside.</p>
+        <span class="density-tag" data-density="Rich">Rich</span>
+      </div>
+      <div class="mock-drawer-stage">
+        <div class="mock-drawer">
+          <div class="drawer-head">
+            <p class="drawer-title">Data &amp; tools</p>
+            <button class="drawer-x" aria-label="Close">
+              <i data-lucide="x" class="lc-sm lc"></i>
+            </button>
+          </div>
+          <div class="drawer-body">
+            <div class="dr2-card" data-cat="data">
+              <div class="dc-head">
+                <i data-lucide="database" class="lc"></i>
+                <span class="dc-name">Data</span>
+              </div>
+              <a class="dc-row" href="#">
+                <div style="flex:1;min-width:0;">
+                  <div style="display:flex;align-items:baseline;gap:8px;">
+                    <span class="dc-rw-name">Station network</span>
+                    <span class="dc-rw-go"><i data-lucide="arrow-down" class="lc-sm lc"></i></span>
+                  </div>
+                  <p class="dc-rw-desc">119 stations — GeoJSON &amp; CSV.</p>
+                </div>
+              </a>
+              <a class="dc-row" href="#">
+                <div style="flex:1;min-width:0;">
+                  <div style="display:flex;align-items:baseline;gap:8px;">
+                    <span class="dc-rw-name">Species catalog</span>
+                    <span class="dc-rw-go"><i data-lucide="arrow-down" class="lc-sm lc"></i></span>
+                  </div>
+                  <p class="dc-rw-desc">237 fish taxa across habitats.</p>
+                </div>
+              </a>
+            </div>
+            <div class="dr2-card" data-cat="tools">
+              <div class="dc-head">
+                <i data-lucide="compass" class="lc"></i>
+                <span class="dc-name">Tools</span>
+              </div>
+              <a class="dc-row" href="#">
+                <div style="flex:1;min-width:0;">
+                  <div style="display:flex;align-items:baseline;gap:8px;">
+                    <span class="dc-rw-name">EcoAtlas</span>
+                    <span class="dc-rw-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span>
+                  </div>
+                  <p class="dc-rw-desc">Interactive estuary maps &amp; tools.</p>
+                </div>
+              </a>
+            </div>
+            <div class="dr2-card" data-cat="science">
+              <div class="dc-head">
+                <i data-lucide="flask-conical" class="lc"></i>
+                <span class="dc-name">Science</span>
+              </div>
+              <a class="dc-row" href="#">
+                <div style="flex:1;min-width:0;">
+                  <div style="display:flex;align-items:baseline;gap:8px;">
+                    <span class="dc-rw-name">Science Framework</span>
+                    <span class="dc-rw-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span>
+                  </div>
+                  <p class="dc-rw-desc">Monitoring design &amp; questions.</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- R2.4 — count-badged headers, two-line rows + type -->
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">R2 · 4 / 4</span>
+        <h3>Count-badged headers, typed rows</h3>
+        <p class="opt-idea">Each group header carries a count badge; rows show
+          a finer resource-type label (dataset · map · report) on a second
+          line under the name.</p>
+        <span class="density-tag" data-density="Rich">Rich</span>
+      </div>
+      <div class="mock-drawer-stage">
+        <div class="mock-drawer">
+          <div class="drawer-head">
+            <p class="drawer-title">Data &amp; tools</p>
+            <button class="drawer-x" aria-label="Close">
+              <i data-lucide="x" class="lc-sm lc"></i>
+            </button>
+          </div>
+          <div class="drawer-body">
+            <div class="dr2-group" data-cat="data">
+              <div class="dr2-grouphead-count">
+                <i data-lucide="database" class="lc-sm lc"></i>
+                <span class="gh-name">Data</span>
+                <span class="gh-count">2</span>
+              </div>
+              <a class="dr2-typed" href="#">
+                <span class="ty-icon"><i data-lucide="download" class="lc-sm lc"></i></span>
+                <div class="ty-body">
+                  <div class="ty-top"><span class="ty-name">Station network</span>
+                    <span class="ty-go"><i data-lucide="arrow-down" class="lc-sm lc"></i></span></div>
+                  <div class="ty-foot">Dataset · 119 records · GeoJSON</div>
+                </div>
+              </a>
+              <a class="dr2-typed" href="#">
+                <span class="ty-icon"><i data-lucide="download" class="lc-sm lc"></i></span>
+                <div class="ty-body">
+                  <div class="ty-top"><span class="ty-name">Species catalog</span>
+                    <span class="ty-go"><i data-lucide="arrow-down" class="lc-sm lc"></i></span></div>
+                  <div class="ty-foot">Dataset · 237 records · CSV</div>
+                </div>
+              </a>
+            </div>
+            <div class="dr2-group" data-cat="tools">
+              <div class="dr2-grouphead-count">
+                <i data-lucide="compass" class="lc-sm lc"></i>
+                <span class="gh-name">Tools</span>
+                <span class="gh-count">1</span>
+              </div>
+              <a class="dr2-typed" href="#">
+                <span class="ty-icon"><i data-lucide="map" class="lc-sm lc"></i></span>
+                <div class="ty-body">
+                  <div class="ty-top"><span class="ty-name">EcoAtlas</span>
+                    <span class="ty-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span></div>
+                  <div class="ty-foot">Interactive map · opens ecoatlas.org</div>
+                </div>
+              </a>
+            </div>
+            <div class="dr2-group" data-cat="science">
+              <div class="dr2-grouphead-count">
+                <i data-lucide="flask-conical" class="lc-sm lc"></i>
+                <span class="gh-name">Science</span>
+                <span class="gh-count">1</span>
+              </div>
+              <a class="dr2-typed" href="#">
+                <span class="ty-icon"><i data-lucide="file-text" class="lc-sm lc"></i></span>
+                <div class="ty-body">
+                  <div class="ty-top"><span class="ty-name">Science Framework</span>
+                    <span class="ty-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span></div>
+                  <div class="ty-foot">Framework · PDF · web</div>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ───── ROUND 3 · FINAL ───── -->
+    <div class="option">
+      <div class="round-divider">
+        <span class="round-tag is-final"><i data-lucide="lock"></i> Round 3 · Final</span>
+        <p class="round-note">
+          Locked: round-2 option 1, the icon-tile group headers — polished,
+          and now with a fuller one-line description under each resource name.
+          Keeps the Data / Tools / Science grouping, icon-tile group headers
+          and small leading row icons.
+        </p>
+        <span class="locked-note">
+          <i data-lucide="check" class="lc-sm lc"></i>
+          <span><strong>Locked direction.</strong> This is the drawer
+          implementation target.</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="option">
+      <div class="option-caption">
+        <span class="opt-index">FINAL</span>
+        <h3>Icon-tile group headers, described rows</h3>
+        <p class="opt-idea">D/T/S groups with icon-tile headers; each row pairs
+          a leading icon with a name and a real "what you'll find" line.</p>
+        <span class="density-tag" data-density="Rich">Rich</span>
+      </div>
+      <div class="mock-drawer-stage">
+        <div class="mock-drawer">
+          <div class="drawer-head">
+            <p class="drawer-title">Data &amp; tools</p>
+            <button class="drawer-x" aria-label="Close">
+              <i data-lucide="x" class="lc-sm lc"></i>
+            </button>
+          </div>
+          <div class="drawer-body">
+            <div class="drf-group" data-cat="data">
+              <div class="drf-grouphead">
+                <div class="cat-icon cat-icon-sm"><i data-lucide="database" class="lc"></i></div>
+                <span class="gh-name">Data</span>
+                <span class="gh-count">2</span>
+              </div>
+              <a class="drf-row" href="#">
+                <span class="rw-icon"><i data-lucide="download" class="lc-sm lc"></i></span>
+                <div class="rw-body">
+                  <div class="rw-top">
+                    <span class="rw-name">Station network</span>
+                    <span class="rw-go"><i data-lucide="arrow-down" class="lc-sm lc"></i></span>
+                  </div>
+                  <p class="rw-desc">All 119 monitoring stations with
+                    coordinates, region and habitat type — GeoJSON and CSV.</p>
+                </div>
+              </a>
+              <a class="drf-row" href="#">
+                <span class="rw-icon"><i data-lucide="download" class="lc-sm lc"></i></span>
+                <div class="rw-body">
+                  <div class="rw-top">
+                    <span class="rw-name">Species catalog</span>
+                    <span class="rw-go"><i data-lucide="arrow-down" class="lc-sm lc"></i></span>
+                  </div>
+                  <p class="rw-desc">Every fish taxon logged across the
+                    estuary's monitored habitats — 237 records, CSV.</p>
+                </div>
+              </a>
+            </div>
+            <div class="drf-group" data-cat="tools">
+              <div class="drf-grouphead">
+                <div class="cat-icon cat-icon-sm"><i data-lucide="compass" class="lc"></i></div>
+                <span class="gh-name">Tools</span>
+                <span class="gh-count">2</span>
+              </div>
+              <a class="drf-row" href="#">
+                <span class="rw-icon"><i data-lucide="map" class="lc-sm lc"></i></span>
+                <div class="rw-body">
+                  <div class="rw-top">
+                    <span class="rw-name">EcoAtlas</span>
+                    <span class="rw-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span>
+                  </div>
+                  <p class="rw-desc">Interactive geospatial maps of every
+                    wetland, restoration project and station in the estuary.</p>
+                </div>
+              </a>
+              <a class="drf-row" href="#">
+                <span class="rw-icon"><i data-lucide="map" class="lc-sm lc"></i></span>
+                <div class="rw-body">
+                  <div class="rw-top">
+                    <span class="rw-name">SF Estuary Wetlands Profile</span>
+                    <span class="rw-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span>
+                  </div>
+                  <p class="rw-desc">EcoAtlas restoration dashboard tracking
+                    wetland acres gained across the bay over time.</p>
+                </div>
+              </a>
+            </div>
+            <div class="drf-group" data-cat="science">
+              <div class="drf-grouphead">
+                <div class="cat-icon cat-icon-sm"><i data-lucide="flask-conical" class="lc"></i></div>
+                <span class="gh-name">Science</span>
+                <span class="gh-count">2</span>
+              </div>
+              <a class="drf-row" href="#">
+                <span class="rw-icon"><i data-lucide="file-text" class="lc-sm lc"></i></span>
+                <div class="rw-body">
+                  <div class="rw-top">
+                    <span class="rw-name">WRMP Science Framework</span>
+                    <span class="rw-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span>
+                  </div>
+                  <p class="rw-desc">The monitoring design — management
+                    questions, indicators, and the logic linking them to the
+                    station network.</p>
+                </div>
+              </a>
+              <a class="drf-row" href="#">
+                <span class="rw-icon"><i data-lucide="file-text" class="lc-sm lc"></i></span>
+                <div class="rw-body">
+                  <div class="rw-top">
+                    <span class="rw-name">State of Our Estuary</span>
+                    <span class="rw-go"><i data-lucide="arrow-up-right" class="lc-sm lc"></i></span>
+                  </div>
+                  <p class="rw-desc">Regional status reporting on the
+                    estuary's health, habitats and long-term trends.</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="specimen-foot">
+    <p>
+      Exploration specimen — disposable. Decide one option per pattern (or
+      one pattern overall), then translate the winner into
+      <code>shared/css/level3.css</code> as a mechanical step. Destinations and
+      record counts are illustrative; confirm exact deep links and dataset
+      figures with SFEI before exhibits ship.
+    </p>
+  </footer>
+
+</div>
+
+<!-- ═══ Lucide icons ═══
+     CDN-loaded for this specimen only. The eventual exhibit integration
+     must be dependency-free — copy the chosen icons as inline <svg> from
+     lucide.dev rather than shipping this script. -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  (function () {
+    if (window.lucide && typeof window.lucide.createIcons === "function") {
+      window.lucide.createIcons();
+    }
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,1478 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Native vs. Invasive — WRMP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <link rel="stylesheet" href="../../../shared/css/tokens.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-frame.css" />
+    <link rel="stylesheet" href="../../../shared/css/leaflet-overrides.css?v=2" />
+    <link rel="stylesheet" href="../../../shared/css/marker-popup.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-cover.css" />
+    <link rel="stylesheet" href="../../../shared/css/metrics-card.css" />
+    <link rel="stylesheet" href="../../../shared/css/level3.css?v=1" />
+    <style>
+      /* ── Exhibit-specific styles ─────────────────── */
+
+      /* Map toggle (this exhibit hides/shows via .active) */
+      #map {
+        opacity: 0;
+        transition: opacity 0.5s ease;
+      }
+      #map.active {
+        opacity: 1;
+      }
+
+      /* ── Content Area (right side, non-map steps) ── */
+      .content-area {
+        position: absolute;
+        top: var(--panel-inset);
+        left: calc(
+          var(--panel-width) + var(--panel-inset) + var(--panel-inset)
+        );
+        right: var(--panel-inset);
+        bottom: var(--panel-inset);
+        z-index: 5;
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        padding: var(--space-lg);
+        overflow: hidden;
+      }
+      .content-area.active {
+        display: flex;
+      }
+
+      /* ── Species Gallery ──────────────────────────── */
+      .gallery-group {
+        margin-bottom: var(--space-md);
+      }
+      .gallery-group:last-child {
+        margin-bottom: 0;
+      }
+
+      .gallery-group > .heading-md {
+        margin-bottom: var(--space-sm);
+      }
+
+      .gallery-row {
+        display: flex;
+        gap: 12px;
+      }
+
+      .gallery-row .metrics-card {
+        flex: 1;
+        min-width: 0;
+      }
+
+      /* ── Infographic Bars (Step 5) ────────────────── */
+      .bar-group {
+        margin-bottom: var(--space-lg);
+      }
+      .bar-group:last-child {
+        margin-bottom: 0;
+      }
+
+      .bar-label {
+        font-family: var(--font-heading);
+        font-size: var(--size-lg);
+        font-weight: 400;
+        color: var(--gray-12);
+        margin-bottom: var(--space-xs);
+      }
+      .bar-sublabel {
+        font-size: 12px;
+        color: var(--gray-11);
+        margin-bottom: var(--space-sm);
+      }
+      .bar-track {
+        display: flex;
+        gap: 4px;
+        height: 36px;
+        border-radius: 6px;
+        overflow: hidden;
+      }
+      .bar-segment {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        font-size: var(--size-sm);
+        font-weight: 700;
+        color: var(--gray-12);
+        transition: width 0.8s ease;
+        min-width: 36px;
+      }
+      .bar-segment.native {
+        background: var(--wrmp-teal);
+        color: var(--cyan-12);
+      }
+      .bar-segment.invasive {
+        background: var(--wrmp-orange);
+        color: var(--amber-12);
+      }
+
+      .bar-legend-row {
+        display: flex;
+        gap: var(--space-lg);
+        margin-top: var(--space-md);
+      }
+      .bar-legend-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: var(--size-sm);
+        color: var(--gray-11);
+      }
+      .bar-legend-swatch {
+        width: 14px;
+        height: 14px;
+        border-radius: 3px;
+        flex-shrink: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Level 3 icon sprite — Lucide glyphs inlined as <symbol>s, no CDN
+         dependency. Referenced via <svg class="lc"><use href="#l3-icon-…"/>. -->
+    <svg
+      width="0"
+      height="0"
+      style="position: absolute"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <symbol
+          id="l3-icon-database"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <ellipse cx="12" cy="5" rx="9" ry="3" />
+          <path d="M3 5V19A9 3 0 0 0 21 19V5" />
+          <path d="M3 12A9 3 0 0 0 21 12" />
+        </symbol>
+        <symbol
+          id="l3-icon-compass"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <path
+            d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"
+          />
+        </symbol>
+        <symbol
+          id="l3-icon-flask-conical"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"
+          />
+          <path d="M6.453 15h11.094" />
+          <path d="M8.5 2h7" />
+        </symbol>
+        <symbol
+          id="l3-icon-map"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"
+          />
+          <path d="M15 5.764v15" />
+          <path d="M9 3.236v15" />
+        </symbol>
+        <symbol
+          id="l3-icon-file-text"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"
+          />
+          <path d="M14 2v5a1 1 0 0 0 1 1h5" />
+          <path d="M10 9H8" />
+          <path d="M16 13H8" />
+          <path d="M16 17H8" />
+        </symbol>
+        <symbol
+          id="l3-icon-download"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 15V3" />
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <path d="m7 10 5 5 5-5" />
+        </symbol>
+        <symbol
+          id="l3-icon-folder-open"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"
+          />
+        </symbol>
+        <symbol
+          id="l3-icon-arrow-up-right"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M7 7h10v10" />
+          <path d="M7 17 17 7" />
+        </symbol>
+        <symbol
+          id="l3-icon-arrow-down"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 5v14" />
+          <path d="m19 12-7 7-7-7" />
+        </symbol>
+        <symbol
+          id="l3-icon-x"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M18 6 6 18" />
+          <path d="m6 6 12 12" />
+        </symbol>
+      </defs>
+    </svg>
+
+    <div class="exhibit-frame">
+      <div id="exhibit-cover" class="exhibit-cover">
+        <div
+          class="exhibit-cover-image"
+          style="background-image: url('./cover.jpg')"
+          aria-hidden="true"
+        ></div>
+        <div class="exhibit-cover-gradient" aria-hidden="true"></div>
+        <div class="exhibit-cover-content">
+          <span class="exhibit-cover-kicker">WRMP Exhibit · Data Story</span>
+          <h2 class="exhibit-cover-title">Native vs. Invasive</h2>
+          <p class="exhibit-cover-lede">Fourteen years of catch data reveal a regime shift — who's winning, who's losing, and how a single drought rewrote the estuary's fish community.</p>
+          <button id="btn-enter" class="exhibit-cover-cta" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            Step Inside
+          </button>
+          <div class="exhibit-cover-journey">
+            <div class="exhibit-cover-dots" aria-hidden="true">
+            <span class="exhibit-cover-dot is-pulsing"></span>
+            <span class="exhibit-cover-dot"></span>
+            <span class="exhibit-cover-dot"></span>
+            <span class="exhibit-cover-dot"></span>
+            <span class="exhibit-cover-dot"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        id="exhibit-end-card"
+        class="exhibit-cover exhibit-cover--end is-hidden"
+      >
+        <div
+          class="exhibit-cover-image"
+          style="background-image: url('./cover.jpg')"
+          aria-hidden="true"
+        ></div>
+        <div class="exhibit-cover-gradient" aria-hidden="true"></div>
+        <div class="exhibit-cover-content">
+          <div
+            class="exhibit-cover-dots exhibit-cover-dots--complete"
+            aria-label="5 of 5 stops complete"
+          >
+            <span class="exhibit-cover-dot is-done"></span>
+            <span class="exhibit-cover-dot is-done"></span>
+            <span class="exhibit-cover-dot is-done"></span>
+            <span class="exhibit-cover-dot is-done"></span>
+            <span class="exhibit-cover-dot is-done"></span>
+          </div>
+          <span class="exhibit-cover-kicker">Thanks for exploring</span>
+          <h2 class="exhibit-cover-title">The data runs deeper</h2>
+          <p class="exhibit-cover-lede">
+            This exhibit is one layer. WRMP's monitoring lives inside a larger
+            data ecosystem — from the Bay-wide EcoAtlas toolset to the raw
+            datasets scientists work with every day.
+          </p>
+          <span class="exhibit-cover-links-label"
+            >Explore the data ecosystem</span
+          >
+          <div class="exhibit-cover-links">
+            <a
+              class="exhibit-cover-link exhibit-cover-link--featured"
+              href="https://www.ecoatlas.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+              >EcoAtlas ↗</a
+            >
+            <a
+              class="exhibit-cover-link exhibit-cover-link--featured"
+              href="https://www.wrmp.org/science-framework/"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Science Framework ↗</a
+            >
+            <a
+              class="exhibit-cover-link exhibit-cover-link--featured"
+              href="https://www.stateofourestuary.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+              >State of Our Estuary ↗</a
+            >
+          </div>
+          <div class="exhibit-cover-actions">
+            <button id="btn-restart" class="exhibit-cover-cta" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"
+                />
+              </svg>
+              Restart exhibit
+            </button>
+            <a
+              class="exhibit-cover-cta exhibit-cover-cta--secondary"
+              href="../../../"
+              >View all exhibits</a
+            >
+          </div>
+        </div>
+      </div>
+      <!-- Background layers for non-map steps -->
+      <div class="bg-layer bg-gradient" id="bg-gallery"></div>
+      <div class="bg-layer bg-gradient" id="bg-infographic"></div>
+
+      <!-- Map layer -->
+      <div id="map"></div>
+      <div class="map-legend" id="map-legend"></div>
+
+      <!-- Content areas for non-map steps -->
+      <div class="content-area" id="content-step2"></div>
+      <div class="content-area" id="content-step3"></div>
+      <div class="content-area" id="content-step5"></div>
+
+      <div class="story-panel">
+        <div class="story-panel-inner">
+          <div class="step active" data-step="0">
+            <div class="step-header">
+              <img
+                class="step-header-mark"
+                src="../../../shared/img/wrmp-logo-2in-mark-crop.png"
+                alt=""
+                width="40"
+                height="40"
+                decoding="async"
+              />
+              <div class="step-header-text">
+                <span class="kicker">Biodiversity</span>
+                <h2>237 Species Call It Home</h2>
+              </div>
+            </div>
+
+            <div class="body">
+              <p>
+                The San Francisco Estuary supports incredible biodiversity. From
+                sharks to shrimp, salmon to sponges —
+                <strong>237 species</strong> of fish and invertebrates have been
+                documented across the monitoring network.
+              </p>
+              <div class="stat-row">
+                <div class="stat-pill">
+                  <div class="num">237</div>
+                  <div class="lbl">Species</div>
+                </div>
+                <div class="stat-pill">
+                  <div class="num">146</div>
+                  <div class="lbl">Fish</div>
+                </div>
+                <div class="stat-pill">
+                  <div class="num">91</div>
+                  <div class="lbl">Invertebrates</div>
+                </div>
+              </div>
+              <p>
+                These 119 monitoring stations are the eyes and ears of the
+                estuary — each one a window into the community of species that
+                lives there.
+              </p>
+            </div>
+          </div>
+
+          <div class="step" data-step="1">
+            <div class="step-header">
+              <img
+                class="step-header-mark"
+                src="../../../shared/img/wrmp-logo-2in-mark-crop.png"
+                alt=""
+                width="40"
+                height="40"
+                decoding="async"
+              />
+              <div class="step-header-text">
+                <span class="kicker">Native Species</span>
+                <h2>The Home Team</h2>
+              </div>
+            </div>
+
+            <div class="body">
+              <p>
+                <strong>151 native species</strong> have been documented in the
+                estuary. From 9 species of shark to 7 species of smelt, these
+                animals evolved with the estuary over thousands of years.
+              </p>
+              <div class="stat-row">
+                <div class="stat-pill">
+                  <div class="num">113</div>
+                  <div class="lbl">Native Fish</div>
+                </div>
+                <div class="stat-pill">
+                  <div class="num">38</div>
+                  <div class="lbl">Native Inverts</div>
+                </div>
+              </div>
+              <p>
+                Many are uniquely adapted to estuarine life — tolerating the
+                daily swings in salinity, temperature, and turbidity that make
+                this habitat so challenging.
+              </p>
+            </div>
+          </div>
+
+          <div class="step" data-step="2">
+            <div class="step-header">
+              <img
+                class="step-header-mark"
+                src="../../../shared/img/wrmp-logo-2in-mark-crop.png"
+                alt=""
+                width="40"
+                height="40"
+                decoding="async"
+              />
+              <div class="step-header-text">
+                <span class="kicker">Invasive Species</span>
+                <h2>The Uninvited</h2>
+              </div>
+            </div>
+
+            <div class="body">
+              <p>
+                <strong>50 invasive species</strong> have been documented in the
+                estuary. They arrive through ballast water, aquaculture, and
+                intentional introduction.
+                <strong>7 species from Japan</strong> alone.
+              </p>
+              <div class="stat-row">
+                <div class="stat-pill">
+                  <div class="num">27</div>
+                  <div class="lbl">Invasive Fish</div>
+                </div>
+                <div class="stat-pill">
+                  <div class="num">23</div>
+                  <div class="lbl">Invasive Inverts</div>
+                </div>
+              </div>
+              <p>
+                Some, like Striped Bass, were introduced intentionally in the
+                1870s for sport fishing. Others hitchhiked in ship ballast tanks
+                from ports around the world.
+              </p>
+            </div>
+          </div>
+
+          <div class="step" data-step="3">
+            <div class="step-header">
+              <img
+                class="step-header-mark"
+                src="../../../shared/img/wrmp-logo-2in-mark-crop.png"
+                alt=""
+                width="40"
+                height="40"
+                decoding="async"
+              />
+              <div class="step-header-text">
+                <span class="kicker">Alviso Marsh</span>
+                <h2>Where They Meet</h2>
+              </div>
+            </div>
+
+            <div class="body">
+              <p>
+                Zoom into Alviso Marsh —
+                <strong>21 monitoring stations</strong> where scientists track
+                which species use restored and natural habitats.
+              </p>
+              <p>
+                This is where native and invasive species share the same slough
+                channels. Every trawl sample records what's there.
+              </p>
+              <div class="callout">
+                The South Bay Salt Pond Restoration Project — 15,000 acres of
+                former salt ponds returning to tidal marsh.
+              </div>
+            </div>
+          </div>
+
+          <div class="step" data-step="4">
+            <div class="step-header">
+              <img
+                class="step-header-mark"
+                src="../../../shared/img/wrmp-logo-2in-mark-crop.png"
+                alt=""
+                width="40"
+                height="40"
+                decoding="async"
+              />
+              <div class="step-header-text">
+                <span class="kicker">The Balance</span>
+                <h2>Counting the Balance</h2>
+              </div>
+            </div>
+
+            <div class="body">
+              <p>
+                Monitoring tracks the balance between native and invasive
+                species across every habitat type. The ratio tells us about
+                ecosystem health.
+              </p>
+              <div class="stat-row">
+                <div class="stat-pill">
+                  <div class="num">119</div>
+                  <div class="lbl">Stations</div>
+                </div>
+                <div class="stat-pill">
+                  <div class="num">9</div>
+                  <div class="lbl">Networks</div>
+                </div>
+              </div>
+              <p>
+                WRMP's network provides the data to understand whether the
+                balance is shifting. Quarterly surveys across the estuary reveal
+                the patterns that matter most.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-bar">
+          <button id="btn-prev" disabled>Back</button>
+          <div class="step-dots">
+            <button
+              class="step-dot active"
+              data-step="0"
+              aria-label="Step 1"
+            ></button>
+            <button class="step-dot" data-step="1" aria-label="Step 2"></button>
+            <button class="step-dot" data-step="2" aria-label="Step 3"></button>
+            <button class="step-dot" data-step="3" aria-label="Step 4"></button>
+            <button class="step-dot" data-step="4" aria-label="Step 5"></button>
+          </div>
+          <span class="step-counter">1 / 5</span>
+          <button id="btn-next">Next</button>
+        </div>
+      </div>
+
+      <!-- Level 3 · Pattern C (persistent drawer). A "Data & tools" toggle
+           pinned bottom-right, opening a panel available from any step —
+           deep data is always one click away, never in the narrative.
+           Destinations are illustrative; confirm deep links with SFEI. -->
+      <button
+        class="level3-drawer-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="level3-drawer"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M12 3 2 8l10 5 10-5-10-5Zm0 7.5L4.2 6.6 12 2.7l7.8 3.9L12 10.5ZM2 13l10 5 10-5-2.4-1.2L12 15.3 4.4 11.8 2 13Zm0 5 10 5 10-5-2.4-1.2L12 20.3 4.4 16.8 2 18Z"
+          />
+        </svg>
+        Data &amp; tools
+      </button>
+      <aside
+        class="level3-drawer"
+        id="level3-drawer"
+        aria-label="Data and tools"
+      >
+        <div class="level3-drawer-head">
+          <p class="level3-drawer-title">Data &amp; tools</p>
+          <button class="level3-drawer-close" type="button" aria-label="Close">
+            <svg class="lc lc-sm" aria-hidden="true">
+              <use href="#l3-icon-x" />
+            </svg>
+          </button>
+        </div>
+        <!-- Level 3 · drawer final (icon-tile D/T/S group headers, described
+             rows). The body scrolls when content exceeds the drawer height.
+             Destinations are illustrative — confirm deep links with SFEI. -->
+        <div class="level3-drawer-body">
+          <!-- Data -->
+          <div class="drf-group" data-cat="data">
+            <div class="drf-grouphead">
+              <span class="cat-icon cat-icon-sm"
+                ><svg class="lc" aria-hidden="true">
+                  <use href="#l3-icon-database" /></svg
+              ></span>
+              <span class="gh-name">Data</span>
+              <span class="gh-count">2</span>
+            </div>
+            <a
+              class="drf-row"
+              href="../../../data/species.json"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="rw-icon"
+                ><svg class="lc lc-sm" aria-hidden="true">
+                  <use href="#l3-icon-download" /></svg
+              ></span>
+              <span class="rw-body">
+                <span class="rw-top">
+                  <span class="rw-name">Species catalog</span>
+                  <span class="rw-go"
+                    ><svg class="lc lc-sm" aria-hidden="true">
+                      <use href="#l3-icon-arrow-down" /></svg
+                  ></span>
+                </span>
+                <span class="rw-desc"
+                  >Every fish taxon logged across the estuary's monitored
+                  habitats, native and invasive — JSON.</span
+                >
+              </span>
+            </a>
+            <a
+              class="drf-row"
+              href="../../../data/stations.json"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="rw-icon"
+                ><svg class="lc lc-sm" aria-hidden="true">
+                  <use href="#l3-icon-download" /></svg
+              ></span>
+              <span class="rw-body">
+                <span class="rw-top">
+                  <span class="rw-name">Station network</span>
+                  <span class="rw-go"
+                    ><svg class="lc lc-sm" aria-hidden="true">
+                      <use href="#l3-icon-arrow-down" /></svg
+                  ></span>
+                </span>
+                <span class="rw-desc"
+                  >All 119 monitoring stations with coordinates, region and
+                  network — where each catch was recorded.</span
+                >
+              </span>
+            </a>
+          </div>
+          <!-- Tools -->
+          <div class="drf-group" data-cat="tools">
+            <div class="drf-grouphead">
+              <span class="cat-icon cat-icon-sm"
+                ><svg class="lc" aria-hidden="true">
+                  <use href="#l3-icon-compass" /></svg
+              ></span>
+              <span class="gh-name">Tools</span>
+              <span class="gh-count">1</span>
+            </div>
+            <a
+              class="drf-row"
+              href="https://www.ecoatlas.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="rw-icon"
+                ><svg class="lc lc-sm" aria-hidden="true">
+                  <use href="#l3-icon-map" /></svg
+              ></span>
+              <span class="rw-body">
+                <span class="rw-top">
+                  <span class="rw-name">EcoAtlas</span>
+                  <span class="rw-go"
+                    ><svg class="lc lc-sm" aria-hidden="true">
+                      <use href="#l3-icon-arrow-up-right" /></svg
+                  ></span>
+                </span>
+                <span class="rw-desc"
+                  >Interactive geospatial maps of every wetland, restoration
+                  project and station in the estuary.</span
+                >
+              </span>
+            </a>
+          </div>
+          <!-- Science -->
+          <div class="drf-group" data-cat="science">
+            <div class="drf-grouphead">
+              <span class="cat-icon cat-icon-sm"
+                ><svg class="lc" aria-hidden="true">
+                  <use href="#l3-icon-flask-conical" /></svg
+              ></span>
+              <span class="gh-name">Science</span>
+              <span class="gh-count">2</span>
+            </div>
+            <a
+              class="drf-row"
+              href="https://www.wrmp.org/science-framework/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="rw-icon"
+                ><svg class="lc lc-sm" aria-hidden="true">
+                  <use href="#l3-icon-file-text" /></svg
+              ></span>
+              <span class="rw-body">
+                <span class="rw-top">
+                  <span class="rw-name">WRMP Science Framework</span>
+                  <span class="rw-go"
+                    ><svg class="lc lc-sm" aria-hidden="true">
+                      <use href="#l3-icon-arrow-up-right" /></svg
+                  ></span>
+                </span>
+                <span class="rw-desc"
+                  >The monitoring design — management questions, indicators
+                  and how the station network answers them.</span
+                >
+              </span>
+            </a>
+            <a
+              class="drf-row"
+              href="https://www.stateofourestuary.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="rw-icon"
+                ><svg class="lc lc-sm" aria-hidden="true">
+                  <use href="#l3-icon-file-text" /></svg
+              ></span>
+              <span class="rw-body">
+                <span class="rw-top">
+                  <span class="rw-name">State of Our Estuary</span>
+                  <span class="rw-go"
+                    ><svg class="lc lc-sm" aria-hidden="true">
+                      <use href="#l3-icon-arrow-up-right" /></svg
+                  ></span>
+                </span>
+                <span class="rw-desc"
+                  >Regional status reporting on the estuary's health,
+                  habitats and long-term species trends.</span
+                >
+              </span>
+            </a>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="../../../shared/js/data-loader.js"></script>
+    <script src="../../../shared/js/map-init.js"></script>
+    <script src="../../../shared/js/marker-popup.js"></script>
+    <script src="../../../shared/js/stepper.js"></script>
+    <script src="../../../shared/js/exhibit-screens.js"></script>
+    <script src="../../../shared/js/level3.js?v=1"></script>
+    <script>
+      // ── Exhibit Config ─────────────────────────────
+      var STATIONS = [];
+      var SPECIES = [];
+      function tokenColor(name, fallback) {
+        var v = getComputedStyle(document.documentElement).getPropertyValue(name);
+        return v ? v.trim() || fallback : fallback;
+      }
+      var C = {
+        GREEN: tokenColor("--wrmp-green", "#379352"),
+        ORANGE: tokenColor("--wrmp-orange", "#E09337"),
+        TEAL: tokenColor("--wrmp-teal", "#228B9C"),
+        CYAN_12: tokenColor("--cyan-12", "#083344"),
+        AMBER_12: tokenColor("--amber-12", "#4f3422"),
+        GRAY_11: tokenColor("--gray-11", "#60646c"),
+        GRAY_12: tokenColor("--gray-12", "#1c2024"),
+      };
+
+      var HABITAT_COLORS = {
+        Benthic: C.TEAL,
+        Pelagic: C.ORANGE,
+        Littoral: C.GREEN,
+      };
+      var STATION_HABITAT_COLORS = {
+        Slough: C.TEAL,
+        "Tidal Pond Slough": C.GREEN,
+      };
+
+      var BAY_FULL = [
+        [37.4, -122.55],
+        [38.28, -121.85],
+      ];
+      var ALVISO = [
+        [37.43, -122.05],
+        [37.47, -121.93],
+      ];
+
+      var POPUP_FIELDS = [
+        ["Region", "region"],
+        ["Network", "WRMP_Network"],
+        ["Habitat", "habitat"],
+        ["Site Type", "WRMP_Site_Type"],
+      ];
+
+      var NATIVE_FEATURED = {
+        sharks: ["LEOSHA", "BATRAY", "BROSSH"],
+        smelt: ["DELSME", "LONSME", "TOPSME"],
+        icons: ["CHISAL", "PACHER", "STAFLO"],
+      };
+      var INVASIVE_FEATURED = {
+        japan: ["YELGOB", "SHIGOB", "WAKASA"],
+        eastcoast: ["STRBAS", "AMESHA", "CHACAT"],
+        world: ["CMAENA", "CORBUL", "ESINEN"],
+      };
+
+      var STEP_TYPES = ["map", "gallery", "gallery", "map", "infographic"];
+      var activeHabitatFilter = null;
+
+      // ── Map Init ───────────────────────────────────
+      var map = WRMP.initMap("map", { bounds: BAY_FULL });
+      var markerLayer = L.layerGroup().addTo(map);
+      var labelLayer = L.layerGroup().addTo(map);
+
+      // ── DOM refs ───────────────────────────────────
+      var mapEl = document.getElementById("map");
+      var bgGallery = document.getElementById("bg-gallery");
+      var bgInfographic = document.getElementById("bg-infographic");
+      var contentStep2 = document.getElementById("content-step2");
+      var contentStep3 = document.getElementById("content-step3");
+      var contentStep5 = document.getElementById("content-step5");
+      var legendEl = document.getElementById("map-legend");
+
+      // ── Species Card Builder ───────────────────────
+      function buildSpeciesCard(sp, invasive) {
+        var markerColor = invasive ? C.ORANGE : C.TEAL;
+        var habColor = HABITAT_COLORS[sp.hab] || "#999";
+        var sciName = sp.gensp !== "NA" ? sp.gensp : sp.genus + " " + sp.species;
+
+        var card = document.createElement("div");
+        card.className = "metrics-card";
+        card.style.setProperty("--card-marker-color", markerColor);
+
+        var marker = document.createElement("div");
+        marker.className = "metrics-card__marker";
+        card.appendChild(marker);
+
+        var body = document.createElement("div");
+        body.className = "metrics-card__body";
+
+        var info = document.createElement("div");
+        info.className = "metrics-card__info";
+
+        var kicker = document.createElement("p");
+        kicker.className = "metrics-card__kicker";
+        kicker.textContent = invasive ? "Invasive" : "Native";
+        info.appendChild(kicker);
+
+        var title = document.createElement("p");
+        title.className = "metrics-card__title";
+        title.textContent = sp.comname;
+        info.appendChild(title);
+
+        var subtitle = document.createElement("p");
+        subtitle.className = "metrics-card__subtitle";
+        subtitle.textContent = sciName;
+        info.appendChild(subtitle);
+
+        body.appendChild(info);
+
+        var details = document.createElement("div");
+        details.className = "metrics-card__details";
+
+        var list = document.createElement("div");
+        list.className = "metrics-card__list";
+
+        var indicatorRow = document.createElement("div");
+        indicatorRow.className = "metrics-card__indicator-row";
+
+        var dot = document.createElement("span");
+        dot.className = "metrics-card__indicator-dot";
+        dot.style.setProperty("--indicator-dot-color", habColor);
+
+        var indicatorLabel = document.createElement("p");
+        indicatorLabel.className = "metrics-card__indicator-label";
+        indicatorLabel.textContent = sp.hab || "";
+
+        indicatorRow.appendChild(dot);
+        indicatorRow.appendChild(indicatorLabel);
+        list.appendChild(indicatorRow);
+        details.appendChild(list);
+        body.appendChild(details);
+        card.appendChild(body);
+
+        return card;
+      }
+
+      function buildGalleryGroup(label, codes, invasive) {
+        var speciesMap = {};
+        SPECIES.forEach(function (sp) {
+          speciesMap[sp.code] = sp;
+        });
+
+        var group = document.createElement("div");
+        group.className = "gallery-group";
+
+        var lbl = document.createElement("div");
+        lbl.className = "heading-md";
+        lbl.textContent = label;
+        group.appendChild(lbl);
+
+        var row = document.createElement("div");
+        row.className = "gallery-row";
+        codes.forEach(function (code) {
+          var sp = speciesMap[code];
+          if (sp) row.appendChild(buildSpeciesCard(sp, invasive));
+        });
+        group.appendChild(row);
+        return group;
+      }
+
+      // ── Canvas Bar Chart ────────────────────────────
+      function drawHabitatChart(canvas, counts) {
+        var dpr = window.devicePixelRatio || 1;
+        var container = canvas.parentElement;
+        var w = container.clientWidth;
+        var habitats = ["Benthic", "Littoral", "Pelagic"];
+        var maxTotal = 0;
+        habitats.forEach(function (h) {
+          var t = counts[h].Native + counts[h].Invasive;
+          if (t > maxTotal) maxTotal = t;
+        });
+
+        var rowHeight = 36;
+        var rowGap = 18;
+        var labelWidth = 80;
+        var countWidth = 50;
+        var titleHeight = 32;
+        var legendHeight = 30;
+        var topPad = 8;
+        var chartHeight =
+          titleHeight +
+          topPad +
+          habitats.length * (rowHeight + rowGap) -
+          rowGap +
+          legendHeight +
+          8;
+
+        canvas.style.width = w + "px";
+        canvas.style.height = chartHeight + "px";
+        canvas.width = w * dpr;
+        canvas.height = chartHeight * dpr;
+
+        var ctx = canvas.getContext("2d");
+        ctx.scale(dpr, dpr);
+        ctx.clearRect(0, 0, w, chartHeight);
+
+        // Title
+        ctx.font = "600 15px 'Source Sans 3', sans-serif";
+        ctx.fillStyle = C.GRAY_12;
+        ctx.textBaseline = "top";
+        ctx.fillText("Species by Habitat", 0, 0);
+
+        var barAreaWidth = w - labelWidth - countWidth;
+        var y = titleHeight + topPad;
+
+        habitats.forEach(function (hab) {
+          var nativeCount = counts[hab].Native;
+          var invasiveCount = counts[hab].Invasive;
+          var total = nativeCount + invasiveCount;
+
+          // Label
+          ctx.font = "600 14px 'Source Sans 3', sans-serif";
+          ctx.fillStyle = C.GRAY_11;
+          ctx.textBaseline = "middle";
+          ctx.textAlign = "left";
+          ctx.fillText(hab, 0, y + rowHeight / 2);
+
+          // Native bar
+          var nativeW =
+            maxTotal > 0 ? (nativeCount / maxTotal) * barAreaWidth : 0;
+          var barX = labelWidth;
+          ctx.fillStyle = "#228B9C";
+          ctx.beginPath();
+          ctx.roundRect(barX, y, Math.max(nativeW, 2), rowHeight, [4, 0, 0, 4]);
+          ctx.fill();
+
+          // Native count label inside bar
+          if (nativeW > 30) {
+            ctx.font = "700 13px 'Source Sans 3', sans-serif";
+            ctx.fillStyle = C.CYAN_12;
+            ctx.textAlign = "center";
+            ctx.fillText(
+              String(nativeCount),
+              barX + nativeW / 2,
+              y + rowHeight / 2,
+            );
+          }
+
+          // Invasive bar
+          var invasiveW =
+            maxTotal > 0 ? (invasiveCount / maxTotal) * barAreaWidth : 0;
+          var invX = barX + nativeW + 3;
+          ctx.fillStyle = "#E09337";
+          ctx.beginPath();
+          ctx.roundRect(
+            invX,
+            y,
+            Math.max(invasiveW, 2),
+            rowHeight,
+            [0, 4, 4, 0],
+          );
+          ctx.fill();
+
+          // Invasive count label inside bar
+          if (invasiveW > 30) {
+            ctx.font = "700 13px 'Source Sans 3', sans-serif";
+            ctx.fillStyle = C.AMBER_12;
+            ctx.textAlign = "center";
+            ctx.fillText(
+              String(invasiveCount),
+              invX + invasiveW / 2,
+              y + rowHeight / 2,
+            );
+          }
+
+          // Total on right
+          ctx.font = "600 14px 'Source Sans 3', sans-serif";
+          ctx.fillStyle = C.GRAY_11;
+          ctx.textAlign = "right";
+          ctx.fillText(String(total), w, y + rowHeight / 2);
+
+          y += rowHeight + rowGap;
+        });
+
+        // Legend
+        var legY = y + 4;
+        var swatchSize = 12;
+        var legItems = [
+          [C.TEAL, "Native"],
+          [C.ORANGE, "Invasive"],
+        ];
+        var legX = labelWidth;
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+        legItems.forEach(function (item) {
+          ctx.fillStyle = item[0];
+          ctx.beginPath();
+          ctx.roundRect(legX, legY, swatchSize, swatchSize, 2);
+          ctx.fill();
+          ctx.font = "400 13px 'Source Sans 3', sans-serif";
+          ctx.fillStyle = C.GRAY_11;
+          ctx.fillText(item[1], legX + swatchSize + 6, legY + swatchSize / 2);
+          legX += swatchSize + 6 + ctx.measureText(item[1]).width + 20;
+        });
+      }
+
+      // ── Infographic Bar Builder ────────────────────
+      function buildBarGroup(label, sublabel, nativeCount, invasiveCount) {
+        var total = nativeCount + invasiveCount;
+        var group = document.createElement("div");
+        group.className = "bar-group";
+
+        var title = document.createElement("div");
+        title.className = "bar-label";
+        title.textContent = label;
+        group.appendChild(title);
+
+        var sub = document.createElement("div");
+        sub.className = "bar-sublabel";
+        sub.textContent = sublabel;
+        group.appendChild(sub);
+
+        var track = document.createElement("div");
+        track.className = "bar-track";
+
+        var nativeBar = document.createElement("div");
+        nativeBar.className = "bar-segment native";
+        nativeBar.style.width = (nativeCount / total) * 100 + "%";
+        nativeBar.textContent = nativeCount;
+        track.appendChild(nativeBar);
+
+        var invasiveBar = document.createElement("div");
+        invasiveBar.className = "bar-segment invasive";
+        invasiveBar.style.width = (invasiveCount / total) * 100 + "%";
+        invasiveBar.textContent = invasiveCount;
+        track.appendChild(invasiveBar);
+
+        group.appendChild(track);
+        return group;
+      }
+
+      // ── Build Content Areas ────────────────────────
+      function buildContentAreas() {
+        var c2 = contentStep2;
+        c2.replaceChildren();
+        c2.appendChild(
+          buildGalleryGroup("Sharks & Rays", NATIVE_FEATURED.sharks, false),
+        );
+        c2.appendChild(
+          buildGalleryGroup("Smelt", NATIVE_FEATURED.smelt, false),
+        );
+        c2.appendChild(
+          buildGalleryGroup("Estuary Icons", NATIVE_FEATURED.icons, false),
+        );
+
+        var c3 = contentStep3;
+        c3.replaceChildren();
+        c3.appendChild(
+          buildGalleryGroup("From Japan", INVASIVE_FEATURED.japan, true),
+        );
+        c3.appendChild(
+          buildGalleryGroup(
+            "From the East Coast",
+            INVASIVE_FEATURED.eastcoast,
+            true,
+          ),
+        );
+        c3.appendChild(
+          buildGalleryGroup(
+            "From Around the World",
+            INVASIVE_FEATURED.world,
+            true,
+          ),
+        );
+
+        var counts = {
+          Benthic: { Native: 0, Invasive: 0 },
+          Littoral: { Native: 0, Invasive: 0 },
+          Pelagic: { Native: 0, Invasive: 0 },
+        };
+        SPECIES.forEach(function (sp) {
+          if (
+            sp.hab &&
+            counts[sp.hab] &&
+            (sp.natinv === "Native" || sp.natinv === "Invasive")
+          ) {
+            counts[sp.hab][sp.natinv]++;
+          }
+        });
+
+        var c5 = contentStep5;
+        c5.replaceChildren();
+
+        // Canvas chart
+        var chartCanvas = document.createElement("canvas");
+        chartCanvas.id = "habitat-chart";
+        chartCanvas.style.display = "block";
+        chartCanvas.style.marginBottom = "var(--space-lg)";
+        c5.appendChild(chartCanvas);
+        // Draw after append so container width is available
+        requestAnimationFrame(function () {
+          drawHabitatChart(chartCanvas, counts);
+        });
+
+        // Resize handler
+        var resizeTimer;
+        window.addEventListener("resize", function () {
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(function () {
+            if (chartCanvas.parentElement)
+              drawHabitatChart(chartCanvas, counts);
+          }, 150);
+        });
+
+        c5.appendChild(
+          buildBarGroup(
+            "Benthic",
+            "Bottom-dwellers",
+            counts.Benthic.Native,
+            counts.Benthic.Invasive,
+          ),
+        );
+        c5.appendChild(
+          buildBarGroup(
+            "Littoral",
+            "Shoreline species",
+            counts.Littoral.Native,
+            counts.Littoral.Invasive,
+          ),
+        );
+        c5.appendChild(
+          buildBarGroup(
+            "Pelagic",
+            "Open water",
+            counts.Pelagic.Native,
+            counts.Pelagic.Invasive,
+          ),
+        );
+
+        var legendRow = document.createElement("div");
+        legendRow.className = "bar-legend-row";
+        [
+          [C.TEAL, "Native"],
+          [C.ORANGE, "Invasive"],
+        ].forEach(function (pair) {
+          var item = document.createElement("div");
+          item.className = "bar-legend-item";
+          var swatch = document.createElement("span");
+          swatch.className = "bar-legend-swatch";
+          swatch.style.background = pair[0];
+          item.appendChild(swatch);
+          item.appendChild(document.createTextNode(pair[1]));
+          legendRow.appendChild(item);
+        });
+        c5.appendChild(legendRow);
+      }
+
+      // ── Step Rendering ─────────────────────────────
+      function renderStep() {
+        var type = STEP_TYPES[stepper.currentStep];
+
+        mapEl.classList.toggle("active", type === "map");
+        bgGallery.classList.toggle("active", type === "gallery");
+        bgInfographic.classList.toggle("active", type === "infographic");
+
+        contentStep2.classList.toggle("active", stepper.currentStep === 1);
+        contentStep3.classList.toggle("active", stepper.currentStep === 2);
+        contentStep5.classList.toggle("active", stepper.currentStep === 4);
+
+        legendEl.replaceChildren();
+        markerLayer.clearLayers();
+        labelLayer.clearLayers();
+
+        if (type !== "map" || STATIONS.length === 0) return;
+
+        if (stepper.currentStep === 0) {
+          STATIONS.forEach(function (s) {
+            L.circleMarker([s.lat, s.lon], {
+              radius: 5,
+              fillColor: C.TEAL,
+              color: "#fff",
+              weight: 1.5,
+              opacity: 0.8,
+              fillOpacity: 0.5,
+            })
+              .bindPopup(
+                WRMP.makeMarkerPopup({
+                  code: s.station_code,
+                  name: s.station_name,
+                  dotColor: C.TEAL,
+                  showImage: false,
+                  sections: [
+                    {
+                      rows: POPUP_FIELDS.map(function (p) {
+                        return {
+                          type: "row",
+                          label: s[p[1]] || "—",
+                          value: p[0],
+                        };
+                      }),
+                    },
+                  ],
+                }),
+              )
+              .addTo(markerLayer);
+          });
+          WRMP.flyTo(map, BAY_FULL);
+        } else if (stepper.currentStep === 3) {
+          activeHabitatFilter = null;
+
+          function renderHabitatMarkers() {
+            markerLayer.clearLayers();
+            var alviso = STATIONS.filter(function (s) {
+              return s.subregion === "Alviso Marsh";
+            });
+            alviso.forEach(function (s) {
+              var habitat = (s.habitat || "").trim();
+              var match =
+                !activeHabitatFilter || habitat === activeHabitatFilter;
+              var color = STATION_HABITAT_COLORS[habitat] || "#999";
+              L.circleMarker([s.lat, s.lon], {
+                radius: match ? 8 : 4,
+                fillColor: match ? color : "#aaa",
+                color: "#fff",
+                weight: match ? 2 : 1,
+                opacity: match ? 1 : 0.3,
+                fillOpacity: match ? 0.85 : 0.2,
+              })
+                .bindPopup(
+                  WRMP.makeMarkerPopup({
+                    code: s.station_code,
+                    name: s.station_name,
+                    dotColor: color,
+                    showImage: false,
+                    sections: [
+                      {
+                        rows: POPUP_FIELDS.map(function (p) {
+                          return {
+                            type: "row",
+                            label: s[p[1]] || "—",
+                            value: p[0],
+                          };
+                        }),
+                      },
+                    ],
+                  }),
+                )
+                .addTo(markerLayer);
+            });
+            STATIONS.forEach(function (s) {
+              if (s.subregion === "Alviso Marsh") return;
+              L.circleMarker([s.lat, s.lon], {
+                radius: 3,
+                fillColor: "#bbb",
+                color: "#ddd",
+                weight: 1,
+                opacity: 0.3,
+                fillOpacity: 0.15,
+              }).addTo(markerLayer);
+            });
+          }
+
+          function buildHabitatLegend() {
+            legendEl.replaceChildren();
+
+            var allChip = document.createElement("button");
+            allChip.className =
+              "map-legend-chip" + (!activeHabitatFilter ? " active" : "");
+            var allLabel = document.createElement("span");
+            allLabel.className = "map-legend-chip-label";
+            allLabel.setAttribute("data-label", "All");
+            allLabel.textContent = "All";
+            allChip.appendChild(allLabel);
+            allChip.addEventListener("click", function () {
+              activeHabitatFilter = null;
+              buildHabitatLegend();
+              renderHabitatMarkers();
+            });
+            legendEl.appendChild(allChip);
+
+            Object.keys(STATION_HABITAT_COLORS).forEach(function (hab) {
+              var isActive = activeHabitatFilter === hab;
+              var isDimmed = activeHabitatFilter && !isActive;
+              var chip = document.createElement("button");
+              chip.className =
+                "map-legend-chip" +
+                (isActive ? " active" : "") +
+                (isDimmed ? " dimmed" : "");
+              var dot = document.createElement("span");
+              dot.className = "map-legend-dot";
+              dot.style.background = STATION_HABITAT_COLORS[hab];
+              chip.appendChild(dot);
+              var lbl = document.createElement("span");
+              lbl.className = "map-legend-chip-label";
+              lbl.setAttribute("data-label", hab);
+              lbl.textContent = hab;
+              chip.appendChild(lbl);
+              chip.addEventListener("click", function () {
+                activeHabitatFilter = activeHabitatFilter === hab ? null : hab;
+                buildHabitatLegend();
+                renderHabitatMarkers();
+              });
+              legendEl.appendChild(chip);
+            });
+          }
+
+          renderHabitatMarkers();
+          buildHabitatLegend();
+          WRMP.flyTo(map, ALVISO, { duration: 1.5 });
+        }
+      }
+
+      // ── Stepper ────────────────────────────────────
+var screens = WRMP.wireExhibitScreens({
+
+  totalSteps: 5,
+
+  onStepEnter: function (n) {
+          renderStep();
+
+  },
+
+  onEnter: function () {
+
+    stepper.goToStep(0);
+
+  },
+
+  onRestart: function () {
+
+    stepper.goToStep(0);
+
+  },
+
+});
+
+
+var stepper = WRMP.createStepper({
+
+  totalSteps: 5,
+
+  onStepEnter: screens.onStepEnter,
+
+});
+
+      // ── Level 3 · persistent "Data & tools" drawer ──
+      WRMP.initLevel3Drawer();
+
+      // ── Load Data ──────────────────────────────────
+      WRMP.loadData({ stations: true, species: true })
+        .then(function (data) {
+          STATIONS = data.stations;
+          SPECIES = data.species;
+          buildContentAreas();
+          stepper.goToStep(0);
+        })
+        .catch(function (err) {
+          console.error("Failed to load data:", err);
+        });
+    </script>
+  </body>
+</html>

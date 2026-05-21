@@ -1,0 +1,1094 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Bay: Where We're Watching — WRMP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <link rel="stylesheet" href="../../../shared/css/tokens.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-frame.css" />
+    <link rel="stylesheet" href="../../../shared/css/leaflet-overrides.css?v=2" />
+    <link rel="stylesheet" href="../../../shared/css/marker-popup.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-cover.css" />
+    <link rel="stylesheet" href="../../../shared/css/level3.css?v=1" />
+  </head>
+  <body>
+    <!-- Level 3 icon sprite — Lucide glyphs inlined as <symbol>s, no CDN
+         dependency. Referenced via <svg class="lc"><use href="#l3-icon-…"/>. -->
+    <svg
+      width="0"
+      height="0"
+      style="position: absolute"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <symbol
+          id="l3-icon-database"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <ellipse cx="12" cy="5" rx="9" ry="3" />
+          <path d="M3 5V19A9 3 0 0 0 21 19V5" />
+          <path d="M3 12A9 3 0 0 0 21 12" />
+        </symbol>
+        <symbol
+          id="l3-icon-compass"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <path
+            d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"
+          />
+        </symbol>
+        <symbol
+          id="l3-icon-flask-conical"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"
+          />
+          <path d="M6.453 15h11.094" />
+          <path d="M8.5 2h7" />
+        </symbol>
+        <symbol
+          id="l3-icon-map"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"
+          />
+          <path d="M15 5.764v15" />
+          <path d="M9 3.236v15" />
+        </symbol>
+        <symbol
+          id="l3-icon-file-text"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"
+          />
+          <path d="M14 2v5a1 1 0 0 0 1 1h5" />
+          <path d="M10 9H8" />
+          <path d="M16 13H8" />
+          <path d="M16 17H8" />
+        </symbol>
+        <symbol
+          id="l3-icon-download"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 15V3" />
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <path d="m7 10 5 5 5-5" />
+        </symbol>
+        <symbol
+          id="l3-icon-folder-open"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"
+          />
+        </symbol>
+        <symbol
+          id="l3-icon-arrow-up-right"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M7 7h10v10" />
+          <path d="M7 17 17 7" />
+        </symbol>
+        <symbol
+          id="l3-icon-arrow-down"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 5v14" />
+          <path d="m19 12-7 7-7-7" />
+        </symbol>
+        <symbol
+          id="l3-icon-x"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M18 6 6 18" />
+          <path d="m6 6 12 12" />
+        </symbol>
+      </defs>
+    </svg>
+
+    <div class="exhibit-frame">
+      <div id="map"></div>
+      <div class="map-legend" id="map-legend"></div>
+      <div id="exhibit-cover" class="exhibit-cover">
+        <div
+          class="exhibit-cover-image"
+          style="background-image: url('./cover.jpg')"
+          aria-hidden="true"
+        ></div>
+        <div class="exhibit-cover-gradient" aria-hidden="true"></div>
+        <div class="exhibit-cover-content">
+          <span class="exhibit-cover-kicker">WRMP Exhibit · Overview</span>
+          <h2 class="exhibit-cover-title">The Bay: Where We're Watching</h2>
+          <p class="exhibit-cover-lede">
+            Explore how WRMP monitors the San Francisco Estuary across regions,
+            networks, and restoration sites.
+          </p>
+          <button id="btn-enter" class="exhibit-cover-cta" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            Step Inside
+          </button>
+          <div class="exhibit-cover-journey">
+            <div class="exhibit-cover-dots" aria-hidden="true">
+              <span class="exhibit-cover-dot is-pulsing"></span>
+              <span class="exhibit-cover-dot"></span>
+              <span class="exhibit-cover-dot"></span>
+              <span class="exhibit-cover-dot"></span>
+              <span class="exhibit-cover-dot"></span>
+            </div>
+            <span class="exhibit-cover-journey-label">5 stops · ~3 min</span>
+          </div>
+        </div>
+      </div>
+      <div
+        id="exhibit-end-card"
+        class="exhibit-cover exhibit-cover--end is-hidden"
+      >
+        <div
+          class="exhibit-cover-image"
+          style="background-image: url('./cover.jpg')"
+          aria-hidden="true"
+        ></div>
+        <div class="exhibit-cover-gradient" aria-hidden="true"></div>
+        <div class="exhibit-cover-content">
+          <div
+            class="exhibit-cover-dots exhibit-cover-dots--complete"
+            aria-label="5 of 5 stops complete"
+          >
+            <span class="exhibit-cover-dot is-done"></span>
+            <span class="exhibit-cover-dot is-done"></span>
+            <span class="exhibit-cover-dot is-done"></span>
+            <span class="exhibit-cover-dot is-done"></span>
+            <span class="exhibit-cover-dot is-done"></span>
+          </div>
+          <span class="exhibit-cover-kicker">Thanks for exploring</span>
+          <h2 class="exhibit-cover-title">The data runs deeper</h2>
+          <p class="exhibit-cover-lede">
+            This exhibit is one layer. WRMP's monitoring lives inside a larger
+            data ecosystem — from the Bay-wide EcoAtlas toolset to the raw
+            datasets scientists work with every day.
+          </p>
+          <span class="exhibit-cover-links-label"
+            >Explore the data ecosystem</span
+          >
+          <div class="exhibit-cover-links">
+            <a
+              class="exhibit-cover-link exhibit-cover-link--featured"
+              href="https://www.ecoatlas.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+              >EcoAtlas ↗</a
+            >
+            <a
+              class="exhibit-cover-link exhibit-cover-link--featured"
+              href="https://www.wrmp.org/science-framework/"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Science Framework ↗</a
+            >
+            <a
+              class="exhibit-cover-link exhibit-cover-link--featured"
+              href="https://www.stateofourestuary.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+              >State of Our Estuary ↗</a
+            >
+          </div>
+          <div class="exhibit-cover-actions">
+            <button id="btn-restart" class="exhibit-cover-cta" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"
+                />
+              </svg>
+              Restart exhibit
+            </button>
+            <a
+              class="exhibit-cover-cta exhibit-cover-cta--secondary"
+              href="../../../"
+              >View all exhibits</a
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="story-panel">
+        <div class="story-panel-inner">
+          <!-- Step 1: The Estuary -->
+          <div class="step active" data-step="0">
+            <div class="step-header">
+              <img
+                class="step-header-mark"
+                src="../../../shared/img/wrmp-logo-2in-mark-crop.png"
+                alt=""
+                width="40"
+                height="40"
+                decoding="async"
+              />
+              <div class="step-header-text">
+                <span class="kicker">SF Estuary</span>
+                <h2>The Estuary</h2>
+              </div>
+            </div>
+            <div class="body">
+              <p>
+                The San Francisco Estuary is the largest on North America's
+                Pacific coast — a vast network of tidal marshes, sloughs, and
+                open water where freshwater rivers meet the sea.
+              </p>
+              <p>
+                It's home to over 250 species of fish and invertebrates,
+                including several listed for protection: Winter-run Chinook
+                Salmon, Delta and Longfin Smelt, Green and White Sturgeon.
+              </p>
+              <div class="stat-row">
+                <div class="stat-pill">
+                  <div class="num">119</div>
+                  <div class="lbl">Stations</div>
+                </div>
+                <div class="stat-pill">
+                  <div class="num">250+</div>
+                  <div class="lbl">Species</div>
+                </div>
+                <div class="stat-pill">
+                  <div class="num">9</div>
+                  <div class="lbl">Networks</div>
+                </div>
+              </div>
+              <p>
+                The Wetland Regional Monitoring Program (WRMP) watches over this
+                system with a network of monitoring stations stretching from
+                Suisun Bay to the southern tip of the South Bay.
+              </p>
+              <!-- Level 3 · inline final (category-led compact card). Each
+                   step links the deep-data resource matching its content,
+                   tagged Data / Tools / Science. Destinations are
+                   illustrative — confirm exact deep links with SFEI. -->
+              <a
+                class="l3-inline-card"
+                data-cat="tools"
+                href="https://www.ecoatlas.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <div class="l3-inline-lead">
+                  <span class="cat-icon"
+                    ><svg class="lc" aria-hidden="true">
+                      <use href="#l3-icon-compass" /></svg
+                  ></span>
+                  <span class="l3-inline-body">
+                    <span class="cat-tag l3-inline-cat">Tools</span>
+                    <span class="l3-inline-name"
+                      >EcoAtlas — estuary map</span
+                    >
+                    <span class="l3-inline-desc"
+                      >Explore all 119 monitoring stations on the Bay-wide
+                      interactive map of wetlands and habitats.</span
+                    >
+                  </span>
+                  <span class="l3-inline-go"
+                    ><svg class="lc" aria-hidden="true">
+                      <use href="#l3-icon-arrow-up-right" /></svg
+                  ></span>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <!-- Step 2: Three Worlds -->
+          <div class="step" data-step="1">
+            <div class="step-header">
+              <img
+                class="step-header-mark"
+                src="../../../shared/img/wrmp-logo-2in-mark-crop.png"
+                alt=""
+                width="40"
+                height="40"
+                decoding="async"
+              />
+              <div class="step-header-text">
+                <span class="kicker">Salinity Gradient</span>
+                <h2>Three Worlds</h2>
+              </div>
+            </div>
+            <div class="body">
+              <p>
+                You can't study the estuary as one thing. It's three distinct
+                ecological zones, shaped by a single force:
+                <strong>salinity</strong>.
+              </p>
+              <p>
+                <strong style="color: var(--amber-11)">Suisun Bay</strong> in
+                the east is nearly fresh — fed by the Sacramento and San Joaquin
+                rivers. It hosts freshwater species like Threespine Stickleback
+                and Siberian Prawn.
+              </p>
+              <p>
+                <strong style="color: var(--grass-11)">North Bay</strong> is the
+                mixing zone — brackish water where freshwater and marine species
+                overlap. The most dynamic habitat, shifting with the tides and
+                seasons.
+              </p>
+              <p>
+                <strong style="color: var(--cyan-11)">South Bay</strong> is the
+                most saline, connected to the Pacific. Here you find marine
+                species — jellyfish, tunicates, English Sole — alongside estuary
+                residents.
+              </p>
+              <a
+                class="l3-inline-card"
+                data-cat="science"
+                href="https://www.stateofourestuary.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <div class="l3-inline-lead">
+                  <span class="cat-icon"
+                    ><svg class="lc" aria-hidden="true">
+                      <use href="#l3-icon-flask-conical" /></svg
+                  ></span>
+                  <span class="l3-inline-body">
+                    <span class="cat-tag l3-inline-cat">Science</span>
+                    <span class="l3-inline-name"
+                      >State of Our Estuary</span
+                    >
+                    <span class="l3-inline-desc"
+                      >Regional status reporting that compares conditions and
+                      trends across the estuary's salinity zones.</span
+                    >
+                  </span>
+                  <span class="l3-inline-go"
+                    ><svg class="lc" aria-hidden="true">
+                      <use href="#l3-icon-arrow-up-right" /></svg
+                  ></span>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <!-- Step 3: The Network -->
+          <div class="step" data-step="2">
+            <div class="step-header">
+              <img
+                class="step-header-mark"
+                src="../../../shared/img/wrmp-logo-2in-mark-crop.png"
+                alt=""
+                width="40"
+                height="40"
+                decoding="async"
+              />
+              <div class="step-header-text">
+                <span class="kicker">Nine Networks</span>
+                <h2>The Network</h2>
+              </div>
+            </div>
+            <div class="body">
+              <p>
+                Scientists cover this vast territory through nine sampling
+                networks — circuits that field crews run by research vessel,
+                timed to the tides.
+              </p>
+              <p>
+                Each circuit is sampled with <strong>otter trawls</strong> —
+                nets towed behind the boat for 10 minutes, sweeping up fish and
+                invertebrates from the channel bottom. A single quarter produced
+                244 trawl samples across the Bay.
+              </p>
+              <div class="callout">
+                No single gear catches everything. Trawls catch the broadest
+                diversity of species, but beach seines and gillnets add larger
+                fish and shallow-water species that trawls miss.
+              </div>
+              <p>
+                Shallow stations require spring tides for access. Crews plan
+                around weather, tidal windows, and even submerged hazards — one
+                network lost a propeller to an unmarked rock wall.
+              </p>
+              <a
+                class="l3-inline-card"
+                data-cat="science"
+                href="https://www.wrmp.org/science-framework/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <div class="l3-inline-lead">
+                  <span class="cat-icon"
+                    ><svg class="lc" aria-hidden="true">
+                      <use href="#l3-icon-flask-conical" /></svg
+                  ></span>
+                  <span class="l3-inline-body">
+                    <span class="cat-tag l3-inline-cat">Science</span>
+                    <span class="l3-inline-name"
+                      >WRMP Science Framework</span
+                    >
+                    <span class="l3-inline-desc"
+                      >The monitoring design — management questions, sampling
+                      networks, and the gear choices behind every trawl.</span
+                    >
+                  </span>
+                  <span class="l3-inline-go"
+                    ><svg class="lc" aria-hidden="true">
+                      <use href="#l3-icon-arrow-up-right" /></svg
+                  ></span>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <!-- Step 4: Restoration in Progress -->
+          <div class="step" data-step="3">
+            <div class="step-header">
+              <img
+                class="step-header-mark"
+                src="../../../shared/img/wrmp-logo-2in-mark-crop.png"
+                alt=""
+                width="40"
+                height="40"
+                decoding="async"
+              />
+              <div class="step-header-text">
+                <span class="kicker">Wetland Restoration</span>
+                <h2>Restoration in Progress</h2>
+              </div>
+            </div>
+            <div class="body">
+              <p>
+                The South Bay is home to the
+                <strong
+                  >largest tidal wetland restoration in the United
+                  States</strong
+                >
+                — 15,000 acres of former salt ponds being returned to tidal
+                marsh habitat.
+              </p>
+              <p>
+                The monitoring network is designed to answer a critical
+                question:
+                <strong>is restoration working?</strong>
+              </p>
+              <p>
+                By sampling at restored project sites alongside natural
+                reference sites and long-term benchmarks, scientists can
+                directly compare fish communities.
+              </p>
+              <div class="callout">
+                Early results from 14 years of monitoring at Alviso Marsh show
+                that restored tidal ponds support fish communities equivalent to
+                natural sloughs. Restoration is working.
+              </div>
+              <a
+                class="l3-inline-card"
+                data-cat="tools"
+                href="https://www.ecoatlas.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <div class="l3-inline-lead">
+                  <span class="cat-icon"
+                    ><svg class="lc" aria-hidden="true">
+                      <use href="#l3-icon-map" /></svg
+                  ></span>
+                  <span class="l3-inline-body">
+                    <span class="cat-tag l3-inline-cat">Tools</span>
+                    <span class="l3-inline-name"
+                      >SF Estuary Wetlands Profile</span
+                    >
+                    <span class="l3-inline-desc"
+                      >EcoAtlas restoration dashboard tracking tidal wetland
+                      acres gained across the South Bay over time.</span
+                    >
+                  </span>
+                  <span class="l3-inline-go"
+                    ><svg class="lc" aria-hidden="true">
+                      <use href="#l3-icon-arrow-up-right" /></svg
+                  ></span>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <!-- Step 5: What Comes Next -->
+          <div class="step" data-step="4">
+            <div class="step-header">
+              <img
+                class="step-header-mark"
+                src="../../../shared/img/wrmp-logo-2in-mark-crop.png"
+                alt=""
+                width="40"
+                height="40"
+                decoding="async"
+              />
+              <div class="step-header-text">
+                <span class="kicker">Future Monitoring</span>
+                <h2>What Comes Next</h2>
+              </div>
+            </div>
+            <div class="body">
+              <p>
+                Across the Bay,
+                <strong>17 planned restoration sites</strong> mark where the
+                next chapter of recovery will unfold. Baseline monitoring at
+                these locations will begin before construction starts —
+                establishing what's there before transformation.
+              </p>
+              <p>
+                As data accumulates, each station on this map will grow to
+                reflect what was found there — species abundance, community
+                diversity, seasonal patterns.
+              </p>
+              <p>
+                The map becomes a living portrait of the estuary's ecological
+                health — showing not just
+                <em>where</em> we look, but <em>what we find</em>.
+              </p>
+              <div class="stat-row">
+                <div class="stat-pill">
+                  <div class="num">17</div>
+                  <div class="lbl">Planned Sites</div>
+                </div>
+                <div class="stat-pill">
+                  <div class="num">14+</div>
+                  <div class="lbl">Years of Data</div>
+                </div>
+              </div>
+              <a
+                class="l3-inline-card"
+                data-cat="data"
+                href="../../../data/stations.json"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <div class="l3-inline-lead">
+                  <span class="cat-icon"
+                    ><svg class="lc" aria-hidden="true">
+                      <use href="#l3-icon-database" /></svg
+                  ></span>
+                  <span class="l3-inline-body">
+                    <span class="cat-tag l3-inline-cat">Data</span>
+                    <span class="l3-inline-name"
+                      >Station network dataset</span
+                    >
+                    <span class="l3-inline-desc"
+                      >All 119 monitoring stations with coordinates, region
+                      and network — the spatial backbone of the program.</span
+                    >
+                  </span>
+                  <span class="l3-inline-go"
+                    ><svg class="lc" aria-hidden="true">
+                      <use href="#l3-icon-arrow-down" /></svg
+                  ></span>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-bar">
+          <button id="btn-prev" disabled>Back</button>
+          <div class="step-dots">
+            <button
+              class="step-dot active"
+              data-step="0"
+              aria-label="Step 1"
+            ></button>
+            <button class="step-dot" data-step="1" aria-label="Step 2"></button>
+            <button class="step-dot" data-step="2" aria-label="Step 3"></button>
+            <button class="step-dot" data-step="3" aria-label="Step 4"></button>
+            <button class="step-dot" data-step="4" aria-label="Step 5"></button>
+          </div>
+          <span class="step-counter">1 / 5</span>
+          <button id="btn-next">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="../../../shared/js/data-loader.js"></script>
+    <script src="../../../shared/js/map-init.js"></script>
+    <script src="../../../shared/js/marker-popup.js"></script>
+    <script src="../../../shared/js/stepper.js"></script>
+    <script src="../../../shared/js/exhibit-screens.js"></script>
+    <script>
+      // ── Exhibit Config ─────────────────────────────
+      var STATIONS = [];
+      function tokenColor(name, fallback) {
+        var v = getComputedStyle(document.documentElement).getPropertyValue(
+          name,
+        );
+        return v ? v.trim() || fallback : fallback;
+      }
+      var C = {
+        ADA_TEAL: tokenColor("--wrmp-ada-teal", "#005E6A"),
+        GREEN: tokenColor("--wrmp-green", "#379352"),
+        ORANGE: tokenColor("--wrmp-orange", "#E09337"),
+        TEAL: tokenColor("--wrmp-teal", "#228B9C"),
+        LIGHT_GREEN: tokenColor("--wrmp-light-green", "#92BB4D"),
+        SKY_BLUE: tokenColor("--wrmp-sky-blue", "#00ACEC"),
+        EARTH: tokenColor("--wrmp-earth", "#664D26"),
+        DARK_ORANGE: tokenColor("--wrmp-dark-orange", "#D66B2C"),
+      };
+
+      var REGION_COLORS = {
+        "South Bay": C.ADA_TEAL,
+        "North Bay": C.GREEN,
+        "Suisun Bay": C.ORANGE,
+      };
+
+      var NETWORK_COLORS = {
+        "Santa Clara - Primary": C.ADA_TEAL,
+        "Alameda - Primary": C.TEAL,
+        "Belmon-Redwood - Secondary": "#6BB5C2",
+        "Wildcat Creek - Primary": C.SKY_BLUE,
+        "Novato-Gallinas/West San Pablo Bay - Primary": C.GREEN,
+        "Napa-Sonoma - Primary": C.LIGHT_GREEN,
+        "Petaluma River - Secondary": C.EARTH,
+        "Suisun Slough - Primary": C.ORANGE,
+        "Montezuma - Delta - Secondary": C.DARK_ORANGE,
+      };
+
+      var SITE_COLORS = {
+        Benchmark: C.LIGHT_GREEN,
+        "Benchmark-Reference": "#C7D865",
+        Reference: C.ADA_TEAL,
+        "Reference Site Candidate": C.TEAL,
+        Project: C.GREEN,
+        "Other Restored Site": "#6A9E3A",
+        "Planned Restoration": C.ORANGE,
+        NA: "#bbb",
+      };
+
+      var BAY_FULL = [
+        [37.4, -122.55],
+        [38.28, -121.85],
+      ];
+      var SOUTH_BAY = [
+        [37.42, -122.1],
+        [37.62, -121.88],
+      ];
+
+      var POPUP_FIELDS = [
+        ["Region", "region"],
+        ["Network", "WRMP_Network"],
+        ["Habitat", "habitat"],
+        ["Site Type", "WRMP_Site_Type"],
+      ];
+      var POPUP_IMAGES = [
+        "../../2026-04-10-how-we-look/otter-trawl.jpg",
+        "../../2026-04-10-how-we-look/beach-seine.jpg",
+        "../../2026-04-10-how-we-look/gill-net.jpg",
+      ];
+
+      function popupImageForStation(station) {
+        var code = String(station.station_code || "");
+        if (!code) return null;
+        var hash = 0;
+        for (var i = 0; i < code.length; i++) hash += code.charCodeAt(i);
+        // Show images for a subset of stations only.
+        if (hash % 4 !== 0) return null;
+        return POPUP_IMAGES[hash % POPUP_IMAGES.length];
+      }
+
+      function makeStationPopup(station, dotColor) {
+        var image = popupImageForStation(station);
+        return WRMP.makeMarkerPopup({
+          code: station.station_code,
+          name: station.station_name,
+          dotColor: dotColor,
+          image: image,
+          showImage: !!image,
+          sections: [
+            {
+              rows: POPUP_FIELDS.map(function (p) {
+                return {
+                  type: "row",
+                  label: station[p[1]] || "—",
+                  value: p[0],
+                };
+              }),
+            },
+          ],
+        });
+      }
+
+      // ── Map Init ───────────────────────────────────
+      var map = WRMP.initMap("map", { bounds: BAY_FULL });
+      var markerLayer = L.layerGroup().addTo(map);
+      var poiLayer = L.layerGroup().addTo(map);
+
+      // ── Step Definitions ────────────────────────────
+      var STEP_DEFS = [
+        {
+          legend: null,
+          bounds: BAY_FULL,
+          pois: [],
+          render: function (stations, filter) {
+            stations.forEach(function (s) {
+              L.circleMarker([s.lat, s.lon], {
+                radius: 5,
+                fillColor: C.TEAL,
+                color: "#fff",
+                weight: 1.5,
+                opacity: 0.8,
+                fillOpacity: 0.5,
+              })
+                .bindPopup(makeStationPopup(s, C.TEAL))
+                .addTo(markerLayer);
+            });
+          },
+        },
+        {
+          legend: [
+            { label: "Suisun Bay", color: C.ORANGE, value: "Suisun Bay" },
+            { label: "North Bay", color: C.GREEN, value: "North Bay" },
+            { label: "South Bay", color: C.ADA_TEAL, value: "South Bay" },
+          ],
+          field: "region",
+          colors: REGION_COLORS,
+          bounds: BAY_FULL,
+          pois: [],
+          render: function (stations, filter) {
+            var colors = this.colors;
+            stations.forEach(function (s) {
+              var match = !filter || s.region === filter;
+              var color = colors[s.region] || "#999";
+              L.circleMarker([s.lat, s.lon], {
+                radius: match ? 7 : 4,
+                fillColor: match ? color : "#aaa",
+                color: "#fff",
+                weight: match ? 2 : 1,
+                opacity: match ? 1 : 0.3,
+                fillOpacity: match ? 0.85 : 0.25,
+              })
+                .bindPopup(makeStationPopup(s, color))
+                .addTo(markerLayer);
+            });
+          },
+        },
+        {
+          legend: [
+            {
+              label: "Santa Clara",
+              color: C.ADA_TEAL,
+              value: "Santa Clara - Primary",
+            },
+            { label: "Alameda", color: C.TEAL, value: "Alameda - Primary" },
+            {
+              label: "Wildcat",
+              color: C.SKY_BLUE,
+              value: "Wildcat Creek - Primary",
+            },
+            {
+              label: "Novato",
+              color: C.GREEN,
+              value: "Novato-Gallinas/West San Pablo Bay - Primary",
+            },
+            {
+              label: "Napa",
+              color: C.LIGHT_GREEN,
+              value: "Napa-Sonoma - Primary",
+            },
+            {
+              label: "Suisun",
+              color: C.ORANGE,
+              value: "Suisun Slough - Primary",
+            },
+            {
+              label: "Montezuma",
+              color: C.DARK_ORANGE,
+              value: "Montezuma - Delta - Secondary",
+            },
+            {
+              label: "Petaluma",
+              color: C.EARTH,
+              value: "Petaluma River - Secondary",
+            },
+            {
+              label: "Belmont",
+              color: "#6BB5C2",
+              value: "Belmon-Redwood - Secondary",
+            },
+          ],
+          field: "WRMP_Network",
+          colors: NETWORK_COLORS,
+          bounds: BAY_FULL,
+          pois: [],
+          render: function (stations, filter) {
+            var colors = this.colors;
+            var field = this.field;
+            stations.forEach(function (s) {
+              var net = (s[field] || "").trim();
+              var match = !filter || net === filter;
+              var color = colors[net] || "#999";
+              L.circleMarker([s.lat, s.lon], {
+                radius: match ? 7 : 4,
+                fillColor: match ? color : "#aaa",
+                color: "#fff",
+                weight: match ? 2 : 1,
+                opacity: match ? 1 : 0.3,
+                fillOpacity: match ? 0.85 : 0.25,
+              })
+                .bindPopup(makeStationPopup(s, color))
+                .addTo(markerLayer);
+            });
+          },
+        },
+        {
+          legend: [
+            { label: "Benchmark", color: C.LIGHT_GREEN, value: "Benchmark" },
+            { label: "Reference", color: C.ADA_TEAL, value: "Reference" },
+            { label: "Project", color: C.GREEN, value: "Project" },
+            {
+              label: "Other Restored",
+              color: "#6A9E3A",
+              value: "Other Restored Site",
+            },
+            { label: "Planned", color: C.ORANGE, value: "Planned Restoration" },
+          ],
+          field: "WRMP_Site_Type",
+          colors: SITE_COLORS,
+          bounds: SOUTH_BAY,
+          boundsOpts: { duration: 1.5 },
+          pois: [],
+          render: function (stations, filter) {
+            var colors = this.colors;
+            var field = this.field;
+            stations.forEach(function (s) {
+              var siteType = (s[field] || "").trim();
+              var match = !filter
+                ? s.region === "South Bay"
+                : siteType === filter;
+              var color = colors[siteType] || "#bbb";
+              L.circleMarker([s.lat, s.lon], {
+                radius: match ? 8 : 4,
+                fillColor: match ? color : "#aaa",
+                color: "#fff",
+                weight: match ? 2 : 1,
+                opacity: match ? 1 : 0.3,
+                fillOpacity: match ? 0.9 : 0.25,
+              })
+                .bindPopup(makeStationPopup(s, color))
+                .addTo(markerLayer);
+            });
+          },
+        },
+        {
+          legend: [
+            {
+              label: "Planned Restoration",
+              color: C.ORANGE,
+              value: "Planned Restoration",
+            },
+            { label: "Existing Stations", color: "#bbb", value: "_other" },
+          ],
+          field: "WRMP_Site_Type",
+          bounds: BAY_FULL,
+          pois: [],
+          render: function (stations, filter) {
+            stations.forEach(function (s) {
+              var siteType = (s.WRMP_Site_Type || "").trim();
+              var isPlanned = siteType === "Planned Restoration";
+              var match;
+              if (!filter) match = true;
+              else if (filter === "_other") match = !isPlanned;
+              else match = isPlanned;
+
+              L.circleMarker([s.lat, s.lon], {
+                radius: match ? (isPlanned ? 9 : 6) : 4,
+                fillColor: match ? (isPlanned ? C.ORANGE : "#888") : "#aaa",
+                color: match ? "#fff" : "#ccc",
+                weight: match ? (isPlanned ? 2.5 : 1.5) : 1,
+                opacity: match ? 1 : 0.3,
+                fillOpacity: match ? (isPlanned ? 0.9 : 0.5) : 0.12,
+              })
+                .bindPopup(makeStationPopup(s, isPlanned ? C.ORANGE : "#888"))
+                .addTo(markerLayer);
+            });
+          },
+        },
+      ];
+
+      // ── Legend ─────────────────────────────────────
+      var legendEl = document.getElementById("map-legend");
+      var activeFilter = null;
+
+      function buildLegend() {
+        legendEl.replaceChildren();
+        var def = STEP_DEFS[stepper.currentStep];
+        if (!def.legend) return;
+
+        var allChip = document.createElement("button");
+        allChip.className =
+          "map-legend-chip" + (!activeFilter ? " active" : "");
+        var allLabel = document.createElement("span");
+        allLabel.className = "map-legend-chip-label";
+        allLabel.setAttribute("data-label", "All");
+        allLabel.textContent = "All";
+        allChip.appendChild(allLabel);
+        allChip.addEventListener("click", function () {
+          activeFilter = null;
+          buildLegend();
+          renderCurrentStep();
+        });
+        legendEl.appendChild(allChip);
+
+        def.legend.forEach(function (item) {
+          var chip = document.createElement("button");
+          var isActive = activeFilter === item.value;
+          var isDimmed = activeFilter && !isActive;
+          chip.className =
+            "map-legend-chip" +
+            (isActive ? " active" : "") +
+            (isDimmed ? " dimmed" : "");
+          var dot = document.createElement("span");
+          dot.className = "map-legend-dot";
+          dot.style.background = item.color;
+          chip.appendChild(dot);
+          var lbl = document.createElement("span");
+          lbl.className = "map-legend-chip-label";
+          lbl.setAttribute("data-label", item.label);
+          lbl.textContent = item.label;
+          chip.appendChild(lbl);
+          chip.addEventListener("click", function () {
+            activeFilter = activeFilter === item.value ? null : item.value;
+            buildLegend();
+            renderCurrentStep();
+          });
+          legendEl.appendChild(chip);
+        });
+      }
+
+      // ── Render ─────────────────────────────────────
+      function renderCurrentStep() {
+        markerLayer.clearLayers();
+        poiLayer.clearLayers();
+        var def = STEP_DEFS[stepper.currentStep];
+        def.render(STATIONS, activeFilter);
+
+        if (!activeFilter) {
+          def.pois.forEach(function (p) {
+            WRMP.addPOI(poiLayer, p[0], p[1], p[2]);
+          });
+        }
+
+        if (activeFilter) {
+          var matching = STATIONS.filter(function (s) {
+            if (!def.field) return true;
+            var val = (s[def.field] || "").trim();
+            if (activeFilter === "_other") return val !== "Planned Restoration";
+            return val === activeFilter;
+          });
+          if (matching.length > 0) {
+            WRMP.flyTo(
+              map,
+              L.latLngBounds(
+                matching.map(function (s) {
+                  return [s.lat, s.lon];
+                }),
+              ),
+            );
+          }
+        } else {
+          WRMP.flyTo(map, def.bounds, def.boundsOpts || {});
+        }
+      }
+
+      // ── Stepper + cover/end-card screens ───────────
+      var screens = WRMP.wireExhibitScreens({
+        totalSteps: STEP_DEFS.length,
+        onStepEnter: function (n) {
+          activeFilter = null;
+          buildLegend();
+          if (STATIONS.length > 0) renderCurrentStep();
+        },
+        onEnter: function () {
+          stepper.goToStep(0);
+        },
+        onRestart: function () {
+          stepper.goToStep(0);
+        },
+      });
+
+      var stepper = WRMP.createStepper({
+        totalSteps: STEP_DEFS.length,
+        onStepEnter: screens.onStepEnter,
+      });
+
+      // ── Load Data ──────────────────────────────────
+      WRMP.loadData({ stations: true })
+        .then(function (data) {
+          STATIONS = data.stations;
+          stepper.goToStep(0);
+        })
+        .catch(function (err) {
+          console.error("Failed to load station data:", err);
+        });
+    </script>
+  </body>
+</html>

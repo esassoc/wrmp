@@ -1,0 +1,591 @@
+/* ── WRMP Level 3 Integration ──────────────────────
+   Locked round-3 finals for the three handoff patterns that
+   point an exhibit viewer to deeper data, tools, and science
+   (WRMP "Level 3" content), without pulling that depth into
+   the Level 1+2 exhibit narrative.
+
+     1 · .l3-inline-card   per-step category-led compact card
+     2 · .l3-hub           end-card flexible tinted-panel hub
+     3 · .level3-drawer    persistent "Data & tools" drawer
+
+   Organizing taxonomy across all three: Data / Tools / Science.
+   Each category carries one fixed accent + Lucide icon:
+     Data    → database      → teal
+     Tools   → compass       → green
+     Science → flask-conical → amber
+
+   Icons are inline <svg> via a <symbol> sprite per exhibit
+   (no CDN dependency). Load AFTER exhibit-frame.css and
+   exhibit-cover.css. */
+
+/* ════════════════════════════════════════════════════
+   TOKENS — the dark "deeper-data layer" identity
+   These extend tokens.css; defined here so the components
+   are self-contained. The dark surface lets a Level 3
+   module read as "go deeper" even inside a light panel.
+   ════════════════════════════════════════════════════ */
+:root {
+  --l3-bg: #122026; /* deep estuary slate              */
+  --l3-bg-raised: #1b2e35; /* nested card surface on dark    */
+  --l3-bg-hover: #243d45; /* hover surface                  */
+  --l3-border: rgba(255, 255, 255, 0.13);
+  --l3-border-strong: rgba(255, 255, 255, 0.26);
+  --l3-text: #f3f6f6; /* primary text on dark (AA+)     */
+  --l3-text-subtle: #aec3c7; /* secondary text on dark (AA)    */
+  --l3-accent: #6fd3e3; /* bright teal — links/icons      */
+  --l3-accent-soft: rgba(111, 211, 227, 0.16);
+
+  /* Category accents — the Data/Tools/Science spine */
+  --cat-data-accent: #6fd3e3; /* teal  — Data    */
+  --cat-data-soft: rgba(111, 211, 227, 0.16);
+  --cat-tools-accent: #7fce8c; /* green — Tools   */
+  --cat-tools-soft: rgba(127, 206, 140, 0.16);
+  --cat-science-accent: #f0b454; /* amber — Science */
+  --cat-science-soft: rgba(240, 180, 84, 0.16);
+}
+
+/* A category-scoped element reads its accent from one variable.
+   Set data-cat on any wrapper and the children inherit it. */
+[data-cat="data"] {
+  --cat-accent: var(--cat-data-accent);
+  --cat-soft: var(--cat-data-soft);
+}
+[data-cat="tools"] {
+  --cat-accent: var(--cat-tools-accent);
+  --cat-soft: var(--cat-tools-soft);
+}
+[data-cat="science"] {
+  --cat-accent: var(--cat-science-accent);
+  --cat-soft: var(--cat-science-soft);
+}
+
+/* ════════════════════════════════════════════════════
+   SHARED PRIMITIVES — icons, category tile, category tag
+   ════════════════════════════════════════════════════ */
+
+/* Lucide icons render as inline <svg> — keep stroke weight uniform */
+.lc {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2;
+  flex-shrink: 0;
+}
+.lc-sm {
+  width: 15px;
+  height: 15px;
+}
+.lc-lg {
+  width: 22px;
+  height: 22px;
+}
+
+/* Category icon tile — square, category-tinted */
+.cat-icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--cat-soft);
+  color: var(--cat-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cat-icon-sm {
+  width: 28px;
+  height: 28px;
+}
+.cat-icon .lc {
+  width: 18px;
+  height: 18px;
+}
+.cat-icon-sm .lc {
+  width: 15px;
+  height: 15px;
+}
+
+/* Category word + icon, used as a leading signal */
+.cat-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--step--1);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: var(--cat-accent);
+}
+.cat-tag .lc {
+  width: 15px;
+  height: 15px;
+}
+
+/* ════════════════════════════════════════════════════
+   1 · INLINE — category-led compact card
+   Locked round-3 final. A dark card at the foot of a
+   step's .body. Reads: category (icon + word) → resource
+   name → a one-line "what you'll find" description.
+   Self-contained dark — works inside a light story panel.
+   ════════════════════════════════════════════════════ */
+.l3-inline-card {
+  display: block; /* it's an <a> — keep the dark card a block box */
+  margin-top: var(--space-md);
+  padding: 14px 15px;
+  border-radius: var(--radius-lg);
+  background: var(--l3-bg);
+  color: var(--l3-text);
+  text-decoration: none;
+}
+.l3-inline-card .l3-inline-lead {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.l3-inline-card .l3-inline-body {
+  flex: 1;
+  min-width: 0;
+  /* Stack category / name / description. The exhibit markup uses
+     <span>s (inline by default) — a flex column forces them onto
+     their own lines and bounds their width so the description wraps. */
+  display: flex;
+  flex-direction: column;
+}
+.l3-inline-card .l3-inline-cat {
+  margin-bottom: 3px;
+}
+.l3-inline-card .l3-inline-name {
+  font-size: var(--step-0);
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.3;
+}
+.l3-inline-card .l3-inline-desc {
+  font-size: var(--step--1);
+  color: var(--l3-text-subtle);
+  line-height: 1.5;
+  margin: 4px 0 0;
+}
+.l3-inline-card .l3-inline-go {
+  flex-shrink: 0;
+  color: var(--cat-accent);
+  display: flex;
+  align-items: center;
+  padding-top: 1px;
+}
+.l3-inline-card:hover .l3-inline-name,
+.l3-inline-card:focus-visible .l3-inline-name {
+  color: var(--cat-accent);
+}
+.l3-inline-card:focus-visible {
+  outline: 2px solid var(--cat-accent);
+  outline-offset: 2px;
+}
+
+/* A story-panel .step is a flex item with visible overflow, so its auto
+   min-height is content-based — a tall step (header + body + inline card)
+   refuses to shrink, overflows, and story-panel-inner (overflow:hidden)
+   clips it before .body's own overflow-y:auto can engage. min-height:0
+   lets the step shrink to the panel, handing the scroll back to .body.
+   Scoped here (not exhibit-frame.css) so round-1 exhibits stay untouched. */
+.story-panel .step {
+  min-height: 0;
+}
+
+/* ════════════════════════════════════════════════════
+   2 · END-CARD HUB — flexible tinted category panels
+   Locked round-3 final. 1, 2, or 3 tinted panels sit
+   naturally; each panel sizes to its own content via
+   flex-wrap + flex-basis. Every item carries a one-line
+   description. Lives on the dark end-card.
+   ════════════════════════════════════════════════════ */
+.l3-hub {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+  margin: 0 0 24px;
+}
+.l3-hub-panel {
+  /* Grow to share space, but never narrower than a readable
+     column. A panel with more items claims more height; width
+     is shared. min-width keeps single panels from spanning
+     too wide; max-width keeps a lone panel from stretching. */
+  flex: 1 1 240px;
+  min-width: 240px;
+  max-width: 420px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, var(--cat-soft), transparent 72%);
+  border: 1px solid color-mix(in srgb, var(--cat-accent) 24%, transparent);
+  padding: 18px;
+}
+.l3-hub-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 12px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid color-mix(in srgb, var(--cat-accent) 22%, transparent);
+}
+.l3-hub-panel-head .cat-name {
+  font-size: var(--step-1);
+  font-weight: 600;
+  color: #fff;
+}
+.l3-hub-panel-head .cat-count {
+  margin-left: auto;
+  font-size: var(--step--1);
+  font-weight: 700;
+  color: var(--cat-accent);
+  background: var(--cat-soft);
+  border-radius: 999px;
+  padding: 2px 9px;
+}
+.l3-hub-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 13px 0;
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--cat-accent) 16%, transparent);
+}
+.l3-hub-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.l3-hub-item .hf-icon {
+  flex-shrink: 0;
+  color: var(--cat-accent);
+  display: flex;
+  padding-top: 1px;
+}
+.l3-hub-item .hf-body {
+  flex: 1;
+  min-width: 0;
+}
+.l3-hub-item .hf-top {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.l3-hub-item .hf-name {
+  font-size: var(--step-0);
+  font-weight: 600;
+  color: #fff;
+  flex: 1;
+}
+.l3-hub-item .hf-go {
+  flex-shrink: 0;
+  color: var(--cat-accent);
+  display: flex;
+  align-self: center;
+}
+.l3-hub-item .hf-desc {
+  font-size: var(--step--1);
+  color: var(--l3-text-subtle);
+  line-height: 1.5;
+  margin: 4px 0 0;
+}
+.l3-hub-item:hover .hf-name,
+.l3-hub-item:focus-visible .hf-name {
+  color: var(--cat-accent);
+}
+.l3-hub-item:focus-visible {
+  outline: 2px solid var(--cat-accent);
+  outline-offset: 2px;
+}
+
+/* ── End-card WIDE hub layout ─────────────────────────
+   The default end-card content (.exhibit-cover--end
+   .exhibit-cover-content) is a small ~560px card pinned
+   bottom-left — too narrow for the 3-across hub, which
+   ends up mostly behind a scroll.
+
+   .l3-endcard widens that content box to a near-full-width
+   band so the three Data/Tools/Science panels all sit
+   visible at once, no scroll-to-discover. Opt-in via the
+   l3-endcard class on the content div — the start cover
+   and other exhibits' end cards are untouched.
+
+   Frame is ~1200×675. The band insets 28px on all sides
+   (~1144px wide, ~619px tall): head block + 3-col hub +
+   actions fit without scrolling. If content ever exceeds
+   the band height, overflow-y is the graceful fallback. */
+.exhibit-cover--end .exhibit-cover-content.l3-endcard {
+  left: 28px;
+  right: 28px;
+  top: 28px;
+  bottom: 28px;
+  max-width: none;
+  padding: 26px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto; /* graceful fallback only — default fits */
+}
+
+/* Compact head — kicker + title + lede across the top.
+   Tighter than the default cover spacing to buy hub room. */
+.l3-endcard .l3-endcard-head {
+  flex-shrink: 0;
+}
+.l3-endcard .exhibit-cover-dots--complete {
+  margin-bottom: 10px;
+}
+.l3-endcard .exhibit-cover-kicker {
+  margin-bottom: 6px;
+}
+.l3-endcard .exhibit-cover-title {
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
+  margin: 0 0 8px;
+}
+.l3-endcard .exhibit-cover-lede {
+  margin: 0;
+  max-width: 78ch;
+}
+.l3-endcard .exhibit-cover-links-label {
+  flex-shrink: 0;
+  margin: 2px 0 0;
+}
+
+/* The hub fills the band; 3 panels share the full width.
+   flex-basis 0 + grow makes the three columns equal-width
+   and as tall as their content, top-aligned. */
+.l3-endcard .l3-hub {
+  margin: 0;
+  flex: 1 1 auto;
+  align-content: flex-start;
+}
+.l3-endcard .l3-hub-panel {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: none;
+}
+
+/* Actions sit below the hub, not stretched. */
+.l3-endcard .exhibit-cover-actions {
+  flex-shrink: 0;
+  margin-top: 0;
+}
+
+/* The end-card gradient is light by default; the wide band
+   is translucent, so darken the wash behind it for AA text
+   contrast over the hero image. Class is on the gradient div
+   of the hub end card only — no :has(), no other card touched. */
+.exhibit-cover-gradient.l3-endcard-wash {
+  background: linear-gradient(
+    to top,
+    rgba(6, 20, 28, 0.62) 0%,
+    rgba(6, 20, 28, 0.42) 55%,
+    rgba(6, 20, 28, 0.3) 100%
+  );
+}
+
+/* ════════════════════════════════════════════════════
+   3 · PERSISTENT DRAWER
+   A "Data & tools" toggle pinned bottom-right of the
+   frame, opening a panel that slides in from the right.
+   Available from any step. Inner content is the locked
+   round-3 final: icon-tile D/T/S group headers, small
+   leading row icons, fuller per-row descriptions.
+   ════════════════════════════════════════════════════ */
+.level3-drawer-toggle {
+  position: absolute;
+  right: var(--panel-inset);
+  bottom: var(--panel-inset);
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: var(--wrmp-ada-teal);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
+  transition:
+    background 0.15s ease,
+    transform 0.2s ease;
+}
+.level3-drawer-toggle:hover,
+.level3-drawer-toggle:focus-visible {
+  background: #fff;
+  transform: translateY(-1px);
+  outline: none;
+}
+.level3-drawer-toggle svg {
+  width: 15px;
+  height: 15px;
+  fill: var(--wrmp-ada-teal);
+}
+
+.level3-drawer {
+  position: absolute;
+  top: var(--panel-inset);
+  right: var(--panel-inset);
+  bottom: var(--panel-inset);
+  width: 320px;
+  z-index: 45;
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--l3-bg);
+  backdrop-filter: blur(24px) saturate(1.1);
+  -webkit-backdrop-filter: blur(24px) saturate(1.1);
+  border: 1px solid var(--l3-border);
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.34);
+  /* Parked off the right edge until opened. */
+  transform: translateX(calc(100% + var(--panel-inset) + 12px));
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.level3-drawer.is-open {
+  transform: translateX(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .level3-drawer {
+    transition: none;
+  }
+}
+
+.level3-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px 13px;
+  border-bottom: 1px solid var(--l3-border);
+}
+.level3-drawer-title {
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--l3-text-subtle);
+  margin: 0;
+}
+.level3-drawer-close {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background: var(--l3-bg-raised);
+  color: var(--l3-text-subtle);
+  cursor: pointer;
+}
+.level3-drawer-close:hover,
+.level3-drawer-close:focus-visible {
+  background: var(--l3-bg-hover);
+  color: #fff;
+  outline: none;
+}
+
+/* Scrolls when the grouped content exceeds the drawer height. */
+.level3-drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 18px 20px;
+}
+
+/* ── Drawer group — icon-tile category header ── */
+.drf-group + .drf-group {
+  margin-top: 22px;
+}
+.drf-grouphead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.drf-grouphead .gh-name {
+  font-size: var(--step-0);
+  font-weight: 700;
+  color: #fff;
+}
+.drf-grouphead .gh-count {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--cat-accent);
+  background: var(--cat-soft);
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+
+/* ── Drawer row — leading icon + name + description ── */
+.drf-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 0;
+  border-top: 1px solid var(--l3-border);
+  text-decoration: none;
+}
+.drf-row:last-child {
+  border-bottom: 1px solid var(--l3-border);
+}
+/* The first row's border-top reads as a line under the group header —
+   drop it; the inter-row dividers and the group's bottom rule stay. */
+.drf-grouphead + .drf-row {
+  border-top: none;
+}
+.drf-row .rw-icon {
+  flex-shrink: 0;
+  color: var(--cat-accent);
+  display: flex;
+  padding-top: 2px;
+}
+.drf-row .rw-body {
+  flex: 1;
+  min-width: 0;
+}
+.drf-row .rw-top {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.drf-row .rw-name {
+  font-size: var(--step-0);
+  font-weight: 600;
+  color: #fff;
+  flex: 1;
+  line-height: 1.3;
+}
+.drf-row .rw-go {
+  flex-shrink: 0;
+  color: var(--cat-accent);
+  display: flex;
+}
+.drf-row .rw-desc {
+  /* Block, so its own line-height governs — as an inline <span> the
+     wrapped lines take the parent block's (larger) strut instead. */
+  display: block;
+  font-size: var(--step--1);
+  color: var(--l3-text-subtle);
+  line-height: 1.45;
+  margin: 4px 0 0;
+}
+.drf-row:hover .rw-name,
+.drf-row:focus-visible .rw-name {
+  color: var(--cat-accent);
+}
+.drf-row:focus-visible {
+  outline: 2px solid var(--cat-accent);
+  outline-offset: 2px;
+}
+
+/* ════════════════════════════════════════════════════
+   Icon sprite — a hidden <svg> <symbol> sprite is inlined
+   once per exhibit, near the top of <body>. Icons are
+   referenced with <svg class="lc"><use href="#l3-…"/></svg>.
+   No styling needed here; .lc sizes them above.
+   ════════════════════════════════════════════════════ */
