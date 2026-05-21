@@ -1,0 +1,385 @@
+/* ════════════════════════════════════════════════════════════
+   WRMP.org — Science Framework page
+   ────────────────────────────────────────────────────────────
+   Page-unique CSS. Linked AFTER site.css. Owns ONLY the
+   Science Framework page: the scrolling question layout with a
+   sticky table-of-contents sidebar, the guiding/management
+   question blocks, and the exhibit-integration treatment that
+   attaches exhibit cover thumbnails to management questions.
+
+   All site chrome, the exhibit-card poster, the exhibit dialog,
+   tokens and layout primitives come from site.css (frozen).
+   ════════════════════════════════════════════════════════════ */
+
+/* ─ Page intro ─
+   Sits below the overlapping title card, above the two-column
+   content. Mirrors the live site: a short framing paragraph. */
+.sf-intro {
+  padding-top: var(--space-32);
+  padding-bottom: var(--space-16);
+}
+.sf-intro__lead {
+  max-width: 70ch;
+  font-size: 20px;
+  line-height: 32px;
+  color: var(--gray-800);
+}
+.sf-intro__lead strong {
+  font-weight: 600;
+  color: var(--gray-950);
+}
+
+/* ════════════════════════════════════════════════════════════
+   Two-column layout — sticky TOC sidebar + question content
+   ════════════════════════════════════════════════════════════ */
+.sf-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: var(--space-64);
+  align-items: start;
+  padding-bottom: var(--space-64);
+}
+
+/* ─ Sticky table of contents ─
+   Orange-tinted card, matches Figma node 458:16026: 5% orange
+   fill, 50% orange border, 4px radius, 32px padding. */
+.sf-toc {
+  position: sticky;
+  top: var(--space-24);
+  background: rgba(224, 147, 55, 0.05);
+  border: 1px solid rgba(224, 147, 55, 0.5);
+  border-radius: var(--radius-sm);
+  padding: var(--space-32);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+.sf-toc__heading {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.64px;
+  text-transform: uppercase;
+  color: var(--color-orange);
+  padding-bottom: var(--space-4);
+}
+.sf-toc__link {
+  display: flex;
+  gap: var(--space-12);
+  align-items: flex-start;
+  text-decoration: none;
+  color: var(--gray-800);
+  padding: var(--space-4);
+  margin: calc(-1 * var(--space-4));
+  border-radius: var(--radius-sm);
+  transition: background 0.18s ease;
+}
+.sf-toc__link:hover {
+  background: rgba(224, 147, 55, 0.12);
+}
+.sf-toc__about {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.3;
+}
+.sf-toc__about-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sf-toc__about-icon svg {
+  width: 22px;
+  height: 22px;
+  stroke: var(--color-orange);
+}
+/* Q-number chip — outlined orange pill, fills solid when active */
+.sf-toc__num {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 24px;
+  padding-inline: var(--space-8);
+  border: 1px solid var(--color-orange);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-orange);
+  margin-top: 2px;
+}
+.sf-toc__link--active .sf-toc__num {
+  background: var(--color-orange);
+  color: var(--color-white);
+}
+.sf-toc__text {
+  font-size: 16px;
+  line-height: 1.3;
+  font-weight: 400;
+}
+.sf-toc__link--active .sf-toc__text {
+  font-weight: 600;
+}
+
+/* ─ TOC integration note — explains the exhibit treatment ─ */
+.sf-toc__note {
+  margin-top: var(--space-8);
+  padding-top: var(--space-16);
+  border-top: 1px solid rgba(224, 147, 55, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+.sf-toc__note-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-orange);
+}
+.sf-toc__note-title svg {
+  width: 16px;
+  height: 16px;
+  stroke: var(--color-orange);
+  flex-shrink: 0;
+}
+.sf-toc__note-body {
+  font-size: 14px;
+  line-height: 21px;
+  color: var(--gray-700);
+}
+
+/* ════════════════════════════════════════════════════════════
+   Question content column
+   ════════════════════════════════════════════════════════════ */
+.sf-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-64);
+  min-width: 0;
+}
+
+/* ─ About the Science Framework block ─ */
+.sf-about {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  scroll-margin-top: var(--space-24);
+}
+.sf-about__title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--color-teal-ada);
+  line-height: 1.1;
+}
+.sf-about p {
+  font-size: 17px;
+  line-height: 27px;
+  color: var(--gray-800);
+}
+.sf-about a {
+  color: var(--color-teal-ada);
+  text-underline-offset: 2px;
+}
+
+/* ─ Guiding Question group ─
+   Two-column grid: the guiding header spans full width, then the
+   management-question text stacks in the left column while every
+   exhibit for the question collects into one gray panel on the right. */
+.sf-question {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: var(--space-32) var(--space-48);
+  align-items: start;
+  scroll-margin-top: var(--space-24);
+}
+.sf-guiding {
+  grid-column: 1 / -1;
+}
+.sf-question__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+  min-width: 0;
+}
+
+/* Guiding-question header — teal-ADA pill + serif question text */
+.sf-guiding__label {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-8) var(--space-12);
+  background: var(--color-teal-ada);
+  border-radius: var(--radius-sm);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-white);
+  margin-bottom: var(--space-12);
+}
+.sf-guiding__text {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 400;
+  line-height: 1.25;
+  color: #000;
+}
+
+/* ─ Management Question / Priority Recommended Action block ─ */
+.sf-mq {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+.sf-mq__label {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-8) var(--space-12);
+  background: var(--color-teal);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-white);
+}
+.sf-mq__label--action {
+  background: var(--color-orange);
+}
+.sf-mq__text {
+  font-size: 20px;
+  line-height: 31px;
+  color: #000;
+}
+.sf-mq--action .sf-mq__text {
+  font-size: 17px;
+  line-height: 27px;
+  color: var(--gray-800);
+}
+
+/* ════════════════════════════════════════════════════════════
+   THE INTEGRATION — exhibits collected beside a question
+   ────────────────────────────────────────────────────────────
+   Every exhibit relevant to a Guiding Question collects into one
+   light-gray panel in the right column. The .exhibit-card poster
+   comes from site.css; here it runs as a compact thumbnail with
+   its kicker / title / progress dots set BELOW the image — the
+   poster overlay reads too cramped at this thumbnail size.
+   ════════════════════════════════════════════════════════════ */
+.sf-exhibits {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+  background: var(--gray-050);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-16);
+  align-self: start;
+}
+.sf-exhibit-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+.sf-exhibit-item .exhibit-card {
+  border-radius: var(--radius-sm);
+}
+
+/* Exhibit label block — the poster's kicker / title / dots,
+   lifted out of the image and set as text under the thumbnail. */
+.sf-exhibit__meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.sf-exhibit__kicker {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+}
+.sf-exhibit__title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--gray-950);
+}
+.sf-exhibit__dots {
+  display: flex;
+  gap: 6px;
+  margin-top: var(--space-4);
+}
+.sf-exhibit__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gray-300);
+}
+
+/* ─ Closing CTA strip (mirrors live-site footer questions) ─ */
+.sf-more {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-32);
+  padding: var(--space-32);
+  background: var(--gray-050);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+.sf-more__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+.sf-more__heading {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-teal);
+  line-height: 1.2;
+}
+.sf-more__body {
+  font-size: 15px;
+  line-height: 23px;
+  color: var(--gray-700);
+}
+
+/* ════════════════════════════════════════════════════════════
+   Responsive
+   ════════════════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .sf-layout {
+    grid-template-columns: 1fr;
+    gap: var(--space-32);
+  }
+  .sf-toc {
+    position: static;
+  }
+  .sf-question {
+    grid-template-columns: 1fr;
+    gap: var(--space-24);
+  }
+  .sf-exhibits {
+    max-width: 420px;
+  }
+  .sf-more {
+    grid-template-columns: 1fr;
+    gap: var(--space-24);
+  }
+}
+@media (max-width: 720px) {
+  .sf-guiding__text {
+    font-size: 25px;
+  }
+  .sf-mq__text {
+    font-size: 18px;
+    line-height: 28px;
+  }
+}

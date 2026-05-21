@@ -384,7 +384,6 @@ button {
 }
 .footer-partner-logo {
   display: block;
-  width: auto;
   height: 32px;
 }
 
@@ -1321,6 +1320,14 @@ button {
      site.js injects a matching transparent bg into the exhibit doc. */
   background: transparent;
   color-scheme: normal;
+  /* Held invisible until site.js confirms the exhibit has loaded and
+     its opaque body background has been overridden — otherwise the
+     exhibit's light body flashes before that override lands. */
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+.exhibit-dialog__iframe.is-ready {
+  opacity: 1;
 }
 .exhibit-dialog__close {
   position: absolute;

@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home — WRMP</title>
+    <link rel="stylesheet" href="assets/site.css" />
+    <link rel="stylesheet" href="assets/homepage.css" />
+  </head>
+  <body>
+    <!-- ═══════════════════ Header ═══════════════════ -->
+    <header class="site-header">
+      <div class="site-container site-header__inner">
+        <a class="site-brand" href="#">
+          <img
+            class="site-brand__mark"
+            src="../shared/img/wrmp-logo-2in-mark-crop.png"
+            alt="WRMP logo"
+          />
+          <span class="site-brand__text">
+            <span class="site-brand__eyebrow">SF Estuary</span>
+            <span class="site-brand__wordmark">Wetlands</span>
+            <span class="site-brand__wordmark">Regional</span>
+            <span class="site-brand__wordmark">Monitoring</span>
+            <span class="site-brand__wordmark">Program</span>
+          </span>
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+          <a class="site-nav__item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 5-6 4 4 6-8" /><path d="M16 7h3v3" /></svg>
+            Monitoring Results
+            <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+          </a>
+          <a class="site-nav__item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="3" width="8" height="4" rx="1" /><path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" /></svg>
+            Science Framework
+            <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+          </a>
+          <a class="site-nav__item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" /></svg>
+            About
+            <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+          </a>
+          <a class="site-nav__item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+            Engage
+            <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+          </a>
+          <a class="site-nav__item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" /></svg>
+            Resources
+            <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+          </a>
+          <a class="site-nav__item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+            Search
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <!-- ═══════════════════ Bento mosaic ═══════════════════ -->
+      <!-- Replicates the live wrmp.org homepage top section: an
+           8-tile mosaic of photo tiles + solid-color question
+           tiles. Full-bleed — spans the viewport with a 32px
+           side gutter, like the header/hero, NOT capped to the
+           1400px content column. Photos and copy are the real
+           assets from wrmp.org. -->
+      <section class="bento">
+        <div class="bento__grid">
+            <!-- Tall photo, left column -->
+            <div
+              class="bento-tile bento-tile--photo bento-tile--photo-left"
+              style="background-image: url('assets/img/homepage/prod-home-1.jpg')"
+              role="img"
+              aria-label="Tidal marsh and channels of the San Francisco Estuary"
+            ></div>
+
+            <!-- Where are our wetlands? — lime tile -->
+            <div class="bento-tile bento-tile--content bento-tile--lime">
+              <h2 class="bento-tile__heading">Where are our wetlands?</h2>
+              <p class="bento-tile__copy">
+                Tidal wetlands ringed most of the Bay prior to the mid-1800s. By
+                1998, more than 80% of wetlands had been lost to development.
+                Today the WRMP tracks progress towards protecting and restoring
+                remaining wetlands around the Bay.
+              </p>
+              <div class="bento-topics">
+                <a class="bento-topic" href="#">
+                  <img class="bento-topic__thumb" src="assets/img/homepage/prod-baylands-geography.jpg" alt="" />
+                  <span class="bento-topic__label">Baylands Geography</span>
+                </a>
+                <a class="bento-topic" href="#">
+                  <img class="bento-topic__thumb" src="assets/img/homepage/prod-sea-level-rise.jpg" alt="" />
+                  <span class="bento-topic__label">Wetlands &amp; Sea Level Rise</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- How healthy are our wetlands? — teal tile -->
+            <div class="bento-tile bento-tile--content bento-tile--teal">
+              <h2 class="bento-tile__heading">How healthy are our wetlands?</h2>
+              <p class="bento-tile__copy">
+                Wetlands with clean water and healthy habitats offer more
+                benefits to people and wildlife and are resilient to
+                environmental hazards.
+              </p>
+              <div class="bento-topics">
+                <a class="bento-topic" href="#">
+                  <img class="bento-topic__thumb" src="assets/img/homepage/prod-wetland-condition.jpg" alt="" />
+                  <span class="bento-topic__label">Wetland Condition</span>
+                </a>
+                <a class="bento-topic" href="#">
+                  <img class="bento-topic__thumb" src="assets/img/homepage/prod-water-quality.jpg" alt="" />
+                  <span class="bento-topic__label">Water Quality</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- Center photo with WRMP wordmark overlaid -->
+            <div
+              class="bento-tile bento-tile--photo bento-tile--photo-center"
+              style="background-image: url('assets/img/homepage/prod-home-4.jpg')"
+              role="img"
+              aria-label="WRMP wordmark over a tidal marsh landscape"
+            >
+              <img
+                class="bento-center__mark"
+                src="assets/img/homepage/prod-white-logo.svg"
+                alt="Wetlands Regional Monitoring Program"
+              />
+            </div>
+
+            <!-- Who uses our wetlands? — mid-green tile -->
+            <div class="bento-tile bento-tile--content bento-tile--mid-green">
+              <h2 class="bento-tile__heading">Who uses our wetlands?</h2>
+              <p class="bento-tile__copy">
+                Tidal wetlands provide habitat for fish, wildlife, and plants,
+                recreational opportunities for people, and environmental
+                benefits to nearby communities.
+              </p>
+              <div class="bento-topics">
+                <a class="bento-topic" href="#">
+                  <img class="bento-topic__thumb" src="assets/img/homepage/prod-fish-wildlife.jpg" alt="" />
+                  <span class="bento-topic__label">Fish &amp; Wildlife</span>
+                </a>
+                <a class="bento-topic" href="#">
+                  <img class="bento-topic__thumb" src="assets/img/homepage/prod-plants.jpg" alt="" />
+                  <span class="bento-topic__label">Plants</span>
+                </a>
+                <a class="bento-topic" href="#">
+                  <img class="bento-topic__thumb" src="assets/img/homepage/prod-people.jpg" alt="" />
+                  <span class="bento-topic__label">People</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- Photo, right column lower -->
+            <div
+              class="bento-tile bento-tile--photo bento-tile--photo-right"
+              style="background-image: url('assets/img/homepage/prod-home-2.jpg')"
+              role="img"
+              aria-label="Tidal channel with a water-quality monitoring station"
+            ></div>
+
+            <!-- Sandpipers photo, bottom strip -->
+            <div
+              class="bento-tile bento-tile--photo bento-tile--photo-pipers"
+              style="background-image: url('assets/img/homepage/prod-sandpipers.jpg')"
+              role="img"
+              aria-label="Western sandpipers foraging on a Bay tidal flat"
+            ></div>
+
+            <!-- Collaborative Science strip — teal-ada -->
+            <div class="bento-tile bento-tile--content bento-tile--collab">
+              <svg class="bento-collab__mark" width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M20 16L20 14H14.25C14.6167 12.5833 15.3123 11.3627 16.337 10.338C17.3617 9.31333 18.5827 8.61733 20 8.25C19.6667 8.16667 19.3373 8.10433 19.012 8.063C18.6867 8.02167 18.3493 8.00067 18 8C15.7667 8 13.875 8.775 12.325 10.325C10.775 11.875 10 13.7667 10 16L20 16ZM8 16C8 15.3 8.075 14.6043 8.225 13.913C8.375 13.2217 8.59167 12.559 8.875 11.925C8.175 10.7417 7.22067 9.79167 6.012 9.075C4.80333 8.35833 3.466 8 2 8C1.65 8 1.31233 8.021 0.987 8.063C0.661667 8.105 0.332666 8.16733 0 8.25C1.41667 8.61667 2.63333 9.31267 3.65 10.338C4.66667 11.3633 5.36667 12.584 5.75 14H0L0 16H8ZM10 10.025C10 8.94167 9.8 7.925 9.4 6.975C9 6.025 8.45 5.18733 7.75 4.462C7.05 3.73667 6.229 3.15767 5.287 2.725C4.345 2.29233 3.341 2.059 2.275 2.025C3.20833 2.60833 4.025 3.325 4.725 4.175C5.425 5.025 5.96667 5.975 6.35 7.025C7.08333 7.375 7.754 7.80433 8.362 8.313C8.97 8.82167 9.516 9.39233 10 10.025ZM11.825 8.15C12.025 8 12.225 7.85833 12.425 7.725C12.625 7.59167 12.8333 7.45833 13.05 7.325C13.05 7.225 13.0417 7.121 13.025 7.013C13.0083 6.905 13 6.80067 13 6.7C13 5.43333 13.2 4.23333 13.6 3.1C14 1.96667 14.5667 0.933333 15.3 0C14.2 0.45 13.2457 1.09567 12.437 1.937C11.6283 2.77833 11.0077 3.74933 10.575 4.85C10.875 5.35 11.1333 5.87933 11.35 6.438C11.5667 6.99667 11.725 7.56733 11.825 8.15Z" fill="white"/>
+              </svg>
+              <p class="bento-collab__text">
+                Collaborative Science for Healthy Wetlands
+              </p>
+            </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════ About — What we do ═══════════════════ -->
+      <section class="section">
+        <div class="site-container">
+          <div class="about-grid">
+            <div>
+              <div class="about-head">
+                <h2 class="about-head__title">What we do</h2>
+                <p class="about-head__intro">
+                  Lorem ipsum dolor sit amet consectetur. Vitae ut ornare at
+                  volutpat eget amet convallis lectus risus. Venenatis lectus
+                  nisl etiam ut ut congue aenean sit. Orci elementum vitae
+                  pharetra in lorem malesuada pretium. In aliquam egestas amet
+                  nunc pharetra faucibus. Dui nibh eu euismod sit fermentum
+                  lacus sit id.
+                </p>
+              </div>
+
+              <div class="about-entries">
+                <article class="about-entry">
+                  <div class="about-entry__media">
+                    <img src="assets/img/homepage/about-entry.jpg" alt="" />
+                  </div>
+                  <div>
+                    <h3 class="about-entry__title">
+                      <span class="about-entry__num">1</span>
+                      Open Data Sharing Platform
+                    </h3>
+                    <p class="about-entry__body">
+                      Lorem ipsum dolor sit amet consectetur. Faucibus
+                      sollicitudin nunc habitant sed pellentesque urna. Lobortis
+                      vitae consectetur amet dolor. Adipiscing eget ut odio nunc
+                      eu varius urna mauris mauris. Nam mauris neque suspendisse
+                      gravida scelerisque donec enim ac. Dolor scelerisque sit
+                      malesuada in at morbi in.
+                    </p>
+                    <p class="about-entry__links">
+                      <span class="about-entry__links-label">Key Links:</span>
+                      <a href="#">Monitoring Results</a>
+                      <a href="#">Metrics</a>
+                      <a href="#">EcoAtlas</a>
+                    </p>
+                  </div>
+                </article>
+
+                <article class="about-entry about-entry--flip">
+                  <div>
+                    <h3 class="about-entry__title">
+                      <span class="about-entry__num">2</span>
+                      Monitoring Site Network
+                    </h3>
+                    <p class="about-entry__body">
+                      Lorem ipsum dolor sit amet consectetur. Faucibus
+                      sollicitudin nunc habitant sed pellentesque urna. Lobortis
+                      vitae consectetur amet dolor. Adipiscing eget ut odio nunc
+                      eu varius urna mauris mauris. Nam mauris neque suspendisse
+                      gravida scelerisque donec enim ac. Dolor scelerisque sit
+                      malesuada in at morbi in.
+                    </p>
+                    <p class="about-entry__links">
+                      <span class="about-entry__links-label">Key Links:</span>
+                      <a href="#">Monitoring Site Network</a>
+                      <a href="#">Monitoring Matrix</a>
+                    </p>
+                  </div>
+                  <div class="about-entry__media">
+                    <img src="assets/img/homepage/about-entry.jpg" alt="" />
+                  </div>
+                </article>
+
+                <article class="about-entry">
+                  <div class="about-entry__media">
+                    <img src="assets/img/homepage/about-entry.jpg" alt="" />
+                  </div>
+                  <div>
+                    <h3 class="about-entry__title">
+                      <span class="about-entry__num">3</span>
+                      Comprehensive Science Framework
+                    </h3>
+                    <p class="about-entry__body">
+                      Lorem ipsum dolor sit amet consectetur. Faucibus
+                      sollicitudin nunc habitant sed pellentesque urna. Lobortis
+                      vitae consectetur amet dolor. Adipiscing eget ut odio nunc
+                      eu varius urna mauris mauris. Nam mauris neque suspendisse
+                      gravida scelerisque donec enim ac. Dolor scelerisque sit
+                      malesuada in at morbi in.
+                    </p>
+                    <p class="about-entry__links">
+                      <span class="about-entry__links-label">Key Links:</span>
+                      <a href="#">Science Framework</a>
+                      <a href="#">Resources</a>
+                    </p>
+                  </div>
+                </article>
+              </div>
+            </div>
+
+            <aside class="about-sidebar">
+              <div class="sidebar-panel sidebar-panel--mission">
+                <h2 class="sidebar-panel__title">Our mission</h2>
+                <p class="sidebar-panel__body">
+                  The WRMP delivers coordinated regional monitoring of the San
+                  Francisco Estuary's wetlands to: Inform science-based
+                  decision-making for wetland restoration and adaptive
+                  management, and Increase the cost-effectiveness of
+                  permit-driven monitoring associated with wetland restoration
+                  projects.
+                </p>
+                <a class="sidebar-panel__link" href="#">Learn more</a>
+              </div>
+              <div class="sidebar-panel sidebar-panel--equity">
+                <h2 class="sidebar-panel__title">
+                  Our commitment to justice and equity
+                </h2>
+                <p class="sidebar-panel__body">
+                  The WRMP is committed to equity and environmental justice by
+                  ensuring that wetland restoration benefits all communities,
+                  particularly those most vulnerable to climate change. We
+                  prioritize inclusive collaboration, equitable access to data,
+                  and policies that enhance resilience, public health, and
+                  cultural connections to the San Francisco Estuary's tidal
+                  wetlands.
+                </p>
+                <a class="sidebar-panel__link" href="#">Learn more</a>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════ Featured Exhibit ═══════════════════ -->
+      <!-- A clean, standalone Featured Exhibit section. A centered
+           header introduces a single, centered exhibit cover —
+           the cover is the sole focus. This is where the homepage
+           surfaces a featured exhibit to SFEI. -->
+      <section class="featured-exhibit">
+        <div class="site-container">
+          <div class="featured-exhibit__head">
+            <span class="kicker">Featured Exhibit</span>
+            <h2 class="featured-exhibit__title">
+              The Bay: Where We're Watching
+            </h2>
+            <p class="featured-exhibit__lede">
+              An interactive tour of the WRMP monitoring network — step through
+              the Estuary station by station and see where we measure marsh
+              extent, elevation, and shoreline change, and what each site is
+              telling us.
+            </p>
+          </div>
+
+          <div class="featured-exhibit__body">
+            <div class="featured-exhibit__cover">
+              <!-- Shared exhibit-card poster — markup copied verbatim
+                   from topic-page.html. site.js auto-wires the trigger. -->
+              <button
+                type="button"
+                class="exhibit-card"
+                data-exhibit-src="../exhibits/round-2-2026-05/station-map-stepper/index.html"
+                aria-label="Open interactive exhibit: The Bay — Where We're Watching"
+              >
+                <span
+                  class="exhibit-card-image"
+                  style="background-image: url('../exhibits/round-2-2026-05/station-map-stepper/cover.jpg')"
+                ></span>
+                <span class="exhibit-card-gradient"></span>
+                <span class="exhibit-card-begin">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+                  Begin
+                </span>
+                <span class="exhibit-card-content">
+                  <span class="exhibit-card-kicker">Interactive exhibit</span>
+                  <span class="exhibit-card-title">The Bay: Where We're Watching</span>
+                  <span class="exhibit-card-dots">
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                  </span>
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════ Divider ═══════════════════ -->
+      <div class="site-container">
+        <div class="home-divider">
+          <span class="home-divider__mark">
+            <svg viewBox="0 0 24 20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 13c2 3 4.5 3 6.5 0s4.5-3 6.5 0 4.5 3 6.5 0" /><path d="M2 7c2 3 4.5 3 6.5 0s4.5-3 6.5 0 4.5 3 6.5 0" /></svg>
+          </span>
+        </div>
+      </div>
+
+      <!-- ═══════════════════ Recent News ═══════════════════ -->
+      <section class="section">
+        <div class="site-container">
+          <div class="section-head section-head--narrow">
+            <span class="kicker">Recent News</span>
+            <h2 class="section-head__title">The Latest from the WRMP</h2>
+          </div>
+
+          <div class="news-grid">
+            <article class="news-card">
+              <div class="news-card__media">
+                <img src="assets/img/homepage/news-1.jpg" alt="Baylands Habitat Map data visualization of San Francisco Bay" />
+              </div>
+              <div class="news-card__body">
+                <span class="news-card__date">January 24, 2025</span>
+                <h3 class="news-card__title">
+                  Esri Blog Highlights Baylands Habitat Map
+                </h3>
+                <p class="news-card__excerpt">
+                  Read a new Esri blog post highlighting the value of the
+                  Baylands Habitat Map: "Restoration Project Builds Climate
+                  Resilience in the San Francisco Bay."
+                </p>
+              </div>
+            </article>
+
+            <article class="news-card">
+              <div class="news-card__media">
+                <img src="assets/img/homepage/news-2.jpg" alt="Researchers conducting field monitoring in a tidal marsh" />
+              </div>
+              <div class="news-card__body">
+                <span class="news-card__date">January 24, 2025</span>
+                <h3 class="news-card__title">
+                  WRMP Featured in Maven's Notebook
+                </h3>
+                <p class="news-card__excerpt">
+                  Read a Maven's Notebook feature about the WRMP, "Quantum leap
+                  in collecting and unifying regional metrics on wetland
+                  health."
+                </p>
+              </div>
+            </article>
+
+            <article class="news-card">
+              <div class="news-card__media">
+                <img src="assets/img/homepage/news-3.jpg" alt="Field crew surveying San Francisco Estuary wetlands" />
+              </div>
+              <div class="news-card__body">
+                <span class="news-card__date">January 15, 2025</span>
+                <h3 class="news-card__title">
+                  WRMP Featured in KneeDeepTimes
+                </h3>
+                <p class="news-card__excerpt">
+                  Read a new KneeDeepTimes article about the WRMP: "Collecting
+                  and Unifying Regional Metrics on Wetland Health."
+                </p>
+              </div>
+            </article>
+          </div>
+
+          <div class="news-footer">
+            <a class="btn btn--teal" href="#">Read more recent news</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════ Divider ═══════════════════ -->
+      <div class="site-container">
+        <div class="home-divider">
+          <span class="home-divider__mark">
+            <svg viewBox="0 0 24 20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 13c2 3 4.5 3 6.5 0s4.5-3 6.5 0 4.5 3 6.5 0" /><path d="M2 7c2 3 4.5 3 6.5 0s4.5-3 6.5 0 4.5 3 6.5 0" /></svg>
+          </span>
+        </div>
+      </div>
+
+      <!-- ═══════════════════ Funders & Partners ═══════════════════ -->
+      <section class="section">
+        <div class="site-container">
+          <div class="section-head section-head--wide">
+            <span class="kicker">About Us</span>
+            <h2 class="section-head__title">Our Funders &amp; Partners</h2>
+            <p class="section-head__intro">
+              The WRMP is supported by a network of funders and partners,
+              including government agencies, research institutions, and
+              nonprofit organizations, collaborating to advance wetland science,
+              restoration, and resilience in the San Francisco Estuary.
+            </p>
+          </div>
+
+          <div class="partners-strip">
+            <span class="partner-mark">SF Estuary Institute</span>
+            <span class="partner-mark">SF Estuary Partnership</span>
+            <span class="partner-mark">CA State Coastal Conservancy</span>
+            <span class="partner-mark">SF Bay RWQCB</span>
+            <span class="partner-mark">US EPA Region 9</span>
+            <span class="partner-mark">SF Bay Joint Venture</span>
+            <span class="partner-mark">Point Blue</span>
+          </div>
+
+          <div class="partners-footer">
+            <a class="btn btn--teal" href="#">Learn more about our partners</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ═══════════════════ Footer ═══════════════════ -->
+    <footer class="site-footer">
+      <div class="site-container site-footer__inner">
+        <div>
+          <img
+            class="site-footer__logo"
+            src="../shared/img/WRMP_Logo_RGB_ADA_Trans_DarkMode_Website_1850.png"
+            alt="WRMP logo"
+          />
+        </div>
+        <div class="footer-col footer-col--nav">
+          <h2 class="footer-col__heading">Navigation</h2>
+          <ul class="footer-nav">
+            <li><a href="#">Monitoring Results</a></li>
+            <li><a href="#">Science Framework</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Engage</a></li>
+            <li><a href="#">Resources</a></li>
+          </ul>
+        </div>
+        <div class="footer-col footer-col--subscribe">
+          <h2 class="footer-col__heading">Subscribe to our newsletter</h2>
+          <p class="footer-newsletter__copy">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m2 7 10 6 10-6" /></svg>
+            Signup for news about the Wetlands Regional Monitoring Program
+          </p>
+          <form class="footer-newsletter__form" onsubmit="return false">
+            <input
+              class="footer-newsletter__input"
+              type="email"
+              placeholder="Email Address"
+              aria-label="Email Address"
+            />
+            <button class="footer-newsletter__submit" type="submit">
+              Subscribe
+            </button>
+          </form>
+        </div>
+        <div class="footer-col footer-col--partners">
+          <h2 class="footer-col__heading">Staffed by</h2>
+          <div class="footer-staffed">
+            <img
+              class="footer-partner-logo"
+              src="assets/img/sfei-logo.png"
+              width="102"
+              height="32"
+              alt="San Francisco Estuary Institute"
+            />
+            <img
+              class="footer-partner-logo"
+              src="assets/img/sfep-logo.png"
+              width="120"
+              height="32"
+              alt="San Francisco Estuary Partnership"
+            />
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- ═══════════════════ Exhibit dialog ═══════════════════ -->
+    <dialog class="exhibit-dialog" id="exhibit-dialog">
+      <div class="exhibit-dialog__inner">
+        <button
+          class="exhibit-dialog__close"
+          type="button"
+          aria-label="Close exhibit"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+        </button>
+        <iframe
+          class="exhibit-dialog__iframe"
+          title="The Bay: Where We're Watching — interactive exhibit"
+        ></iframe>
+      </div>
+    </dialog>
+
+    <script src="assets/site.js"></script>
+  </body>
+</html>

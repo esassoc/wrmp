@@ -1,0 +1,537 @@
+/* ════════════════════════════════════════════════════════════
+   WRMP HOMEPAGE — page-unique styles
+   Linked AFTER site.css. Owns only what the homepage needs that
+   the shared stylesheet does not already provide.
+
+   Sections, in document order:
+     1. Bento mosaic  — replicates the live wrmp.org top section
+     2. About — "What we do" (entries + mission/equity sidebar)
+     3. Featured Exhibit — a clean standalone exhibit section
+     4. Section divider
+     5. Recent News
+     6. Funders & Partners
+   ════════════════════════════════════════════════════════════ */
+
+/* ─── Bento tile colors, sampled from live wrmp.org ─── */
+:root {
+  --bento-lime: #92bb4d;   /* "Where are our wetlands?" tile  */
+  --bento-teal: #228b9c;   /* "How healthy ...?" tile         */
+  --bento-green: #379352;  /* "Who uses ...?" tile            */
+  --bento-tealada: #005e6a;/* "Collaborative Science" strip   */
+}
+
+/* ════════════════════════════════════════════════════════════
+   1. BENTO MOSAIC — matches the live wrmp.org homepage
+   ════════════════════════════════════════════════════════════
+   Like the header/hero, the bento is FULL-BLEED: it spans the
+   whole viewport with only the 32px side gutter as padding — it
+   is NOT capped to the 1400px content column. This matches the
+   live wrmp.org treatment (measured: section width = 100vw,
+   32px left/right padding).
+   Grid (at 1440px): 4 columns 344px / 1fr / auto / 344px, 4
+   rows of ~230px, 16px gap. Eight tiles — four photo tiles and
+   four solid-color content tiles. */
+.bento {
+  padding-top: var(--space-32);
+  padding-bottom: var(--space-48);
+  /* Full-bleed: break out of any container, gutter via padding. */
+  padding-inline: var(--site-gutter);
+}
+/* When .bento sits inside a .site-container, neutralize the
+   container's max-width cap and padding so it goes edge-to-edge. */
+.site-container.bento,
+.bento.site-container {
+  max-width: none;
+}
+.bento__grid {
+  display: grid;
+  grid-template-columns: 344px 1fr auto 344px;
+  grid-template-rows: repeat(4, 230px);
+  gap: var(--space-16);
+}
+
+.bento-tile {
+  position: relative;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+/* Photo tiles — background image, no text */
+.bento-tile--photo {
+  background-color: #4e4e50;
+  background-size: cover;
+  background-position: center;
+}
+
+/* Photo tile placement (live order) */
+.bento-tile--photo-left {
+  grid-column: 1 / 2;
+  grid-row: 1 / 3;
+}
+.bento-tile--photo-center {
+  grid-column: 2 / 4;
+  grid-row: 2 / 4;
+}
+.bento-tile--photo-right {
+  grid-column: 4 / 5;
+  grid-row: 3 / 4;
+}
+.bento-tile--photo-pipers {
+  grid-column: 2 / 3;
+  grid-row: 4 / 5;
+}
+
+/* WRMP wordmark overlaid on the center photo tile */
+.bento-center__mark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 46%;
+  max-width: 320px;
+  height: auto;
+}
+
+/* Content tiles — solid color, white text, padded */
+.bento-tile--content {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-32);
+  color: var(--color-white);
+}
+.bento-tile--lime {
+  background: var(--bento-lime);
+  grid-column: 2 / 4;
+  grid-row: 1 / 2;
+}
+.bento-tile--teal {
+  background: var(--bento-teal);
+  grid-column: 4 / 5;
+  grid-row: 1 / 3;
+}
+.bento-tile--mid-green {
+  background: var(--bento-green);
+  grid-column: 1 / 2;
+  grid-row: 3 / 5;
+}
+.bento-tile--collab {
+  background: var(--bento-tealada);
+  grid-column: 3 / 5;
+  grid-row: 4 / 5;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-12);
+  text-align: center;
+}
+
+.bento-tile__heading {
+  font-family: var(--font-body);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-white);
+  margin-bottom: var(--space-12);
+}
+.bento-tile__copy {
+  font-size: 15px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: var(--space-24);
+}
+
+/* Topic pills — a 44px rounded photo thumbnail + label,
+   exactly as the live site renders them */
+.bento-topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-12) var(--space-24);
+  margin-top: auto;
+}
+.bento-topic {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-12);
+  text-decoration: none;
+}
+.bento-topic__thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--color-white);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.bento-topic__label {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-white);
+}
+
+/* Collaborative-science strip */
+.bento-collab__mark {
+  width: 20px;
+  height: auto; /* preserve the icon's 20:16 aspect ratio (~20×16) */
+  flex-shrink: 0;
+}
+.bento-collab__text {
+  font-family: var(--font-body);
+  font-size: 22px;
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.2;
+  color: var(--color-white);
+}
+
+/* ════════════════ 2. About — "What we do" ════════════════ */
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 384px;
+  gap: var(--space-64);
+  align-items: start;
+}
+
+.about-head {
+  margin-bottom: var(--space-32);
+}
+.about-head__title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 400;
+  color: #000;
+  margin-bottom: var(--space-16);
+}
+.about-head__intro {
+  font-size: 18px;
+  line-height: 28px;
+  color: var(--color-text);
+}
+
+/* Numbered entries */
+.about-entries {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-32);
+}
+.about-entry {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: var(--space-32);
+  align-items: start;
+}
+.about-entry__media {
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  aspect-ratio: 240 / 215;
+}
+.about-entry__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.about-entry--flip {
+  grid-template-columns: 1fr 240px;
+}
+.about-entry--flip .about-entry__media {
+  order: 2;
+}
+.about-entry__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--color-teal-ada);
+  margin-bottom: var(--space-16);
+}
+.about-entry__num {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-teal);
+  color: var(--color-white);
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.about-entry__body {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--color-text);
+  margin-bottom: var(--space-16);
+}
+.about-entry__links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-16);
+  font-size: 15px;
+}
+.about-entry__links-label {
+  font-weight: 600;
+  color: var(--gray-700);
+}
+.about-entry__links a {
+  font-weight: 600;
+  color: var(--color-teal-ada);
+}
+
+/* Sidebar panels */
+.about-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+}
+.sidebar-panel {
+  padding: var(--space-32);
+  border-radius: var(--radius-sm);
+}
+.sidebar-panel--mission {
+  background: #e9f2f3;
+}
+.sidebar-panel--equity {
+  background: rgba(224, 147, 55, 0.08);
+}
+.sidebar-panel__title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--color-teal-ada);
+  margin-bottom: var(--space-16);
+}
+.sidebar-panel__body {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--color-text);
+  margin-bottom: var(--space-16);
+}
+.sidebar-panel__link {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-teal-ada);
+}
+
+/* ════════════════════════════════════════════════════════════
+   3. FEATURED EXHIBIT — a clean standalone section
+   ════════════════════════════════════════════════════════════
+   No gradient band, no metric-band reskin. A centered section
+   header (kicker + serif title + framing line) introduces a
+   single large exhibit cover, centered as the visual focus. */
+.featured-exhibit {
+  padding-block: var(--space-48);
+}
+
+.featured-exhibit__head {
+  max-width: 720px;
+  margin: 0 auto var(--space-32);
+  text-align: center;
+}
+.featured-exhibit__title {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1.1;
+  color: #000;
+  margin-bottom: var(--space-12);
+}
+.featured-exhibit__lede {
+  font-size: 18px;
+  line-height: 28px;
+  color: var(--color-text);
+}
+
+/* The exhibit cover — centered, the sole focus of the section */
+.featured-exhibit__body {
+  max-width: 960px;
+  margin-inline: auto;
+}
+.featured-exhibit__cover .exhibit-card {
+  aspect-ratio: 16 / 9;
+}
+
+/* ════════════════ 4. Divider ════════════════ */
+.home-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-16);
+  padding-block: var(--space-48);
+}
+.home-divider::before,
+.home-divider::after {
+  content: "";
+  height: 1px;
+  width: 420px;
+  background: var(--color-border);
+}
+.home-divider__mark {
+  width: 22px;
+  height: 18px;
+  flex-shrink: 0;
+}
+.home-divider__mark svg {
+  width: 100%;
+  height: 100%;
+  stroke: var(--color-teal);
+  fill: none;
+}
+
+/* ════════════════ 5. Recent News ════════════════ */
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-32);
+}
+.news-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--color-white);
+}
+.news-card__media {
+  aspect-ratio: 447 / 335;
+  overflow: hidden;
+}
+.news-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.news-card__body {
+  padding: var(--space-32);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+.news-card__date {
+  align-self: flex-start;
+  display: inline-flex;
+  padding: var(--space-4) var(--space-8);
+  background: var(--color-band);
+  border-radius: var(--radius-xs);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.24px;
+  text-transform: uppercase;
+  color: var(--gray-600);
+}
+.news-card__title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--color-teal-ada);
+  margin-top: var(--space-4);
+}
+.news-card__excerpt {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-text);
+}
+.news-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-48);
+}
+
+/* ════════════════ 6. Funders & Partners ════════════════ */
+.partners-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-48);
+  padding-block: var(--space-32);
+}
+.partners-strip__logo {
+  height: 64px;
+  width: auto;
+  object-fit: contain;
+  opacity: 0.78;
+  filter: grayscale(0.15);
+}
+.partners-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-32);
+}
+
+/* Generic placeholder mark for partner logos (mockup stand-ins) */
+.partner-mark {
+  height: 64px;
+  width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-band);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gray-500);
+  text-align: center;
+  padding: var(--space-8);
+}
+
+/* ════════════════ Responsive ════════════════ */
+@media (max-width: 1024px) {
+  .bento__grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: none;
+    gap: var(--space-16);
+  }
+  .bento-tile {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    min-height: 230px;
+  }
+  .bento-tile--photo-center,
+  .bento-tile--lime,
+  .bento-tile--collab {
+    grid-column: 1 / -1 !important;
+  }
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-48);
+  }
+  .news-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .home-divider::before,
+  .home-divider::after {
+    width: 120px;
+  }
+}
+
+@media (max-width: 720px) {
+  .bento__grid {
+    grid-template-columns: 1fr;
+  }
+  .bento-tile--collab {
+    flex-direction: column;
+  }
+  .about-entry,
+  .about-entry--flip {
+    grid-template-columns: 1fr;
+    gap: var(--space-16);
+  }
+  .about-entry--flip .about-entry__media {
+    order: 0;
+  }
+  .featured-exhibit__title {
+    font-size: 28px;
+  }
+  .news-grid {
+    grid-template-columns: 1fr;
+  }
+}

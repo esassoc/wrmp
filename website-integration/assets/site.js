@@ -22,19 +22,25 @@
   iframe.addEventListener("load", function () {
     try {
       var doc = iframe.contentDocument;
-      if (!doc || !doc.head) return;
-      var style = doc.createElement("style");
-      style.textContent = "html,body{background:transparent !important;}";
-      doc.head.appendChild(style);
+      if (doc && doc.head) {
+        var style = doc.createElement("style");
+        style.textContent = "html,body{background:transparent !important;}";
+        doc.head.appendChild(style);
+      }
     } catch (e) {
       /* exhibit not same-origin or not ready — leave as-is */
     }
+    // Reveal only now — the iframe was held at opacity 0 so the
+    // exhibit's opaque body never flashes before the override above.
+    iframe.classList.add("is-ready");
   });
 
   function openDialog(trigger) {
     lastTrigger = trigger;
     var src = trigger.getAttribute("data-exhibit-src");
     // Set src on open so the exhibit starts fresh each time.
+    // Drop is-ready first so the new exhibit starts hidden.
+    iframe.classList.remove("is-ready");
     iframe.setAttribute("src", src);
     document.body.classList.add("is-dialog-open");
     dialog.showModal();
