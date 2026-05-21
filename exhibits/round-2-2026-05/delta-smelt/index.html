@@ -1,0 +1,1307 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Delta Smelt: The Smallest Giant — WRMP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <link rel="stylesheet" href="../../../shared/css/tokens.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-frame.css" />
+    <link rel="stylesheet" href="../../../shared/css/leaflet-overrides.css?v=2" />
+    <link rel="stylesheet" href="../../../shared/css/marker-popup.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-cover.css" />
+    <link rel="stylesheet" href="../../../shared/css/level3.css?v=2" />
+    <style>
+      /* ── Exhibit-specific: background frame tint ── */
+      .exhibit-frame {
+        background: #e8eef2;
+      }
+
+      /* Map is positioned inside a bg-layer, not absolute */
+      #map {
+        width: 100%;
+        height: 100%;
+        position: static;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Level 3 icon sprite — Lucide glyphs inlined as <symbol>s, no CDN
+         dependency. Referenced via <svg class="lc"><use href="#l3-icon-…"/>. -->
+    <svg
+      width="0"
+      height="0"
+      style="position: absolute"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <symbol
+          id="l3-icon-database"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <ellipse cx="12" cy="5" rx="9" ry="3" />
+          <path d="M3 5V19A9 3 0 0 0 21 19V5" />
+          <path d="M3 12A9 3 0 0 0 21 12" />
+        </symbol>
+        <symbol
+          id="l3-icon-compass"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <path
+            d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"
+          />
+        </symbol>
+        <symbol
+          id="l3-icon-flask-conical"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"
+          />
+          <path d="M6.453 15h11.094" />
+          <path d="M8.5 2h7" />
+        </symbol>
+        <symbol
+          id="l3-icon-map"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"
+          />
+          <path d="M15 5.764v15" />
+          <path d="M9 3.236v15" />
+        </symbol>
+        <symbol
+          id="l3-icon-file-text"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"
+          />
+          <path d="M14 2v5a1 1 0 0 0 1 1h5" />
+          <path d="M10 9H8" />
+          <path d="M16 13H8" />
+          <path d="M16 17H8" />
+        </symbol>
+        <symbol
+          id="l3-icon-download"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 15V3" />
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <path d="m7 10 5 5 5-5" />
+        </symbol>
+        <symbol
+          id="l3-icon-arrow-up-right"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M7 7h10v10" />
+          <path d="M7 17 17 7" />
+        </symbol>
+        <symbol
+          id="l3-icon-arrow-down"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 5v14" />
+          <path d="m19 12-7 7-7-7" />
+        </symbol>
+        <symbol
+          id="l3-icon-x"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M18 6 6 18" />
+          <path d="m6 6 12 12" />
+        </symbol>
+      </defs>
+    </svg>
+
+    <div class="exhibit-frame">
+      <div id="exhibit-cover" class="exhibit-cover">
+        <div
+          class="exhibit-cover-image"
+          style="background-image: url('./cover.jpg')"
+          aria-hidden="true"
+        ></div>
+        <div class="exhibit-cover-gradient" aria-hidden="true"></div>
+        <div class="exhibit-cover-content">
+          <span class="exhibit-cover-kicker">WRMP Exhibit · Featured Species</span>
+          <h2 class="exhibit-cover-title">Delta Smelt: The Smallest Giant</h2>
+          <p class="exhibit-cover-lede">Meet the tiny endangered native that reshaped California water policy. See where it lives, why it matters, and what's at stake.</p>
+          <button id="btn-enter" class="exhibit-cover-cta" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            Step Inside
+          </button>
+          <div class="exhibit-cover-journey">
+            <div class="exhibit-cover-dots" aria-hidden="true">
+            <span class="exhibit-cover-dot is-pulsing"></span>
+            <span class="exhibit-cover-dot"></span>
+            <span class="exhibit-cover-dot"></span>
+            <span class="exhibit-cover-dot"></span>
+            <span class="exhibit-cover-dot"></span>
+            <span class="exhibit-cover-dot"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- End Card -->
+      <div
+        id="exhibit-end-card"
+        class="exhibit-cover exhibit-cover--end is-hidden"
+      >
+        <div
+          class="exhibit-cover-image"
+          style="background-image: url('./cover.jpg')"
+          aria-hidden="true"
+        ></div>
+        <!-- Wide hub end card: l3-endcard widens the content band to a
+             full-width band so the 3-across Data/Tools/Science hub is all
+             visible at once (see shared/css/level3.css). The l3-endcard-wash
+             class on the gradient darkens the hero behind it for AA text. -->
+        <div
+          class="exhibit-cover-gradient l3-endcard-wash"
+          aria-hidden="true"
+        ></div>
+        <div class="exhibit-cover-content l3-endcard">
+          <div class="l3-endcard-head">
+            <span class="exhibit-cover-kicker">Thanks for exploring</span>
+            <h2 class="exhibit-cover-title">The data runs deeper</h2>
+            <p class="exhibit-cover-lede">
+              This exhibit is one layer. The Delta Smelt's story sits inside a
+              larger data ecosystem — from the Bay-wide EcoAtlas toolset to the
+              raw datasets scientists work with every day.
+            </p>
+          </div>
+          <!-- Level 3 · end-card hub final (flexible tinted category panels).
+               All three categories present. Destinations are illustrative —
+               confirm deep links with SFEI. -->
+          <span class="exhibit-cover-links-label">Take the data further</span>
+          <div class="l3-hub">
+            <!-- Data -->
+            <div class="l3-hub-panel" data-cat="data">
+              <div class="l3-hub-panel-head">
+                <span class="cat-icon"
+                  ><svg class="lc" aria-hidden="true">
+                    <use href="#l3-icon-database" /></svg
+                ></span>
+                <span class="cat-name">Data</span>
+                <span class="cat-count">2</span>
+              </div>
+              <a
+                class="l3-hub-item"
+                href="../../../data/species.json"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span class="hf-icon"
+                  ><svg class="lc lc-sm" aria-hidden="true">
+                    <use href="#l3-icon-download" /></svg
+                ></span>
+                <div class="hf-body">
+                  <div class="hf-top">
+                    <p class="hf-name">Species catalog</p>
+                    <span class="l3-chip">JSON</span>
+                    <span class="hf-go"
+                      ><svg class="lc lc-sm" aria-hidden="true">
+                        <use href="#l3-icon-arrow-down" /></svg
+                    ></span>
+                  </div>
+                  <p class="hf-desc">
+                    Every fish and invertebrate taxon documented across the
+                    estuary, with native and invasive status.
+                  </p>
+                  <p class="l3-scope">
+                    All taxa <span class="l3-dot">·</span> updated 2024
+                  </p>
+                </div>
+              </a>
+              <a
+                class="l3-hub-item"
+                href="../../../data/stations.json"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span class="hf-icon"
+                  ><svg class="lc lc-sm" aria-hidden="true">
+                    <use href="#l3-icon-download" /></svg
+                ></span>
+                <div class="hf-body">
+                  <div class="hf-top">
+                    <p class="hf-name">Station network</p>
+                    <span class="l3-chip">JSON</span>
+                    <span class="hf-go"
+                      ><svg class="lc lc-sm" aria-hidden="true">
+                        <use href="#l3-icon-arrow-down" /></svg
+                    ></span>
+                  </div>
+                  <p class="hf-desc">
+                    All 119 monitoring stations with coordinates, region and
+                    network — including the 27 in Delta Smelt habitat.
+                  </p>
+                  <p class="l3-scope">
+                    119 stations <span class="l3-dot">·</span> updated 2024
+                  </p>
+                </div>
+              </a>
+            </div>
+            <!-- Tools -->
+            <div class="l3-hub-panel" data-cat="tools">
+              <div class="l3-hub-panel-head">
+                <span class="cat-icon"
+                  ><svg class="lc" aria-hidden="true">
+                    <use href="#l3-icon-compass" /></svg
+                ></span>
+                <span class="cat-name">Tools</span>
+                <span class="cat-count">1</span>
+              </div>
+              <a
+                class="l3-hub-item"
+                href="https://www.ecoatlas.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span class="hf-icon"
+                  ><svg class="lc lc-sm" aria-hidden="true">
+                    <use href="#l3-icon-map" /></svg
+                ></span>
+                <div class="hf-body">
+                  <div class="hf-top">
+                    <p class="hf-name">EcoAtlas</p>
+                    <span class="l3-chip">WEB TOOL</span>
+                    <span class="hf-go"
+                      ><svg class="lc lc-sm" aria-hidden="true">
+                        <use href="#l3-icon-arrow-up-right" /></svg
+                    ></span>
+                  </div>
+                  <p class="hf-desc">
+                    Interactive geospatial maps of every wetland, restoration
+                    project and station in the estuary.
+                  </p>
+                  <p class="l3-scope">
+                    Bay-wide <span class="l3-dot">·</span> SFEI
+                  </p>
+                </div>
+              </a>
+            </div>
+            <!-- Science -->
+            <div class="l3-hub-panel" data-cat="science">
+              <div class="l3-hub-panel-head">
+                <span class="cat-icon"
+                  ><svg class="lc" aria-hidden="true">
+                    <use href="#l3-icon-flask-conical" /></svg
+                ></span>
+                <span class="cat-name">Science</span>
+                <span class="cat-count">2</span>
+              </div>
+              <a
+                class="l3-hub-item"
+                href="https://www.wrmp.org/science-framework/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span class="hf-icon"
+                  ><svg class="lc lc-sm" aria-hidden="true">
+                    <use href="#l3-icon-file-text" /></svg
+                ></span>
+                <div class="hf-body">
+                  <div class="hf-top">
+                    <p class="hf-name">WRMP Science Framework</p>
+                    <span class="l3-chip">WEB REPORT</span>
+                    <span class="hf-go"
+                      ><svg class="lc lc-sm" aria-hidden="true">
+                        <use href="#l3-icon-arrow-up-right" /></svg
+                    ></span>
+                  </div>
+                  <p class="hf-desc">
+                    The monitoring design — management questions, indicators
+                    and how the station network answers them.
+                  </p>
+                  <p class="l3-scope">
+                    2023 <span class="l3-dot">·</span> WRMP
+                  </p>
+                </div>
+              </a>
+              <a
+                class="l3-hub-item"
+                href="https://www.stateofourestuary.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span class="hf-icon"
+                  ><svg class="lc lc-sm" aria-hidden="true">
+                    <use href="#l3-icon-file-text" /></svg
+                ></span>
+                <div class="hf-body">
+                  <div class="hf-top">
+                    <p class="hf-name">State of Our Estuary</p>
+                    <span class="l3-chip">WEB REPORT</span>
+                    <span class="hf-go"
+                      ><svg class="lc lc-sm" aria-hidden="true">
+                        <use href="#l3-icon-arrow-up-right" /></svg
+                    ></span>
+                  </div>
+                  <p class="hf-desc">
+                    Regional status reporting on the estuary's health,
+                    habitats and long-term species trends.
+                  </p>
+                  <p class="l3-scope">
+                    2022 <span class="l3-dot">·</span> SF Estuary Partnership
+                  </p>
+                </div>
+              </a>
+            </div>
+          </div>
+          <div class="exhibit-cover-actions">
+            <button id="btn-restart" class="exhibit-cover-cta" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"
+                />
+              </svg>
+              Restart exhibit
+            </button>
+            <a
+              class="exhibit-cover-cta exhibit-cover-cta--secondary"
+              href="../../../"
+              >View all exhibits</a
+            >
+          </div>
+        </div>
+      </div>
+      <!-- ── Background Layers (one per step) ──────── -->
+      <div class="bg-layer bg-video active" id="bg-0">
+        <video autoplay loop muted playsinline>
+          <source src="delta-smelt.mp4" type="video/mp4" />
+        </video>
+        <span class="photo-credit">Video: Doug Bertran / UC Davis FCCL</span>
+      </div>
+
+      <div class="bg-layer bg-map" id="bg-1"></div>
+      <div class="bg-layer bg-map" id="bg-2"></div>
+
+      <div
+        class="bg-layer bg-photo"
+        id="bg-3"
+        style="
+          background-image: url(&quot;https://archive.estuarynews.org/wp-content/uploads/2022/02/1-5-Release-alt-51750348162_a07457ba6c_k-1024x683.jpg&quot;);
+          background-position: center 40%;
+        "
+      >
+        <span class="photo-credit">USFWS / Public Domain</span>
+      </div>
+
+      <div class="bg-layer bg-map" id="bg-4"></div>
+      <div class="bg-layer bg-map" id="bg-5"></div>
+
+      <!-- Map (shared across map steps) -->
+      <div
+        id="map"
+        style="
+          position: absolute;
+          inset: 0;
+          z-index: 1;
+          opacity: 0;
+          transition: opacity 0.6s ease;
+          pointer-events: none;
+        "
+      ></div>
+
+      <div class="map-legend" id="map-legend"></div>
+
+      <!-- ── Story Panel ────────────────────────────── -->
+      <div class="story-panel" id="story-panel">
+        <div class="story-panel-inner">
+          <div class="step active" data-step="0">
+            <div class="step-header">
+              <img
+                class="step-header-mark"
+                src="../../../shared/img/wrmp-logo-2in-mark-crop.png"
+                alt=""
+                width="40"
+                height="40"
+                decoding="async"
+              />
+              <div class="step-header-text">
+                <span class="kicker">Delta Smelt</span>
+                <h2>Meet the Smallest Giant</h2>
+              </div>
+            </div>
+
+            <div class="body">
+              <p>
+                <em>Hypomesus transpacificus.</em> A native pelagic fish in the
+                family Osmeridae &mdash; the smelts. About the length of your
+                finger, nearly translucent, with a faint cucumber smell when
+                fresh from the water.
+              </p>
+              <p>
+                It lives for just one year, exists nowhere else on Earth except
+                the Sacramento&ndash;San Joaquin estuary, and has become one of
+                the most closely watched species in California. An unlikely icon
+                for an ecosystem under pressure.
+              </p>
+              <div class="stat-row">
+                <div class="stat-pill">
+                  <div class="num">2&ndash;3"</div>
+                  <div class="lbl">Adult length</div>
+                </div>
+                <div class="stat-pill">
+                  <div class="num">1 yr</div>
+                  <div class="lbl">Lifespan</div>
+                </div>
+                <div class="stat-pill">
+                  <div class="num">Native</div>
+                  <div class="lbl">Status</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="step" data-step="1">
+            <div class="step-header">
+              <img
+                class="step-header-mark"
+                src="../../../shared/img/wrmp-logo-2in-mark-crop.png"
+                alt=""
+                width="40"
+                height="40"
+                decoding="async"
+              />
+              <div class="step-header-text">
+                <span class="kicker">Habitat</span>
+                <h2>This Is Its World</h2>
+              </div>
+            </div>
+
+            <div class="body">
+              <p>
+                Delta Smelt live in the narrow band where fresh river water
+                meets saltwater from the Bay &mdash; the low-salinity mixing
+                zone of Suisun Bay and the western Delta.
+              </p>
+              <p>
+                This brackish water shifts with the seasons and with how much
+                water flows from upstream. In wet years, the zone pushes
+                seaward. In drought, it contracts inland. The fish follow the
+                water.
+              </p>
+              <div class="callout">
+                27 monitoring stations track conditions in Delta Smelt's core
+                habitat &mdash; salinity, temperature, turbidity, and the
+                communities that share this water.
+              </div>
+            </div>
+          </div>
+
+          <div class="step" data-step="2">
+            <div class="step-header">
+              <img
+                class="step-header-mark"
+                src="../../../shared/img/wrmp-logo-2in-mark-crop.png"
+                alt=""
+                width="40"
+                height="40"
+                decoding="async"
+              />
+              <div class="step-header-text">
+                <span class="kicker">Community</span>
+                <h2>Who Shares This Water</h2>
+              </div>
+            </div>
+
+            <div class="body">
+              <p>
+                Delta Smelt is one species in a complex web. The estuary
+                supports hundreds of documented species &mdash; fish,
+                invertebrates, and crustaceans &mdash; competing for the same
+                water and food.
+              </p>
+              <p>
+                Key native co-habitants include Longfin Smelt (a close
+                relative), Threespine Stickleback, and Sacramento Splittail. But
+                the estuary has changed. Invasive species now make up a
+                significant portion of the community.
+              </p>
+              <div class="stat-row" id="species-stats">
+                <div class="stat-pill">
+                  <div class="num" id="native-fish-count">&mdash;</div>
+                  <div class="lbl">Native fish</div>
+                </div>
+                <div class="stat-pill">
+                  <div class="num" id="invasive-fish-count">&mdash;</div>
+                  <div class="lbl">Invasive fish</div>
+                </div>
+                <div class="stat-pill">
+                  <div class="num" id="total-species-count">&mdash;</div>
+                  <div class="lbl">Total species</div>
+                </div>
+              </div>
+              <div class="callout">
+                WRMP's monitoring network has documented
+                <span id="invasive-total-count">over 50</span>
+                invasive species across the estuary &mdash; competitors that
+                reshape the food web Delta Smelt depends on.
+              </div>
+            </div>
+          </div>
+
+          <div class="step" data-step="3">
+            <div class="step-header">
+              <img
+                class="step-header-mark"
+                src="../../../shared/img/wrmp-logo-2in-mark-crop.png"
+                alt=""
+                width="40"
+                height="40"
+                decoding="async"
+              />
+              <div class="step-header-text">
+                <span class="kicker">Threats</span>
+                <h2>A Species Under Pressure</h2>
+              </div>
+            </div>
+
+            <div class="body">
+              <p>
+                No single cause explains the Delta Smelt's decline. Habitat
+                loss, altered water flows, warming temperatures, and invasive
+                competitors all converge in this estuary.
+              </p>
+              <p>
+                The 2014&ndash;2015 drought was a turning point. Across the
+                estuary, monitoring data showed native fish communities losing
+                ground to non-native species &mdash; a regime shift that
+                reshaped which species dominate.
+              </p>
+              <p>
+                Long-term monitoring helps scientists understand these shifts.
+                Without consistent data collection across the network, the
+                pressures on species like Delta Smelt would be invisible until
+                it was too late.
+              </p>
+            </div>
+          </div>
+
+          <div class="step" data-step="4">
+            <div class="step-header">
+              <img
+                class="step-header-mark"
+                src="../../../shared/img/wrmp-logo-2in-mark-crop.png"
+                alt=""
+                width="40"
+                height="40"
+                decoding="async"
+              />
+              <div class="step-header-text">
+                <span class="kicker">Infrastructure</span>
+                <h2>The Network That Watches</h2>
+              </div>
+            </div>
+
+            <div class="body">
+              <p>
+                WRMP coordinates monitoring across the full estuary &mdash; from
+                South Bay's restored salt ponds to the brackish channels of
+                Suisun Marsh. Nine sampling networks, three regions, one
+                connected picture.
+              </p>
+              <p>
+                Each station collects data on fish communities, water quality,
+                and habitat conditions. Together, they form the infrastructure
+                that makes it possible to detect change &mdash; whether a
+                species is recovering, declining, or arriving for the first
+                time.
+              </p>
+              <div class="stat-row">
+                <div class="stat-pill">
+                  <div class="num" id="station-count">119</div>
+                  <div class="lbl">Stations</div>
+                </div>
+                <div class="stat-pill">
+                  <div class="num">9</div>
+                  <div class="lbl">Networks</div>
+                </div>
+                <div class="stat-pill">
+                  <div class="num" id="species-documented">&mdash;</div>
+                  <div class="lbl">Species documented</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="step" data-step="5">
+            <div class="step-header">
+              <img
+                class="step-header-mark"
+                src="../../../shared/img/wrmp-logo-2in-mark-crop.png"
+                alt=""
+                width="40"
+                height="40"
+                decoding="async"
+              />
+              <div class="step-header-text">
+                <span class="kicker">Why It Matters</span>
+                <h2>You Can't Save What You Can't See</h2>
+              </div>
+            </div>
+
+            <div class="body">
+              <p>
+                Every station on this map is a question being asked:
+                <strong>what's here, and is it changing?</strong>
+              </p>
+              <p>
+                For Delta Smelt, monitoring is the conservation tool. Without
+                stations in the water, declines go unnoticed, recoveries go
+                uncounted, and management decisions fly blind.
+              </p>
+              <p>
+                WRMP's role is to keep asking &mdash; season after season,
+                station after station &mdash; so the estuary's story is told
+                with data, not guesswork. If Delta Smelt return, these stations
+                will be the first to know.
+              </p>
+              <div class="callout">
+                Monitoring doesn't just document decline. It measures the
+                conditions needed for recovery &mdash; and tells us whether our
+                efforts are working.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-bar">
+          <button id="btn-prev" disabled>Back</button>
+          <div class="step-dots">
+            <button
+              class="step-dot active"
+              data-step="0"
+              aria-label="Step 1"
+            ></button>
+            <button class="step-dot" data-step="1" aria-label="Step 2"></button>
+            <button class="step-dot" data-step="2" aria-label="Step 3"></button>
+            <button class="step-dot" data-step="3" aria-label="Step 4"></button>
+            <button class="step-dot" data-step="4" aria-label="Step 5"></button>
+            <button class="step-dot" data-step="5" aria-label="Step 6"></button>
+          </div>
+          <button id="btn-next">Next</button>
+        </div>
+      </div>
+
+      <!-- Level 3 · Pattern C (persistent drawer). A "Data & tools" toggle
+           pinned bottom-right, opening a panel available from any step —
+           deep data is always one click away, never in the narrative.
+           Mirrors the end-card hub's resources so a viewer can reach them
+           mid-story, not only at the end. Destinations are illustrative;
+           confirm deep links with SFEI. -->
+      <button
+        class="level3-drawer-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="level3-drawer"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M12 3 2 8l10 5 10-5-10-5Zm0 7.5L4.2 6.6 12 2.7l7.8 3.9L12 10.5ZM2 13l10 5 10-5-2.4-1.2L12 15.3 4.4 11.8 2 13Zm0 5 10 5 10-5-2.4-1.2L12 20.3 4.4 16.8 2 18Z"
+          />
+        </svg>
+        Data &amp; tools
+      </button>
+      <aside
+        class="level3-drawer"
+        id="level3-drawer"
+        aria-label="Data and tools"
+      >
+        <div class="level3-drawer-head">
+          <p class="level3-drawer-title">Data &amp; tools</p>
+          <button class="level3-drawer-close" type="button" aria-label="Close">
+            <svg class="lc lc-sm" aria-hidden="true">
+              <use href="#l3-icon-x" />
+            </svg>
+          </button>
+        </div>
+        <!-- Level 3 · drawer final (icon-tile D/T/S group headers, described
+             rows). The body scrolls when content exceeds the drawer height.
+             Destinations are illustrative — confirm deep links with SFEI. -->
+        <div class="level3-drawer-body">
+          <!-- Data -->
+          <div class="drf-group" data-cat="data">
+            <div class="drf-grouphead">
+              <span class="cat-icon cat-icon-sm"
+                ><svg class="lc" aria-hidden="true">
+                  <use href="#l3-icon-database" /></svg
+              ></span>
+              <span class="gh-name">Data</span>
+              <span class="gh-count">2</span>
+            </div>
+            <a
+              class="drf-row"
+              href="../../../data/species.json"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="rw-icon"
+                ><svg class="lc lc-sm" aria-hidden="true">
+                  <use href="#l3-icon-download" /></svg
+              ></span>
+              <div class="rw-body">
+                <div class="rw-top">
+                  <p class="rw-name">Species catalog</p>
+                  <span class="l3-chip">JSON</span>
+                  <span class="rw-go"
+                    ><svg class="lc lc-sm" aria-hidden="true">
+                      <use href="#l3-icon-arrow-down" /></svg
+                  ></span>
+                </div>
+                <p class="rw-desc">
+                  Every fish and invertebrate taxon documented across the
+                  estuary, native and invasive.
+                </p>
+                <p class="l3-scope">
+                  All taxa <span class="l3-dot">·</span> updated 2024
+                </p>
+              </div>
+            </a>
+            <a
+              class="drf-row"
+              href="../../../data/stations.json"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="rw-icon"
+                ><svg class="lc lc-sm" aria-hidden="true">
+                  <use href="#l3-icon-download" /></svg
+              ></span>
+              <div class="rw-body">
+                <div class="rw-top">
+                  <p class="rw-name">Station network</p>
+                  <span class="l3-chip">JSON</span>
+                  <span class="rw-go"
+                    ><svg class="lc lc-sm" aria-hidden="true">
+                      <use href="#l3-icon-arrow-down" /></svg
+                  ></span>
+                </div>
+                <p class="rw-desc">
+                  All 119 monitoring stations with coordinates, region and
+                  network — where each catch was recorded.
+                </p>
+                <p class="l3-scope">
+                  119 stations <span class="l3-dot">·</span> updated 2024
+                </p>
+              </div>
+            </a>
+          </div>
+          <!-- Tools -->
+          <div class="drf-group" data-cat="tools">
+            <div class="drf-grouphead">
+              <span class="cat-icon cat-icon-sm"
+                ><svg class="lc" aria-hidden="true">
+                  <use href="#l3-icon-compass" /></svg
+              ></span>
+              <span class="gh-name">Tools</span>
+              <span class="gh-count">1</span>
+            </div>
+            <a
+              class="drf-row"
+              href="https://www.ecoatlas.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="rw-icon"
+                ><svg class="lc lc-sm" aria-hidden="true">
+                  <use href="#l3-icon-map" /></svg
+              ></span>
+              <div class="rw-body">
+                <div class="rw-top">
+                  <p class="rw-name">EcoAtlas</p>
+                  <span class="l3-chip">WEB TOOL</span>
+                  <span class="rw-go"
+                    ><svg class="lc lc-sm" aria-hidden="true">
+                      <use href="#l3-icon-arrow-up-right" /></svg
+                  ></span>
+                </div>
+                <p class="rw-desc">
+                  Interactive geospatial maps of every wetland, restoration
+                  project and station in the estuary.
+                </p>
+                <p class="l3-scope">
+                  Bay-wide <span class="l3-dot">·</span> SFEI
+                </p>
+              </div>
+            </a>
+          </div>
+          <!-- Science -->
+          <div class="drf-group" data-cat="science">
+            <div class="drf-grouphead">
+              <span class="cat-icon cat-icon-sm"
+                ><svg class="lc" aria-hidden="true">
+                  <use href="#l3-icon-flask-conical" /></svg
+              ></span>
+              <span class="gh-name">Science</span>
+              <span class="gh-count">2</span>
+            </div>
+            <a
+              class="drf-row"
+              href="https://www.wrmp.org/science-framework/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="rw-icon"
+                ><svg class="lc lc-sm" aria-hidden="true">
+                  <use href="#l3-icon-file-text" /></svg
+              ></span>
+              <div class="rw-body">
+                <div class="rw-top">
+                  <p class="rw-name">WRMP Science Framework</p>
+                  <span class="l3-chip">WEB REPORT</span>
+                  <span class="rw-go"
+                    ><svg class="lc lc-sm" aria-hidden="true">
+                      <use href="#l3-icon-arrow-up-right" /></svg
+                  ></span>
+                </div>
+                <p class="rw-desc">
+                  The monitoring design — management questions, indicators
+                  and how the station network answers them.
+                </p>
+                <p class="l3-scope">
+                  2023 <span class="l3-dot">·</span> WRMP
+                </p>
+              </div>
+            </a>
+            <a
+              class="drf-row"
+              href="https://www.stateofourestuary.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="rw-icon"
+                ><svg class="lc lc-sm" aria-hidden="true">
+                  <use href="#l3-icon-file-text" /></svg
+              ></span>
+              <div class="rw-body">
+                <div class="rw-top">
+                  <p class="rw-name">State of Our Estuary</p>
+                  <span class="l3-chip">WEB REPORT</span>
+                  <span class="rw-go"
+                    ><svg class="lc lc-sm" aria-hidden="true">
+                      <use href="#l3-icon-arrow-up-right" /></svg
+                  ></span>
+                </div>
+                <p class="rw-desc">
+                  Regional status reporting on the estuary's health,
+                  habitats and long-term species trends.
+                </p>
+                <p class="l3-scope">
+                  2022 <span class="l3-dot">·</span> SF Estuary Partnership
+                </p>
+              </div>
+            </a>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="../../../shared/js/data-loader.js"></script>
+    <script src="../../../shared/js/map-init.js"></script>
+    <script src="../../../shared/js/marker-popup.js"></script>
+    <script src="../../../shared/js/stepper.js"></script>
+    <script src="../../../shared/js/exhibit-screens.js"></script>
+    <script src="../../../shared/js/level3.js?v=1"></script>
+    <script>
+      // ── Exhibit Config ─────────────────────────────
+      var STATIONS = [];
+      var SPECIES = [];
+      function tokenColor(name, fallback) {
+        var v = getComputedStyle(document.documentElement).getPropertyValue(
+          name,
+        );
+        return v ? v.trim() || fallback : fallback;
+      }
+      var C = {
+        ADA_TEAL: tokenColor("--wrmp-ada-teal", "#005E6A"),
+        GREEN: tokenColor("--wrmp-green", "#379352"),
+        ORANGE: tokenColor("--wrmp-orange", "#E09337"),
+      };
+
+      var STEP_CONFIG = [
+        { bg: "video", panel: "dark" },
+        { bg: "map", panel: "light" },
+        { bg: "map", panel: "light" },
+        { bg: "photo", panel: "dark" },
+        { bg: "map", panel: "light" },
+        { bg: "map", panel: "light" },
+      ];
+
+      var SUISUN_BOUNDS = [
+        [38.04, -122.15],
+        [38.26, -121.82],
+      ];
+      var BAY_FULL = [
+        [37.4, -122.55],
+        [38.28, -121.85],
+      ];
+
+      var REGION_COLORS = {
+        "South Bay": C.ADA_TEAL,
+        "North Bay": C.GREEN,
+        "Suisun Bay": C.ORANGE,
+      };
+
+      var POPUP_FIELDS = [
+        ["Region", "region"],
+        ["Network", "WRMP_Network"],
+        ["Habitat", "habitat"],
+      ];
+
+      // ── Map Init ───────────────────────────────────
+      var map = WRMP.initMap("map", { bounds: SUISUN_BOUNDS });
+      var markerLayer = L.layerGroup().addTo(map);
+
+      // ── Map Render Functions ────────────────────────
+      function renderSuisunStations() {
+        markerLayer.clearLayers();
+        var suisun = STATIONS.filter(function (s) {
+          return s.region === "Suisun Bay";
+        });
+        suisun.forEach(function (s) {
+          L.circleMarker([s.lat, s.lon], {
+            radius: 7,
+            fillColor: C.ORANGE,
+            color: "#fff",
+            weight: 2,
+            fillOpacity: 0.85,
+          })
+            .bindPopup(
+              WRMP.makeMarkerPopup({
+                code: s.station_code,
+                name: s.station_name,
+                dotColor: C.ORANGE,
+                showImage: false,
+                sections: [
+                  {
+                    rows: POPUP_FIELDS.map(function (p) {
+                      return {
+                        type: "row",
+                        label: s[p[1]] || "—",
+                        value: p[0],
+                      };
+                    }),
+                  },
+                ],
+              }),
+            )
+            .addTo(markerLayer);
+        });
+        WRMP.flyTo(map, SUISUN_BOUNDS);
+      }
+
+      function renderAllStations(filter) {
+        markerLayer.clearLayers();
+        STATIONS.forEach(function (s) {
+          var color = REGION_COLORS[s.region] || "#999";
+          var match = !filter || s.region === filter;
+          L.circleMarker([s.lat, s.lon], {
+            radius: match ? 6 : 3,
+            fillColor: match ? color : "#bbb",
+            color: match ? "#fff" : "#ddd",
+            weight: match ? 1.5 : 1,
+            fillOpacity: match ? 0.8 : 0.2,
+          })
+            .bindPopup(
+              WRMP.makeMarkerPopup({
+                code: s.station_code,
+                name: s.station_name,
+                dotColor: color,
+                showImage: false,
+                sections: [
+                  {
+                    rows: POPUP_FIELDS.map(function (p) {
+                      return {
+                        type: "row",
+                        label: s[p[1]] || "—",
+                        value: p[0],
+                      };
+                    }),
+                  },
+                ],
+              }),
+            )
+            .addTo(markerLayer);
+        });
+        if (filter) {
+          var matching = STATIONS.filter(function (s) {
+            return s.region === filter;
+          });
+          if (matching.length) {
+            WRMP.flyTo(
+              map,
+              L.latLngBounds(
+                matching.map(function (s) {
+                  return [s.lat, s.lon];
+                }),
+              ),
+            );
+          }
+        } else {
+          WRMP.flyTo(map, BAY_FULL);
+        }
+      }
+
+      // ── Legend ─────────────────────────────────────
+      var legendEl = document.getElementById("map-legend");
+      var activeFilter = null;
+
+      function buildLegend(items, opts) {
+        legendEl.replaceChildren();
+        if (!items) return;
+        var clickable = opts && opts.clickable;
+
+        if (clickable) {
+          var allChip = document.createElement("button");
+          allChip.className =
+            "map-legend-chip" + (!activeFilter ? " active" : "");
+          var allLabel = document.createElement("span");
+          allLabel.className = "map-legend-chip-label";
+          allLabel.setAttribute("data-label", "All");
+          allLabel.textContent = "All";
+          allChip.appendChild(allLabel);
+          allChip.addEventListener("click", function () {
+            activeFilter = null;
+            renderAllStations(activeFilter);
+            buildLegend(items, opts);
+          });
+          legendEl.appendChild(allChip);
+        }
+
+        items.forEach(function (item) {
+          var chip = document.createElement("button");
+          var isActive = activeFilter === item.value;
+          var isDimmed = clickable && activeFilter && !isActive;
+          chip.className =
+            "map-legend-chip" +
+            (isActive ? " active" : "") +
+            (isDimmed ? " dimmed" : "");
+          var dot = document.createElement("span");
+          dot.className = "map-legend-dot";
+          dot.style.background = item.color;
+          chip.appendChild(dot);
+          var lbl = document.createElement("span");
+          lbl.className = "map-legend-chip-label";
+          lbl.setAttribute("data-label", item.label);
+          lbl.textContent = item.label;
+          chip.appendChild(lbl);
+          if (clickable) {
+            chip.addEventListener("click", function () {
+              activeFilter = activeFilter === item.value ? null : item.value;
+              renderAllStations(activeFilter);
+              buildLegend(items, opts);
+            });
+          }
+          legendEl.appendChild(chip);
+        });
+      }
+
+      // ── Species Stats ──────────────────────────────
+      function populateStats() {
+        if (SPECIES.length) {
+          var fish = SPECIES.filter(function (sp) {
+            return sp.group === "Fish";
+          });
+          var nF = fish.filter(function (sp) {
+            return sp.natinv === "Native";
+          });
+          var iF = fish.filter(function (sp) {
+            return sp.natinv === "Invasive";
+          });
+          var iAll = SPECIES.filter(function (sp) {
+            return sp.natinv === "Invasive";
+          });
+          var el = function (id) {
+            return document.getElementById(id);
+          };
+          if (el("native-fish-count"))
+            el("native-fish-count").textContent = nF.length;
+          if (el("invasive-fish-count"))
+            el("invasive-fish-count").textContent = iF.length;
+          if (el("total-species-count"))
+            el("total-species-count").textContent = SPECIES.length;
+          if (el("invasive-total-count"))
+            el("invasive-total-count").textContent =
+              iAll.length + " invasive species";
+          if (el("species-documented"))
+            el("species-documented").textContent = SPECIES.length;
+        }
+        if (STATIONS.length) {
+          var suisunCount = STATIONS.filter(function (s) {
+            return s.region === "Suisun Bay";
+          }).length;
+          var sc = document.getElementById("suisun-count");
+          if (sc) sc.textContent = suisunCount;
+          var st = document.getElementById("station-count");
+          if (st) st.textContent = STATIONS.length;
+        }
+      }
+
+      // ── DOM refs ───────────────────────────────────
+      var storyPanel = document.getElementById("story-panel");
+      var bgLayers = document.querySelectorAll(".bg-layer");
+      var mapEl = document.getElementById("map");
+
+      // Apply dark panel immediately for video step
+      storyPanel.classList.add("panel-dark");
+      storyPanel.classList.add("dark-theme");
+
+      // ── Stepper ────────────────────────────────────
+var screens = WRMP.wireExhibitScreens({
+
+  totalSteps: 6,
+
+  onStepEnter: function (n) {
+          var config = STEP_CONFIG[n];
+
+          // Panel theme
+          storyPanel.classList.toggle("panel-dark", config.panel === "dark");
+          storyPanel.classList.toggle("dark-theme", config.panel === "dark");
+
+          // Background layers
+          bgLayers.forEach(function (layer) {
+            layer.classList.remove("active");
+          });
+          document.getElementById("bg-" + n).classList.add("active");
+
+          // Legend
+          legendEl.replaceChildren();
+
+          // Show/hide the shared map element
+          var isMapStep = config.bg === "map";
+          mapEl.style.opacity = isMapStep ? "1" : "0";
+          mapEl.style.pointerEvents = isMapStep ? "auto" : "none";
+
+          if (isMapStep && STATIONS.length > 0) {
+            setTimeout(function () {
+              map.invalidateSize();
+            }, 50);
+          }
+
+          if ((n === 1 || n === 2) && STATIONS.length > 0) {
+            setTimeout(function () {
+              renderSuisunStations();
+            }, 100);
+            buildLegend([{ label: "Suisun Bay stations", color: C.ORANGE }]);
+          } else if ((n === 4 || n === 5) && STATIONS.length > 0) {
+            activeFilter = null;
+            setTimeout(function () {
+              renderAllStations();
+            }, 100);
+            buildLegend(
+              [
+                { label: "Suisun Bay", color: C.ORANGE, value: "Suisun Bay" },
+                { label: "North Bay", color: C.GREEN, value: "North Bay" },
+                { label: "South Bay", color: C.ADA_TEAL, value: "South Bay" },
+              ],
+              { clickable: true },
+            );
+          }
+
+  },
+
+  onEnter: function () {
+
+    stepper.goToStep(0);
+
+  },
+
+  onRestart: function () {
+
+    stepper.goToStep(0);
+
+  },
+
+});
+
+
+var stepper = WRMP.createStepper({
+
+  totalSteps: 6,
+
+  onStepEnter: screens.onStepEnter,
+
+});
+
+      // ── Level 3 · persistent "Data & tools" drawer ──
+      WRMP.initLevel3Drawer();
+
+      // ── Load Data ──────────────────────────────────
+      WRMP.loadData({ stations: true, species: true })
+        .then(function (data) {
+          STATIONS = data.stations;
+          SPECIES = data.species;
+          populateStats();
+          stepper.goToStep(0);
+        })
+        .catch(function (err) {
+          console.error("Failed to load data:", err);
+        });
+    </script>
+  </body>
+</html>
