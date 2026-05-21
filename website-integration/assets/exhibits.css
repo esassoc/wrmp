@@ -1,0 +1,105 @@
+/* ════════════════════════════════════════════════════════════
+   WRMP.org — Exhibits gallery page
+   Page-unique CSS. Loaded AFTER site.css. Owns only what the
+   gallery page needs beyond the shared component library:
+   the gallery lead paragraph, the topic-section rhythm, and the
+   meta layer (status/trend chip + last-updated) layered onto
+   the shared .exhibit-card poster.
+
+   The page header is the shared interior-page hero treatment —
+   .hero / .overlap-card / .title-card, all from site.css — so
+   this file owns nothing for the header itself.
+   ════════════════════════════════════════════════════════════ */
+
+/* ─ Gallery lead ─
+   A short orienting sentence between the title card and the first
+   topic section. The descriptive copy that used to live in the
+   flat intro band, now a quiet intro line below the hero card. */
+.gallery-lead {
+  font-size: 20px;
+  line-height: 30px;
+  color: var(--color-text-muted);
+  max-width: 760px;
+}
+
+/* ─ Topic section ─
+   Each WRMP Monitoring-Results topic is a labelled section. The
+   heading reads as content (normal case, serif, primary color) —
+   not as an ornamental micro-label. */
+.topic-section {
+  margin-top: var(--space-64);
+}
+/* The first section sits below the gallery lead, inside
+   .section--after-hero which already carries its own top pad. */
+.topic-section:first-of-type {
+  margin-top: var(--space-32);
+}
+.topic-section__head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-16);
+  flex-wrap: wrap;
+  padding-bottom: var(--space-16);
+  margin-bottom: var(--space-32);
+  border-bottom: 1px solid var(--color-border);
+}
+.topic-section__title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--color-teal-ada);
+}
+/* ─ Gallery grid ─
+   Responsive: cards keep a comfortable minimum width and reflow
+   from three columns down to one. */
+.exhibit-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: var(--space-32) var(--space-24);
+}
+
+/* ─ Gallery item ─
+   Wraps a shared .exhibit-card poster + its meta footer. The
+   poster keeps all its own styling from site.css; this only
+   adds the row of metadata beneath it. */
+.gallery-item {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─ Card meta footer ─
+   A quiet last-updated stamp beneath the poster. */
+.exhibit-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+  margin-top: var(--space-12);
+}
+.exhibit-meta__updated {
+  font-size: 14px;
+  color: var(--color-text-subtle);
+}
+.exhibit-meta__updated strong {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+/* ─ Caption beneath the poster ─
+   One-line plain-language description of the exhibit. */
+.exhibit-blurb {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--color-text);
+  margin-top: var(--space-12);
+}
+
+@media (max-width: 640px) {
+  .exhibit-gallery {
+    grid-template-columns: 1fr;
+  }
+  .gallery-intro__title {
+    font-size: 32px;
+  }
+}

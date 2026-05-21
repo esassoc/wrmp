@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Exhibits — WRMP</title>
+    <link rel="stylesheet" href="assets/site.css" />
+    <link rel="stylesheet" href="assets/exhibits.css" />
+  </head>
+  <body>
+    <!-- ═══════════════════ Header ═══════════════════ -->
+    <header class="site-header">
+      <div class="site-container site-header__inner">
+        <a class="site-brand" href="#">
+          <img
+            class="site-brand__mark"
+            src="../shared/img/wrmp-logo-2in-mark-crop.png"
+            alt="WRMP logo"
+          />
+          <span class="site-brand__text">
+            <span class="site-brand__eyebrow">SF Estuary</span>
+            <span class="site-brand__wordmark">Wetlands</span>
+            <span class="site-brand__wordmark">Regional</span>
+            <span class="site-brand__wordmark">Monitoring</span>
+            <span class="site-brand__wordmark">Program</span>
+          </span>
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+          <a class="site-nav__item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 5-6 4 4 6-8" /><path d="M16 7h3v3" /></svg>
+            Monitoring Results
+            <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+          </a>
+          <a class="site-nav__item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="3" width="8" height="4" rx="1" /><path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" /></svg>
+            Science Framework
+            <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+          </a>
+          <a class="site-nav__item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" /></svg>
+            About
+            <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+          </a>
+          <a class="site-nav__item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+            Engage
+            <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+          </a>
+          <a class="site-nav__item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" /></svg>
+            Resources
+            <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+          </a>
+          <a class="site-nav__item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+            Search
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <!-- ═══════════════════ Hero + overlapping title ═══════════════════ -->
+      <section class="hero">
+        <!-- Full-width hero banner -->
+        <div class="hero__banner">
+          <img src="assets/img/hero.png" alt="Aerial view of a tidal marsh" />
+        </div>
+
+        <!-- White title card — flush left, overlaps the hero -->
+        <div class="overlap-card title-card">
+          <div class="title-card__inner">
+            <a class="breadcrumb" href="#">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+              Monitoring Results
+            </a>
+            <h1 class="page-title">Interactive Exhibits</h1>
+            <p class="page-subtitle">
+              Step inside the data — short, guided tours through what
+              WRMP monitoring is telling us about the region's tidal
+              wetlands.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════ Gallery ═══════════════════ -->
+      <div class="site-container section--after-hero">
+        <p class="gallery-lead">
+          Exhibits are organized by monitoring topic.
+        </p>
+
+        <!-- ─── Baylands Geography ─── -->
+        <section class="topic-section" aria-labelledby="topic-baylands">
+          <div class="topic-section__head">
+            <h2 class="topic-section__title" id="topic-baylands">
+              Baylands Geography
+            </h2>
+          </div>
+          <div class="exhibit-gallery">
+            <!-- The Bay: Where We're Watching -->
+            <article class="gallery-item">
+              <button
+                type="button"
+                class="exhibit-card"
+                data-exhibit-src="../exhibits/round-2-2026-05/station-map-stepper/index.html"
+                aria-label="Open interactive exhibit: The Bay — Where We're Watching"
+              >
+                <span
+                  class="exhibit-card-image"
+                  style="background-image: url('../exhibits/round-2-2026-05/station-map-stepper/cover.jpg')"
+                ></span>
+                <span class="exhibit-card-gradient"></span>
+                <span class="exhibit-card-begin">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+                  Begin
+                </span>
+                <span class="exhibit-card-content">
+                  <span class="exhibit-card-kicker">Interactive exhibit</span>
+                  <span class="exhibit-card-title">The Bay: Where We're Watching</span>
+                  <span class="exhibit-card-dots">
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                  </span>
+                </span>
+              </button>
+              <p class="exhibit-blurb">
+                Tour the WRMP monitoring network station by station
+                across the San Francisco Estuary.
+              </p>
+              <div class="exhibit-meta">
+                <span class="exhibit-meta__updated">
+                  Updated <strong>May 2026</strong>
+                </span>
+              </div>
+            </article>
+
+            <!-- Designing the Experiment -->
+            <article class="gallery-item">
+              <button
+                type="button"
+                class="exhibit-card"
+                data-exhibit-src="../exhibits/2026-04-10-restoration-network/index.html"
+                aria-label="Open interactive exhibit: Designing the Experiment"
+              >
+                <span
+                  class="exhibit-card-image"
+                  style="background-image: url('../exhibits/2026-04-10-restoration-network/cover.jpg')"
+                ></span>
+                <span class="exhibit-card-gradient"></span>
+                <span class="exhibit-card-begin">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+                  Begin
+                </span>
+                <span class="exhibit-card-content">
+                  <span class="exhibit-card-kicker">Interactive exhibit</span>
+                  <span class="exhibit-card-title">Designing the Experiment</span>
+                  <span class="exhibit-card-dots">
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                  </span>
+                </span>
+              </button>
+              <p class="exhibit-blurb">
+                How the restoration monitoring network is structured to
+                answer the region's biggest questions.
+              </p>
+              <div class="exhibit-meta">
+                <span class="exhibit-meta__updated">
+                  Updated <strong>Apr 2026</strong>
+                </span>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- ─── Wetland Condition ─── -->
+        <section class="topic-section" aria-labelledby="topic-condition">
+          <div class="topic-section__head">
+            <h2 class="topic-section__title" id="topic-condition">
+              Wetland Condition
+            </h2>
+          </div>
+          <div class="exhibit-gallery">
+            <!-- A Decade in Alviso Marsh -->
+            <article class="gallery-item">
+              <button
+                type="button"
+                class="exhibit-card"
+                data-exhibit-src="../exhibits/round-2-2026-05/alviso-decade/index.html"
+                aria-label="Open interactive exhibit: A Decade in Alviso Marsh"
+              >
+                <span
+                  class="exhibit-card-image"
+                  style="background-image: url('../exhibits/round-2-2026-05/alviso-decade/cover.jpg')"
+                ></span>
+                <span class="exhibit-card-gradient"></span>
+                <span class="exhibit-card-begin">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+                  Begin
+                </span>
+                <span class="exhibit-card-content">
+                  <span class="exhibit-card-kicker">Interactive exhibit</span>
+                  <span class="exhibit-card-title">A Decade in Alviso Marsh</span>
+                  <span class="exhibit-card-dots">
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                  </span>
+                </span>
+              </button>
+              <p class="exhibit-blurb">
+                Ten years of change in a single South Bay marsh, traced
+                through the monitoring record.
+              </p>
+              <div class="exhibit-meta">
+                <span class="exhibit-meta__updated">
+                  Updated <strong>May 2026</strong>
+                </span>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- ─── Fish & Wildlife ─── -->
+        <section class="topic-section" aria-labelledby="topic-fish">
+          <div class="topic-section__head">
+            <h2 class="topic-section__title" id="topic-fish">
+              Fish &amp; Wildlife
+            </h2>
+          </div>
+          <div class="exhibit-gallery">
+            <!-- Delta Smelt -->
+            <article class="gallery-item">
+              <button
+                type="button"
+                class="exhibit-card"
+                data-exhibit-src="../exhibits/2026-04-10-delta-smelt/index.html"
+                aria-label="Open interactive exhibit: Delta Smelt — The Smallest Giant"
+              >
+                <span
+                  class="exhibit-card-image"
+                  style="background-image: url('../exhibits/2026-04-10-delta-smelt/cover.jpg')"
+                ></span>
+                <span class="exhibit-card-gradient"></span>
+                <span class="exhibit-card-begin">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+                  Begin
+                </span>
+                <span class="exhibit-card-content">
+                  <span class="exhibit-card-kicker">Interactive exhibit</span>
+                  <span class="exhibit-card-title">Delta Smelt: The Smallest Giant</span>
+                  <span class="exhibit-card-dots">
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                  </span>
+                </span>
+              </button>
+              <p class="exhibit-blurb">
+                Why a three-inch fish became the bellwether of the
+                Estuary's ecological health.
+              </p>
+              <div class="exhibit-meta">
+                <span class="exhibit-meta__updated">
+                  Updated <strong>Apr 2026</strong>
+                </span>
+              </div>
+            </article>
+
+            <!-- How We Monitor -->
+            <article class="gallery-item">
+              <button
+                type="button"
+                class="exhibit-card"
+                data-exhibit-src="../exhibits/2026-04-10-how-we-look/index.html"
+                aria-label="Open interactive exhibit: How We Monitor"
+              >
+                <span
+                  class="exhibit-card-image"
+                  style="background-image: url('../exhibits/2026-04-10-how-we-look/cover.jpg')"
+                ></span>
+                <span class="exhibit-card-gradient"></span>
+                <span class="exhibit-card-begin">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+                  Begin
+                </span>
+                <span class="exhibit-card-content">
+                  <span class="exhibit-card-kicker">Interactive exhibit</span>
+                  <span class="exhibit-card-title">How We Monitor</span>
+                  <span class="exhibit-card-dots">
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                  </span>
+                </span>
+              </button>
+              <p class="exhibit-blurb">
+                Beach seines, gill nets, and otter trawls — the field
+                methods behind the fish data.
+              </p>
+              <div class="exhibit-meta">
+                <span class="exhibit-meta__updated">
+                  Updated <strong>Apr 2026</strong>
+                </span>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- ─── Plant Communities ─── -->
+        <section class="topic-section" aria-labelledby="topic-plants">
+          <div class="topic-section__head">
+            <h2 class="topic-section__title" id="topic-plants">
+              Plant Communities
+            </h2>
+          </div>
+          <div class="exhibit-gallery">
+            <!-- Native vs. Invasive -->
+            <article class="gallery-item">
+              <button
+                type="button"
+                class="exhibit-card"
+                data-exhibit-src="../exhibits/round-2-2026-05/native-vs-invasive/index.html"
+                aria-label="Open interactive exhibit: Native vs. Invasive"
+              >
+                <span
+                  class="exhibit-card-image"
+                  style="background-image: url('../exhibits/round-2-2026-05/native-vs-invasive/cover.jpg')"
+                ></span>
+                <span class="exhibit-card-gradient"></span>
+                <span class="exhibit-card-begin">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+                  Begin
+                </span>
+                <span class="exhibit-card-content">
+                  <span class="exhibit-card-kicker">Interactive exhibit</span>
+                  <span class="exhibit-card-title">Native vs. Invasive</span>
+                  <span class="exhibit-card-dots">
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                  </span>
+                </span>
+              </button>
+              <p class="exhibit-blurb">
+                Tracking the contest between native marsh plants and
+                invasive species over time.
+              </p>
+              <div class="exhibit-meta">
+                <span class="exhibit-meta__updated">
+                  Updated <strong>May 2026</strong>
+                </span>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- ─── Wetlands & Sea Level Rise ─── -->
+        <section class="topic-section" aria-labelledby="topic-slr">
+          <div class="topic-section__head">
+            <h2 class="topic-section__title" id="topic-slr">
+              Wetlands &amp; Sea Level Rise
+            </h2>
+          </div>
+          <div class="exhibit-gallery">
+            <!-- Is the Bay Keeping Up? -->
+            <article class="gallery-item">
+              <button
+                type="button"
+                class="exhibit-card"
+                data-exhibit-src="../exhibits/2026-04-23-bay-keeping-up/index.html"
+                aria-label="Open interactive exhibit: Is the Bay Keeping Up?"
+              >
+                <span
+                  class="exhibit-card-image"
+                  style="background-image: url('../exhibits/2026-04-23-bay-keeping-up/cover.jpg')"
+                ></span>
+                <span class="exhibit-card-gradient"></span>
+                <span class="exhibit-card-begin">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+                  Begin
+                </span>
+                <span class="exhibit-card-content">
+                  <span class="exhibit-card-kicker">Interactive exhibit</span>
+                  <span class="exhibit-card-title">Is the Bay Keeping Up?</span>
+                  <span class="exhibit-card-dots">
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                    <span class="exhibit-card-dot"></span>
+                  </span>
+                </span>
+              </button>
+              <p class="exhibit-blurb">
+                A scorecard on whether marsh elevation gains are
+                outpacing rising sea levels.
+              </p>
+              <div class="exhibit-meta">
+                <span class="exhibit-meta__updated">
+                  Updated <strong>Apr 2026</strong>
+                </span>
+              </div>
+            </article>
+          </div>
+        </section>
+      </div>
+
+    </main>
+
+    <!-- ═══════════════════ Footer ═══════════════════ -->
+    <footer class="site-footer">
+      <div class="site-container site-footer__inner">
+        <div>
+          <img
+            class="site-footer__logo"
+            src="../shared/img/WRMP_Logo_RGB_ADA_Trans_DarkMode_Website_1850.png"
+            alt="WRMP logo"
+          />
+        </div>
+        <div class="footer-col footer-col--nav">
+          <h2 class="footer-col__heading">Navigation</h2>
+          <ul class="footer-nav">
+            <li><a href="#">Monitoring Results</a></li>
+            <li><a href="#">Science Framework</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Engage</a></li>
+            <li><a href="#">Resources</a></li>
+          </ul>
+        </div>
+        <div class="footer-col footer-col--subscribe">
+          <h2 class="footer-col__heading">Subscribe to our newsletter</h2>
+          <p class="footer-newsletter__copy">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m2 7 10 6 10-6" /></svg>
+            Signup for news about the Wetlands Regional Monitoring Program
+          </p>
+          <form class="footer-newsletter__form" onsubmit="return false">
+            <input
+              class="footer-newsletter__input"
+              type="email"
+              placeholder="Email Address"
+              aria-label="Email Address"
+            />
+            <button class="footer-newsletter__submit" type="submit">
+              Subscribe
+            </button>
+          </form>
+        </div>
+        <div class="footer-col footer-col--partners">
+          <h2 class="footer-col__heading">Staffed by</h2>
+          <div class="footer-staffed">
+            <img
+              class="footer-partner-logo"
+              src="assets/img/sfei-logo.png"
+              width="102"
+              height="32"
+              alt="San Francisco Estuary Institute"
+            />
+            <img
+              class="footer-partner-logo"
+              src="assets/img/sfep-logo.png"
+              width="120"
+              height="32"
+              alt="San Francisco Estuary Partnership"
+            />
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- ═══════════════════ Exhibit dialog ═══════════════════ -->
+    <dialog class="exhibit-dialog" id="exhibit-dialog">
+      <div class="exhibit-dialog__inner">
+        <button
+          class="exhibit-dialog__close"
+          type="button"
+          aria-label="Close exhibit"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+        </button>
+        <iframe
+          class="exhibit-dialog__iframe"
+          title="WRMP interactive exhibit"
+        ></iframe>
+      </div>
+    </dialog>
+
+    <script src="assets/site.js"></script>
+  </body>
+</html>

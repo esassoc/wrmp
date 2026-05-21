@@ -1,0 +1,2706 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Decade in Alviso Marsh — WRMP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <link rel="stylesheet" href="../../../shared/css/tokens.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-frame.css" />
+    <link rel="stylesheet" href="../../../shared/css/leaflet-overrides.css?v=2" />
+    <link rel="stylesheet" href="../../../shared/css/marker-popup.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-cover.css" />
+    <link rel="stylesheet" href="../../../shared/css/level3.css?v=2" />
+    <style>
+      /* ── Exhibit-specific styles ──────────────────── */
+
+      /* Map visibility toggle per step */
+      #map {
+        opacity: 0;
+        transition: opacity 0.5s ease;
+      }
+      #map.active {
+        opacity: 1;
+      }
+
+      /* Rich background: Step 3 (two-seasons) */
+      .bg-gradient.bg-two-seasons {
+        background: linear-gradient(
+          100deg,
+          #d2e7ec 0%,
+          #e8e9d4 52%,
+          #f5e3c8 100%
+        );
+      }
+      /* Step 4 (regime shift) */
+      .bg-gradient.bg-regime {
+        background: linear-gradient(
+          135deg,
+          #f6efe4 0%,
+          #e6e2d4 40%,
+          #d9dfda 100%
+        );
+      }
+
+      /* Content area overlays (right side of panel) */
+      .content-area {
+        position: absolute;
+        top: var(--panel-inset);
+        left: calc(var(--panel-width) + var(--panel-inset) + var(--panel-inset));
+        right: var(--panel-inset);
+        bottom: var(--panel-inset);
+        z-index: 5;
+        display: none;
+        flex-direction: column;
+        padding: var(--space-lg);
+        overflow: hidden;
+      }
+      .content-area.active {
+        display: flex;
+      }
+
+      /* ── In-panel chart card ─────────────────────── */
+      .chart-card {
+        background: rgba(255, 255, 255, 0.6);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        border-radius: 10px;
+        padding: 12px 14px 10px;
+        margin-top: var(--space-sm);
+      }
+      .chart-card .chart-title {
+        font-family: var(--font-heading);
+        font-size: var(--step-0);
+        font-weight: 600;
+        color: var(--gray-12);
+        margin-bottom: 2px;
+      }
+      .chart-card .chart-caption {
+        font-size: var(--step--1);
+        color: var(--gray-11);
+        margin-top: 6px;
+        line-height: 1.35;
+      }
+      .chart-wrap {
+        position: relative;
+        width: 100%;
+        height: 150px;
+      }
+      .chart-wrap.tall {
+        height: 180px;
+      }
+      .story-panel.panel-dark .chart-card {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.12);
+      }
+      .story-panel.panel-dark .chart-card .chart-title {
+        color: var(--gray-12);
+      }
+      .story-panel.panel-dark .chart-card .chart-caption {
+        color: var(--gray-11);
+      }
+
+      /* ── Inline metric chips (Step 1) ─────────────── */
+      .chip-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: var(--space-sm) 0 var(--space-md);
+      }
+      .chip {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 6px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        font-size: var(--step--1);
+        color: var(--gray-12);
+      }
+      .chip .chip-num {
+        font-weight: 700;
+        font-size: var(--step-0);
+      }
+      .chip .chip-lbl {
+        color: var(--gray-11);
+      }
+      .story-panel:not(.panel-dark) .chip {
+        background: rgba(0, 94, 106, 0.08);
+        border-color: rgba(0, 94, 106, 0.16);
+      }
+      /* Readable chip text on the dark panel */
+      .story-panel.panel-dark .chip {
+        color: rgba(255, 255, 255, 0.95);
+      }
+      .story-panel.panel-dark .chip .chip-lbl {
+        color: rgba(255, 255, 255, 0.72);
+      }
+
+      /* ── Step 2 inline callout for ART 1 outlier ─── */
+      /* Kill the shared ::before left-stripe (violates "no colored
+         left borders as status indicators"). Use a subtle full
+         warm-tone rim + soft peach background instead. */
+      .step .callout.outlier {
+        background: rgba(224, 147, 55, 0.08);
+        border: 1px solid rgba(224, 147, 55, 0.28);
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: var(--step-0);
+        font-weight: 400;
+        line-height: 1.45;
+        color: var(--gray-12);
+      }
+      .step .callout.outlier::before {
+        content: none;
+        display: none;
+        background: none;
+      }
+      .story-panel.panel-dark .step .callout.outlier {
+        background: rgba(224, 147, 55, 0.14);
+        border-color: rgba(224, 147, 55, 0.32);
+        color: var(--gray-12);
+      }
+      .step .callout.outlier strong {
+        color: var(--wrmp-ada-teal);
+      }
+      .story-panel.panel-dark .step .callout.outlier strong {
+        color: var(--amber-11);
+      }
+
+      /* ── Step 5 closing callout ──────────────────── */
+      /* Kill the shared ::before left-stripe, style as a subtle
+         all-around bordered call-to-action card. */
+      .story-panel.panel-dark .step .callout:not(.outlier) {
+        padding: 14px 18px;
+        border: 1px solid rgba(146, 187, 77, 0.35);
+        border-radius: 10px;
+        background: rgba(146, 187, 77, 0.08);
+        text-align: center;
+      }
+      .story-panel.panel-dark .step .callout:not(.outlier)::before {
+        content: none;
+        display: none;
+        background: none;
+      }
+
+      /* ── Pulsing outlier ring on map (ART 1) ──────── */
+      .outlier-marker-wrap {
+        position: relative;
+      }
+      .outlier-pulse {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(224, 147, 55, 0.35);
+        animation: outlier-pulse 2.2s ease-out infinite;
+        pointer-events: none;
+      }
+      @keyframes outlier-pulse {
+        0% {
+          transform: translate(-50%, -50%) scale(0.6);
+          opacity: 0.8;
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(3.2);
+          opacity: 0;
+        }
+      }
+
+      /* ── Step 3: WET/DRY toggle ──────────────────── */
+      .season-toggle {
+        display: inline-flex;
+        background: rgba(0, 94, 106, 0.07);
+        border-radius: 999px;
+        padding: 3px;
+        gap: 2px;
+        margin: var(--space-sm) 0;
+      }
+      .season-toggle button {
+        appearance: none;
+        border: none;
+        background: transparent;
+        padding: 6px 16px;
+        border-radius: 999px;
+        font-family: var(--font-body);
+        font-size: var(--step-0);
+        font-weight: 600;
+        color: var(--gray-11);
+        cursor: pointer;
+        transition:
+          background 0.25s,
+          color 0.25s,
+          box-shadow 0.25s;
+      }
+      .season-toggle button[aria-pressed="true"] {
+        background: #fff;
+        color: var(--wrmp-ada-teal);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+      }
+      .season-toggle button:focus-visible {
+        outline: 2px solid var(--wrmp-teal);
+        outline-offset: 2px;
+      }
+
+      /* ── Season species card grid (Step 3) ────────── */
+      .species-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-top: var(--space-sm);
+      }
+      .species-card {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 10px 10px 12px;
+        background: rgba(255, 255, 255, 0.78);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        border-radius: 10px;
+        opacity: 0;
+        transform: translateY(4px);
+        animation: species-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+      }
+      .species-card:nth-child(2) {
+        animation-delay: 0.06s;
+      }
+      .species-card:nth-child(3) {
+        animation-delay: 0.12s;
+      }
+      .species-card:nth-child(4) {
+        animation-delay: 0.18s;
+      }
+      .species-card:nth-child(5) {
+        animation-delay: 0.24s;
+      }
+      .species-card:nth-child(6) {
+        animation-delay: 0.3s;
+      }
+      @keyframes species-in {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .species-silhouette {
+        width: 100%;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .species-silhouette svg {
+        width: 100%;
+        height: 100%;
+      }
+      .species-name {
+        font-family: var(--font-heading);
+        font-size: var(--step-0);
+        font-weight: 600;
+        color: var(--gray-12);
+        line-height: 1.2;
+      }
+      .species-sci {
+        font-style: italic;
+        font-size: var(--step--1);
+        color: var(--gray-11);
+        line-height: 1.2;
+      }
+      .species-badge {
+        align-self: flex-start;
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-top: 2px;
+      }
+      .species-badge.native {
+        background: rgba(0, 94, 106, 0.12);
+        color: var(--wrmp-ada-teal);
+      }
+      .species-badge.invasive {
+        background: rgba(224, 147, 55, 0.18);
+        color: #7a4a13;
+      }
+
+      /* ── Step 4: regime-shift layout ─────────────── */
+      .regime-grid {
+        display: grid;
+        grid-template-rows: auto 1fr;
+        gap: var(--space-md);
+        height: 100%;
+      }
+      .regime-card {
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        border-radius: 12px;
+        padding: 14px 18px 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+        display: flex;
+        flex-direction: column;
+      }
+      .regime-card h3 {
+        font-family: var(--font-heading);
+        font-size: var(--step-1);
+        font-weight: 600;
+        color: var(--wrmp-ada-teal);
+        margin-bottom: 2px;
+      }
+      .regime-card .chart-caption {
+        font-size: var(--step--1);
+        color: var(--gray-11);
+        margin-top: 8px;
+        line-height: 1.4;
+      }
+      .regime-card .chart-wrap {
+        flex: 1;
+        min-height: 0;
+        height: auto;
+      }
+
+      /* Year timeline custom bar */
+      .year-timeline {
+        display: flex;
+        gap: 3px;
+        margin-top: 10px;
+        margin-bottom: 8px;
+      }
+      .year-cell {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+      }
+      .year-cell .year-bar {
+        width: 100%;
+        height: 34px;
+        border-radius: 6px;
+        position: relative;
+      }
+      .year-cell .year-label {
+        font-size: var(--step--1);
+        color: var(--gray-11);
+        font-weight: 500;
+      }
+      .shift-marker {
+        position: absolute;
+        top: -6px;
+        bottom: -6px;
+        width: 2px;
+        background: var(--wrmp-ada-teal);
+        pointer-events: none;
+      }
+      .shift-marker::before {
+        content: "regime shift";
+        position: absolute;
+        top: -18px;
+        left: 50%;
+        transform: translateX(-50%);
+        white-space: nowrap;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--wrmp-ada-teal);
+      }
+
+      .cluster-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 16px;
+        font-size: var(--step--1);
+        color: var(--gray-11);
+        margin-top: 4px;
+      }
+      .cluster-legend .lg-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .cluster-legend .lg-swatch {
+        width: 12px;
+        height: 12px;
+        border-radius: 3px;
+        flex-shrink: 0;
+      }
+
+      /* ── Step 3 stage card (seasonal pulse chart on right) ── */
+      .stage-card {
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        border-radius: 12px;
+        padding: 14px 18px 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
+        margin-bottom: var(--space-md);
+      }
+      .stage-card .stage-title {
+        font-family: var(--font-heading);
+        font-size: var(--step-1);
+        font-weight: 600;
+        color: var(--wrmp-ada-teal);
+        margin-bottom: 2px;
+      }
+      .stage-card .stage-subtitle {
+        font-size: var(--step--1);
+        color: var(--gray-11);
+        line-height: 1.4;
+        margin-bottom: 6px;
+      }
+      .stage-card .stage-chart-wrap {
+        position: relative;
+        width: 100%;
+        height: 200px;
+      }
+      .stage-card .stage-caption {
+        font-size: var(--step--1);
+        color: var(--gray-11);
+        font-style: italic;
+        line-height: 1.35;
+        margin-top: 8px;
+      }
+      /* Step 3 species sub-heading (inside right stage, below chart) */
+      .stage-section-heading {
+        font-family: var(--font-heading);
+        font-size: var(--step-1);
+        font-weight: 600;
+        color: var(--wrmp-ada-teal);
+        margin-bottom: 6px;
+      }
+      .stage-section-sub {
+        font-size: var(--step-0);
+        color: var(--gray-11);
+        margin-bottom: 10px;
+        line-height: 1.4;
+      }
+
+      /* Step 5 highlight ring on Alviso prototype */
+      .alviso-proto-pulse {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: rgba(224, 147, 55, 0.28);
+        animation: outlier-pulse 2.4s ease-out infinite;
+        pointer-events: none;
+      }
+
+      /* ── Step 1: right-stage layout ─────────────── */
+      /* Map is still the page-level #map (the Leaflet instance), but
+         we visually reveal only a compact region in the upper-right
+         using a framed card. To avoid breaking Leaflet sizing across
+         other steps, we use an overlay card that holds the top-7 chart
+         on the main stage; the Leaflet map continues to fill its own
+         background but is visually dominated by this layered content. */
+      .content-step1 .stage-card {
+        margin-bottom: var(--space-md);
+      }
+      .content-step1 .stage-card.map-mini {
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.85);
+      }
+      .content-step1 .stage-card.map-mini .stage-title {
+        font-size: var(--step-0);
+        margin-bottom: 4px;
+      }
+      .content-step1 .map-mini-frame {
+        width: 100%;
+        height: 120px;
+        border-radius: 8px;
+        overflow: hidden;
+        background: var(--gray-3);
+        position: relative;
+      }
+      .content-step1 .map-mini-frame #map-mini {
+        position: absolute;
+        inset: 0;
+      }
+      .content-step1 .stage-card.top7-card {
+        flex: 1;
+        min-height: 0;
+      }
+      .content-step1 .stage-card.top7-card .stage-chart-wrap {
+        flex: 1;
+        min-height: 260px;
+      }
+
+      /* Dim the page-level #map on step 1 so the content-area chart
+         card is the primary stage. Still visible as a background nod
+         to "place". */
+      #map.step1-dim {
+        opacity: 0.45;
+      }
+
+      /* Light-panel chip contrast for step 1 (no dark overrides). */
+      .story-panel:not(.panel-dark) .chip {
+        color: var(--gray-12);
+      }
+      .story-panel:not(.panel-dark) .chip .chip-num {
+        color: var(--wrmp-ada-teal);
+      }
+      .story-panel:not(.panel-dark) .chip .chip-lbl {
+        color: var(--gray-11);
+      }
+
+      /* ── Scrollable panel (Step 2) ─────────────── */
+      .story-panel.panel-scroll .story-panel-inner {
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0, 94, 106, 0.35) rgba(0, 94, 106, 0.08);
+      }
+      .story-panel.panel-scroll .story-panel-inner::-webkit-scrollbar {
+        width: 8px;
+      }
+      .story-panel.panel-scroll
+        .story-panel-inner::-webkit-scrollbar-track {
+        background: rgba(0, 94, 106, 0.06);
+        border-radius: 4px;
+      }
+      .story-panel.panel-scroll
+        .story-panel-inner::-webkit-scrollbar-thumb {
+        background: rgba(0, 94, 106, 0.35);
+        border-radius: 4px;
+      }
+      .story-panel.panel-scroll
+        .story-panel-inner::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 94, 106, 0.55);
+      }
+
+      /* ── Scrollable right stage (Step 3) ───────── */
+      .content-area.content-step3.stage-scroll {
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0, 94, 106, 0.35) rgba(0, 94, 106, 0.08);
+      }
+      .content-area.content-step3.stage-scroll::-webkit-scrollbar {
+        width: 8px;
+      }
+      .content-area.content-step3.stage-scroll::-webkit-scrollbar-track {
+        background: rgba(0, 94, 106, 0.06);
+        border-radius: 4px;
+      }
+      .content-area.content-step3.stage-scroll::-webkit-scrollbar-thumb {
+        background: rgba(0, 94, 106, 0.35);
+        border-radius: 4px;
+      }
+      .content-area.content-step3.stage-scroll::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 94, 106, 0.55);
+      }
+
+      /* ── Step 4: regime-shift label repositioning ─── */
+      /* Make the year-timeline a positioned context so the regime-shift
+         label can anchor *above* the bars instead of clipping into the
+         subtitle text. We also add top padding so the label fits. */
+      .year-timeline {
+        position: relative;
+        padding-top: 22px;
+      }
+      .shift-marker {
+        top: -2px;
+        bottom: -6px;
+      }
+      .shift-marker::before {
+        top: -18px;
+        font-size: 10px;
+        letter-spacing: 0.08em;
+      }
+
+      /* ── Step 5: light-panel closing callout ─────── */
+      .story-panel:not(.panel-dark) .step .callout:not(.outlier) {
+        padding: 14px 18px;
+        border: 1px solid rgba(55, 147, 82, 0.35);
+        border-radius: 10px;
+        background: rgba(55, 147, 82, 0.08);
+        text-align: center;
+        color: var(--gray-12);
+      }
+      .story-panel:not(.panel-dark) .step .callout:not(.outlier)::before {
+        content: none;
+        display: none;
+        background: none;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Level 3 icon sprite — Lucide glyphs inlined as <symbol>s, no CDN
+         dependency. Referenced via <svg class="lc"><use href="#l3-icon-…"/>. -->
+    <svg
+      width="0"
+      height="0"
+      style="position: absolute"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <symbol
+          id="l3-icon-database"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <ellipse cx="12" cy="5" rx="9" ry="3" />
+          <path d="M3 5V19A9 3 0 0 0 21 19V5" />
+          <path d="M3 12A9 3 0 0 0 21 12" />
+        </symbol>
+        <symbol
+          id="l3-icon-compass"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <path
+            d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"
+          />
+        </symbol>
+        <symbol
+          id="l3-icon-flask-conical"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"
+          />
+          <path d="M6.453 15h11.094" />
+          <path d="M8.5 2h7" />
+        </symbol>
+        <symbol
+          id="l3-icon-map"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"
+          />
+          <path d="M15 5.764v15" />
+          <path d="M9 3.236v15" />
+        </symbol>
+        <symbol
+          id="l3-icon-file-text"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"
+          />
+          <path d="M14 2v5a1 1 0 0 0 1 1h5" />
+          <path d="M10 9H8" />
+          <path d="M16 13H8" />
+          <path d="M16 17H8" />
+        </symbol>
+        <symbol
+          id="l3-icon-download"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 15V3" />
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <path d="m7 10 5 5 5-5" />
+        </symbol>
+        <symbol
+          id="l3-icon-folder-open"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"
+          />
+        </symbol>
+        <symbol
+          id="l3-icon-arrow-up-right"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M7 7h10v10" />
+          <path d="M7 17 17 7" />
+        </symbol>
+        <symbol
+          id="l3-icon-arrow-down"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 5v14" />
+          <path d="m19 12-7 7-7-7" />
+        </symbol>
+        <symbol
+          id="l3-icon-x"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M18 6 6 18" />
+          <path d="m6 6 12 12" />
+        </symbol>
+      </defs>
+    </svg>
+
+    <div class="exhibit-frame">
+      <!-- Cover Screen -->
+      <div id="exhibit-cover" class="exhibit-cover">
+        <div
+          class="exhibit-cover-image"
+          style="background-image: url('./cover.jpg')"
+          aria-hidden="true"
+        ></div>
+        <div class="exhibit-cover-gradient" aria-hidden="true"></div>
+        <div class="exhibit-cover-content">
+          <span class="exhibit-cover-kicker"
+            >WRMP Exhibit · Long-Term Monitoring</span
+          >
+          <h2 class="exhibit-cover-title">A Decade in Alviso Marsh</h2>
+          <p class="exhibit-cover-lede">
+            Fourteen years of monthly sampling in one tidal marsh at the
+            southern edge of San Francisco Bay — the longest continuous
+            fish-community record in the South Bay, and the prototype that
+            shaped the WRMP network.
+          </p>
+          <button id="btn-enter" class="exhibit-cover-cta" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            Step Inside
+          </button>
+          <div class="exhibit-cover-journey">
+            <div class="exhibit-cover-dots" aria-hidden="true">
+              <span class="exhibit-cover-dot is-pulsing"></span>
+              <span class="exhibit-cover-dot"></span>
+              <span class="exhibit-cover-dot"></span>
+              <span class="exhibit-cover-dot"></span>
+              <span class="exhibit-cover-dot"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- End Card -->
+      <div
+        id="exhibit-end-card"
+        class="exhibit-cover exhibit-cover--end is-hidden"
+      >
+        <div
+          class="exhibit-cover-image"
+          style="background-image: url('./cover.jpg')"
+          aria-hidden="true"
+        ></div>
+        <!-- Wide hub end card: l3-endcard widens the content band to a
+             full-width band so the 3-across Data/Tools/Science hub is all
+             visible at once (see shared/css/level3.css). The l3-endcard-wash
+             class on the gradient darkens the hero behind it for AA text. -->
+        <div
+          class="exhibit-cover-gradient l3-endcard-wash"
+          aria-hidden="true"
+        ></div>
+        <div class="exhibit-cover-content l3-endcard">
+          <div class="l3-endcard-head">
+            <span class="exhibit-cover-kicker">Thanks for exploring</span>
+            <h2 class="exhibit-cover-title">The data runs deeper</h2>
+            <p class="exhibit-cover-lede">
+              This exhibit is one layer. WRMP's monitoring lives inside a
+              larger data ecosystem — from the Bay-wide EcoAtlas toolset to the
+              raw datasets scientists work with every day.
+            </p>
+          </div>
+          <!-- Level 3 · end-card hub final (flexible tinted category panels).
+               All three categories present (Config-A layout). The SBOTS
+               catch-data download is a placeholder pending the dataset from
+               the field team; other destinations confirmed where known. -->
+          <span class="exhibit-cover-links-label">Take the data further</span>
+          <div class="l3-hub">
+            <!-- Data -->
+            <div class="l3-hub-panel" data-cat="data">
+              <div class="l3-hub-panel-head">
+                <span class="cat-icon"
+                  ><svg class="lc" aria-hidden="true">
+                    <use href="#l3-icon-database" /></svg
+                ></span>
+                <span class="cat-name">Data</span>
+                <span class="cat-count">2</span>
+              </div>
+              <!-- placeholder: confirm SBOTS catch-data download target -->
+              <a class="l3-hub-item" href="#">
+                <span class="hf-icon"
+                  ><svg class="lc lc-sm" aria-hidden="true">
+                    <use href="#l3-icon-download" /></svg
+                ></span>
+                <div class="hf-body">
+                  <div class="hf-top">
+                    <p class="hf-name">SBOTS catch data</p>
+                    <span class="l3-chip">CSV</span>
+                    <span class="hf-go"
+                      ><svg class="lc lc-sm" aria-hidden="true">
+                        <use href="#l3-icon-arrow-down" /></svg
+                    ></span>
+                  </div>
+                  <p class="hf-desc">
+                    A decade of South Bay Otter Trawl Survey catches — every
+                    haul, species and count.
+                  </p>
+                  <p class="l3-scope">
+                    14 yrs <span class="l3-dot">·</span> ~20 stations
+                    <span class="l3-dot">·</span> 2010–2024
+                  </p>
+                </div>
+              </a>
+              <a
+                class="l3-hub-item"
+                href="../../../data/stations.json"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span class="hf-icon"
+                  ><svg class="lc lc-sm" aria-hidden="true">
+                    <use href="#l3-icon-download" /></svg
+                ></span>
+                <div class="hf-body">
+                  <div class="hf-top">
+                    <p class="hf-name">Station network</p>
+                    <span class="l3-chip">JSON</span>
+                    <span class="hf-go"
+                      ><svg class="lc lc-sm" aria-hidden="true">
+                        <use href="#l3-icon-arrow-down" /></svg
+                    ></span>
+                  </div>
+                  <p class="hf-desc">
+                    All 119 monitoring stations with coordinates, region and
+                    network.
+                  </p>
+                  <p class="l3-scope">
+                    119 stations <span class="l3-dot">·</span> updated 2024
+                  </p>
+                </div>
+              </a>
+            </div>
+            <!-- Tools -->
+            <div class="l3-hub-panel" data-cat="tools">
+              <div class="l3-hub-panel-head">
+                <span class="cat-icon"
+                  ><svg class="lc" aria-hidden="true">
+                    <use href="#l3-icon-compass" /></svg
+                ></span>
+                <span class="cat-name">Tools</span>
+                <span class="cat-count">2</span>
+              </div>
+              <a
+                class="l3-hub-item"
+                href="https://www.ecoatlas.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span class="hf-icon"
+                  ><svg class="lc lc-sm" aria-hidden="true">
+                    <use href="#l3-icon-map" /></svg
+                ></span>
+                <div class="hf-body">
+                  <div class="hf-top">
+                    <p class="hf-name">EcoAtlas</p>
+                    <span class="l3-chip">WEB TOOL</span>
+                    <span class="hf-go"
+                      ><svg class="lc lc-sm" aria-hidden="true">
+                        <use href="#l3-icon-arrow-up-right" /></svg
+                    ></span>
+                  </div>
+                  <p class="hf-desc">
+                    Interactive geospatial maps of every wetland, restoration
+                    project and station in the estuary.
+                  </p>
+                  <p class="l3-scope">
+                    Bay-wide <span class="l3-dot">·</span> SFEI
+                  </p>
+                </div>
+              </a>
+              <a
+                class="l3-hub-item"
+                href="https://www.ecoatlas.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span class="hf-icon"
+                  ><svg class="lc lc-sm" aria-hidden="true">
+                    <use href="#l3-icon-map" /></svg
+                ></span>
+                <div class="hf-body">
+                  <div class="hf-top">
+                    <p class="hf-name">SF Estuary Wetlands Profile</p>
+                    <span class="l3-chip">WEB TOOL</span>
+                    <span class="hf-go"
+                      ><svg class="lc lc-sm" aria-hidden="true">
+                        <use href="#l3-icon-arrow-up-right" /></svg
+                    ></span>
+                  </div>
+                  <p class="hf-desc">
+                    EcoAtlas restoration dashboard tracking tidal wetland
+                    acres gained across the Bay.
+                  </p>
+                  <p class="l3-scope">
+                    Bay-wide <span class="l3-dot">·</span> SFEI
+                  </p>
+                </div>
+              </a>
+            </div>
+            <!-- Science -->
+            <div class="l3-hub-panel" data-cat="science">
+              <div class="l3-hub-panel-head">
+                <span class="cat-icon"
+                  ><svg class="lc" aria-hidden="true">
+                    <use href="#l3-icon-flask-conical" /></svg
+                ></span>
+                <span class="cat-name">Science</span>
+                <span class="cat-count">2</span>
+              </div>
+              <a
+                class="l3-hub-item"
+                href="https://www.wrmp.org/science-framework/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span class="hf-icon"
+                  ><svg class="lc lc-sm" aria-hidden="true">
+                    <use href="#l3-icon-file-text" /></svg
+                ></span>
+                <div class="hf-body">
+                  <div class="hf-top">
+                    <p class="hf-name">WRMP Science Framework</p>
+                    <span class="l3-chip">WEB REPORT</span>
+                    <span class="hf-go"
+                      ><svg class="lc lc-sm" aria-hidden="true">
+                        <use href="#l3-icon-arrow-up-right" /></svg
+                    ></span>
+                  </div>
+                  <p class="hf-desc">
+                    The monitoring design — management questions, indicators
+                    and how the station network answers them.
+                  </p>
+                  <p class="l3-scope">
+                    2023 <span class="l3-dot">·</span> WRMP
+                  </p>
+                </div>
+              </a>
+              <a
+                class="l3-hub-item"
+                href="https://www.stateofourestuary.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span class="hf-icon"
+                  ><svg class="lc lc-sm" aria-hidden="true">
+                    <use href="#l3-icon-file-text" /></svg
+                ></span>
+                <div class="hf-body">
+                  <div class="hf-top">
+                    <p class="hf-name">State of Our Estuary</p>
+                    <span class="l3-chip">WEB REPORT</span>
+                    <span class="hf-go"
+                      ><svg class="lc lc-sm" aria-hidden="true">
+                        <use href="#l3-icon-arrow-up-right" /></svg
+                    ></span>
+                  </div>
+                  <p class="hf-desc">
+                    Regional status reporting on the estuary's health,
+                    habitats and long-term trends.
+                  </p>
+                  <p class="l3-scope">
+                    2022 <span class="l3-dot">·</span> SF Estuary Partnership
+                  </p>
+                </div>
+              </a>
+            </div>
+          </div>
+          <div class="exhibit-cover-actions">
+            <button id="btn-restart" class="exhibit-cover-cta" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"
+                />
+              </svg>
+              Restart exhibit
+            </button>
+            <a
+              class="exhibit-cover-cta exhibit-cover-cta--secondary"
+              href="../../../"
+              >View all exhibits</a
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Background layers for non-map steps -->
+      <div class="bg-layer bg-gradient bg-two-seasons" id="bg-two-seasons"></div>
+      <div class="bg-layer bg-gradient bg-regime" id="bg-regime"></div>
+
+      <!-- Map (steps 1, 2, 5) -->
+      <div id="map"></div>
+      <div class="map-legend" id="map-legend"></div>
+
+      <!-- Content overlays -->
+      <div class="content-area content-step1" id="content-step1"></div>
+      <div class="content-area content-step3" id="content-step3"></div>
+      <div class="content-area" id="content-step4"></div>
+
+      <!-- Story Panel -->
+      <div class="story-panel" id="story-panel">
+        <div class="story-panel-inner">
+          <!-- Step 1: The Laboratory at the Bay's Edge -->
+          <div class="step active" data-step="0">
+            <div class="step-header">
+              <img
+                class="step-header-mark"
+                src="../../../shared/img/wrmp-logo-2in-mark-crop.png"
+                alt=""
+                width="40"
+                height="40"
+                decoding="async"
+              />
+              <div class="step-header-text">
+                <span class="kicker">SBOTS · 2010–2024</span>
+                <h2>The Laboratory at the Bay's Edge</h2>
+              </div>
+            </div>
+
+            <div class="body">
+              <p>
+                For fourteen years, scientists have towed the same trawl through
+                the same channels of Alviso Marsh. This is the longest continuous
+                fish-community record in the South Bay —
+                <strong>the SBOTS dataset</strong> — and it has quietly become
+                the estuary's living laboratory.
+              </p>
+
+              <div class="chip-row" role="group" aria-label="Key metrics">
+                <span class="chip"
+                  ><span class="chip-num">14 yrs</span
+                  ><span class="chip-lbl">of monitoring</span></span
+                >
+                <span class="chip"
+                  ><span class="chip-num">Monthly</span
+                  ><span class="chip-lbl">sampling</span></span
+                >
+                <span class="chip"
+                  ><span class="chip-num">~20</span
+                  ><span class="chip-lbl">stations</span></span
+                >
+                <span class="chip"
+                  ><span class="chip-num">240+</span
+                  ><span class="chip-lbl">species observed</span></span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: The Gradient You Can Taste -->
+          <div class="step" data-step="1">
+            <div class="step-header">
+              <img
+                class="step-header-mark"
+                src="../../../shared/img/wrmp-logo-2in-mark-crop.png"
+                alt=""
+                width="40"
+                height="40"
+                decoding="async"
+              />
+              <div class="step-header-text">
+                <span class="kicker">Space · Eco-cline</span>
+                <h2>The Gradient You Can Taste</h2>
+              </div>
+            </div>
+
+            <div class="body">
+              <p>
+                Walk the marsh from the wastewater outfall down to the open bay
+                and the water changes under your boat — warmer and fresher
+                upstream, saltier and oxygen-rich below. Fourteen years of
+                trawls sort neatly into
+                <strong>four station clusters</strong>, each with its own
+                chemistry and its own cast of species.
+              </p>
+
+              <div class="callout outlier">
+                <strong>ART 1 is its own cluster of one.</strong> The station
+                just below the San&nbsp;José–Santa&nbsp;Clara wastewater outfall
+                diverges from every other site in the marsh — its water
+                chemistry and its fauna look like nowhere else.
+              </div>
+
+              <div
+                class="chart-card"
+                aria-label="Radar chart showing qualitative water-quality fingerprint per cluster"
+              >
+                <div class="chart-title">
+                  Cluster fingerprints — water quality
+                </div>
+                <div class="chart-wrap tall">
+                  <canvas id="chart-radar"></canvas>
+                </div>
+                <div class="chart-caption">
+                  Qualitative pattern from SBOTS WQ clusters — illustrative of
+                  direction, not measured values.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Two Seasons, Not Four -->
+          <div class="step" data-step="2">
+            <div class="step-header">
+              <img
+                class="step-header-mark"
+                src="../../../shared/img/wrmp-logo-2in-mark-crop.png"
+                alt=""
+                width="40"
+                height="40"
+                decoding="async"
+              />
+              <div class="step-header-text">
+                <span class="kicker">Time · Annual Cycle</span>
+                <h2>Two Seasons, Not Four</h2>
+              </div>
+            </div>
+
+            <div class="body">
+              <p>
+                California's Mediterranean climate gives the estuary a
+                <strong>two-season pulse</strong> — wet winter into spring, then
+                a long warm dry. Water quality sorts neatly into wet and dry.
+                <em>The fish see finer seasons than the thermometer does.</em>
+              </p>
+
+              <div
+                class="season-toggle"
+                role="group"
+                aria-label="Select season"
+              >
+                <button type="button" data-season="wet" aria-pressed="true">
+                  Wet season
+                </button>
+                <button type="button" data-season="dry" aria-pressed="false">
+                  Dry season
+                </button>
+              </div>
+              <p id="season-summary" style="margin-bottom: 0">
+                Winter and early-spring runoff pull anadromous and marine
+                species upstream into Alviso's sloughs.
+              </p>
+            </div>
+          </div>
+
+          <!-- Step 4: The Drought That Didn't End -->
+          <div class="step" data-step="3">
+            <div class="step-header">
+              <img
+                class="step-header-mark"
+                src="../../../shared/img/wrmp-logo-2in-mark-crop.png"
+                alt=""
+                width="40"
+                height="40"
+                decoding="async"
+              />
+              <div class="step-header-text">
+                <span class="kicker">Time · Decade Scale</span>
+                <h2>The Drought That Didn't End</h2>
+              </div>
+            </div>
+
+            <div class="body">
+              <p>
+                After the
+                <strong>2014–2015 drought</strong>, the Alviso assemblage
+                reorganized — and it has not returned. Those two years form
+                their own cluster in the ordination: a short hinge between the
+                old community and the new.
+              </p>
+              <p>
+                The wet years that followed looked nothing like the wet years
+                before. The estuary kept breathing, but the rhythm had changed.
+              </p>
+              <div class="cluster-legend" aria-label="Water-year cluster legend">
+                <span class="lg-item"
+                  ><span
+                    class="lg-swatch"
+                    style="background: var(--wrmp-orange)"
+                  ></span
+                  >Transition (2014–15)</span
+                >
+                <span class="lg-item"
+                  ><span
+                    class="lg-swatch"
+                    style="background: var(--wrmp-ada-teal)"
+                  ></span
+                  >Dry cluster</span
+                >
+                <span class="lg-item"
+                  ><span
+                    class="lg-swatch"
+                    style="background: var(--wrmp-green)"
+                  ></span
+                  >Wet cluster</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 5: Why This Shape of Program -->
+          <div class="step" data-step="4">
+            <div class="step-header">
+              <img
+                class="step-header-mark"
+                src="../../../shared/img/wrmp-logo-2in-mark-crop.png"
+                alt=""
+                width="40"
+                height="40"
+                decoding="async"
+              />
+              <div class="step-header-text">
+                <span class="kicker">From Marsh to Network</span>
+                <h2>Why This Shape of Program?</h2>
+              </div>
+            </div>
+
+            <div class="body">
+              <p>
+                Everything Alviso has taught us is now built into the WRMP
+                network's design.
+              </p>
+              <p>
+                <strong style="color: var(--wrmp-orange)"
+                  >Upstream–downstream eco-cline</strong
+                >
+                → stations stratified by position on the salinity gradient.
+              </p>
+              <p>
+                <strong style="color: var(--wrmp-green)"
+                  >Two-season biology</strong
+                >
+                → at minimum two sampling events per year, tuned to the wet and
+                dry pulses.
+              </p>
+              <p>
+                <strong style="color: var(--wrmp-ada-teal)"
+                  >Regime-shift visibility</strong
+                >
+                → long-term monitoring, not one-off studies. You can only see a
+                regime shift if you were already watching.
+              </p>
+              <div class="callout" style="margin-top: var(--space-md)">
+                Alviso is the prototype. WRMP is the network.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-bar">
+          <button id="btn-prev" disabled>Back</button>
+          <div class="step-dots">
+            <button
+              class="step-dot active"
+              data-step="0"
+              aria-label="Step 1"
+            ></button>
+            <button class="step-dot" data-step="1" aria-label="Step 2"></button>
+            <button class="step-dot" data-step="2" aria-label="Step 3"></button>
+            <button class="step-dot" data-step="3" aria-label="Step 4"></button>
+            <button class="step-dot" data-step="4" aria-label="Step 5"></button>
+          </div>
+          <span class="step-counter">1 / 5</span>
+          <button id="btn-next">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script src="../../../shared/js/data-loader.js"></script>
+    <script src="../../../shared/js/map-init.js"></script>
+    <script src="../../../shared/js/marker-popup.js"></script>
+    <script src="../../../shared/js/stepper.js"></script>
+    <script src="../../../shared/js/exhibit-screens.js"></script>
+    <script>
+      // ── Exhibit Config ─────────────────────────────
+      var STATIONS = [];
+      var SPECIES = [];
+
+      function tokenColor(name, fallback) {
+        var v = getComputedStyle(document.documentElement).getPropertyValue(
+          name
+        );
+        return v ? v.trim() || fallback : fallback;
+      }
+      var C = {
+        ADA_TEAL: tokenColor("--wrmp-ada-teal", "#005E6A"),
+        TEAL: tokenColor("--wrmp-teal", "#228B9C"),
+        GREEN: tokenColor("--wrmp-green", "#379352"),
+        LIGHT_GREEN: tokenColor("--wrmp-light-green", "#92BB4D"),
+        ORANGE: tokenColor("--wrmp-orange", "#E09337"),
+        DARK: tokenColor("--wrmp-dark", "#4E4E50"),
+        SKY_BLUE: tokenColor("--wrmp-sky-blue", "#00ACEC"),
+        EARTH: tokenColor("--wrmp-earth", "#664D26"),
+      };
+
+      // ── Chart.js global defaults ────────────────────
+      if (window.Chart) {
+        Chart.defaults.font.family =
+          "'Source Sans 3', 'Source Sans Pro', Helvetica, Arial, sans-serif";
+        Chart.defaults.font.size = 13;
+        Chart.defaults.color = C.DARK;
+        Chart.defaults.animation.duration = 900;
+        Chart.defaults.animation.easing = "easeOutCubic";
+        Chart.defaults.plugins.legend.display = false;
+        Chart.defaults.plugins.tooltip.backgroundColor = "rgba(20,22,25,0.92)";
+        Chart.defaults.plugins.tooltip.titleColor = "#fff";
+        Chart.defaults.plugins.tooltip.bodyColor = "#fff";
+        Chart.defaults.plugins.tooltip.titleFont = { size: 14, weight: "600" };
+        Chart.defaults.plugins.tooltip.bodyFont = { size: 14 };
+        Chart.defaults.plugins.tooltip.padding = 10;
+        Chart.defaults.plugins.tooltip.displayColors = false;
+        Chart.defaults.plugins.tooltip.cornerRadius = 6;
+      }
+
+      // ── Bounds ──────────────────────────────────────
+      var BAY_FULL = [
+        [37.4, -122.55],
+        [38.28, -121.85],
+      ];
+      var ALVISO = [
+        [37.42, -122.06],
+        [37.48, -121.93],
+      ];
+
+      // ── Cluster definitions (SBOTS_Cluster_Ordinations) ──
+      var CLUSTER_MAP = {
+        "ART 1": { cluster: 1, isOutlier: true },
+        "ART 2": { cluster: 1 },
+        "ART 3": { cluster: 1 },
+        "DUMP 1": { cluster: 1 },
+        "DUMP 2": { cluster: 1 },
+        "A21 1": { cluster: 1 },
+        "A21 2": { cluster: 1, synth: [37.4622, -121.981] },
+        "A19 1": { cluster: 1 },
+        "A19 2": { cluster: 1, synth: [37.4612, -121.957] },
+        "UCOY 1": { cluster: 1 },
+        "UCOY 2": { cluster: 1 },
+        "ALV 1": { cluster: 2 },
+        "ALV 2": { cluster: 2 },
+        "ALV 3": { cluster: 2 },
+        "COY 1": { cluster: 3 },
+        "COY 2": { cluster: 3 },
+        "COY 3": { cluster: 3 },
+        "COY 4": { cluster: 3 },
+        "LSB 1": { cluster: 4, synth: [37.4713, -122.0438] },
+        "LSB 2": { cluster: 4, synth: [37.4766, -122.055] },
+      };
+      var CLUSTER_COLORS = {
+        1: C.ORANGE,
+        2: C.TEAL,
+        3: C.GREEN,
+        4: C.ADA_TEAL,
+      };
+      var CLUSTER_LABELS = {
+        1: "Upstream (warm, fresh, low-DO)",
+        2: "Middle Alviso (saline, oxygen-rich)",
+        3: "Coyote Creek",
+        4: "Lower South Bay",
+      };
+
+      // ── Map init ───────────────────────────────────
+      var map = WRMP.initMap("map", { bounds: ALVISO });
+      var markerLayer = L.layerGroup().addTo(map);
+      var overlayLayer = L.layerGroup().addTo(map);
+
+      var mapEl = document.getElementById("map");
+      var bgTwoSeasons = document.getElementById("bg-two-seasons");
+      var bgRegime = document.getElementById("bg-regime");
+      var contentStep1 = document.getElementById("content-step1");
+      var contentStep3 = document.getElementById("content-step3");
+      var contentStep4 = document.getElementById("content-step4");
+      var legendEl = document.getElementById("map-legend");
+      var storyPanel = document.getElementById("story-panel");
+
+      // Secondary Leaflet map used in Step 1's mini-map card (built lazily)
+      var miniMap = null;
+      var miniMapLayer = null;
+
+      // ── SBOTS station list (including synthetic/hand-placed) ──
+      function buildSbotsStations() {
+        var byCode = {};
+        STATIONS.forEach(function (s) {
+          byCode[s.station_code] = s;
+        });
+        var list = [];
+        Object.keys(CLUSTER_MAP).forEach(function (code) {
+          var cfg = CLUSTER_MAP[code];
+          var base = byCode[code];
+          if (base) {
+            list.push(
+              Object.assign({}, base, {
+                cluster: cfg.cluster,
+                isOutlier: !!cfg.isOutlier,
+              })
+            );
+          } else if (cfg.synth) {
+            list.push({
+              station_code: code,
+              station_name: code,
+              region: "South Bay",
+              subregion: "Alviso Marsh",
+              WRMP_Network: "Santa Clara - Primary",
+              WRMP_Site_Type: "SBOTS",
+              habitat: cfg.cluster === 4 ? "Open Bay" : "Slough",
+              lat: cfg.synth[0],
+              lon: cfg.synth[1],
+              cluster: cfg.cluster,
+              isOutlier: !!cfg.isOutlier,
+            });
+          }
+        });
+        return list;
+      }
+
+      // ── Popup builder ───────────────────────────────
+      function stationPopup(s, dotColor) {
+        var rows = [
+          { type: "row", label: s.habitat || "—", value: "Habitat" },
+          {
+            type: "row",
+            label: CLUSTER_LABELS[s.cluster] || "—",
+            value: "Cluster",
+          },
+        ];
+        return WRMP.makeMarkerPopup({
+          code: s.station_code,
+          name: s.station_name || s.station_code,
+          dotColor: dotColor,
+          showImage: false,
+          sections: [{ rows: rows }],
+        });
+      }
+
+      function simplePopup(s, dotColor) {
+        return WRMP.makeMarkerPopup({
+          code: s.station_code,
+          name: s.station_name || s.station_code,
+          dotColor: dotColor,
+          showImage: false,
+          sections: [
+            {
+              rows: [
+                { type: "row", label: s.habitat || "—", value: "Habitat" },
+                {
+                  type: "row",
+                  label: s.WRMP_Site_Type || "—",
+                  value: "Site Type",
+                },
+              ],
+            },
+          ],
+        });
+      }
+
+      // ── Step renderers for the map ─────────────────
+      var activeClusterFilter = null;
+
+      function renderStep1Map() {
+        markerLayer.clearLayers();
+        overlayLayer.clearLayers();
+        var sbots = buildSbotsStations();
+        sbots.forEach(function (s) {
+          L.circleMarker([s.lat, s.lon], {
+            radius: 6,
+            fillColor: C.TEAL,
+            color: "#fff",
+            weight: 1.5,
+            opacity: 0.95,
+            fillOpacity: 0.75,
+          })
+            .bindPopup(stationPopup(s, C.TEAL))
+            .addTo(markerLayer);
+        });
+      }
+
+      function buildPulseDivIcon(size) {
+        var px = size || 14;
+        var span = document.createElement("span");
+        span.className = "outlier-pulse";
+        var wrap = document.createElement("div");
+        wrap.className = "outlier-marker-wrap";
+        wrap.appendChild(span);
+        return L.divIcon({
+          className: "outlier-marker-wrap",
+          html: wrap.outerHTML,
+          iconSize: [px, px],
+          iconAnchor: [px / 2, px / 2],
+        });
+      }
+
+      function renderStep2Map(filter) {
+        markerLayer.clearLayers();
+        overlayLayer.clearLayers();
+        var sbots = buildSbotsStations();
+        sbots.forEach(function (s) {
+          var match = !filter || s.cluster === filter;
+          var color = CLUSTER_COLORS[s.cluster] || "#999";
+          var radius = match ? (s.isOutlier ? 9 : 7) : 4;
+          L.circleMarker([s.lat, s.lon], {
+            radius: radius,
+            fillColor: match ? color : "#aaa",
+            color: "#fff",
+            weight: match ? 2 : 1,
+            opacity: match ? 1 : 0.35,
+            fillOpacity: match ? 0.88 : 0.25,
+          })
+            .bindPopup(stationPopup(s, color))
+            .addTo(markerLayer);
+
+          if (s.isOutlier && (!filter || filter === s.cluster)) {
+            L.marker([s.lat, s.lon], {
+              icon: buildPulseDivIcon(14),
+              interactive: false,
+            }).addTo(overlayLayer);
+          }
+        });
+      }
+
+      function renderStep5Map() {
+        markerLayer.clearLayers();
+        overlayLayer.clearLayers();
+        var REGION = {
+          "South Bay": C.ADA_TEAL,
+          "North Bay": C.GREEN,
+          "Suisun Bay": C.ORANGE,
+        };
+        STATIONS.forEach(function (s) {
+          var c = REGION[s.region] || "#999";
+          L.circleMarker([s.lat, s.lon], {
+            radius: 4,
+            fillColor: c,
+            color: "#fff",
+            weight: 1,
+            opacity: 0.95,
+            fillOpacity: 0.85,
+          })
+            .bindPopup(simplePopup(s, c))
+            .addTo(markerLayer);
+        });
+
+        // Pulsing highlight over Alviso — build div markup via DOM
+        var pulse = document.createElement("span");
+        pulse.className = "alviso-proto-pulse";
+        var wrap = document.createElement("div");
+        wrap.className = "outlier-marker-wrap";
+        wrap.appendChild(pulse);
+        var protoIcon = L.divIcon({
+          className: "outlier-marker-wrap",
+          html: wrap.outerHTML,
+          iconSize: [18, 18],
+          iconAnchor: [9, 9],
+        });
+        L.marker([37.455, -121.98], {
+          icon: protoIcon,
+          interactive: false,
+        }).addTo(overlayLayer);
+
+        WRMP.addPOI(overlayLayer, 37.47, -121.98, "Alviso — the prototype");
+      }
+
+      // ── Step 2 legend ──────────────────────────────
+      function buildClusterLegend() {
+        legendEl.replaceChildren();
+
+        var allChip = document.createElement("button");
+        allChip.className =
+          "map-legend-chip" + (!activeClusterFilter ? " active" : "");
+        var allLbl = document.createElement("span");
+        allLbl.className = "map-legend-chip-label";
+        allLbl.setAttribute("data-label", "All");
+        allLbl.textContent = "All";
+        allChip.appendChild(allLbl);
+        allChip.addEventListener("click", function () {
+          activeClusterFilter = null;
+          buildClusterLegend();
+          renderStep2Map(null);
+          flyToClusterBounds(null);
+        });
+        legendEl.appendChild(allChip);
+
+        [1, 2, 3, 4].forEach(function (k) {
+          var isActive = activeClusterFilter === k;
+          var isDimmed = activeClusterFilter && !isActive;
+          var chip = document.createElement("button");
+          chip.className =
+            "map-legend-chip" +
+            (isActive ? " active" : "") +
+            (isDimmed ? " dimmed" : "");
+          var dot = document.createElement("span");
+          dot.className = "map-legend-dot";
+          dot.style.background = CLUSTER_COLORS[k];
+          chip.appendChild(dot);
+          var lbl = document.createElement("span");
+          lbl.className = "map-legend-chip-label";
+          var short = {
+            1: "Upstream",
+            2: "Middle Alviso",
+            3: "Coyote Creek",
+            4: "Lower South Bay",
+          }[k];
+          lbl.setAttribute("data-label", short);
+          lbl.textContent = short;
+          chip.appendChild(lbl);
+          chip.addEventListener("click", function () {
+            activeClusterFilter = activeClusterFilter === k ? null : k;
+            buildClusterLegend();
+            renderStep2Map(activeClusterFilter);
+            flyToClusterBounds(activeClusterFilter);
+          });
+          legendEl.appendChild(chip);
+        });
+      }
+
+      function flyToClusterBounds(k) {
+        if (!k) {
+          WRMP.flyTo(map, ALVISO);
+          return;
+        }
+        var sbots = buildSbotsStations().filter(function (s) {
+          return s.cluster === k;
+        });
+        if (sbots.length === 0) {
+          WRMP.flyTo(map, ALVISO);
+          return;
+        }
+        var b = L.latLngBounds(
+          sbots.map(function (s) {
+            return [s.lat, s.lon];
+          })
+        );
+        WRMP.flyTo(map, b, { maxZoom: 13 });
+      }
+
+      // ═══════════════════════════════════════════════
+      // CHARTS
+      // ═══════════════════════════════════════════════
+      var charts = {};
+
+      function gridlineColor() {
+        return "rgba(0,0,0,0.08)";
+      }
+      function axisTickColor() {
+        return C.DARK;
+      }
+
+      // ── Step 1: Top 7 species horizontal bar ───────
+      function drawTop7Chart() {
+        var el = document.getElementById("chart-top7");
+        if (!el) return;
+        if (charts.top7) {
+          charts.top7.destroy();
+          charts.top7 = null;
+        }
+        var data = [
+          { name: "Bay Shrimp", pct: 24 },
+          { name: "Topsmelt", pct: 17 },
+          { name: "Yellowfin Goby", pct: 14 },
+          { name: "Mississippi Silverside", pct: 12 },
+          { name: "Oriental Shrimp", pct: 10 },
+          { name: "Threespine Stickleback", pct: 7 },
+          { name: "Overbite Clam", pct: 6 },
+          { name: "All others (230+ species)", pct: 10 },
+        ];
+        var labels = data.map(function (d) {
+          return d.name;
+        });
+        var values = data.map(function (d) {
+          return d.pct;
+        });
+        var invasive = [
+          "Yellowfin Goby",
+          "Mississippi Silverside",
+          "Oriental Shrimp",
+          "Overbite Clam",
+        ];
+        var colors = data.map(function (d) {
+          if (d.name.indexOf("All others") === 0) return "rgba(78,78,80,0.55)";
+          return invasive.indexOf(d.name) >= 0 ? C.ORANGE : C.ADA_TEAL;
+        });
+
+        charts.top7 = new Chart(el, {
+          type: "bar",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                data: values,
+                backgroundColor: colors,
+                borderRadius: 4,
+                borderSkipped: false,
+                barThickness: 12,
+              },
+            ],
+          },
+          options: {
+            indexAxis: "y",
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: { padding: { left: 0, right: 8, top: 2, bottom: 2 } },
+            scales: {
+              x: {
+                beginAtZero: true,
+                max: 30,
+                grid: { color: gridlineColor(), drawBorder: false },
+                ticks: {
+                  color: axisTickColor(),
+                  font: { size: 12 },
+                  callback: function (v) {
+                    return v + "%";
+                  },
+                },
+              },
+              y: {
+                grid: { display: false, drawBorder: false },
+                ticks: { color: axisTickColor(), font: { size: 12 } },
+              },
+            },
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: function (ctx) {
+                    return "~" + ctx.parsed.x + "% of catch";
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // ── Step 2: Cluster fingerprint radar ──────────
+      function drawRadarChart() {
+        var el = document.getElementById("chart-radar");
+        if (!el || charts.radar) return;
+        var labels = ["Temp", "Salinity", "Dissolved O₂", "Clarity"];
+        var datasets = [
+          {
+            label: "Upstream",
+            data: [0.85, 0.25, 0.35, 0.35],
+            borderColor: C.ORANGE,
+            backgroundColor: "rgba(224,147,55,0.16)",
+            pointBackgroundColor: C.ORANGE,
+            borderWidth: 2,
+            pointRadius: 3,
+          },
+          {
+            label: "Middle Alviso",
+            data: [0.55, 0.7, 0.8, 0.65],
+            borderColor: C.TEAL,
+            backgroundColor: "rgba(34,139,156,0.16)",
+            pointBackgroundColor: C.TEAL,
+            borderWidth: 2,
+            pointRadius: 3,
+          },
+          {
+            label: "Lower South Bay",
+            data: [0.45, 0.9, 0.7, 0.55],
+            borderColor: C.ADA_TEAL,
+            backgroundColor: "rgba(0,94,106,0.14)",
+            pointBackgroundColor: C.ADA_TEAL,
+            borderWidth: 2,
+            pointRadius: 3,
+          },
+        ];
+        charts.radar = new Chart(el, {
+          type: "radar",
+          data: { labels: labels, datasets: datasets },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              r: {
+                min: 0,
+                max: 1,
+                ticks: { display: false, stepSize: 0.25 },
+                grid: { color: "rgba(0,0,0,0.08)" },
+                angleLines: { color: "rgba(0,0,0,0.08)" },
+                pointLabels: {
+                  color: axisTickColor(),
+                  font: { size: 12, weight: "600" },
+                },
+              },
+            },
+            plugins: {
+              legend: {
+                display: true,
+                position: "bottom",
+                labels: {
+                  color: axisTickColor(),
+                  font: { size: 12 },
+                  boxWidth: 10,
+                  boxHeight: 10,
+                  padding: 8,
+                },
+              },
+              tooltip: {
+                callbacks: {
+                  label: function (ctx) {
+                    return (
+                      ctx.dataset.label +
+                      ": relative " +
+                      ctx.parsed.r.toFixed(2)
+                    );
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // ── Step 3: Seasonal line chart ────────────────
+      function drawSeasonChart() {
+        var el = document.getElementById("chart-seasons");
+        if (!el) return;
+        // If a prior chart instance is attached, destroy before re-creating
+        // (canvas is rebuilt each step entry via buildStep3Stage).
+        if (charts.seasons) {
+          charts.seasons.destroy();
+          charts.seasons = null;
+        }
+        var months = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
+        var wet = [0.85, 0.9, 0.8, 0.55, 0.3, 0.18, 0.12, 0.12, 0.18, 0.35, 0.6, 0.8];
+        var dry = [0.2, 0.22, 0.3, 0.45, 0.65, 0.82, 0.9, 0.88, 0.78, 0.6, 0.38, 0.25];
+        charts.seasons = new Chart(el, {
+          type: "line",
+          data: {
+            labels: months,
+            datasets: [
+              {
+                label: "Wet-season signal",
+                data: wet,
+                borderColor: C.ADA_TEAL,
+                backgroundColor: "rgba(0,94,106,0.18)",
+                tension: 0.4,
+                pointRadius: 0,
+                borderWidth: 2.5,
+                fill: true,
+              },
+              {
+                label: "Dry-season signal",
+                data: dry,
+                borderColor: C.ORANGE,
+                backgroundColor: "rgba(224,147,55,0.18)",
+                tension: 0.4,
+                pointRadius: 0,
+                borderWidth: 2.5,
+                fill: true,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: "index", intersect: false },
+            scales: {
+              x: {
+                grid: { display: false, drawBorder: false },
+                ticks: { color: axisTickColor(), font: { size: 12 } },
+              },
+              y: {
+                min: 0,
+                max: 1,
+                grid: { color: gridlineColor(), drawBorder: false },
+                ticks: {
+                  color: axisTickColor(),
+                  font: { size: 12 },
+                  stepSize: 0.5,
+                  callback: function (v) {
+                    if (v === 0) return "low";
+                    if (v === 1) return "high";
+                    return "";
+                  },
+                },
+              },
+            },
+            plugins: {
+              legend: {
+                display: true,
+                position: "bottom",
+                labels: {
+                  color: axisTickColor(),
+                  font: { size: 12 },
+                  boxWidth: 12,
+                  boxHeight: 8,
+                  padding: 8,
+                },
+              },
+              tooltip: {
+                callbacks: {
+                  label: function (ctx) {
+                    return ctx.dataset.label + ": " + ctx.parsed.y.toFixed(2);
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // ── Step 3: season toggle + species cards ──────
+      var SEASON_SPECIES = {
+        wet: [
+          {
+            code: "LONSME",
+            name: "Longfin Smelt",
+            sci: "Spirinchus thaleichthys",
+            natinv: "Native",
+          },
+          {
+            code: "AMESHA",
+            name: "American Shad",
+            sci: "Alosa sapidissima",
+            natinv: "Invasive",
+          },
+        ],
+        dry: [
+          {
+            code: "YELGOB",
+            name: "Yellowfin Goby",
+            sci: "Acanthogobius flavimanus",
+            natinv: "Invasive",
+          },
+          {
+            code: "PALAEM",
+            name: "Oriental Shrimp",
+            sci: "Palaemon macrodactylus",
+            natinv: "Invasive",
+          },
+          {
+            code: "THRSTI",
+            name: "Threespine Stickleback",
+            sci: "Gasterosteus aculeatus",
+            natinv: "Native",
+          },
+          {
+            code: "TOPSME",
+            name: "Topsmelt",
+            sci: "Atherinops affinis",
+            natinv: "Native",
+          },
+        ],
+      };
+
+      // Build SVG silhouettes via DOM (no innerHTML) — plain fish, slim fish, shrimp.
+      var SVG_NS = "http://www.w3.org/2000/svg";
+      function svgEl(name, attrs) {
+        var el = document.createElementNS(SVG_NS, name);
+        if (attrs) {
+          Object.keys(attrs).forEach(function (k) {
+            el.setAttribute(k, attrs[k]);
+          });
+        }
+        return el;
+      }
+      function buildSilhouetteFish() {
+        var svg = svgEl("svg", {
+          viewBox: "0 0 120 36",
+          preserveAspectRatio: "xMidYMid meet",
+        });
+        svg.appendChild(
+          svgEl("path", {
+            fill: "#4E4E50",
+            d: "M6 18 C20 2, 78 2, 96 18 C78 34, 20 34, 6 18 Z M96 18 L118 6 L118 30 Z",
+          })
+        );
+        svg.appendChild(svgEl("circle", { cx: "20", cy: "16", r: "2", fill: "#fff" }));
+        return svg;
+      }
+      function buildSilhouetteSlim() {
+        var svg = svgEl("svg", {
+          viewBox: "0 0 120 36",
+          preserveAspectRatio: "xMidYMid meet",
+        });
+        svg.appendChild(
+          svgEl("path", {
+            fill: "#4E4E50",
+            d: "M4 18 C24 8, 80 8, 100 18 C80 28, 24 28, 4 18 Z M100 18 L118 10 L118 26 Z",
+          })
+        );
+        svg.appendChild(svgEl("circle", { cx: "16", cy: "16", r: "1.6", fill: "#fff" }));
+        return svg;
+      }
+      function buildSilhouetteShrimp() {
+        var svg = svgEl("svg", {
+          viewBox: "0 0 120 36",
+          preserveAspectRatio: "xMidYMid meet",
+        });
+        svg.appendChild(
+          svgEl("path", {
+            fill: "#4E4E50",
+            d: "M10 22 C20 10, 60 8, 85 14 C100 18, 112 14, 118 10 C114 22, 100 28, 85 26 C70 30, 30 32, 10 22 Z",
+          })
+        );
+        svg.appendChild(svgEl("circle", { cx: "95", cy: "14", r: "1.6", fill: "#fff" }));
+        svg.appendChild(
+          svgEl("path", {
+            stroke: "#4E4E50",
+            "stroke-width": "1.3",
+            fill: "none",
+            d: "M10 22 C6 26, 6 30, 14 32 M16 26 C10 30, 12 34, 20 34",
+          })
+        );
+        return svg;
+      }
+      function silhouetteFor(sp) {
+        if (/shrimp/i.test(sp.name)) return buildSilhouetteShrimp();
+        if (/smelt|silverside|stickleback|shad/i.test(sp.name))
+          return buildSilhouetteSlim();
+        return buildSilhouetteFish();
+      }
+
+      // Stage-level state for Step 3 — built once per step entry.
+      var step3SpeciesContainer = null;
+
+      function buildStep3Stage() {
+        contentStep3.replaceChildren();
+        step3SpeciesContainer = null;
+
+        // Top: seasonal pulse chart card
+        var card = document.createElement("div");
+        card.className = "stage-card";
+        var title = document.createElement("div");
+        title.className = "stage-title";
+        title.textContent = "Seasonal pulse";
+        card.appendChild(title);
+        var sub = document.createElement("div");
+        sub.className = "stage-subtitle";
+        sub.textContent =
+          "Wet-season vs. dry-season activity across the year.";
+        card.appendChild(sub);
+        var chartWrap = document.createElement("div");
+        chartWrap.className = "stage-chart-wrap";
+        var canvas = document.createElement("canvas");
+        canvas.id = "chart-seasons";
+        chartWrap.appendChild(canvas);
+        card.appendChild(chartWrap);
+        var caption = document.createElement("div");
+        caption.className = "stage-caption";
+        caption.textContent =
+          "Seasonal pattern adapted from published SBOTS analysis. Y-axis: relative activity.";
+        card.appendChild(caption);
+        contentStep3.appendChild(card);
+
+        // Bottom: species container (populated by renderSeasonCards)
+        step3SpeciesContainer = document.createElement("div");
+        contentStep3.appendChild(step3SpeciesContainer);
+      }
+
+      function renderSeasonCards(season) {
+        if (!step3SpeciesContainer) return;
+        step3SpeciesContainer.replaceChildren();
+
+        var heading = document.createElement("div");
+        heading.className = "stage-section-heading";
+        heading.textContent =
+          season === "wet" ? "Wet-season residents" : "Dry-season residents";
+
+        var sub = document.createElement("div");
+        sub.className = "stage-section-sub";
+        sub.textContent =
+          season === "wet"
+            ? "Species whose abundance climbs with winter–spring flow."
+            : "Species whose numbers peak through the warm dry months.";
+
+        step3SpeciesContainer.appendChild(heading);
+        step3SpeciesContainer.appendChild(sub);
+
+        var list = SEASON_SPECIES[season];
+        var grid = document.createElement("div");
+        grid.className = "species-grid";
+        grid.style.gridTemplateColumns =
+          list.length <= 3
+            ? "repeat(" + list.length + ", 1fr)"
+            : "repeat(3, 1fr)";
+        list.forEach(function (sp) {
+          var card = document.createElement("div");
+          card.className = "species-card";
+          var silo = document.createElement("div");
+          silo.className = "species-silhouette";
+          silo.appendChild(silhouetteFor(sp));
+          var name = document.createElement("div");
+          name.className = "species-name";
+          name.textContent = sp.name;
+          var sci = document.createElement("div");
+          sci.className = "species-sci";
+          sci.textContent = sp.sci;
+          var badge = document.createElement("span");
+          badge.className =
+            "species-badge " +
+            (sp.natinv === "Invasive" ? "invasive" : "native");
+          badge.textContent = sp.natinv;
+          card.appendChild(silo);
+          card.appendChild(name);
+          card.appendChild(sci);
+          card.appendChild(badge);
+          grid.appendChild(card);
+        });
+        step3SpeciesContainer.appendChild(grid);
+      }
+
+      function wireSeasonToggle() {
+        var buttons = storyPanel.querySelectorAll(".season-toggle button");
+        var summary = document.getElementById("season-summary");
+        buttons.forEach(function (b) {
+          b.addEventListener("click", function () {
+            var season = b.getAttribute("data-season");
+            buttons.forEach(function (other) {
+              other.setAttribute(
+                "aria-pressed",
+                other === b ? "true" : "false"
+              );
+            });
+            summary.textContent =
+              season === "wet"
+                ? "Winter and early-spring runoff pull anadromous and marine species upstream into Alviso's sloughs."
+                : "Warm, low-flow months favor resident benthic and invasive species adapted to stagnant, saline water.";
+            renderSeasonCards(season);
+          });
+        });
+      }
+
+      // ── Step 4: regime-shift content ───────────────
+      var YEAR_CLUSTER = {
+        2014: 1,
+        2015: 1,
+        2016: 2,
+        2017: 3,
+        2018: 3,
+        2019: 2,
+        2020: 2,
+        2021: 2,
+        2022: 2,
+        2023: 3,
+        2024: 3,
+      };
+      var NMDS_POINTS = [
+        { year: 2014, x: -1.2, y: 0.35 },
+        { year: 2015, x: -1.05, y: -0.2 },
+        { year: 2016, x: 0.45, y: -0.85 },
+        { year: 2017, x: 0.9, y: 0.75 },
+        { year: 2018, x: 1.15, y: 0.55 },
+        { year: 2019, x: 0.6, y: -0.5 },
+        { year: 2020, x: 0.75, y: -0.95 },
+        { year: 2021, x: 0.3, y: -0.65 },
+        { year: 2022, x: 0.85, y: -0.75 },
+        { year: 2023, x: 1.35, y: 0.9 },
+        { year: 2024, x: 1.05, y: 0.45 },
+      ];
+
+      function regimeColor(k) {
+        if (k === 1) return C.ORANGE;
+        if (k === 2) return C.ADA_TEAL;
+        if (k === 3) return C.GREEN;
+        return "#999";
+      }
+      function shiftLabel(y) {
+        var k = YEAR_CLUSTER[y];
+        if (k === 1) return "Transition cluster";
+        if (k === 2) return "Dry cluster";
+        if (k === 3) return "Wet cluster";
+        return "";
+      }
+
+      function buildYearTimeline(container) {
+        var wrap = document.createElement("div");
+        wrap.className = "year-timeline";
+        var years = Object.keys(YEAR_CLUSTER)
+          .map(Number)
+          .sort(function (a, b) {
+            return a - b;
+          });
+        years.forEach(function (y) {
+          var cell = document.createElement("div");
+          cell.className = "year-cell";
+          var bar = document.createElement("div");
+          bar.className = "year-bar";
+          bar.style.background = regimeColor(YEAR_CLUSTER[y]);
+          bar.title = y + " — " + shiftLabel(y);
+          if (y === 2016) {
+            var mark = document.createElement("span");
+            mark.className = "shift-marker";
+            mark.style.left = "-2px";
+            bar.appendChild(mark);
+          }
+          var label = document.createElement("div");
+          label.className = "year-label";
+          label.textContent = y;
+          cell.appendChild(bar);
+          cell.appendChild(label);
+          wrap.appendChild(cell);
+        });
+        container.appendChild(wrap);
+      }
+
+      function drawNmdsChart() {
+        var el = document.getElementById("chart-nmds");
+        if (!el || charts.nmds) return;
+        var pointsByCluster = { 1: [], 2: [], 3: [] };
+        NMDS_POINTS.forEach(function (p) {
+          var k = YEAR_CLUSTER[p.year];
+          pointsByCluster[k].push({ x: p.x, y: p.y, year: p.year });
+        });
+        function dataset(k, label) {
+          return {
+            label: label,
+            data: pointsByCluster[k],
+            backgroundColor: regimeColor(k) + "cc",
+            borderColor: "#fff",
+            borderWidth: 1.5,
+            pointRadius: 9,
+            pointHoverRadius: 12,
+          };
+        }
+
+        var hullPlugin = {
+          id: "hull",
+          beforeDatasetsDraw: function (chart) {
+            var ctx = chart.ctx;
+            var sx = chart.scales.x;
+            var sy = chart.scales.y;
+            [1, 2, 3].forEach(function (k) {
+              var pts = pointsByCluster[k];
+              if (pts.length < 2) return;
+              var xs = pts.map(function (p) {
+                return sx.getPixelForValue(p.x);
+              });
+              var ys = pts.map(function (p) {
+                return sy.getPixelForValue(p.y);
+              });
+              var cx =
+                xs.reduce(function (a, b) {
+                  return a + b;
+                }, 0) / xs.length;
+              var cy =
+                ys.reduce(function (a, b) {
+                  return a + b;
+                }, 0) / ys.length;
+              var rx =
+                Math.max.apply(
+                  null,
+                  xs.map(function (x) {
+                    return Math.abs(x - cx);
+                  })
+                ) + 22;
+              var ry =
+                Math.max.apply(
+                  null,
+                  ys.map(function (y) {
+                    return Math.abs(y - cy);
+                  })
+                ) + 22;
+              ctx.save();
+              ctx.fillStyle = regimeColor(k) + "22";
+              ctx.strokeStyle = regimeColor(k) + "66";
+              ctx.lineWidth = 1;
+              ctx.setLineDash([3, 3]);
+              ctx.beginPath();
+              ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.stroke();
+              ctx.restore();
+            });
+          },
+          afterDatasetsDraw: function (chart) {
+            var ctx = chart.ctx;
+            ctx.save();
+            ctx.font = "600 11px 'Source Sans 3', sans-serif";
+            ctx.fillStyle = C.DARK;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "bottom";
+            chart.data.datasets.forEach(function (ds) {
+              ds.data.forEach(function (p) {
+                var x = chart.scales.x.getPixelForValue(p.x);
+                var y = chart.scales.y.getPixelForValue(p.y);
+                ctx.fillText(String(p.year), x, y - 11);
+              });
+            });
+            ctx.restore();
+          },
+        };
+
+        charts.nmds = new Chart(el, {
+          type: "scatter",
+          data: {
+            datasets: [
+              dataset(1, "Transition (2014–15)"),
+              dataset(2, "Dry cluster"),
+              dataset(3, "Wet cluster"),
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: "NMDS 1",
+                  color: C.DARK,
+                  font: { size: 12, weight: "600" },
+                },
+                min: -1.6,
+                max: 1.7,
+                grid: { color: gridlineColor() },
+                ticks: { color: axisTickColor(), font: { size: 11 } },
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: "NMDS 2",
+                  color: C.DARK,
+                  font: { size: 12, weight: "600" },
+                },
+                min: -1.3,
+                max: 1.2,
+                grid: { color: gridlineColor() },
+                ticks: { color: axisTickColor(), font: { size: 11 } },
+              },
+            },
+            plugins: {
+              legend: {
+                display: true,
+                position: "bottom",
+                labels: {
+                  color: axisTickColor(),
+                  font: { size: 12 },
+                  boxWidth: 10,
+                  boxHeight: 10,
+                  padding: 10,
+                },
+              },
+              tooltip: {
+                callbacks: {
+                  title: function (items) {
+                    return "Water year " + items[0].raw.year;
+                  },
+                  label: function (ctx) {
+                    return ctx.dataset.label;
+                  },
+                },
+              },
+            },
+          },
+          plugins: [hullPlugin],
+        });
+      }
+
+      function buildStep4Content() {
+        contentStep4.replaceChildren();
+
+        var grid = document.createElement("div");
+        grid.className = "regime-grid";
+
+        var top = document.createElement("div");
+        top.className = "regime-card";
+        var h1 = document.createElement("h3");
+        h1.textContent = "Water years, clustered";
+        top.appendChild(h1);
+        var sub1 = document.createElement("div");
+        sub1.className = "chart-caption";
+        sub1.style.marginTop = "0";
+        sub1.textContent =
+          "Each year sorted by its water-quality signature. 2014–15 sit between the old and new normals.";
+        top.appendChild(sub1);
+        buildYearTimeline(top);
+        var foot1 = document.createElement("div");
+        foot1.className = "chart-caption";
+        foot1.textContent =
+          "Cluster assignments adapted from SBOTS Cluster Ordinations (Hobbs 2024).";
+        top.appendChild(foot1);
+        grid.appendChild(top);
+
+        var bot = document.createElement("div");
+        bot.className = "regime-card";
+        var h2 = document.createElement("h3");
+        h2.textContent = "How far apart the years sit";
+        bot.appendChild(h2);
+        var sub2 = document.createElement("div");
+        sub2.className = "chart-caption";
+        sub2.style.marginTop = "0";
+        sub2.textContent =
+          "Years plotted by water-quality similarity — distance = difference between years.";
+        bot.appendChild(sub2);
+        var cwrap = document.createElement("div");
+        cwrap.className = "chart-wrap";
+        var cnv = document.createElement("canvas");
+        cnv.id = "chart-nmds";
+        cwrap.appendChild(cnv);
+        bot.appendChild(cwrap);
+        var foot2 = document.createElement("div");
+        foot2.className = "chart-caption";
+        foot2.textContent =
+          "Adapted from SBOTS Cluster Ordinations (Hobbs 2024). NMDS coordinates simplified for presentation.";
+        bot.appendChild(foot2);
+        grid.appendChild(bot);
+
+        contentStep4.appendChild(grid);
+      }
+
+      // ═══════════════════════════════════════════════
+      // STEP CONTROLLER
+      // ═══════════════════════════════════════════════
+      var STEP_TYPES = ["map", "map", "gradient-s3", "gradient-s4", "map"];
+
+      function setPanelDark(isDark) {
+        storyPanel.classList.toggle("panel-dark", !!isDark);
+      }
+
+      // ── Step 1 right-stage: mini-map + top-7 bar chart ──
+      function buildStep1Stage() {
+        contentStep1.replaceChildren();
+
+        // Map mini card (top-right)
+        var mapCard = document.createElement("div");
+        mapCard.className = "stage-card map-mini";
+        var mapTitle = document.createElement("div");
+        mapTitle.className = "stage-title";
+        mapTitle.textContent = "Alviso Marsh · SBOTS sampling grid";
+        mapCard.appendChild(mapTitle);
+        var mapSub = document.createElement("div");
+        mapSub.className = "stage-subtitle";
+        mapSub.textContent =
+          "~20 stations sampled monthly since 2010.";
+        mapCard.appendChild(mapSub);
+        var mapFrame = document.createElement("div");
+        mapFrame.className = "map-mini-frame";
+        var miniEl = document.createElement("div");
+        miniEl.id = "map-mini";
+        mapFrame.appendChild(miniEl);
+        mapCard.appendChild(mapFrame);
+        contentStep1.appendChild(mapCard);
+
+        // Top 7 bar chart card (primary)
+        var chartCard = document.createElement("div");
+        chartCard.className = "stage-card top7-card";
+        var chartTitle = document.createElement("div");
+        chartTitle.className = "stage-title";
+        chartTitle.textContent = "A few species carry the community";
+        chartCard.appendChild(chartTitle);
+        var chartSub = document.createElement("div");
+        chartSub.className = "stage-subtitle";
+        chartSub.textContent =
+          "Top 7 taxa represent 90%+ of total catch in Alviso Marsh.";
+        chartCard.appendChild(chartSub);
+        var chartWrap = document.createElement("div");
+        chartWrap.className = "stage-chart-wrap";
+        var canvas = document.createElement("canvas");
+        canvas.id = "chart-top7";
+        chartWrap.appendChild(canvas);
+        chartCard.appendChild(chartWrap);
+        var caption = document.createElement("div");
+        caption.className = "stage-caption";
+        caption.textContent =
+          "Approximate relative contribution. Source: SBOTS 2010–2024.";
+        chartCard.appendChild(caption);
+        contentStep1.appendChild(chartCard);
+      }
+
+      function initMiniMap() {
+        var miniEl = document.getElementById("map-mini");
+        if (!miniEl) return;
+        if (miniMap) {
+          miniMap.remove();
+          miniMap = null;
+        }
+        miniMap = L.map(miniEl, {
+          zoomControl: false,
+          attributionControl: false,
+          dragging: false,
+          scrollWheelZoom: false,
+          doubleClickZoom: false,
+          boxZoom: false,
+          touchZoom: false,
+          keyboard: false,
+        });
+        L.tileLayer(
+          "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+          { maxZoom: 16 }
+        ).addTo(miniMap);
+        miniMapLayer = L.layerGroup().addTo(miniMap);
+
+        var sbots = buildSbotsStations();
+        sbots.forEach(function (s) {
+          L.circleMarker([s.lat, s.lon], {
+            radius: 4,
+            fillColor: C.TEAL,
+            color: "#fff",
+            weight: 1.2,
+            opacity: 0.95,
+            fillOpacity: 0.85,
+            interactive: false,
+          }).addTo(miniMapLayer);
+        });
+
+        miniMap.fitBounds(ALVISO, { padding: [6, 6] });
+        setTimeout(function () {
+          if (miniMap) miniMap.invalidateSize();
+        }, 80);
+      }
+
+      function onStep(n) {
+        var type = STEP_TYPES[n];
+
+        // Keep #map always mounted; on step 1 we dim it since the
+        // right-stage mini-map + chart card are the primary view.
+        mapEl.classList.toggle("active", type === "map");
+        mapEl.classList.toggle("step1-dim", n === 0);
+        bgTwoSeasons.classList.toggle("active", type === "gradient-s3");
+        bgRegime.classList.toggle("active", type === "gradient-s4");
+
+        contentStep1.classList.toggle("active", n === 0);
+        contentStep3.classList.toggle("active", n === 2);
+        contentStep4.classList.toggle("active", n === 3);
+
+        // Step-specific panel scrolling
+        storyPanel.classList.toggle("panel-scroll", n === 1);
+        contentStep3.classList.toggle("stage-scroll", n === 2);
+
+        legendEl.replaceChildren();
+        activeClusterFilter = null;
+
+        if (n === 0) {
+          setPanelDark(false);
+          buildStep1Stage();
+          requestAnimationFrame(function () {
+            drawTop7Chart();
+            initMiniMap();
+          });
+          if (STATIONS.length) renderStep1Map();
+          WRMP.flyTo(map, ALVISO);
+        } else if (n === 1) {
+          setPanelDark(false);
+          drawRadarChart();
+          if (STATIONS.length) {
+            renderStep2Map(null);
+            buildClusterLegend();
+          }
+          WRMP.flyTo(map, ALVISO);
+        } else if (n === 2) {
+          setPanelDark(false);
+          buildStep3Stage();
+          // Reset toggle to "wet" on each entry so UI matches rendered cards
+          var s3buttons = storyPanel.querySelectorAll(".season-toggle button");
+          s3buttons.forEach(function (b) {
+            b.setAttribute(
+              "aria-pressed",
+              b.getAttribute("data-season") === "wet" ? "true" : "false"
+            );
+          });
+          requestAnimationFrame(drawSeasonChart);
+          renderSeasonCards("wet");
+        } else if (n === 3) {
+          setPanelDark(false);
+          buildStep4Content();
+          requestAnimationFrame(drawNmdsChart);
+        } else if (n === 4) {
+          setPanelDark(false);
+          if (STATIONS.length) renderStep5Map();
+          WRMP.flyTo(map, BAY_FULL);
+        }
+      }
+
+      var screens = WRMP.wireExhibitScreens({
+        totalSteps: 5,
+        onStepEnter: onStep,
+        onEnter: function () {
+          stepper.goToStep(0);
+        },
+        onRestart: function () {
+          stepper.goToStep(0);
+        },
+      });
+
+      var stepper = WRMP.createStepper({
+        totalSteps: 5,
+        onStepEnter: screens.onStepEnter,
+      });
+
+      // ── Wire-up + data load ────────────────────────
+      wireSeasonToggle();
+
+      WRMP.loadData({ stations: true, species: true })
+        .then(function (data) {
+          STATIONS = data.stations;
+          SPECIES = data.species;
+          stepper.goToStep(0);
+        })
+        .catch(function (err) {
+          console.error("Failed to load data:", err);
+          stepper.goToStep(0);
+        });
+
+      // Resize handler — redraw charts that need container-width refresh
+      var resizeTimer;
+      window.addEventListener("resize", function () {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function () {
+          Object.keys(charts).forEach(function (k) {
+            if (charts[k] && charts[k].resize) charts[k].resize();
+          });
+        }, 120);
+      });
+    </script>
+  </body>
+</html>

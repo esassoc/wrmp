@@ -13,9 +13,17 @@
 var WRMP = window.WRMP || {};
 
 (function () {
-    // Resolve data path relative to the exhibit's HTML file
-    // Exhibits live at exhibits/{slug}/index.html, data at data/*.json
-    var dataBase = "../../data/";
+    // Resolve data/ from this script's OWN url rather than guessing how far
+    // the exhibit sits from the repo root. document.currentScript is the
+    // <script> tag executing this file; its .src is fully resolved by the
+    // browser, so stripping the trailing shared/js/data-loader.js yields the
+    // repo root, and data/ is a sibling of shared/. This keeps the loader
+    // depth-independent: round-1 exhibits (exhibits/{slug}/) and round-2
+    // exhibits (exhibits/round-2-2026-05/{slug}/) both resolve correctly.
+    var script = document.currentScript;
+    var dataBase = script
+        ? script.src.replace(/shared\/js\/data-loader\.js(\?.*)?$/, "data/")
+        : "../../data/";
 
     var FILES = {
         stations: "stations.json",

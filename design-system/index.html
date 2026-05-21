@@ -11,6 +11,7 @@
         <link rel="stylesheet" href="../shared/css/marker-popup.css" />
         <link rel="stylesheet" href="../shared/css/metrics-card.css" />
         <link rel="stylesheet" href="../shared/css/exhibit-cover.css" />
+        <link rel="stylesheet" href="../shared/css/level3.css?v=2" />
         <style>
             /* ── Smooth anchor scrolling ──────────────────────── */
             html {
@@ -938,6 +939,7 @@
                     <a href="#callouts">Callouts</a>
                     <a href="#metrics-card">Metrics Card</a>
                     <a href="#site-chart-card">Site Chart Card</a>
+                    <a href="#level3-primitives">Level 3 Doorway Card</a>
                 </div>
 
                 <div class="ds-nav-group">
@@ -3233,6 +3235,303 @@
                     <p class="ds-note">
                         Matches <code>restoration-network</code> (<code>right: 24px</code>, blur card over the map).
                         Exhibit-local CSS until promoted to shared CSS.
+                    </p>
+                </section>
+
+                <!-- ── Level 3 Doorway Card primitives ───────── -->
+                <section class="ds-section" id="level3-primitives">
+                    <h2>Level 3 Doorway Card</h2>
+                    <p class="section-desc">
+                        Shared resource-triage primitives for the three Level 3
+                        handoff patterns (end-card hub, inline per-step card,
+                        persistent drawer). A "doorway card" tells a technical
+                        visitor what kind of resource waits before they click.
+                        Defined once in <code>shared/css/level3.css</code> and
+                        consumed by all three patterns — never duplicated.
+                    </p>
+
+                    <div class="ds-group-label">Primitives</div>
+                    <div style="background:#122026;border-radius:12px;padding:24px 28px;display:flex;flex-direction:column;gap:18px">
+                        <div data-cat="data" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                            <span class="l3-chip">CSV</span>
+                            <span class="l3-chip">JSON</span>
+                            <p class="l3-scope" style="margin:0">119 stations <span class="l3-dot">·</span> updated 2024</p>
+                        </div>
+                        <div data-cat="tools" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                            <span class="l3-chip">WEB TOOL</span>
+                            <p class="l3-scope" style="margin:0">Bay-wide <span class="l3-dot">·</span> SFEI</p>
+                        </div>
+                        <div data-cat="science" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                            <span class="l3-chip">WEB REPORT</span>
+                            <span class="l3-chip">PDF</span>
+                            <p class="l3-scope" style="margin:0">2023 <span class="l3-dot">·</span> WRMP</p>
+                        </div>
+                    </div>
+                    <p class="ds-note">
+                        <code>.l3-chip</code> — format tag, 12.5px, filled; reads
+                        the <code>--cat-accent</code> of its <code>data-cat</code>
+                        ancestor (teal Data / green Tools / amber Science).
+                        <code>.l3-scope</code> — compact meta line, 11px, use on a
+                        <code>&lt;p&gt;</code> so its line-height governs.
+                        <code>.l3-dot</code> — the "·" separator.
+                    </p>
+
+                    <!-- Level 3 Lucide icon sprite — inlined once so the
+                         pattern examples below can <use> the glyphs. Mirrors
+                         the per-exhibit sprite. -->
+                    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+                        <defs>
+                            <symbol id="l3-icon-database" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M3 5V19A9 3 0 0 0 21 19V5" /><path d="M3 12A9 3 0 0 0 21 12" />
+                            </symbol>
+                            <symbol id="l3-icon-compass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" /><path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z" />
+                            </symbol>
+                            <symbol id="l3-icon-flask-conical" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2" /><path d="M6.453 15h11.094" /><path d="M8.5 2h7" />
+                            </symbol>
+                            <symbol id="l3-icon-map" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z" /><path d="M15 5.764v15" /><path d="M9 3.236v15" />
+                            </symbol>
+                            <symbol id="l3-icon-file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a1 1 0 0 0 1 1h5" /><path d="M10 9H8" /><path d="M16 13H8" /><path d="M16 17H8" />
+                            </symbol>
+                            <symbol id="l3-icon-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 15V3" /><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="m7 10 5 5 5-5" />
+                            </symbol>
+                            <symbol id="l3-icon-arrow-up-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M7 7h10v10" /><path d="M7 17 17 7" />
+                            </symbol>
+                            <symbol id="l3-icon-arrow-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 5v14" /><path d="m19 12-7 7-7-7" />
+                            </symbol>
+                        </defs>
+                    </svg>
+
+                    <!-- ─── Pattern 1 · End-card hub ─── -->
+                    <div class="ds-group-label" style="margin-top:32px">Pattern 1 · End-card hub</div>
+                    <p class="ds-note" style="margin-top:0;margin-bottom:12px">
+                        The 3-panel Data / Tools / Science doorway grid on an
+                        exhibit's end card. Used in <code>alviso-decade</code>.
+                        Shown here as the plain <code>.l3-hub</code> grid (the
+                        live exhibit adds <code>.l3-endcard</code> to fit the
+                        16:9 band).
+                    </p>
+                    <div style="background:#122026;border-radius:12px;padding:24px 26px">
+                        <div class="l3-hub">
+                            <div class="l3-hub-panel" data-cat="data">
+                                <div class="l3-hub-panel-head">
+                                    <span class="cat-icon"><svg class="lc" aria-hidden="true"><use href="#l3-icon-database" /></svg></span>
+                                    <span class="cat-name">Data</span>
+                                    <span class="cat-count">2</span>
+                                </div>
+                                <a class="l3-hub-item" href="#">
+                                    <span class="hf-icon"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-download" /></svg></span>
+                                    <div class="hf-body">
+                                        <div class="hf-top">
+                                            <p class="hf-name">SBOTS catch data</p>
+                                            <span class="l3-chip">CSV</span>
+                                            <span class="hf-go"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-arrow-down" /></svg></span>
+                                        </div>
+                                        <p class="hf-desc">A decade of South Bay Otter Trawl Survey catches — every haul, species and count.</p>
+                                        <p class="l3-scope">14 yrs <span class="l3-dot">·</span> ~20 stations <span class="l3-dot">·</span> 2010–2024</p>
+                                    </div>
+                                </a>
+                                <a class="l3-hub-item" href="#">
+                                    <span class="hf-icon"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-download" /></svg></span>
+                                    <div class="hf-body">
+                                        <div class="hf-top">
+                                            <p class="hf-name">Station network</p>
+                                            <span class="l3-chip">JSON</span>
+                                            <span class="hf-go"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-arrow-down" /></svg></span>
+                                        </div>
+                                        <p class="hf-desc">All 119 monitoring stations with coordinates, region and network.</p>
+                                        <p class="l3-scope">119 stations <span class="l3-dot">·</span> updated 2024</p>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="l3-hub-panel" data-cat="tools">
+                                <div class="l3-hub-panel-head">
+                                    <span class="cat-icon"><svg class="lc" aria-hidden="true"><use href="#l3-icon-compass" /></svg></span>
+                                    <span class="cat-name">Tools</span>
+                                    <span class="cat-count">2</span>
+                                </div>
+                                <a class="l3-hub-item" href="#">
+                                    <span class="hf-icon"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-map" /></svg></span>
+                                    <div class="hf-body">
+                                        <div class="hf-top">
+                                            <p class="hf-name">EcoAtlas</p>
+                                            <span class="l3-chip">WEB TOOL</span>
+                                            <span class="hf-go"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-arrow-up-right" /></svg></span>
+                                        </div>
+                                        <p class="hf-desc">Interactive geospatial maps of every wetland, restoration project and station.</p>
+                                        <p class="l3-scope">Bay-wide <span class="l3-dot">·</span> SFEI</p>
+                                    </div>
+                                </a>
+                                <a class="l3-hub-item" href="#">
+                                    <span class="hf-icon"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-map" /></svg></span>
+                                    <div class="hf-body">
+                                        <div class="hf-top">
+                                            <p class="hf-name">SF Estuary Wetlands Profile</p>
+                                            <span class="l3-chip">WEB TOOL</span>
+                                            <span class="hf-go"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-arrow-up-right" /></svg></span>
+                                        </div>
+                                        <p class="hf-desc">EcoAtlas restoration dashboard tracking tidal wetland acres gained.</p>
+                                        <p class="l3-scope">Bay-wide <span class="l3-dot">·</span> SFEI</p>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="l3-hub-panel" data-cat="science">
+                                <div class="l3-hub-panel-head">
+                                    <span class="cat-icon"><svg class="lc" aria-hidden="true"><use href="#l3-icon-flask-conical" /></svg></span>
+                                    <span class="cat-name">Science</span>
+                                    <span class="cat-count">2</span>
+                                </div>
+                                <a class="l3-hub-item" href="#">
+                                    <span class="hf-icon"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-file-text" /></svg></span>
+                                    <div class="hf-body">
+                                        <div class="hf-top">
+                                            <p class="hf-name">WRMP Science Framework</p>
+                                            <span class="l3-chip">WEB REPORT</span>
+                                            <span class="hf-go"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-arrow-up-right" /></svg></span>
+                                        </div>
+                                        <p class="hf-desc">The monitoring design — management questions, indicators and station network.</p>
+                                        <p class="l3-scope">2023 <span class="l3-dot">·</span> WRMP</p>
+                                    </div>
+                                </a>
+                                <a class="l3-hub-item" href="#">
+                                    <span class="hf-icon"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-file-text" /></svg></span>
+                                    <div class="hf-body">
+                                        <div class="hf-top">
+                                            <p class="hf-name">State of Our Estuary</p>
+                                            <span class="l3-chip">WEB REPORT</span>
+                                            <span class="hf-go"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-arrow-up-right" /></svg></span>
+                                        </div>
+                                        <p class="hf-desc">Regional status reporting on estuary health, habitats and long-term trends.</p>
+                                        <p class="l3-scope">2022 <span class="l3-dot">·</span> SF Estuary Partnership</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ─── Pattern 2 · Inline per-step card ─── -->
+                    <div class="ds-group-label" style="margin-top:32px">Pattern 2 · Inline per-step card</div>
+                    <p class="ds-note" style="margin-top:0;margin-bottom:12px">
+                        A dark "go deeper" card at the foot of a story-panel
+                        step, linking the one resource that matches that step.
+                        Used in <code>station-map-stepper</code>. True size.
+                    </p>
+                    <div style="background:#122026;border-radius:12px;padding:24px 26px">
+                        <a class="l3-inline-card" data-cat="tools" href="#" style="margin-top:0;max-width:460px">
+                            <div class="l3-inline-lead">
+                                <span class="cat-icon"><svg class="lc" aria-hidden="true"><use href="#l3-icon-compass" /></svg></span>
+                                <div class="l3-inline-body">
+                                    <span class="cat-tag l3-inline-cat">Tools</span>
+                                    <div class="l3-inline-namerow">
+                                        <p class="l3-inline-name">EcoAtlas — estuary map</p>
+                                        <span class="l3-chip">WEB TOOL</span>
+                                    </div>
+                                    <p class="l3-inline-desc">
+                                        Explore all 119 monitoring stations on the Bay-wide
+                                        interactive map of wetlands and habitats.
+                                    </p>
+                                    <p class="l3-scope">Bay-wide <span class="l3-dot">·</span> SFEI</p>
+                                </div>
+                                <span class="l3-inline-go"><svg class="lc" aria-hidden="true"><use href="#l3-icon-arrow-up-right" /></svg></span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- ─── Pattern 3 · Persistent drawer ─── -->
+                    <div class="ds-group-label" style="margin-top:32px">Pattern 3 · Persistent drawer</div>
+                    <p class="ds-note" style="margin-top:0;margin-bottom:12px">
+                        A "Data &amp; tools" panel available from any step,
+                        grouping every Level 3 resource by category. Used in
+                        <code>native-vs-invasive</code>. Shown static/open (the
+                        live drawer slides in from the right). True size.
+                    </p>
+                    <div style="background:#122026;border-radius:12px;padding:20px;display:inline-block">
+                        <div style="width:320px">
+                            <div class="drf-group" data-cat="data">
+                                <div class="drf-grouphead">
+                                    <span class="cat-icon cat-icon-sm"><svg class="lc" aria-hidden="true"><use href="#l3-icon-database" /></svg></span>
+                                    <span class="gh-name">Data</span>
+                                    <span class="gh-count">2</span>
+                                </div>
+                                <a class="drf-row" href="#">
+                                    <span class="rw-icon"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-download" /></svg></span>
+                                    <div class="rw-body">
+                                        <div class="rw-top">
+                                            <p class="rw-name">Species catalog</p>
+                                            <span class="l3-chip">JSON</span>
+                                            <span class="rw-go"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-arrow-down" /></svg></span>
+                                        </div>
+                                        <p class="rw-desc">Every fish taxon logged across the estuary's monitored habitats, native and invasive.</p>
+                                        <p class="l3-scope">All fish taxa <span class="l3-dot">·</span> updated 2024</p>
+                                    </div>
+                                </a>
+                                <a class="drf-row" href="#">
+                                    <span class="rw-icon"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-download" /></svg></span>
+                                    <div class="rw-body">
+                                        <div class="rw-top">
+                                            <p class="rw-name">Station network</p>
+                                            <span class="l3-chip">JSON</span>
+                                            <span class="rw-go"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-arrow-down" /></svg></span>
+                                        </div>
+                                        <p class="rw-desc">All 119 monitoring stations with coordinates, region and network.</p>
+                                        <p class="l3-scope">119 stations <span class="l3-dot">·</span> updated 2024</p>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="drf-group" data-cat="tools">
+                                <div class="drf-grouphead">
+                                    <span class="cat-icon cat-icon-sm"><svg class="lc" aria-hidden="true"><use href="#l3-icon-compass" /></svg></span>
+                                    <span class="gh-name">Tools</span>
+                                    <span class="gh-count">1</span>
+                                </div>
+                                <a class="drf-row" href="#">
+                                    <span class="rw-icon"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-map" /></svg></span>
+                                    <div class="rw-body">
+                                        <div class="rw-top">
+                                            <p class="rw-name">EcoAtlas</p>
+                                            <span class="l3-chip">WEB TOOL</span>
+                                            <span class="rw-go"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-arrow-up-right" /></svg></span>
+                                        </div>
+                                        <p class="rw-desc">Interactive geospatial maps of every wetland, restoration project and station.</p>
+                                        <p class="l3-scope">Bay-wide <span class="l3-dot">·</span> SFEI</p>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="drf-group" data-cat="science">
+                                <div class="drf-grouphead">
+                                    <span class="cat-icon cat-icon-sm"><svg class="lc" aria-hidden="true"><use href="#l3-icon-flask-conical" /></svg></span>
+                                    <span class="gh-name">Science</span>
+                                    <span class="gh-count">1</span>
+                                </div>
+                                <a class="drf-row" href="#">
+                                    <span class="rw-icon"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-file-text" /></svg></span>
+                                    <div class="rw-body">
+                                        <div class="rw-top">
+                                            <p class="rw-name">WRMP Science Framework</p>
+                                            <span class="l3-chip">WEB REPORT</span>
+                                            <span class="rw-go"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-arrow-up-right" /></svg></span>
+                                        </div>
+                                        <p class="rw-desc">The monitoring design — management questions, indicators and how the station network answers them.</p>
+                                        <p class="l3-scope">2023 <span class="l3-dot">·</span> WRMP</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="ds-note">
+                        All three patterns render via the shared classes in
+                        <code>shared/css/level3.css</code> — the adopted
+                        chip&nbsp;+&nbsp;scope treatment. Lift the markup
+                        structure straight from the exhibits
+                        (<code>alviso-decade</code>, <code>station-map-stepper</code>,
+                        <code>native-vs-invasive</code>).
                     </p>
                 </section>
 
