@@ -482,13 +482,6 @@
 .l3-endcard .l3-hub-panel-head {
   padding-bottom: 10px;
   margin-bottom: 2px;
-  /* Pin the category header so it stays put while its items scroll. */
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background: rgba(18, 32, 38, 0.96);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
 }
 .l3-endcard .l3-hub-item .l3-scope {
   margin-top: 3px;
