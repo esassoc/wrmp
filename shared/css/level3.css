@@ -405,7 +405,11 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  overflow-y: auto; /* graceful fallback only — default fits */
+  min-height: 0;
+  /* Fixed band — never the scroller itself. Overflow is pushed down to
+     each hub column (see .l3-endcard .l3-hub-panel), so long lists scroll
+     per-column instead of scrolling the whole card. */
+  overflow: hidden;
 }
 
 /* Compact head — kicker + title + lede across the top.
@@ -440,6 +444,10 @@
 .l3-endcard .l3-hub {
   margin: 0;
   flex: 1 1 auto;
+  flex-wrap: nowrap; /* keep three columns on one row so each bounds its height */
+  align-items: stretch; /* panels match the band height so each can scroll */
+  min-height: 0;
+  overflow: hidden; /* clip panels to the band; scrolling happens inside each */
   align-content: flex-start;
 }
 /* End-card hub compaction. Variant B adds a format chip + a
@@ -451,8 +459,22 @@
 .l3-endcard .l3-hub-panel {
   flex: 1 1 0;
   min-width: 0;
+  /* Each column scrolls independently when its list outgrows the band,
+     instead of pushing the whole end card into a page scroll. With few
+     items it simply doesn't scroll. */
+  min-height: 0;
   max-width: none;
   padding: 14px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--l3-border) transparent;
+}
+.l3-endcard .l3-hub-panel::-webkit-scrollbar {
+  width: 6px;
+}
+.l3-endcard .l3-hub-panel::-webkit-scrollbar-thumb {
+  background: var(--l3-border);
+  border-radius: 3px;
 }
 .l3-endcard .l3-hub-item {
   padding: 8px 0;
@@ -523,32 +545,61 @@
   align-items: center;
   gap: 8px;
   padding: 9px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.55);
+  border: 1px solid var(--l3-border);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.88);
+  /* Dark "pro mode" surface — matches the drawer it opens. Slight
+     translucency keeps the backdrop-blur reading over photo/map steps. */
+  background: rgba(18, 32, 38, 0.9);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  color: var(--wrmp-ada-teal);
+  color: var(--l3-text);
   font-family: var(--font-body);
   font-size: var(--step-0);
   font-weight: 600;
   line-height: 1;
   cursor: pointer;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.34);
   transition:
     background 0.15s ease,
     transform 0.2s ease;
 }
 .level3-drawer-toggle:hover,
 .level3-drawer-toggle:focus-visible {
-  background: #fff;
+  background: var(--l3-bg-hover);
+  border-color: color-mix(in srgb, var(--wrmp-orange) 55%, var(--l3-border));
   transform: translateY(-1px);
   outline: none;
 }
 .level3-drawer-toggle svg {
   width: 15px;
   height: 15px;
-  fill: var(--wrmp-ada-teal);
+  fill: var(--l3-text);
+  transition: fill 0.2s ease;
+}
+/* One-time accent flourish on hover: the layers icon warms to brand
+   orange and gives a single spring — a small "open me" delight, not a
+   looping animation. */
+.level3-drawer-toggle:hover svg,
+.level3-drawer-toggle:focus-visible svg {
+  fill: var(--wrmp-orange);
+  animation: l3-toggle-pop 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes l3-toggle-pop {
+  0% {
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+  40% {
+    transform: translateY(-2px) scale(1.16) rotate(-6deg);
+  }
+  100% {
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .level3-drawer-toggle:hover svg,
+  .level3-drawer-toggle:focus-visible svg {
+    animation: none;
+  }
 }
 
 .level3-drawer {

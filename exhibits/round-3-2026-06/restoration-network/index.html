@@ -1,0 +1,1412 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Designing the Experiment — WRMP</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <link rel="stylesheet" href="../../../shared/css/tokens.css" />
+        <link rel="stylesheet" href="../../../shared/css/exhibit-frame.css" />
+        <link rel="stylesheet" href="../../../shared/css/leaflet-overrides.css?v=2" />
+        <link rel="stylesheet" href="../../../shared/css/marker-popup.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-cover.css" />
+    <link rel="stylesheet" href="../../../shared/css/level3.css?v=6" />
+        <style>
+            .site-chart-card {
+                position: absolute;
+                top: 50%;
+                right: 24px;
+                transform: translateY(-50%);
+                z-index: 500;
+                background: rgba(255, 255, 255, 0.08);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.18);
+                border-radius: 12px;
+                padding: 20px 24px 16px;
+                box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity 0.4s ease;
+            }
+            .site-chart-card.visible {
+                opacity: 1;
+            }
+            .site-chart-title {
+                font-family: var(--font-heading);
+                font-size: 15px;
+                font-weight: 600;
+                color: var(--gray-12);
+                margin: 0 0 10px 0;
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+    <!-- Level 3 icon sprite — Lucide glyphs inlined as <symbol>s, no CDN
+         dependency. Referenced via <svg class="lc"><use href="#l3-icon-…"/>. -->
+    <svg
+      width="0"
+      height="0"
+      style="position: absolute"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <symbol
+          id="l3-icon-database"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <ellipse cx="12" cy="5" rx="9" ry="3" />
+          <path d="M3 5V19A9 3 0 0 0 21 19V5" />
+          <path d="M3 12A9 3 0 0 0 21 12" />
+        </symbol>
+        <symbol
+          id="l3-icon-compass"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <path
+            d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"
+          />
+        </symbol>
+        <symbol
+          id="l3-icon-flask-conical"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"
+          />
+          <path d="M6.453 15h11.094" />
+          <path d="M8.5 2h7" />
+        </symbol>
+        <symbol
+          id="l3-icon-map"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"
+          />
+          <path d="M15 5.764v15" />
+          <path d="M9 3.236v15" />
+        </symbol>
+        <symbol
+          id="l3-icon-file-text"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"
+          />
+          <path d="M14 2v5a1 1 0 0 0 1 1h5" />
+          <path d="M10 9H8" />
+          <path d="M16 13H8" />
+          <path d="M16 17H8" />
+        </symbol>
+        <symbol
+          id="l3-icon-download"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 15V3" />
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <path d="m7 10 5 5 5-5" />
+        </symbol>
+        <symbol
+          id="l3-icon-arrow-up-right"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M7 7h10v10" />
+          <path d="M7 17 17 7" />
+        </symbol>
+        <symbol
+          id="l3-icon-arrow-down"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 5v14" />
+          <path d="m19 12-7 7-7-7" />
+        </symbol>
+        <symbol
+          id="l3-icon-x"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M18 6 6 18" />
+          <path d="m6 6 12 12" />
+        </symbol>
+        <symbol
+          id="l3-icon-book-open"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 7v14" />
+          <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
+        </symbol>
+      </defs>
+    </svg>
+
+        <div class="exhibit-frame">
+      <div id="exhibit-cover" class="exhibit-cover">
+        <div
+          class="exhibit-cover-image"
+          style="background-image: url('./cover.jpg')"
+          aria-hidden="true"
+        ></div>
+        <div class="exhibit-cover-gradient" aria-hidden="true"></div>
+        <div class="exhibit-cover-content">
+          <span class="exhibit-cover-kicker">WRMP Exhibit · Restoration Science</span>
+          <h2 class="exhibit-cover-title">Designing the Experiment</h2>
+          <p class="exhibit-cover-lede">Restoration sites across the Bay form a distributed experiment — benchmark marshes, reference sites, and project sites, each answering different questions about how wetlands recover.</p>
+          <!-- Last-updated stamp — illustrative placeholder date for the July
+               review; no real data ships yet. Adjust the date freely. -->
+          <p class="exhibit-cover-updated">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 7v5l3 2" />
+            </svg>
+            Last updated May 28, 2026
+          </p>
+          <button id="btn-enter" class="exhibit-cover-cta" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            Step Inside
+          </button>
+          <div class="exhibit-cover-journey">
+            <div class="exhibit-cover-dots" aria-hidden="true">
+            <span class="exhibit-cover-dot is-pulsing"></span>
+            <span class="exhibit-cover-dot"></span>
+            <span class="exhibit-cover-dot"></span>
+            <span class="exhibit-cover-dot"></span>
+            <span class="exhibit-cover-dot"></span>
+            <span class="exhibit-cover-dot"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        id="exhibit-end-card"
+        class="exhibit-cover exhibit-cover--end is-hidden"
+      >
+        <div
+          class="exhibit-cover-image"
+          style="background-image: url('./cover.jpg')"
+          aria-hidden="true"
+        ></div>
+        <!-- Wide hub end card: l3-endcard widens the content band to a
+             full-width band so the 3-across Data/Tools/Science hub is all
+             visible at once (see shared/css/level3.css). The l3-endcard-wash
+             class on the gradient darkens the hero behind it for AA text. -->
+        <div
+          class="exhibit-cover-gradient l3-endcard-wash"
+          aria-hidden="true"
+        ></div>
+        <div class="exhibit-cover-content l3-endcard">
+          <div class="l3-endcard-head">
+            <span class="exhibit-cover-kicker">Thanks for exploring</span>
+            <h2 class="exhibit-cover-title">The data runs deeper</h2>
+            <p class="exhibit-cover-lede">
+              This exhibit is one layer. WRMP's monitoring lives inside a larger
+              data ecosystem — from the Bay-wide EcoAtlas toolset to the raw
+              datasets scientists work with every day.
+            </p>
+            <p class="exhibit-cover-updated">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 7v5l3 2" />
+              </svg>
+              Exhibit last updated May 28, 2026
+            </p>
+          </div>
+          <!-- Level 3 · end-card hub final (flexible tinted category panels).
+               All three categories present. Destinations are illustrative —
+               confirm deep links with SFEI. -->
+          <span class="exhibit-cover-links-label">Take the data further</span>
+          <div class="l3-hub">
+            <!-- Data -->
+            <div class="l3-hub-panel" data-cat="data">
+              <div class="l3-hub-panel-head">
+                <span class="cat-icon"
+                  ><svg class="lc" aria-hidden="true">
+                    <use href="#l3-icon-database" /></svg
+                ></span>
+                <span class="cat-name">Data</span>
+                <span class="cat-count">2</span>
+              </div>
+              <a
+                class="l3-hub-item"
+                href="../../../data/species.json"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span class="hf-icon"
+                  ><svg class="lc lc-sm" aria-hidden="true">
+                    <use href="#l3-icon-download" /></svg
+                ></span>
+                <div class="hf-body">
+                  <div class="hf-top">
+                    <p class="hf-name">Species catalog</p>
+                    <span class="l3-chip">JSON</span>
+                    <span class="hf-go"
+                      ><svg class="lc lc-sm" aria-hidden="true">
+                        <use href="#l3-icon-arrow-down" /></svg
+                    ></span>
+                  </div>
+                  <p class="hf-desc">
+                    Every fish and invertebrate taxon documented across the
+                    estuary, with native and invasive status.
+                  </p>
+                  <p class="l3-scope">
+                    All taxa <span class="l3-dot">·</span> Updated Mar 14, 2026
+                  </p>
+                </div>
+              </a>
+              <a
+                class="l3-hub-item"
+                href="../../../data/stations.json"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span class="hf-icon"
+                  ><svg class="lc lc-sm" aria-hidden="true">
+                    <use href="#l3-icon-download" /></svg
+                ></span>
+                <div class="hf-body">
+                  <div class="hf-top">
+                    <p class="hf-name">Station network</p>
+                    <span class="l3-chip">JSON</span>
+                    <span class="hf-go"
+                      ><svg class="lc lc-sm" aria-hidden="true">
+                        <use href="#l3-icon-arrow-down" /></svg
+                    ></span>
+                  </div>
+                  <p class="hf-desc">
+                    All 119 monitoring stations with coordinates, region and
+                    network — including the 27 in Delta Smelt habitat.
+                  </p>
+                  <p class="l3-scope">
+                    119 stations <span class="l3-dot">·</span> Updated Feb 20, 2026
+                  </p>
+                </div>
+              </a>
+            </div>
+            <!-- Tools -->
+            <div class="l3-hub-panel" data-cat="tools">
+              <div class="l3-hub-panel-head">
+                <span class="cat-icon"
+                  ><svg class="lc" aria-hidden="true">
+                    <use href="#l3-icon-compass" /></svg
+                ></span>
+                <span class="cat-name">Tools</span>
+                <span class="cat-count">1</span>
+              </div>
+              <a
+                class="l3-hub-item"
+                href="https://www.ecoatlas.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span class="hf-icon"
+                  ><svg class="lc lc-sm" aria-hidden="true">
+                    <use href="#l3-icon-map" /></svg
+                ></span>
+                <div class="hf-body">
+                  <div class="hf-top">
+                    <p class="hf-name">EcoAtlas</p>
+                    <span class="l3-chip">WEB TOOL</span>
+                    <span class="hf-go"
+                      ><svg class="lc lc-sm" aria-hidden="true">
+                        <use href="#l3-icon-arrow-up-right" /></svg
+                    ></span>
+                  </div>
+                  <p class="hf-desc">
+                    Interactive geospatial maps of every wetland, restoration
+                    project and station in the estuary.
+                  </p>
+                  <p class="l3-scope">
+                    Bay-wide <span class="l3-dot">·</span> Updated Apr 9, 2026
+                  </p>
+                </div>
+              </a>
+            </div>
+            <!-- Context -->
+            <div class="l3-hub-panel" data-cat="science">
+              <div class="l3-hub-panel-head">
+                <span class="cat-icon"
+                  ><svg class="lc" aria-hidden="true">
+                    <use href="#l3-icon-book-open" /></svg
+                ></span>
+                <span class="cat-name">Context</span>
+                <span class="cat-count">2</span>
+              </div>
+              <a
+                class="l3-hub-item"
+                href="https://www.wrmp.org/science-framework/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span class="hf-icon"
+                  ><svg class="lc lc-sm" aria-hidden="true">
+                    <use href="#l3-icon-file-text" /></svg
+                ></span>
+                <div class="hf-body">
+                  <div class="hf-top">
+                    <p class="hf-name">WRMP Science Framework</p>
+                    <span class="l3-chip">WEB REPORT</span>
+                    <span class="hf-go"
+                      ><svg class="lc lc-sm" aria-hidden="true">
+                        <use href="#l3-icon-arrow-up-right" /></svg
+                    ></span>
+                  </div>
+                  <p class="hf-desc">
+                    The monitoring design — management questions, indicators
+                    and how the station network answers them.
+                  </p>
+                  <p class="l3-scope">
+                    WRMP <span class="l3-dot">·</span> Updated Nov 2, 2023
+                  </p>
+                </div>
+              </a>
+              <a
+                class="l3-hub-item"
+                href="https://www.stateofourestuary.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span class="hf-icon"
+                  ><svg class="lc lc-sm" aria-hidden="true">
+                    <use href="#l3-icon-file-text" /></svg
+                ></span>
+                <div class="hf-body">
+                  <div class="hf-top">
+                    <p class="hf-name">State of Our Estuary</p>
+                    <span class="l3-chip">WEB REPORT</span>
+                    <span class="hf-go"
+                      ><svg class="lc lc-sm" aria-hidden="true">
+                        <use href="#l3-icon-arrow-up-right" /></svg
+                    ></span>
+                  </div>
+                  <p class="hf-desc">
+                    Regional status reporting on the estuary's health,
+                    habitats and long-term species trends.
+                  </p>
+                  <p class="l3-scope">
+                    SF Estuary Partnership <span class="l3-dot">·</span> Updated Sep 15, 2022
+                  </p>
+                </div>
+              </a>
+            </div>
+          </div>
+          <div class="exhibit-cover-actions">
+            <button id="btn-restart" class="exhibit-cover-cta" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"
+                />
+              </svg>
+              Restart exhibit
+            </button>
+            <a
+              class="exhibit-cover-cta exhibit-cover-cta--secondary"
+              href="../../../"
+              >View all exhibits</a
+            >
+          </div>
+        </div>
+      </div>
+            <div id="map"></div>
+            <div class="map-legend" id="map-legend"></div>
+
+            <div class="site-chart-card" id="site-chart-card">
+                <div class="site-chart-title">Stations by Role</div>
+                <canvas id="site-chart" width="240" height="180"></canvas>
+            </div>
+
+            <div class="story-panel">
+                <div class="story-panel-inner">
+                    <!-- Step 1: Designing the Experiment -->
+                    <div class="step active" data-step="0">
+                        <div class="step-header">
+                            <img
+                                class="step-header-mark"
+                                src="../../../shared/img/wrmp-logo-2in-mark-crop.png"
+                                alt=""
+                                width="40"
+                                height="40"
+                                decoding="async"
+                            />
+                            <div class="step-header-text">
+                                <span class="kicker">How Science Works</span>
+                                <h2>Designing the Experiment</h2>
+                            </div>
+                        </div>
+
+                        <div class="body">
+                            <p>
+                                Before you can measure restoration success, you need a plan. WRMP's 119 monitoring
+                                stations aren't placed at random — they're a carefully designed scientific network
+                                spanning three regions of the San Francisco Estuary.
+                            </p>
+                            <p>
+                                Each station plays a specific role in answering the question:
+                                <strong>is wetland restoration working?</strong>
+                            </p>
+                            <div class="stat-row">
+                                <div class="stat-pill">
+                                    <div class="num">119</div>
+                                    <div class="lbl">Stations</div>
+                                </div>
+                                <div class="stat-pill">
+                                    <div class="num">9</div>
+                                    <div class="lbl">Networks</div>
+                                </div>
+                                <div class="stat-pill">
+                                    <div class="num">4</div>
+                                    <div class="lbl">Habitat Types</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Benchmarks -->
+                    <div class="step" data-step="1">
+                        <div class="step-header">
+                            <img
+                                class="step-header-mark"
+                                src="../../../shared/img/wrmp-logo-2in-mark-crop.png"
+                                alt=""
+                                width="40"
+                                height="40"
+                                decoding="async"
+                            />
+                            <div class="step-header-text">
+                                <span class="kicker">The Control Group</span>
+                                <h2>Benchmarks: The Gold Standard</h2>
+                            </div>
+                        </div>
+
+                        <div class="body">
+                            <p>
+                                Benchmark sites are healthy, undisturbed habitats that define what "good" looks like.
+                                Scientists measure fish communities here to establish the ecological baseline — the gold
+                                standard against which everything else is compared.
+                            </p>
+                            <p>
+                                These are the <strong>control group</strong>. If a restored wetland eventually supports
+                                the same species diversity and abundance as a benchmark site, restoration is succeeding.
+                            </p>
+                            <div class="stat-row">
+                                <div class="stat-pill">
+                                    <div class="num">15</div>
+                                    <div class="lbl">Benchmark Sites</div>
+                                </div>
+                            </div>
+                            <div class="callout">
+                                Benchmark sites are selected for long-term ecological stability — natural sloughs and
+                                channels that have remained largely undisturbed.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Reference Sites -->
+                    <div class="step" data-step="2">
+                        <div class="step-header">
+                            <img
+                                class="step-header-mark"
+                                src="../../../shared/img/wrmp-logo-2in-mark-crop.png"
+                                alt=""
+                                width="40"
+                                height="40"
+                                decoding="async"
+                            />
+                            <div class="step-header-text">
+                                <span class="kicker">The Comparison</span>
+                                <h2>Reference Sites</h2>
+                            </div>
+                        </div>
+
+                        <div class="body">
+                            <p>
+                                Reference sites are natural areas adjacent to restoration projects. They show what the
+                                local ecosystem looks like <strong>without intervention</strong> — the "before" picture
+                                that gives restoration targets their meaning.
+                            </p>
+                            <p>
+                                Reference Site Candidates are locations being evaluated for this role. Together, these
+                                sites form the comparison framework that makes the science rigorous.
+                            </p>
+                            <div class="stat-row">
+                                <div class="stat-pill">
+                                    <div class="num">18</div>
+                                    <div class="lbl">Reference</div>
+                                </div>
+                                <div class="stat-pill">
+                                    <div class="num">9</div>
+                                    <div class="lbl">Candidates</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Project Sites -->
+                    <div class="step" data-step="3">
+                        <div class="step-header">
+                            <img
+                                class="step-header-mark"
+                                src="../../../shared/img/wrmp-logo-2in-mark-crop.png"
+                                alt=""
+                                width="40"
+                                height="40"
+                                decoding="async"
+                            />
+                            <div class="step-header-text">
+                                <span class="kicker">Restoration in Action</span>
+                                <h2>Project Sites</h2>
+                            </div>
+                        </div>
+
+                        <div class="body">
+                            <p>
+                                These are the restored wetlands being actively monitored — former salt ponds, diked
+                                marshlands, and degraded habitats being returned to tidal influence.
+                            </p>
+                            <p>
+                                By sampling at restored project sites alongside natural reference sites and long-term
+                                benchmarks, scientists can directly compare fish communities and track recovery over
+                                time.
+                            </p>
+                            <div class="stat-row">
+                                <div class="stat-pill">
+                                    <div class="num">40</div>
+                                    <div class="lbl">Project Sites</div>
+                                </div>
+                                <div class="stat-pill">
+                                    <div class="num">11</div>
+                                    <div class="lbl">Other Restored</div>
+                                </div>
+                            </div>
+                            <div class="callout">
+                                The South Bay Salt Pond Restoration is the largest tidal wetland restoration in the US —
+                                15,000 acres of former salt ponds being returned to marsh habitat.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 5: What Comes Next -->
+                    <div class="step" data-step="4">
+                        <div class="step-header">
+                            <img
+                                class="step-header-mark"
+                                src="../../../shared/img/wrmp-logo-2in-mark-crop.png"
+                                alt=""
+                                width="40"
+                                height="40"
+                                decoding="async"
+                            />
+                            <div class="step-header-text">
+                                <span class="kicker">Future Monitoring</span>
+                                <h2>What Comes Next</h2>
+                            </div>
+                        </div>
+
+                        <div class="body">
+                            <p>
+                                Across the Bay, <strong>17 planned restoration sites</strong> mark where the next
+                                chapter of recovery will unfold — 10 in Alviso Marsh, 3 at Eden Landing, and 6 in Suisun
+                                Marsh.
+                            </p>
+                            <p>
+                                Baseline monitoring at these locations will begin before construction starts —
+                                establishing what's there before transformation begins. This "before" snapshot is
+                                essential to measuring future change.
+                            </p>
+                            <div class="stat-row">
+                                <div class="stat-pill">
+                                    <div class="num">17</div>
+                                    <div class="lbl">Planned Sites</div>
+                                </div>
+                                <div class="stat-pill">
+                                    <div class="num">3</div>
+                                    <div class="lbl">Marsh Systems</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 6: The Full Picture -->
+                    <div class="step" data-step="5">
+                        <div class="step-header">
+                            <img
+                                class="step-header-mark"
+                                src="../../../shared/img/wrmp-logo-2in-mark-crop.png"
+                                alt=""
+                                width="40"
+                                height="40"
+                                decoding="async"
+                            />
+                            <div class="step-header-text">
+                                <span class="kicker">All Together</span>
+                                <h2>The Full Picture</h2>
+                            </div>
+                        </div>
+
+                        <div class="body">
+                            <p>
+                                Benchmark, Reference, Project, Planned — each station type plays a distinct role in the
+                                monitoring design. Together they answer the central question:
+                                <strong>is restoration working?</strong>
+                            </p>
+                            <p>
+                                Are fish communities in restored wetlands approaching those in natural ones? Are the
+                                right species returning? Is the ecosystem recovering?
+                            </p>
+                            <div class="callout">
+                                Early results from 14 years of monitoring at Alviso Marsh say yes — restored tidal ponds
+                                support fish communities equivalent to natural sloughs.
+                            </div>
+                            <p>
+                                Click the legend to explore each site type, or use the dots below to revisit any step in
+                                the story.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="nav-bar">
+                    <button id="btn-prev" disabled>Back</button>
+                    <div class="step-dots">
+                        <button class="step-dot active" data-step="0" aria-label="Step 1"></button>
+                        <button class="step-dot" data-step="1" aria-label="Step 2"></button>
+                        <button class="step-dot" data-step="2" aria-label="Step 3"></button>
+                        <button class="step-dot" data-step="3" aria-label="Step 4"></button>
+                        <button class="step-dot" data-step="4" aria-label="Step 5"></button>
+                        <button class="step-dot" data-step="5" aria-label="Step 6"></button>
+                    </div>
+                    <span class="step-counter">1 / 6</span>
+                    <button id="btn-next">Next</button>
+                </div>
+            </div>
+
+      <!-- Level 3 · Pattern C (persistent drawer). A "Data & tools" toggle
+           pinned bottom-right, opening a panel available from any step —
+           deep data is always one click away, never in the narrative.
+           Mirrors the end-card hub's resources so a viewer can reach them
+           mid-story, not only at the end. Destinations are illustrative;
+           confirm deep links with SFEI. -->
+      <button
+        class="level3-drawer-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="level3-drawer"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M12 3 2 8l10 5 10-5-10-5Zm0 7.5L4.2 6.6 12 2.7l7.8 3.9L12 10.5ZM2 13l10 5 10-5-2.4-1.2L12 15.3 4.4 11.8 2 13Zm0 5 10 5 10-5-2.4-1.2L12 20.3 4.4 16.8 2 18Z"
+          />
+        </svg>
+        Data &amp; tools
+      </button>
+      <aside
+        class="level3-drawer"
+        id="level3-drawer"
+        aria-label="Data and tools"
+      >
+        <div class="level3-drawer-head">
+          <p class="level3-drawer-title">Data &amp; tools</p>
+          <button class="level3-drawer-close" type="button" aria-label="Close">
+            <svg class="lc lc-sm" aria-hidden="true">
+              <use href="#l3-icon-x" />
+            </svg>
+          </button>
+        </div>
+        <!-- Level 3 · drawer final (icon-tile D/T/S group headers, described
+             rows). The body scrolls when content exceeds the drawer height.
+             Destinations are illustrative — confirm deep links with SFEI. -->
+        <div class="level3-drawer-body">
+          <!-- Data -->
+          <div class="drf-group" data-cat="data">
+            <div class="drf-grouphead">
+              <span class="cat-icon cat-icon-sm"
+                ><svg class="lc" aria-hidden="true">
+                  <use href="#l3-icon-database" /></svg
+              ></span>
+              <span class="gh-name">Data</span>
+              <span class="gh-count">2</span>
+            </div>
+            <a
+              class="drf-row"
+              href="../../../data/species.json"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="rw-icon"
+                ><svg class="lc lc-sm" aria-hidden="true">
+                  <use href="#l3-icon-download" /></svg
+              ></span>
+              <div class="rw-body">
+                <div class="rw-top">
+                  <p class="rw-name">Species catalog</p>
+                  <span class="l3-chip">JSON</span>
+                  <span class="rw-go"
+                    ><svg class="lc lc-sm" aria-hidden="true">
+                      <use href="#l3-icon-arrow-down" /></svg
+                  ></span>
+                </div>
+                <p class="rw-desc">
+                  Every fish and invertebrate taxon documented across the
+                  estuary, native and invasive.
+                </p>
+                <p class="l3-scope">
+                  All taxa <span class="l3-dot">·</span> Updated Mar 14, 2026
+                </p>
+              </div>
+            </a>
+            <a
+              class="drf-row"
+              href="../../../data/stations.json"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="rw-icon"
+                ><svg class="lc lc-sm" aria-hidden="true">
+                  <use href="#l3-icon-download" /></svg
+              ></span>
+              <div class="rw-body">
+                <div class="rw-top">
+                  <p class="rw-name">Station network</p>
+                  <span class="l3-chip">JSON</span>
+                  <span class="rw-go"
+                    ><svg class="lc lc-sm" aria-hidden="true">
+                      <use href="#l3-icon-arrow-down" /></svg
+                  ></span>
+                </div>
+                <p class="rw-desc">
+                  All 119 monitoring stations with coordinates, region and
+                  network — where each catch was recorded.
+                </p>
+                <p class="l3-scope">
+                  119 stations <span class="l3-dot">·</span> Updated Feb 20, 2026
+                </p>
+              </div>
+            </a>
+          </div>
+          <!-- Tools -->
+          <div class="drf-group" data-cat="tools">
+            <div class="drf-grouphead">
+              <span class="cat-icon cat-icon-sm"
+                ><svg class="lc" aria-hidden="true">
+                  <use href="#l3-icon-compass" /></svg
+              ></span>
+              <span class="gh-name">Tools</span>
+              <span class="gh-count">1</span>
+            </div>
+            <a
+              class="drf-row"
+              href="https://www.ecoatlas.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="rw-icon"
+                ><svg class="lc lc-sm" aria-hidden="true">
+                  <use href="#l3-icon-map" /></svg
+              ></span>
+              <div class="rw-body">
+                <div class="rw-top">
+                  <p class="rw-name">EcoAtlas</p>
+                  <span class="l3-chip">WEB TOOL</span>
+                  <span class="rw-go"
+                    ><svg class="lc lc-sm" aria-hidden="true">
+                      <use href="#l3-icon-arrow-up-right" /></svg
+                  ></span>
+                </div>
+                <p class="rw-desc">
+                  Interactive geospatial maps of every wetland, restoration
+                  project and station in the estuary.
+                </p>
+                <p class="l3-scope">
+                  Bay-wide <span class="l3-dot">·</span> Updated Apr 9, 2026
+                </p>
+              </div>
+            </a>
+          </div>
+          <!-- Context -->
+          <div class="drf-group" data-cat="science">
+            <div class="drf-grouphead">
+              <span class="cat-icon cat-icon-sm"
+                ><svg class="lc" aria-hidden="true">
+                  <use href="#l3-icon-book-open" /></svg
+              ></span>
+              <span class="gh-name">Context</span>
+              <span class="gh-count">2</span>
+            </div>
+            <a
+              class="drf-row"
+              href="https://www.wrmp.org/science-framework/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="rw-icon"
+                ><svg class="lc lc-sm" aria-hidden="true">
+                  <use href="#l3-icon-file-text" /></svg
+              ></span>
+              <div class="rw-body">
+                <div class="rw-top">
+                  <p class="rw-name">WRMP Science Framework</p>
+                  <span class="l3-chip">WEB REPORT</span>
+                  <span class="rw-go"
+                    ><svg class="lc lc-sm" aria-hidden="true">
+                      <use href="#l3-icon-arrow-up-right" /></svg
+                  ></span>
+                </div>
+                <p class="rw-desc">
+                  The monitoring design — management questions, indicators
+                  and how the station network answers them.
+                </p>
+                <p class="l3-scope">
+                  WRMP <span class="l3-dot">·</span> Updated Nov 2, 2023
+                </p>
+              </div>
+            </a>
+            <a
+              class="drf-row"
+              href="https://www.stateofourestuary.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="rw-icon"
+                ><svg class="lc lc-sm" aria-hidden="true">
+                  <use href="#l3-icon-file-text" /></svg
+              ></span>
+              <div class="rw-body">
+                <div class="rw-top">
+                  <p class="rw-name">State of Our Estuary</p>
+                  <span class="l3-chip">WEB REPORT</span>
+                  <span class="rw-go"
+                    ><svg class="lc lc-sm" aria-hidden="true">
+                      <use href="#l3-icon-arrow-up-right" /></svg
+                  ></span>
+                </div>
+                <p class="rw-desc">
+                  Regional status reporting on the estuary's health,
+                  habitats and long-term species trends.
+                </p>
+                <p class="l3-scope">
+                  SF Estuary Partnership <span class="l3-dot">·</span> Updated Sep 15, 2022
+                </p>
+              </div>
+            </a>
+          </div>
+        </div>
+      </aside>
+        </div>
+
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <script src="../../../shared/js/data-loader.js"></script>
+        <script src="../../../shared/js/map-init.js"></script>
+        <script src="../../../shared/js/marker-popup.js"></script>
+        <script src="../../../shared/js/stepper.js"></script>
+    <script src="../../../shared/js/exhibit-screens.js"></script>
+    <script src="../../../shared/js/level3.js?v=2"></script>
+        <script>
+            // ── Exhibit Config ─────────────────────────────
+            var STATIONS = [];
+            function tokenColor(name, fallback) {
+                var v = getComputedStyle(document.documentElement).getPropertyValue(name);
+                return v ? v.trim() || fallback : fallback;
+            }
+            var C = {
+                ADA_TEAL: tokenColor("--wrmp-ada-teal", "#005E6A"),
+                GREEN: tokenColor("--wrmp-green", "#379352"),
+                ORANGE: tokenColor("--wrmp-orange", "#E09337"),
+                TEAL: tokenColor("--wrmp-teal", "#228B9C"),
+                LIGHT_GREEN: tokenColor("--wrmp-light-green", "#92BB4D"),
+            };
+
+            var SITE_COLORS = {
+                Benchmark: C.LIGHT_GREEN,
+                "Benchmark-Reference": "#C7D865",
+                Reference: C.ADA_TEAL,
+                "Reference Site Candidate": C.TEAL,
+                Project: C.GREEN,
+                "Other Restored Site": "#6A9E3A",
+                "Planned Restoration": C.ORANGE,
+                NA: "#bbb",
+            };
+
+            var BAY_FULL = [
+                [37.4, -122.55],
+                [38.28, -121.85],
+            ];
+            var SOUTH_BAY = [
+                [37.42, -122.1],
+                [37.62, -121.88],
+            ];
+
+            var POPUP_FIELDS = [
+                ["Site Type", "WRMP_Site_Type"],
+                ["Habitat", "habitat"],
+                ["Region", "region"],
+                ["Subregion", "subregion"],
+            ];
+
+            // ── Helpers ────────────────────────────────────
+            function isBenchmark(s) {
+                var t = (s.WRMP_Site_Type || "").trim();
+                return t === "Benchmark" || t === "Benchmark-Reference";
+            }
+            function isReference(s) {
+                var t = (s.WRMP_Site_Type || "").trim();
+                return t === "Reference" || t === "Reference Site Candidate";
+            }
+            function isProject(s) {
+                var t = (s.WRMP_Site_Type || "").trim();
+                return t === "Project" || t === "Other Restored Site";
+            }
+            function isPlanned(s) {
+                return (s.WRMP_Site_Type || "").trim() === "Planned Restoration";
+            }
+
+            // ── Map Init ───────────────────────────────────
+            var map = WRMP.initMap("map", { bounds: BAY_FULL });
+            var markerLayer = L.layerGroup().addTo(map);
+            var poiLayer = L.layerGroup().addTo(map);
+
+            // ── Step Definitions ────────────────────────────
+            var STEP_DEFS = [
+                {
+                    legend: null,
+                    bounds: BAY_FULL,
+                    pois: [],
+                    render: function (stations, filter) {
+                        stations.forEach(function (s) {
+                            L.circleMarker([s.lat, s.lon], {
+                                radius: 5,
+                                fillColor: C.TEAL,
+                                color: "#fff",
+                                weight: 1.5,
+                                opacity: 0.8,
+                                fillOpacity: 0.5,
+                            })
+                                .bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: C.TEAL, showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] }))
+                                .addTo(markerLayer);
+                        });
+                    },
+                },
+                {
+                    legend: [
+                        { label: "Benchmark", color: C.LIGHT_GREEN, value: "Benchmark" },
+                        { label: "Benchmark-Reference", color: "#C7D865", value: "Benchmark-Reference" },
+                    ],
+                    field: "WRMP_Site_Type",
+                    bounds: BAY_FULL,
+                    pois: [],
+                    render: function (stations, filter) {
+                        stations.forEach(function (s) {
+                            var match = !filter ? isBenchmark(s) : (s.WRMP_Site_Type || "").trim() === filter;
+                            var color = match ? SITE_COLORS[(s.WRMP_Site_Type || "").trim()] || "#92BB4D" : "#aaa";
+                            L.circleMarker([s.lat, s.lon], {
+                                radius: match ? 8 : 4,
+                                fillColor: color,
+                                color: "#fff",
+                                weight: match ? 2 : 1,
+                                opacity: match ? 1 : 0.3,
+                                fillOpacity: match ? 0.85 : 0.15,
+                            })
+                                .bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: color, showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] }))
+                                .addTo(markerLayer);
+                        });
+                    },
+                },
+                {
+                    legend: [
+                        { label: "Reference", color: C.ADA_TEAL, value: "Reference" },
+                        { label: "Reference Candidate", color: C.TEAL, value: "Reference Site Candidate" },
+                    ],
+                    field: "WRMP_Site_Type",
+                    bounds: BAY_FULL,
+                    pois: [],
+                    render: function (stations, filter) {
+                        stations.forEach(function (s) {
+                            var match = !filter ? isReference(s) : (s.WRMP_Site_Type || "").trim() === filter;
+                            var color = match ? SITE_COLORS[(s.WRMP_Site_Type || "").trim()] || "#005E6A" : "#aaa";
+                            L.circleMarker([s.lat, s.lon], {
+                                radius: match ? 8 : 4,
+                                fillColor: color,
+                                color: "#fff",
+                                weight: match ? 2 : 1,
+                                opacity: match ? 1 : 0.3,
+                                fillOpacity: match ? 0.85 : 0.15,
+                            })
+                                .bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: color, showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] }))
+                                .addTo(markerLayer);
+                        });
+                    },
+                },
+                {
+                    legend: [
+                        { label: "Project", color: C.GREEN, value: "Project" },
+                        { label: "Other Restored", color: "#6A9E3A", value: "Other Restored Site" },
+                    ],
+                    field: "WRMP_Site_Type",
+                    bounds: SOUTH_BAY,
+                    boundsOpts: { duration: 1.5 },
+                    pois: [],
+                    render: function (stations, filter) {
+                        stations.forEach(function (s) {
+                            var match = !filter ? isProject(s) : (s.WRMP_Site_Type || "").trim() === filter;
+                            var color = match ? SITE_COLORS[(s.WRMP_Site_Type || "").trim()] || "#379352" : "#aaa";
+                            L.circleMarker([s.lat, s.lon], {
+                                radius: match ? 8 : 4,
+                                fillColor: color,
+                                color: "#fff",
+                                weight: match ? 2 : 1,
+                                opacity: match ? 1 : 0.3,
+                                fillOpacity: match ? 0.9 : 0.15,
+                            })
+                                .bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: color, showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] }))
+                                .addTo(markerLayer);
+                        });
+                    },
+                },
+                {
+                    legend: [
+                        { label: "Planned Restoration", color: C.ORANGE, value: "Planned Restoration" },
+                        { label: "Existing Stations", color: "#bbb", value: "_other" },
+                    ],
+                    field: "WRMP_Site_Type",
+                    bounds: BAY_FULL,
+                    pois: [],
+                    render: function (stations, filter) {
+                        stations.forEach(function (s) {
+                            var planned = isPlanned(s);
+                            var match;
+                            if (!filter) match = true;
+                            else if (filter === "_other") match = !planned;
+                            else match = planned;
+
+                            L.circleMarker([s.lat, s.lon], {
+                                radius: match ? (planned ? 9 : 5) : 4,
+                                fillColor: match ? (planned ? C.ORANGE : "#888") : "#aaa",
+                                color: match ? "#fff" : "#ccc",
+                                weight: match ? (planned ? 2.5 : 1.5) : 1,
+                                opacity: match ? 1 : 0.3,
+                                fillOpacity: match ? (planned ? 0.9 : 0.4) : 0.12,
+                            })
+                                .bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: planned ? C.ORANGE : "#888", showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] }))
+                                .addTo(markerLayer);
+                        });
+                    },
+                },
+                {
+                    legend: [
+                        { label: "Benchmark", color: C.LIGHT_GREEN, value: "Benchmark" },
+                        { label: "Benchmark-Ref", color: "#C7D865", value: "Benchmark-Reference" },
+                        { label: "Reference", color: C.ADA_TEAL, value: "Reference" },
+                        { label: "Ref Candidate", color: C.TEAL, value: "Reference Site Candidate" },
+                        { label: "Project", color: C.GREEN, value: "Project" },
+                        { label: "Other Restored", color: "#6A9E3A", value: "Other Restored Site" },
+                        { label: "Planned", color: C.ORANGE, value: "Planned Restoration" },
+                    ],
+                    field: "WRMP_Site_Type",
+                    colors: SITE_COLORS,
+                    bounds: BAY_FULL,
+                    pois: [],
+                    render: function (stations, filter) {
+                        var colors = this.colors;
+                        stations.forEach(function (s) {
+                            var siteType = (s.WRMP_Site_Type || "").trim();
+                            var match = !filter || siteType === filter;
+                            var color = colors[siteType] || "#bbb";
+                            L.circleMarker([s.lat, s.lon], {
+                                radius: match ? 7 : 4,
+                                fillColor: match ? color : "#aaa",
+                                color: "#fff",
+                                weight: match ? 2 : 1,
+                                opacity: match ? 1 : 0.3,
+                                fillOpacity: match ? 0.85 : 0.15,
+                            })
+                                .bindPopup(WRMP.makeMarkerPopup({ code: s.station_code, name: s.station_name, dotColor: color, showImage: false, sections: [{ rows: POPUP_FIELDS.map(function(p) { return { type: 'row', label: s[p[1]] || '—', value: p[0] }; }) }] }))
+                                .addTo(markerLayer);
+                        });
+                    },
+                },
+            ];
+
+            // ── Bar Chart ──────────────────────────────
+            var chartCard = document.getElementById("site-chart-card");
+            var chartCanvas = document.getElementById("site-chart");
+            var chartDrawn = false;
+
+            function drawSiteChart(stations) {
+                // Group stations by role
+                var counts = { Benchmark: 0, Reference: 0, Project: 0, Planned: 0, Other: 0 };
+                stations.forEach(function (s) {
+                    var t = (s.WRMP_Site_Type || "").trim();
+                    if (t === "Benchmark" || t === "Benchmark-Reference") counts.Benchmark++;
+                    else if (t === "Reference" || t === "Reference Site Candidate") counts.Reference++;
+                    else if (t === "Project" || t === "Other Restored Site") counts.Project++;
+                    else if (t === "Planned Restoration") counts.Planned++;
+                    else counts.Other++;
+                });
+
+                var bars = [
+                    { label: "Project", count: counts.Project, color: "#379352" },
+                    { label: "Reference", count: counts.Reference, color: "#005E6A" },
+                    { label: "Planned", count: counts.Planned, color: "#E09337" },
+                    { label: "Benchmark", count: counts.Benchmark, color: "#92BB4D" },
+                    { label: "Other/NA", count: counts.Other, color: "#bbb" },
+                ];
+
+                var dpr = window.devicePixelRatio || 1;
+                var cw = 240,
+                    ch = 180;
+                chartCanvas.width = cw * dpr;
+                chartCanvas.height = ch * dpr;
+                chartCanvas.style.width = cw + "px";
+                chartCanvas.style.height = ch + "px";
+
+                var ctx = chartCanvas.getContext("2d");
+                ctx.scale(dpr, dpr);
+
+                var labelW = 72;
+                var countW = 32;
+                var barAreaW = cw - labelW - countW - 8;
+                var maxVal = Math.max.apply(
+                    null,
+                    bars.map(function (b) {
+                        return b.count;
+                    }),
+                );
+                var barH = 22;
+                var gap = 10;
+                var topPad = 4;
+
+                bars.forEach(function (bar, i) {
+                    var y = topPad + i * (barH + gap);
+
+                    // Label
+                    ctx.font = "500 13px 'Source Sans 3', sans-serif";
+                    ctx.fillStyle = "#4E4E50";
+                    ctx.textAlign = "right";
+                    ctx.textBaseline = "middle";
+                    ctx.fillText(bar.label, labelW - 8, y + barH / 2);
+
+                    // Bar
+                    var bw = (bar.count / maxVal) * barAreaW;
+                    ctx.fillStyle = bar.color;
+                    ctx.beginPath();
+                    // Rounded right end
+                    var r = Math.min(4, barH / 2);
+                    ctx.moveTo(labelW, y);
+                    ctx.lineTo(labelW + bw - r, y);
+                    ctx.arcTo(labelW + bw, y, labelW + bw, y + r, r);
+                    ctx.lineTo(labelW + bw, y + barH - r);
+                    ctx.arcTo(labelW + bw, y + barH, labelW + bw - r, y + barH, r);
+                    ctx.lineTo(labelW, y + barH);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // Count
+                    ctx.font = "600 13px 'Source Sans 3', sans-serif";
+                    ctx.fillStyle = "#4E4E50";
+                    ctx.textAlign = "left";
+                    ctx.fillText(bar.count, labelW + bw + 6, y + barH / 2);
+                });
+
+                chartDrawn = true;
+            }
+
+            function updateChartVisibility(step) {
+                if (step === 0) {
+                    chartCard.classList.add("visible");
+                } else {
+                    chartCard.classList.remove("visible");
+                }
+            }
+
+            // ── Legend ─────────────────────────────────────
+            var legendEl = document.getElementById("map-legend");
+            var activeFilter = null;
+
+            function buildLegend() {
+                legendEl.replaceChildren();
+                var def = STEP_DEFS[stepper.currentStep];
+                if (!def.legend) return;
+
+                var allChip = document.createElement("button");
+                allChip.className = "map-legend-chip" + (!activeFilter ? " active" : "");
+                var allLabel = document.createElement("span");
+                allLabel.className = "map-legend-chip-label";
+                allLabel.setAttribute("data-label", "All");
+                allLabel.textContent = "All";
+                allChip.appendChild(allLabel);
+                allChip.addEventListener("click", function () {
+                    activeFilter = null;
+                    buildLegend();
+                    renderCurrentStep();
+                });
+                legendEl.appendChild(allChip);
+
+                def.legend.forEach(function (item) {
+                    var chip = document.createElement("button");
+                    var isActive = activeFilter === item.value;
+                    var isDimmed = activeFilter && !isActive;
+                    chip.className = "map-legend-chip" + (isActive ? " active" : "") + (isDimmed ? " dimmed" : "");
+                    var dot = document.createElement("span");
+                    dot.className = "map-legend-dot";
+                    dot.style.background = item.color;
+                    chip.appendChild(dot);
+                    var lbl = document.createElement("span");
+                    lbl.className = "map-legend-chip-label";
+                    lbl.setAttribute("data-label", item.label);
+                    lbl.textContent = item.label;
+                    chip.appendChild(lbl);
+                    chip.addEventListener("click", function () {
+                        activeFilter = activeFilter === item.value ? null : item.value;
+                        buildLegend();
+                        renderCurrentStep();
+                    });
+                    legendEl.appendChild(chip);
+                });
+            }
+
+            // ── Render ─────────────────────────────────────
+            function renderCurrentStep() {
+                markerLayer.clearLayers();
+                poiLayer.clearLayers();
+                var def = STEP_DEFS[stepper.currentStep];
+                def.render(STATIONS, activeFilter);
+
+                if (!activeFilter) {
+                    def.pois.forEach(function (p) {
+                        WRMP.addPOI(poiLayer, p[0], p[1], p[2]);
+                    });
+                }
+
+                if (activeFilter) {
+                    var matching = STATIONS.filter(function (s) {
+                        if (!def.field) return true;
+                        var val = (s[def.field] || "").trim();
+                        if (activeFilter === "_other") return val !== "Planned Restoration";
+                        return val === activeFilter;
+                    });
+                    if (matching.length > 0) {
+                        WRMP.flyTo(
+                            map,
+                            L.latLngBounds(
+                                matching.map(function (s) {
+                                    return [s.lat, s.lon];
+                                }),
+                            ),
+                        );
+                    }
+                } else {
+                    WRMP.flyTo(map, def.bounds, def.boundsOpts || {});
+                }
+            }
+
+            // ── Stepper ────────────────────────────────────
+var screens = WRMP.wireExhibitScreens({
+
+  totalSteps: 6,
+
+  onStepEnter: function (n) {
+                    activeFilter = null;
+                    buildLegend();
+                    updateChartVisibility(n);
+                    if (STATIONS.length > 0) renderCurrentStep();
+
+  },
+
+  onEnter: function () {
+
+    stepper.goToStep(0);
+
+  },
+
+  onRestart: function () {
+
+    stepper.goToStep(0);
+
+  },
+
+});
+
+
+var stepper = WRMP.createStepper({
+
+  totalSteps: 6,
+
+  onStepEnter: screens.onStepEnter,
+
+});
+
+            // ── Level 3 · persistent "Data & tools" drawer ──
+            WRMP.initLevel3Drawer();
+
+            // ── Load Data ──────────────────────────────────
+            WRMP.loadData({ stations: true })
+                .then(function (data) {
+                    STATIONS = data.stations;
+                    drawSiteChart(STATIONS);
+                    stepper.goToStep(0);
+                })
+                .catch(function (err) {
+                    console.error("Failed to load station data:", err);
+                });
+        </script>
+    </body>
+</html>
