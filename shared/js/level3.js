@@ -51,6 +51,15 @@ var WRMP = window.WRMP || {};
         setOpen(false);
       }
     });
+
+    // Click outside the drawer closes it. The toggle's own click runs first
+    // and bubbles to document; guarding on toggle.contains(target) stops that
+    // click from immediately closing the drawer it just opened.
+    document.addEventListener("click", function (e) {
+      if (!drawer.classList.contains("is-open")) return;
+      if (drawer.contains(e.target) || toggle.contains(e.target)) return;
+      setOpen(false);
+    });
   };
 
   window.WRMP = WRMP;
