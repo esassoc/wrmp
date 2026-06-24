@@ -6,6 +6,8 @@
     <title>Delta Smelt: The Smallest Giant — WRMP</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Leaflet (CSS + JS) is served from unpkg; warm the connection early. -->
+    <link rel="preconnect" href="https://unpkg.com" />
     <link
       href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap"
       rel="stylesheet"
@@ -456,7 +458,7 @@
       </div>
       <!-- ── Background Layers (one per step) ──────── -->
       <div class="bg-layer bg-video active" id="bg-0">
-        <video autoplay loop muted playsinline>
+        <video autoplay loop muted playsinline poster="poster.webp" preload="metadata">
           <source src="delta-smelt.mp4" type="video/mp4" />
         </video>
         <span class="photo-credit">Video: Doug Bertran / UC Davis FCCL</span>
