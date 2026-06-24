@@ -1,0 +1,2140 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Science Framework — WRMP (Round 2 rails)</title>
+    <link rel="stylesheet" href="assets/site.css" />
+    <link rel="stylesheet" href="assets/science-framework.css" />
+
+    <!-- ════════════════════════════════════════════════════════════
+         ROUND-2 EXHIBIT RAILS — five designs, one page
+         ------------------------------------------------------------
+         Each Guiding Question shows a DIFFERENT exhibit-rail design so
+         they can be compared in the real framework content. Because
+         the five source specimens reused identical class names and
+         page-wide JS selectors, every design is namespaced under a
+         unique scope class on its <aside>:
+
+           Q1  .rail--carousel   Option 1  Arrow Carousel
+           Q2  .rail--featured   Option 2  Featured + Thumbnail Strip
+           Q3  .rail--rows       Option 3  Compact List Rows
+           Q4  .rail--grid       Option 4  Responsive Card Grid
+           Q5  .rail--deck       Option 7  Stacked Deck / Coverflow
+
+         Every design-specific rule below is prefixed with its scope so
+         the five coexist without collision. Shared card atoms
+         (.sf-exhibit-item / .exhibit-card / .sf-exhibit__meta) come
+         from science-framework.css + site.css and are untouched.
+         ════════════════════════════════════════════════════════════ -->
+    <style>
+      /* ╔══════════════════════════════════════════════════════════╗
+         ║  Q1 — OPTION 1: ARROW CAROUSEL  (.rail--carousel)         ║
+         ╚══════════════════════════════════════════════════════════╝
+         Horizontal scroll-snap rail with teal prev/next arrows that
+         disable at the ends. At ≤2 cards it falls back to the calm
+         vertical stack and hides the arrows; at 3+ (here 5) it shows
+         the carousel. */
+      .rail--carousel.sf-exhibits {
+        /* This variant owns its own structure (header row + rail),
+           so drop the base panel's vertical flex layout. */
+        display: block;
+        /* As a grid item in the .sf-question 1fr column, allow the rail
+           to shrink below its scrollable content's intrinsic width;
+           without this the column blows out to the cards' total width
+           and adds document-level horizontal scroll on mobile. */
+        min-width: 0;
+      }
+
+      /* Header row: section label left, arrows right. */
+      .rail--carousel .sf-carousel__head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-12);
+        margin-bottom: var(--space-12);
+      }
+      .rail--carousel .sf-carousel__label {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--gray-700);
+      }
+      .rail--carousel .sf-carousel__nav {
+        display: flex;
+        gap: var(--space-8);
+      }
+
+      /* Teal arrow buttons. */
+      .rail--carousel .sf-carousel__btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        padding: 0;
+        border: 1px solid var(--color-teal);
+        border-radius: 999px;
+        background: var(--color-white);
+        color: var(--color-teal-ada);
+        cursor: pointer;
+        transition:
+          background 0.18s ease,
+          color 0.18s ease,
+          border-color 0.18s ease,
+          opacity 0.18s ease;
+      }
+      .rail--carousel .sf-carousel__btn:hover:not(:disabled) {
+        background: var(--color-teal);
+        color: var(--color-white);
+      }
+      .rail--carousel .sf-carousel__btn:focus-visible {
+        outline: 2px solid var(--color-teal-ada);
+        outline-offset: 2px;
+      }
+      .rail--carousel .sf-carousel__btn:disabled {
+        opacity: 0.35;
+        cursor: default;
+        background: var(--color-white);
+        color: var(--color-teal-ada);
+        border-color: var(--color-border);
+      }
+      .rail--carousel .sf-carousel__btn svg {
+        width: 18px;
+        height: 18px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2.25;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      /* When everything fits (JS adds .is-static), hide the whole nav. */
+      .rail--carousel.is-static .sf-carousel__nav {
+        display: none;
+      }
+
+      /* The scroll rail: horizontal, scroll-snap, next-card peek. The
+         negative margin + matching padding let the first/last cards sit
+         flush with the panel edge while keeping focus rings and the
+         card hover-lift from being clipped by overflow. */
+      .rail--carousel .sf-carousel__rail {
+        display: flex;
+        min-width: 0;
+        gap: var(--space-16);
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
+        scroll-padding-left: var(--space-16);
+        scroll-snap-stop: always;
+        margin: 0 calc(-1 * var(--space-16));
+        padding: var(--space-8) var(--space-16) var(--space-16);
+        scrollbar-width: thin;
+        scrollbar-color: var(--gray-400) transparent;
+      }
+      .rail--carousel .sf-carousel__rail::-webkit-scrollbar {
+        height: 6px;
+      }
+      .rail--carousel .sf-carousel__rail::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .rail--carousel .sf-carousel__rail::-webkit-scrollbar-thumb {
+        background: var(--gray-400);
+        border-radius: 999px;
+      }
+      .rail--carousel .sf-carousel__rail:focus-visible {
+        outline: 2px solid var(--color-teal-ada);
+        outline-offset: 2px;
+        border-radius: var(--radius-sm);
+      }
+
+      /* Each card is a fixed-width snap target. ~250px leaves a clear
+         peek of the next card inside the ~320px right column. */
+      .rail--carousel .sf-exhibit-item {
+        flex: 0 0 auto;
+        width: 250px;
+        scroll-snap-align: start;
+      }
+
+      /* ≤2-exhibit fallback: collapse to the approved vertical stack. */
+      .rail--carousel.is-static .sf-carousel__rail {
+        flex-direction: column;
+        overflow: visible;
+        scroll-snap-type: none;
+        margin: 0;
+        padding: 0;
+        gap: var(--space-24);
+      }
+      .rail--carousel.is-static .sf-exhibit-item {
+        width: 100%;
+        flex: 0 0 auto;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .rail--carousel .sf-carousel__rail {
+          scroll-behavior: auto;
+        }
+      }
+
+      /* Mobile: lean on touch swipe, hide arrows. */
+      @media (max-width: 720px) {
+        .rail--carousel .sf-carousel__nav {
+          display: none;
+        }
+        /* Drop the desktop edge-bleed: the -16px horizontal margins push
+           the rail's border-box past the narrow content column and add
+           document-level horizontal scroll. Keep the rail inside its
+           column on mobile; internal cards still scroll-snap normally. */
+        .rail--carousel .sf-carousel__rail {
+          margin: 0;
+          padding: var(--space-8) 0 var(--space-16);
+          scroll-padding-left: 0;
+        }
+        .rail--carousel .sf-exhibit-item {
+          width: 70%;
+          max-width: 280px;
+        }
+        .rail--carousel.is-static .sf-exhibit-item {
+          width: auto;
+          max-width: none;
+        }
+      }
+
+      /* ╔══════════════════════════════════════════════════════════╗
+         ║  Q2 — OPTION 2: FEATURED + THUMBNAIL STRIP (.rail--featured)║
+         ╚══════════════════════════════════════════════════════════╝
+         One large featured cover on top; a horizontal strip of small
+         clickable thumbnails beneath swaps which exhibit is featured
+         with a quiet crossfade. The active thumb gets a teal ring +
+         check. FIX: thumbnails are a FIXED width (flex: 0 0 64px) so
+         they never stretch or shrink with the count; they wrap to a
+         new line if they exceed the row. */
+      .rail--featured.sf-exhibits {
+        display: block;
+      }
+
+      .rail--featured .sf-featured__head {
+        margin-bottom: var(--space-16);
+      }
+      .rail--featured .sf-featured__label {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--gray-700);
+      }
+
+      /* The featured stage: poster card + overlay meta; crossfades on
+         swap via .is-swapping (opacity dip). */
+      .rail--featured .sf-featured__stage {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-12);
+        transition: opacity 0.28s ease;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .rail--featured .sf-featured__stage {
+          transition: none;
+        }
+      }
+      .rail--featured .sf-featured__stage.is-swapping {
+        opacity: 0;
+      }
+
+      /* Thumbnail strip: wraps to a new line; thumbs are fixed-width. */
+      .rail--featured .sf-featured__strip {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-8);
+        margin-top: var(--space-16);
+        padding-top: var(--space-16);
+        border-top: 1px solid var(--color-border);
+        list-style: none;
+        margin-bottom: 0;
+        padding-left: 0;
+        padding-right: 0;
+      }
+      /* FIX (required #2): each thumb is a STATIC fixed width regardless
+         of how many there are. No grow, no shrink — they wrap or scroll
+         rather than stretch/compress as the count changes. */
+      .rail--featured .sf-featured__strip-item {
+        flex: 0 0 64px;
+        width: 64px;
+      }
+
+      /* The thumbnail control: a compact 16:9 poster button. */
+      .rail--featured .sf-thumb {
+        position: relative;
+        display: block;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        padding: 0;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        background: var(--gray-200);
+        cursor: pointer;
+        transition:
+          transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+          box-shadow 0.2s ease,
+          border-color 0.2s ease;
+      }
+      .rail--featured .sf-thumb-image {
+        position: absolute;
+        inset: 0;
+        background-size: cover;
+        background-position: center;
+      }
+      /* Soft scrim so dimmed (inactive) thumbs read as quieter. */
+      .rail--featured .sf-thumb-scrim {
+        position: absolute;
+        inset: 0;
+        background: var(--color-white);
+        opacity: 0.32;
+        transition: opacity 0.2s ease;
+      }
+      .rail--featured .sf-thumb:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-card);
+      }
+      .rail--featured .sf-thumb:hover .sf-thumb-scrim {
+        opacity: 0.12;
+      }
+      .rail--featured .sf-thumb:focus-visible {
+        outline: 2px solid var(--color-teal-ada);
+        outline-offset: 2px;
+      }
+
+      /* Active thumbnail: teal ring + full-color image + check marker. */
+      .rail--featured .sf-thumb[aria-current="true"] {
+        border-color: var(--color-teal);
+        box-shadow: 0 0 0 2px var(--color-teal);
+      }
+      .rail--featured .sf-thumb[aria-current="true"] .sf-thumb-scrim {
+        opacity: 0;
+      }
+      .rail--featured .sf-thumb-check {
+        position: absolute;
+        top: var(--space-4);
+        right: var(--space-4);
+        width: 18px;
+        height: 18px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: var(--color-teal);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+      }
+      .rail--featured .sf-thumb[aria-current="true"] .sf-thumb-check {
+        display: inline-flex;
+      }
+      .rail--featured .sf-thumb-check svg {
+        width: 11px;
+        height: 11px;
+        fill: none;
+        stroke: var(--color-white);
+        stroke-width: 3;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .rail--featured .sf-thumb,
+        .rail--featured .sf-thumb-scrim {
+          transition: none;
+        }
+      }
+
+      /* Single-exhibit guard: hide the strip (no dead controls). */
+      .rail--featured.is-single .sf-featured__strip {
+        display: none;
+      }
+
+      /* ╔══════════════════════════════════════════════════════════╗
+         ║  Q3 — OPTION 3: COMPACT LIST ROWS  (.rail--rows)          ║
+         ╚══════════════════════════════════════════════════════════╝
+         A dense vertical list of slim rows: a 56px square thumbnail at
+         left, kicker / title / step-dots stacked beside it, the whole
+         row one click target. No covers at full size, no controls. */
+      .rail--rows.sf-exhibits {
+        display: block;
+        padding: var(--space-12);
+      }
+
+      .rail--rows .sf-list__label {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--gray-700);
+        margin: var(--space-4) var(--space-4) var(--space-12);
+      }
+
+      .rail--rows .sf-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+      }
+      .rail--rows .sf-list__row + .sf-list__row {
+        border-top: 1px solid var(--color-border);
+      }
+
+      /* Row = the full click target. Quiet by default; soft teal wash
+         on hover/focus. */
+      .rail--rows .sf-list__link {
+        display: flex;
+        align-items: center;
+        gap: var(--space-12);
+        width: 100%;
+        padding: var(--space-12) var(--space-8);
+        border: none;
+        border-radius: var(--radius-md);
+        background: transparent;
+        text-align: left;
+        cursor: pointer;
+        color: inherit;
+        font: inherit;
+        transition:
+          background 0.18s ease,
+          transform 0.18s ease;
+      }
+      .rail--rows .sf-list__link:hover {
+        background: color-mix(in srgb, var(--color-teal) 7%, transparent);
+      }
+      .rail--rows .sf-list__link:focus-visible {
+        outline: 2px solid var(--color-teal-ada);
+        outline-offset: 2px;
+      }
+
+      /* Thumbnail: the .exhibit-card cover atom shrunk to a 56px chip. */
+      .rail--rows .sf-list__thumb {
+        position: relative;
+        flex: 0 0 auto;
+        width: 56px;
+        height: 56px;
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        background: var(--gray-200);
+        box-shadow:
+          0 1px 2px rgba(0, 0, 0, 0.08),
+          0 2px 6px rgba(0, 0, 0, 0.06);
+      }
+      .rail--rows .sf-list__thumb .exhibit-card-image {
+        position: absolute;
+        inset: 0;
+        background-size: cover;
+        background-position: center;
+        transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+      .rail--rows .sf-list__link:hover .exhibit-card-image,
+      .rail--rows .sf-list__link:focus-visible .exhibit-card-image {
+        transform: scale(1.06);
+      }
+      .rail--rows .sf-list__play {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: color-mix(in srgb, var(--color-teal-ada) 34%, transparent);
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
+      .rail--rows .sf-list__link:hover .sf-list__play,
+      .rail--rows .sf-list__link:focus-visible .sf-list__play {
+        opacity: 1;
+      }
+      .rail--rows .sf-list__play svg {
+        width: 18px;
+        height: 18px;
+        fill: var(--color-white);
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+      }
+
+      /* Meta column beside the thumb. */
+      .rail--rows .sf-list__meta {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-4);
+        min-width: 0; /* allow the title to wrap, not overflow the row */
+      }
+      .rail--rows .sf-list__meta .sf-exhibit__title {
+        font-size: 16px;
+        line-height: 1.2;
+      }
+      .rail--rows .sf-list__meta .sf-exhibit__dots {
+        margin-top: 2px;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .rail--rows .sf-list__link,
+        .rail--rows .sf-list__thumb .exhibit-card-image,
+        .rail--rows .sf-list__play {
+          transition: none;
+        }
+      }
+
+      /* ╔══════════════════════════════════════════════════════════╗
+         ║  Q4 — OPTION 4: RESPONSIVE CARD GRID  (.rail--grid)       ║
+         ╚══════════════════════════════════════════════════════════╝
+         A pure-CSS grid: exhibit cards sit two-up inside the rail and
+         wrap to new rows as exhibits are added. No JS, no controls. */
+      .rail--grid.sf-exhibits {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--space-16);
+        align-content: start;
+      }
+
+      .rail--grid .sf-grid__label {
+        grid-column: 1 / -1;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--gray-700);
+        margin: 0;
+      }
+
+      .rail--grid .sf-exhibit-item {
+        min-width: 0; /* long titles wrap inside the narrow cell */
+      }
+      .rail--grid .sf-exhibit__title {
+        font-size: 16px;
+      }
+
+      /* Tablet / single-column page: the rail gets full width, so let
+         cards breathe wider while still wrapping tidily. */
+      @media (max-width: 1024px) {
+        .rail--grid.sf-exhibits {
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+        .rail--grid .sf-exhibit__title {
+          font-size: 17px;
+        }
+      }
+
+      /* Narrow phones: a single column reads better than two cramped. */
+      @media (max-width: 480px) {
+        .rail--grid.sf-exhibits {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* ╔══════════════════════════════════════════════════════════╗
+         ║  Q5 — OPTION 7: STACKED DECK / COVERFLOW  (.rail--deck)   ║
+         ╚══════════════════════════════════════════════════════════╝
+         A flat "deck" of exhibit covers: the front card is fully
+         visible, 1–2 cards peek from behind via offset + scale +
+         shadow. Controls / tap / swipe send the front off and advance.
+
+         FIX (required #3 — text overlap): each card carries its own
+         .sf-exhibit__meta as a DATA SOURCE for the JS read-out, but
+         the cards are absolutely stacked, so those per-card meta blocks
+         piled on top of each other. We hide every per-card meta and
+         show ONLY the single .sf-deck__meta read-out below the stage,
+         which the JS keeps in sync with the front card. */
+      .rail--deck.sf-exhibits {
+        display: block;
+      }
+
+      /* Header row: section label left, position count right. */
+      .rail--deck .sf-deck__head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: var(--space-12);
+        margin-bottom: var(--space-12);
+      }
+      .rail--deck .sf-deck__label {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--gray-700);
+      }
+      /* Live position read-out ("1 / 5"). Genuine meta → small is OK. */
+      .rail--deck .sf-deck__count {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--gray-500);
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* The deck stage: extra side/top/bottom padding leaves room for
+         the peek + lift so neither shadow nor focus ring is clipped. */
+      .rail--deck .sf-deck__stage {
+        position: relative;
+        padding: 6px 22px 22px 0;
+      }
+
+      /* The 16:9 box that holds the absolutely-positioned cards. */
+      .rail--deck .sf-deck__cards {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+      }
+
+      /* Each card is positioned by JS-set --depth (0 front, 1, 2 …). */
+      .rail--deck .sf-deck__card {
+        position: absolute;
+        inset: 0;
+        --depth: 0;
+        transform: translate(
+            calc(var(--depth) * 12px),
+            calc(var(--depth) * 10px)
+          )
+          scale(calc(1 - var(--depth) * 0.05));
+        transform-origin: top left;
+        z-index: 1;
+        transition:
+          transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1),
+          opacity 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+        will-change: transform, opacity;
+      }
+
+      /* FIX (required #3): the per-card meta is a JS data source only.
+         Hidden from view AND from the a11y tree so the visible read-out
+         below is the single source of truth — no stacked, overlapping
+         kicker/title text. */
+      .rail--deck .sf-deck__card .sf-exhibit__meta {
+        display: none;
+      }
+
+      /* Behind cards are inert: not clickable, hidden from AT + tab. */
+      .rail--deck .sf-deck__card[data-front="false"] {
+        pointer-events: none;
+      }
+      .rail--deck .sf-deck__card[data-front="false"] .exhibit-card {
+        /* Soften peeking covers so the front reads as the subject. */
+        filter: saturate(0.92) brightness(0.97);
+      }
+
+      /* Front card gets a stronger shadow so it lifts off the deck. */
+      .rail--deck .sf-deck__card[data-front="true"] .exhibit-card {
+        box-shadow: var(--shadow-card-hover, var(--shadow-card));
+      }
+
+      /* Outgoing card animation: slide off left + fade, then recycle. */
+      .rail--deck .sf-deck__card.is-leaving {
+        transform: translate(-32px, 0) scale(0.98);
+        opacity: 0;
+        z-index: 5;
+      }
+
+      .rail--deck .sf-deck__card .exhibit-card:focus-visible {
+        outline: 3px solid var(--color-teal-ada);
+        outline-offset: 3px;
+      }
+
+      /* The single visible meta read-out for the FRONT card; it
+         crossfades when the deck advances. */
+      .rail--deck .sf-deck__meta {
+        margin-top: var(--space-16);
+        min-height: 78px; /* reserve space so layout doesn't jump */
+        transition: opacity 0.25s ease;
+      }
+      .rail--deck .sf-deck__meta.is-swapping {
+        opacity: 0;
+      }
+
+      /* Footer controls: prev (round) + advance (teal pill). */
+      .rail--deck .sf-deck__controls {
+        display: flex;
+        align-items: center;
+        gap: var(--space-8);
+        margin-top: var(--space-8);
+      }
+      .rail--deck .sf-deck__btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        padding: 0;
+        border: 1px solid var(--color-teal);
+        border-radius: 999px;
+        background: var(--color-white);
+        color: var(--color-teal-ada);
+        cursor: pointer;
+        transition:
+          background 0.18s ease,
+          color 0.18s ease,
+          border-color 0.18s ease,
+          opacity 0.18s ease;
+      }
+      .rail--deck .sf-deck__btn:hover {
+        background: var(--color-teal);
+        color: var(--color-white);
+      }
+      .rail--deck .sf-deck__btn:focus-visible {
+        outline: 2px solid var(--color-teal-ada);
+        outline-offset: 2px;
+      }
+      .rail--deck .sf-deck__btn svg {
+        width: 18px;
+        height: 18px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2.25;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      /* Primary "advance" pill. */
+      .rail--deck .sf-deck__advance {
+        flex: 1 1 auto;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-8);
+        height: 34px;
+        padding: 0 var(--space-16);
+        border: 1px solid var(--color-teal);
+        border-radius: 999px;
+        background: var(--color-teal);
+        color: var(--color-white);
+        font-family: var(--font-body);
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        cursor: pointer;
+        transition:
+          background 0.18s ease,
+          border-color 0.18s ease,
+          transform 0.18s ease;
+      }
+      .rail--deck .sf-deck__advance:hover {
+        background: var(--color-teal-ada);
+        border-color: var(--color-teal-ada);
+      }
+      .rail--deck .sf-deck__advance:active {
+        transform: translateY(1px);
+      }
+      .rail--deck .sf-deck__advance:focus-visible {
+        outline: 2px solid var(--color-teal-ada);
+        outline-offset: 2px;
+      }
+      .rail--deck .sf-deck__advance svg {
+        width: 15px;
+        height: 15px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2.25;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        flex-shrink: 0;
+      }
+
+      /* Single-card safety net. */
+      .rail--deck.is-single .sf-deck__controls,
+      .rail--deck.is-single .sf-deck__count {
+        display: none;
+      }
+      .rail--deck.is-single .sf-deck__stage {
+        padding: 6px 0 0;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .rail--deck .sf-deck__card,
+        .rail--deck .sf-deck__meta,
+        .rail--deck .sf-deck__advance,
+        .rail--deck .exhibit-card,
+        .rail--deck .exhibit-card-image {
+          transition: none !important;
+        }
+        .rail--deck .sf-deck__card.is-leaving {
+          transform: none;
+          opacity: 0;
+        }
+      }
+
+      /* ╔══════════════════════════════════════════════════════════╗
+         ║  KICKER REMOVAL — Q3 rows, Q4 grid, Q5 deck only          ║
+         ╚══════════════════════════════════════════════════════════╝
+         Hide the "Interactive Exhibit" eyebrow on these three rails
+         only (Q1 carousel + Q2 featured keep theirs). Scoped + purely
+         visual so it's reversible and touches no shared markup. The
+         flex `gap` on .sf-exhibit__meta does not reserve space for a
+         display:none child, so the title rises cleanly with no hole —
+         only the deck read-out needs its reserved height re-balanced. */
+      .rail--rows .sf-exhibit__kicker,
+      .rail--grid .sf-exhibit__kicker,
+      .rail--deck .sf-exhibit__kicker {
+        display: none;
+      }
+
+      /* Q5 deck read-out: it reserved 78px for kicker + (2-line) title +
+         dots to stop the crossfade from jumping the layout. With the
+         kicker gone, reserve only what the tallest title + dots need so
+         the title sits cleanly at the top of the block, no gap above. */
+      .rail--deck .sf-deck__meta {
+        min-height: 34px;
+      }
+      /* Larger front-card title in the deck read-out, and a tighter gap
+         down to the pagination controls (per review). */
+      .rail--deck .sf-deck__meta .sf-exhibit__title {
+        font-size: 22px;
+        line-height: 1.2;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ═══════════════════ Header ═══════════════════ -->
+    <header class="site-header">
+      <div class="site-container site-header__inner">
+        <a class="site-brand" href="#">
+          <img
+            class="site-brand__mark"
+            src="../shared/img/wrmp-logo-2in-mark-crop.png"
+            alt="WRMP logo"
+          />
+          <span class="site-brand__text">
+            <span class="site-brand__eyebrow">SF Estuary</span>
+            <span class="site-brand__wordmark">Wetlands</span>
+            <span class="site-brand__wordmark">Regional</span>
+            <span class="site-brand__wordmark">Monitoring</span>
+            <span class="site-brand__wordmark">Program</span>
+          </span>
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+          <a class="site-nav__item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 5-6 4 4 6-8" /><path d="M16 7h3v3" /></svg>
+            Monitoring Results
+            <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+          </a>
+          <a class="site-nav__item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="3" width="8" height="4" rx="1" /><path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" /></svg>
+            Science Framework
+            <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+          </a>
+          <a class="site-nav__item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" /></svg>
+            About
+            <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+          </a>
+          <a class="site-nav__item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+            Engage
+            <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+          </a>
+          <a class="site-nav__item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" /></svg>
+            Resources
+            <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+          </a>
+          <a class="site-nav__item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+            Search
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <!-- ═══════════════════ Hero + overlapping title ═══════════════════ -->
+      <section class="hero">
+        <div class="hero__banner">
+          <img src="assets/img/hero.webp" alt="Aerial view of a tidal marsh with a researcher" fetchpriority="high" />
+        </div>
+
+        <!-- White title card — flush left, overlaps the hero -->
+        <div class="overlap-card title-card">
+          <div class="title-card__inner">
+            <a class="breadcrumb" href="#">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+              WRMP
+            </a>
+            <h1 class="page-title">Science Framework</h1>
+            <p class="page-subtitle">
+              The Guiding Questions, Management Questions, and Priority
+              Recommended Actions that focus all WRMP monitoring science.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════ Intro ═══════════════════ -->
+      <section class="sf-intro">
+        <div class="site-container">
+          <p class="sf-intro__lead">
+            The WRMP&rsquo;s science framework ensures the Program&rsquo;s
+            science stays <strong>relevant, actionable, and tied to its
+            mission</strong>. Each Guiding Question below is paired with
+            <strong>interactive exhibits</strong> &mdash; small, illustrative
+            looks at how the monitoring work is progressing against that
+            question.
+          </p>
+        </div>
+      </section>
+
+      <!-- ═══════════════════ TOC + Question content ═══════════════════ -->
+      <section>
+        <div class="site-container sf-layout">
+          <!-- ─── Sticky table of contents ─── -->
+          <aside class="sf-toc" aria-label="Table of contents">
+            <p class="sf-toc__heading">Table of Contents</p>
+
+            <a class="sf-toc__link sf-toc__about" href="#about">
+              <span class="sf-toc__about-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" /></svg>
+              </span>
+              <span class="sf-toc__text">About the Science Framework</span>
+            </a>
+
+            <a class="sf-toc__link sf-toc__link--active" href="#q1">
+              <span class="sf-toc__num">Q1</span>
+              <span class="sf-toc__text">What and where is the tidal marsh ecosystem?</span>
+            </a>
+            <a class="sf-toc__link" href="#q2">
+              <span class="sf-toc__num">Q2</span>
+              <span class="sf-toc__text">What external drivers are impacting tidal marshes?</span>
+            </a>
+            <a class="sf-toc__link" href="#q3">
+              <span class="sf-toc__num">Q3</span>
+              <span class="sf-toc__text">What new information do we need?</span>
+            </a>
+            <a class="sf-toc__link" href="#q4">
+              <span class="sf-toc__num">Q4</span>
+              <span class="sf-toc__text">How effective are policies and programs?</span>
+            </a>
+            <a class="sf-toc__link" href="#q5">
+              <span class="sf-toc__num">Q5</span>
+              <span class="sf-toc__text">How is public health and safety impacted?</span>
+            </a>
+
+            <div class="sf-toc__note">
+              <p class="sf-toc__note-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 5-6 4 4 6-8" /><path d="M16 7h3v3" /></svg>
+                Exhibits on this page
+              </p>
+              <p class="sf-toc__note-body">
+                Where monitoring data speaks to a question, an interactive
+                exhibit is attached &mdash; open one to see that part of the
+                framework in motion.
+              </p>
+            </div>
+          </aside>
+
+          <!-- ─── Question content ─── -->
+          <div class="sf-content">
+            <!-- About -->
+            <article class="sf-about" id="about">
+              <h2 class="sf-about__title">About the Science Framework</h2>
+              <p>
+                All WRMP science activities are designed to answer practical
+                Guiding Questions, Management Questions, and Priority
+                Recommended Actions developed by the Steering Committee. The
+                Technical Advisory Committee and Workgroups develop key
+                indicators, metrics, and protocols for monitoring based on each
+                of the Management Questions.
+              </p>
+              <p>
+                In addition, nested under the Management Questions are
+                Monitoring Questions designed to answer the management issue at
+                hand. The Monitoring Questions are often technical and detailed
+                in nature &mdash; they are not included on this page and are
+                instead summarized in the WRMP&rsquo;s Monitoring Matrix.
+                <a href="#">Read more.</a>
+              </p>
+            </article>
+
+            <!-- ═══ Guiding Question 1 ═══ -->
+            <article class="sf-question" id="q1">
+              <header class="sf-guiding">
+                <span class="sf-guiding__label">Guiding Question 1</span>
+                <h2 class="sf-guiding__text">
+                  Where are the region&rsquo;s tidal marsh ecosystems,
+                  including tidal marsh restoration projects, and what net
+                  changes in ecosystem area and condition are occurring?
+                </h2>
+              </header>
+
+              <div class="sf-question__body">
+                <!-- MQ 1A -->
+                <div class="sf-mq">
+                  <span class="sf-mq__label">Management Question 1A</span>
+                  <p class="sf-mq__text">
+                    What is the distribution, abundance and condition of tidal
+                    marsh ecosystems, and how are they changing over time?
+                  </p>
+                </div>
+
+                <!-- MQ 1B -->
+                <div class="sf-mq">
+                  <span class="sf-mq__label">Management Question 1B</span>
+                  <p class="sf-mq__text">
+                    Are changes in tidal marsh ecosystems impacting water
+                    quality?
+                  </p>
+                </div>
+
+                <!-- Priority Recommended Action -->
+                <div class="sf-mq sf-mq--action">
+                  <span class="sf-mq__label sf-mq__label--action">Priority Recommended Action</span>
+                  <p class="sf-mq__text">
+                    Conduct regional baseline and subsequent routine surveys and
+                    inventories of the distribution, abundance and condition of
+                    tidal wetlands throughout the region, using existing tools
+                    and metrics to the extent practicable and developing new
+                    tools and metrics where necessary.
+                  </p>
+                </div>
+              </div>
+
+              <!-- ═══ Q1 RAIL — Option 1: Arrow Carousel (.rail--carousel) ═══ -->
+              <aside
+                class="sf-exhibits rail--carousel"
+                aria-label="Interactive exhibits for Guiding Question 1"
+              >
+                <div class="sf-carousel__head">
+                  <span class="sf-carousel__label" id="rail-q1-label"
+                    >Interactive Exhibits</span
+                  >
+                  <div class="sf-carousel__nav">
+                    <button
+                      type="button"
+                      class="sf-carousel__btn"
+                      data-dir="prev"
+                      aria-label="Scroll to previous exhibits"
+                    >
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+                    </button>
+                    <button
+                      type="button"
+                      class="sf-carousel__btn"
+                      data-dir="next"
+                      aria-label="Scroll to next exhibits"
+                    >
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div
+                  class="sf-carousel__rail"
+                  tabindex="0"
+                  role="group"
+                  aria-labelledby="rail-q1-label"
+                  aria-describedby="rail-q1-hint"
+                >
+                  <span id="rail-q1-hint" hidden
+                    >Scrollable list of exhibit cards. Use the arrow keys or the
+                    previous and next buttons to move through them.</span
+                  >
+
+                  <!-- Card 1 — Alviso -->
+                  <div class="sf-exhibit-item">
+                    <button type="button" class="exhibit-card" data-exhibit-src="../exhibits/round-2-2026-05/alviso-decade/index.html" aria-label="Open interactive exhibit: A Decade in Alviso Marsh">
+                      <span class="exhibit-card-image" style="background-image: url('../exhibits/round-2-2026-05/alviso-decade/cover.jpg')"></span>
+                      <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
+                    </button>
+                    <div class="sf-exhibit__meta">
+                      <span class="sf-exhibit__kicker">Interactive Exhibit</span>
+                      <span class="sf-exhibit__title">A Decade in Alviso Marsh</span>
+                      <span class="sf-exhibit__dots" aria-hidden="true"><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span></span>
+                    </div>
+                  </div>
+
+                  <!-- Card 2 — Native vs. Invasive -->
+                  <div class="sf-exhibit-item">
+                    <button type="button" class="exhibit-card" data-exhibit-src="../exhibits/round-2-2026-05/native-vs-invasive/index.html" aria-label="Open interactive exhibit: Native vs. Invasive">
+                      <span class="exhibit-card-image" style="background-image: url('../exhibits/round-2-2026-05/native-vs-invasive/cover.jpg')"></span>
+                      <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
+                    </button>
+                    <div class="sf-exhibit__meta">
+                      <span class="sf-exhibit__kicker">Interactive Exhibit</span>
+                      <span class="sf-exhibit__title">Native vs. Invasive</span>
+                      <span class="sf-exhibit__dots" aria-hidden="true"><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span></span>
+                    </div>
+                  </div>
+
+                  <!-- Card 3 — Is the Bay Keeping Up? -->
+                  <div class="sf-exhibit-item">
+                    <button type="button" class="exhibit-card" data-exhibit-src="../exhibits/2026-04-23-bay-keeping-up/index.html" aria-label="Open interactive exhibit: Is the Bay Keeping Up?">
+                      <span class="exhibit-card-image" style="background-image: url('../exhibits/2026-04-23-bay-keeping-up/cover.jpg')"></span>
+                      <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
+                    </button>
+                    <div class="sf-exhibit__meta">
+                      <span class="sf-exhibit__kicker">Interactive Exhibit</span>
+                      <span class="sf-exhibit__title">Is the Bay Keeping Up?</span>
+                      <span class="sf-exhibit__dots" aria-hidden="true"><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span></span>
+                    </div>
+                  </div>
+
+                  <!-- Card 4 — The Bay: Where We're Watching -->
+                  <div class="sf-exhibit-item">
+                    <button type="button" class="exhibit-card" data-exhibit-src="../exhibits/round-2-2026-05/station-map-stepper/index.html" aria-label="Open interactive exhibit: The Bay: Where We're Watching">
+                      <span class="exhibit-card-image" style="background-image: url('../exhibits/round-2-2026-05/station-map-stepper/cover.jpg')"></span>
+                      <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
+                    </button>
+                    <div class="sf-exhibit__meta">
+                      <span class="sf-exhibit__kicker">Interactive Exhibit</span>
+                      <span class="sf-exhibit__title">The Bay: Where We're Watching</span>
+                      <span class="sf-exhibit__dots" aria-hidden="true"><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span></span>
+                    </div>
+                  </div>
+
+                  <!-- Card 5 — Designing the Experiment -->
+                  <div class="sf-exhibit-item">
+                    <button type="button" class="exhibit-card" data-exhibit-src="../exhibits/2026-04-10-restoration-network/index.html" aria-label="Open interactive exhibit: Designing the Experiment">
+                      <span class="exhibit-card-image" style="background-image: url('../exhibits/2026-04-10-restoration-network/cover.jpg')"></span>
+                      <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
+                    </button>
+                    <div class="sf-exhibit__meta">
+                      <span class="sf-exhibit__kicker">Interactive Exhibit</span>
+                      <span class="sf-exhibit__title">Designing the Experiment</span>
+                      <span class="sf-exhibit__dots" aria-hidden="true"><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span></span>
+                    </div>
+                  </div>
+                </div>
+              </aside>
+            </article>
+
+            <!-- ═══ Guiding Question 2 ═══ -->
+            <article class="sf-question" id="q2">
+              <header class="sf-guiding">
+                <span class="sf-guiding__label">Guiding Question 2</span>
+                <h2 class="sf-guiding__text">
+                  How are external drivers, such as sea level rise, development
+                  pressure, and changes in runoff and sediment supply,
+                  impacting tidal marsh ecosystems?
+                </h2>
+              </header>
+
+              <div class="sf-question__body">
+                <!-- MQ 2A -->
+                <div class="sf-mq">
+                  <span class="sf-mq__label">Management Question 2A</span>
+                  <p class="sf-mq__text">
+                    How are tidal marshes and tidal flats, including
+                    restoration projects, changing in elevation and extent
+                    relative to local tidal datums?
+                  </p>
+                </div>
+
+                <!-- MQ 2B -->
+                <div class="sf-mq">
+                  <span class="sf-mq__label">Management Question 2B</span>
+                  <p class="sf-mq__text">
+                    What are the regional differences in the sources and
+                    amounts of sediment available to support accretion in tidal
+                    marsh ecosystems?
+                  </p>
+                </div>
+
+                <!-- Priority Recommended Action -->
+                <div class="sf-mq sf-mq--action">
+                  <span class="sf-mq__label sf-mq__label--action">Priority Recommended Action</span>
+                  <p class="sf-mq__text">
+                    Establish Benchmark Sites and other components of the WRMP
+                    monitoring site network (dependent on available funding and
+                    resources), and analyze WRMP data collected to answer Guiding
+                    Question 1 together with non-WRMP data on external drivers to
+                    track external drivers as potential causes or correlates of
+                    tidal marsh change.
+                  </p>
+                </div>
+              </div>
+
+              <!-- ═══ Q2 RAIL — Option 2: Featured + Thumbnail Strip (.rail--featured) ═══ -->
+              <aside
+                class="sf-exhibits rail--featured"
+                aria-label="Interactive exhibits for Guiding Question 2"
+                data-featured
+              >
+                <div class="sf-featured__head">
+                  <span class="sf-featured__label">Interactive Exhibits</span>
+                </div>
+
+                <!-- Featured stage (live region announces the swap) -->
+                <div class="sf-featured__stage" data-stage aria-live="polite">
+                  <button
+                    type="button"
+                    class="exhibit-card"
+                    data-feature-card
+                    data-exhibit-src="../exhibits/2026-04-23-bay-keeping-up/index.html"
+                    aria-label="Open interactive exhibit: Is the Bay Keeping Up?"
+                  >
+                    <span class="exhibit-card-image" data-feature-image style="background-image: url('../exhibits/2026-04-23-bay-keeping-up/cover.jpg')"></span>
+                    <span class="exhibit-card-gradient"></span>
+                    <span class="exhibit-card-content">
+                      <span class="exhibit-card-kicker">Interactive Exhibit</span>
+                      <span class="exhibit-card-title" data-feature-title>Is the Bay Keeping Up?</span>
+                      <span class="exhibit-card-dots">
+                        <span class="exhibit-card-dot"></span><span class="exhibit-card-dot"></span><span class="exhibit-card-dot"></span><span class="exhibit-card-dot"></span><span class="exhibit-card-dot"></span>
+                      </span>
+                    </span>
+                    <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
+                  </button>
+                </div>
+
+                <!-- Thumbnail strip -->
+                <ul class="sf-featured__strip" role="tablist" aria-label="Choose an exhibit to feature">
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="true" aria-selected="true"
+                      data-title="Is the Bay Keeping Up?"
+                      data-image="../exhibits/2026-04-23-bay-keeping-up/cover.jpg"
+                      data-src="../exhibits/2026-04-23-bay-keeping-up/index.html"
+                      aria-label="Feature exhibit: Is the Bay Keeping Up?">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/2026-04-23-bay-keeping-up/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="false" aria-selected="false"
+                      data-title="The Bay: Where We're Watching"
+                      data-image="../exhibits/round-2-2026-05/station-map-stepper/cover.jpg"
+                      data-src="../exhibits/round-2-2026-05/station-map-stepper/index.html"
+                      aria-label="Feature exhibit: The Bay: Where We're Watching">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/round-2-2026-05/station-map-stepper/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="false" aria-selected="false"
+                      data-title="Designing the Experiment"
+                      data-image="../exhibits/2026-04-10-restoration-network/cover.jpg"
+                      data-src="../exhibits/2026-04-10-restoration-network/index.html"
+                      aria-label="Feature exhibit: Designing the Experiment">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/2026-04-10-restoration-network/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="false" aria-selected="false"
+                      data-title="Delta Smelt: The Smallest Giant"
+                      data-image="../exhibits/2026-04-10-delta-smelt/cover.jpg"
+                      data-src="../exhibits/2026-04-10-delta-smelt/index.html"
+                      aria-label="Feature exhibit: Delta Smelt: The Smallest Giant">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/2026-04-10-delta-smelt/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="false" aria-selected="false"
+                      data-title="How We Monitor"
+                      data-image="../exhibits/2026-04-10-how-we-look/cover.jpg"
+                      data-src="../exhibits/2026-04-10-how-we-look/index.html"
+                      aria-label="Feature exhibit: How We Monitor">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/2026-04-10-how-we-look/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                </ul>
+              </aside>
+            </article>
+
+            <!-- ═══ Guiding Question 3 ═══ -->
+            <article class="sf-question" id="q3">
+              <header class="sf-guiding">
+                <span class="sf-guiding__label">Guiding Question 3</span>
+                <h2 class="sf-guiding__text">
+                  What new information do we need to better understand regional
+                  lessons from tidal wetland restoration projects in the
+                  future?
+                </h2>
+              </header>
+
+              <div class="sf-question__body">
+                <!-- MQ 3A -->
+                <div class="sf-mq">
+                  <span class="sf-mq__label">Management Question 3A</span>
+                  <p class="sf-mq__text">
+                    What new information do we need to better understand regional
+                    lessons from tidal marsh restoration projects, advance tidal
+                    marsh science, and ensure the continued success of
+                    restoration projects?
+                  </p>
+                </div>
+
+                <!-- MQ 3B -->
+                <div class="sf-mq">
+                  <span class="sf-mq__label">Management Question 3B</span>
+                  <p class="sf-mq__text">
+                    Where and when can interventions, such as placement of
+                    dredged sediment, reconnection of restoration projects to
+                    watersheds, and construction of living shorelines, help to
+                    sustain or increase the quantity and quality of tidal marsh
+                    ecosystems?
+                  </p>
+                </div>
+
+                <!-- Priority Recommended Action -->
+                <div class="sf-mq sf-mq--action">
+                  <span class="sf-mq__label sf-mq__label--action">Priority Recommended Action</span>
+                  <p class="sf-mq__text">
+                    Analyze WRMP data collected to answer Guiding Questions 1, 2,
+                    and 4 with new data on the relative roles of estuarine and
+                    upland/watershed sources of sediment to counter the threat of
+                    sea level rise. Other drivers will be addressed in later WRMP
+                    phases.
+                  </p>
+                </div>
+              </div>
+
+              <!-- ═══ Q3 RAIL — Option 3: Compact List Rows (.rail--rows) ═══ -->
+              <nav
+                class="sf-exhibits rail--rows"
+                aria-label="Interactive exhibits for Guiding Question 3"
+              >
+                <span class="sf-list__label">Interactive Exhibits</span>
+                <ul class="sf-list">
+                  <!-- Row 1 — Designing the Experiment -->
+                  <li class="sf-list__row">
+                    <button type="button" class="sf-list__link" data-exhibit-src="../exhibits/2026-04-10-restoration-network/index.html" aria-label="Open interactive exhibit: Designing the Experiment, 5 steps">
+                      <span class="sf-list__thumb">
+                        <span class="exhibit-card-image" style="background-image: url('../exhibits/2026-04-10-restoration-network/cover.jpg')"></span>
+                        <span class="sf-list__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg></span>
+                      </span>
+                      <span class="sf-list__meta sf-exhibit__meta">
+                        <span class="sf-exhibit__kicker">Interactive Exhibit</span>
+                        <span class="sf-exhibit__title">Designing the Experiment</span>
+                        <span class="sf-exhibit__dots" aria-hidden="true"><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span></span>
+                      </span>
+                    </button>
+                  </li>
+
+                  <!-- Row 2 — Delta Smelt -->
+                  <li class="sf-list__row">
+                    <button type="button" class="sf-list__link" data-exhibit-src="../exhibits/2026-04-10-delta-smelt/index.html" aria-label="Open interactive exhibit: Delta Smelt: The Smallest Giant, 5 steps">
+                      <span class="sf-list__thumb">
+                        <span class="exhibit-card-image" style="background-image: url('../exhibits/2026-04-10-delta-smelt/cover.jpg')"></span>
+                        <span class="sf-list__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg></span>
+                      </span>
+                      <span class="sf-list__meta sf-exhibit__meta">
+                        <span class="sf-exhibit__kicker">Interactive Exhibit</span>
+                        <span class="sf-exhibit__title">Delta Smelt: The Smallest Giant</span>
+                        <span class="sf-exhibit__dots" aria-hidden="true"><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span></span>
+                      </span>
+                    </button>
+                  </li>
+
+                  <!-- Row 3 — How We Monitor -->
+                  <li class="sf-list__row">
+                    <button type="button" class="sf-list__link" data-exhibit-src="../exhibits/2026-04-10-how-we-look/index.html" aria-label="Open interactive exhibit: How We Monitor, 4 steps">
+                      <span class="sf-list__thumb">
+                        <span class="exhibit-card-image" style="background-image: url('../exhibits/2026-04-10-how-we-look/cover.jpg')"></span>
+                        <span class="sf-list__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg></span>
+                      </span>
+                      <span class="sf-list__meta sf-exhibit__meta">
+                        <span class="sf-exhibit__kicker">Interactive Exhibit</span>
+                        <span class="sf-exhibit__title">How We Monitor</span>
+                        <span class="sf-exhibit__dots" aria-hidden="true"><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span></span>
+                      </span>
+                    </button>
+                  </li>
+
+                  <!-- Row 4 — A Decade in Alviso Marsh -->
+                  <li class="sf-list__row">
+                    <button type="button" class="sf-list__link" data-exhibit-src="../exhibits/round-2-2026-05/alviso-decade/index.html" aria-label="Open interactive exhibit: A Decade in Alviso Marsh, 5 steps">
+                      <span class="sf-list__thumb">
+                        <span class="exhibit-card-image" style="background-image: url('../exhibits/round-2-2026-05/alviso-decade/cover.jpg')"></span>
+                        <span class="sf-list__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg></span>
+                      </span>
+                      <span class="sf-list__meta sf-exhibit__meta">
+                        <span class="sf-exhibit__kicker">Interactive Exhibit</span>
+                        <span class="sf-exhibit__title">A Decade in Alviso Marsh</span>
+                        <span class="sf-exhibit__dots" aria-hidden="true"><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span></span>
+                      </span>
+                    </button>
+                  </li>
+
+                  <!-- Row 5 — Native vs. Invasive -->
+                  <li class="sf-list__row">
+                    <button type="button" class="sf-list__link" data-exhibit-src="../exhibits/round-2-2026-05/native-vs-invasive/index.html" aria-label="Open interactive exhibit: Native vs. Invasive, 5 steps">
+                      <span class="sf-list__thumb">
+                        <span class="exhibit-card-image" style="background-image: url('../exhibits/round-2-2026-05/native-vs-invasive/cover.jpg')"></span>
+                        <span class="sf-list__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg></span>
+                      </span>
+                      <span class="sf-list__meta sf-exhibit__meta">
+                        <span class="sf-exhibit__kicker">Interactive Exhibit</span>
+                        <span class="sf-exhibit__title">Native vs. Invasive</span>
+                        <span class="sf-exhibit__dots" aria-hidden="true"><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span></span>
+                      </span>
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            </article>
+
+            <!-- ═══ Guiding Question 4 ═══ -->
+            <article class="sf-question" id="q4">
+              <header class="sf-guiding">
+                <span class="sf-guiding__label">Guiding Question 4</span>
+                <h2 class="sf-guiding__text">
+                  How do policies, programs, and projects to protect and
+                  restore tidal marshes affect the distribution, abundance, and
+                  health of plants and animals?
+                </h2>
+              </header>
+
+              <div class="sf-question__body">
+                <!-- MQ 4A -->
+                <div class="sf-mq">
+                  <span class="sf-mq__label">Management Question 4A</span>
+                  <p class="sf-mq__text">
+                    How are habitats for assemblages of resident species of
+                    fish and wildlife in tidal marsh ecosystems changing over
+                    time?
+                  </p>
+                </div>
+
+                <!-- MQ 4B -->
+                <div class="sf-mq">
+                  <span class="sf-mq__label">Management Question 4B</span>
+                  <p class="sf-mq__text">
+                    How are the distribution and abundance of key resident
+                    species of fish and wildlife of tidal marsh ecosystems
+                    changing over time?
+                  </p>
+                </div>
+
+                <!-- Priority Recommended Action -->
+                <div class="sf-mq sf-mq--action">
+                  <span class="sf-mq__label sf-mq__label--action">Priority Recommended Action</span>
+                  <p class="sf-mq__text">
+                    Repeat surveys (detect change) of living organisms and their
+                    habitats (indicators), and standardize the metrics and
+                    reporting for indicators that are common to projects and
+                    baseline/subsequent ambient monitoring across the range of
+                    project designs and restoration practices.
+                  </p>
+                </div>
+              </div>
+
+              <!-- ═══ Q4 RAIL — Option 4: Responsive Card Grid (.rail--grid) ═══ -->
+              <aside
+                class="sf-exhibits rail--grid"
+                aria-label="Interactive exhibits for Guiding Question 4"
+              >
+                <p class="sf-grid__label">Interactive Exhibits</p>
+
+                <!-- Card 1 — How We Monitor -->
+                <div class="sf-exhibit-item">
+                  <button type="button" class="exhibit-card" data-exhibit-src="../exhibits/2026-04-10-how-we-look/index.html" aria-label="Open interactive exhibit: How We Monitor">
+                    <span class="exhibit-card-image" style="background-image: url('../exhibits/2026-04-10-how-we-look/cover.jpg')"></span>
+                    <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
+                  </button>
+                  <div class="sf-exhibit__meta">
+                    <span class="sf-exhibit__kicker">Interactive Exhibit</span>
+                    <span class="sf-exhibit__title">How We Monitor</span>
+                    <span class="sf-exhibit__dots"><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span></span>
+                  </div>
+                </div>
+
+                <!-- Card 2 — Delta Smelt -->
+                <div class="sf-exhibit-item">
+                  <button type="button" class="exhibit-card" data-exhibit-src="../exhibits/2026-04-10-delta-smelt/index.html" aria-label="Open interactive exhibit: Delta Smelt: The Smallest Giant">
+                    <span class="exhibit-card-image" style="background-image: url('../exhibits/2026-04-10-delta-smelt/cover.jpg')"></span>
+                    <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
+                  </button>
+                  <div class="sf-exhibit__meta">
+                    <span class="sf-exhibit__kicker">Interactive Exhibit</span>
+                    <span class="sf-exhibit__title">Delta Smelt: The Smallest Giant</span>
+                    <span class="sf-exhibit__dots"><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span></span>
+                  </div>
+                </div>
+
+                <!-- Card 3 — Is the Bay Keeping Up? -->
+                <div class="sf-exhibit-item">
+                  <button type="button" class="exhibit-card" data-exhibit-src="../exhibits/2026-04-23-bay-keeping-up/index.html" aria-label="Open interactive exhibit: Is the Bay Keeping Up?">
+                    <span class="exhibit-card-image" style="background-image: url('../exhibits/2026-04-23-bay-keeping-up/cover.jpg')"></span>
+                    <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
+                  </button>
+                  <div class="sf-exhibit__meta">
+                    <span class="sf-exhibit__kicker">Interactive Exhibit</span>
+                    <span class="sf-exhibit__title">Is the Bay Keeping Up?</span>
+                    <span class="sf-exhibit__dots"><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span></span>
+                  </div>
+                </div>
+
+                <!-- Card 4 — The Bay: Where We're Watching -->
+                <div class="sf-exhibit-item">
+                  <button type="button" class="exhibit-card" data-exhibit-src="../exhibits/round-2-2026-05/station-map-stepper/index.html" aria-label="Open interactive exhibit: The Bay: Where We're Watching">
+                    <span class="exhibit-card-image" style="background-image: url('../exhibits/round-2-2026-05/station-map-stepper/cover.jpg')"></span>
+                    <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
+                  </button>
+                  <div class="sf-exhibit__meta">
+                    <span class="sf-exhibit__kicker">Interactive Exhibit</span>
+                    <span class="sf-exhibit__title">The Bay: Where We're Watching</span>
+                    <span class="sf-exhibit__dots"><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span></span>
+                  </div>
+                </div>
+
+                <!-- Card 5 — Designing the Experiment -->
+                <div class="sf-exhibit-item">
+                  <button type="button" class="exhibit-card" data-exhibit-src="../exhibits/2026-04-10-restoration-network/index.html" aria-label="Open interactive exhibit: Designing the Experiment">
+                    <span class="exhibit-card-image" style="background-image: url('../exhibits/2026-04-10-restoration-network/cover.jpg')"></span>
+                    <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
+                  </button>
+                  <div class="sf-exhibit__meta">
+                    <span class="sf-exhibit__kicker">Interactive Exhibit</span>
+                    <span class="sf-exhibit__title">Designing the Experiment</span>
+                    <span class="sf-exhibit__dots"><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span></span>
+                  </div>
+                </div>
+              </aside>
+            </article>
+
+            <!-- ═══ Guiding Question 5 ═══ -->
+            <article class="sf-question" id="q5">
+              <header class="sf-guiding">
+                <span class="sf-guiding__label">Guiding Question 5</span>
+                <h2 class="sf-guiding__text">
+                  How do policies, programs, and projects to protect and
+                  restore tidal wetlands benefit and/or impact public health,
+                  safety, and recreation?
+                </h2>
+              </header>
+
+              <div class="sf-question__body">
+                <!-- MQ 5A -->
+                <div class="sf-mq">
+                  <span class="sf-mq__label">Management Question 5A</span>
+                  <p class="sf-mq__text">
+                    What mosquito and vector control strategies need to be
+                    considered in restoration design and management to understand
+                    the effects that restoration can have on mosquito and vector
+                    populations?
+                  </p>
+                </div>
+
+                <!-- MQ 5B -->
+                <div class="sf-mq">
+                  <span class="sf-mq__label">Management Question 5B</span>
+                  <p class="sf-mq__text">
+                    What monitoring data and/or analyses are needed to improve the
+                    relationships between tidal marsh restoration, fish and
+                    wildlife support, mosquito and vector control, and public
+                    access?
+                  </p>
+                </div>
+
+                <!-- MQ 5C -->
+                <div class="sf-mq">
+                  <span class="sf-mq__label">Management Question 5C</span>
+                  <p class="sf-mq__text">
+                    How are the benefits of wetlands (such as flood risk
+                    reduction, water quality, public access, opportunities for
+                    community stewardship, knowledge production and
+                    transmission, and cultural and spiritual experiences)
+                    distributed regionally?
+                  </p>
+                </div>
+
+                <!-- MQ 5D -->
+                <div class="sf-mq">
+                  <span class="sf-mq__label">Management Question 5D</span>
+                  <p class="sf-mq__text">
+                    How does the provision of benefits (such as flood risk
+                    reduction, water quality, public access, opportunities for
+                    community stewardship, knowledge production and transmission,
+                    and cultural and spiritual experiences) progress over time at
+                    existing and restored wetland sites?
+                  </p>
+                </div>
+
+                <!-- Priority Recommended Action -->
+                <div class="sf-mq sf-mq--action">
+                  <span class="sf-mq__label sf-mq__label--action">Priority Recommended Action</span>
+                  <p class="sf-mq__text">
+                    Monitor the broad range of interactions between people and
+                    wetlands for the safety of people and health of the marshes.
+                    Better integrate flood control and mosquito and disease
+                    vector control into project planning and assessment, and
+                    similarly integrate wetland restoration into flood control
+                    planning. Continue to grow the WRMP to assess the effects of
+                    shoreline adaptation on relationships between people and
+                    nature.
+                  </p>
+                </div>
+              </div>
+
+              <!-- ═══ Q5 RAIL — Option 7: Stacked Deck / Coverflow (.rail--deck) ═══ -->
+              <aside
+                class="sf-exhibits rail--deck"
+                aria-label="Interactive exhibits for Guiding Question 5"
+              >
+                <div class="sf-deck__head">
+                  <span class="sf-deck__label">Interactive Exhibits</span>
+                  <span class="sf-deck__count" data-deck-count aria-hidden="true"></span>
+                </div>
+
+                <div class="sf-deck__stage">
+                  <div
+                    class="sf-deck__cards"
+                    data-deck-cards
+                    role="group"
+                    aria-roledescription="exhibit deck"
+                    aria-label="Exhibit deck, 5 cards"
+                    tabindex="0"
+                  >
+                    <!-- Card 1 — The Bay: Where We're Watching -->
+                    <div class="sf-deck__card" data-deck-item>
+                      <button type="button" class="exhibit-card" data-exhibit-src="../exhibits/round-2-2026-05/station-map-stepper/index.html" aria-label="Open interactive exhibit: The Bay: Where We're Watching">
+                        <span class="exhibit-card-image" style="background-image: url('../exhibits/round-2-2026-05/station-map-stepper/cover.jpg')"></span>
+                        <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
+                      </button>
+                      <div class="sf-exhibit__meta" data-deck-meta>
+                        <span class="sf-exhibit__kicker">Interactive Exhibit</span>
+                        <span class="sf-exhibit__title">The Bay: Where We're Watching</span>
+                        <span class="sf-exhibit__dots"><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span></span>
+                      </div>
+                    </div>
+
+                    <!-- Card 2 — A Decade in Alviso Marsh -->
+                    <div class="sf-deck__card" data-deck-item>
+                      <button type="button" class="exhibit-card" data-exhibit-src="../exhibits/round-2-2026-05/alviso-decade/index.html" aria-label="Open interactive exhibit: A Decade in Alviso Marsh">
+                        <span class="exhibit-card-image" style="background-image: url('../exhibits/round-2-2026-05/alviso-decade/cover.jpg')"></span>
+                        <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
+                      </button>
+                      <div class="sf-exhibit__meta" data-deck-meta>
+                        <span class="sf-exhibit__kicker">Interactive Exhibit</span>
+                        <span class="sf-exhibit__title">A Decade in Alviso Marsh</span>
+                        <span class="sf-exhibit__dots"><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span></span>
+                      </div>
+                    </div>
+
+                    <!-- Card 3 — Native vs. Invasive -->
+                    <div class="sf-deck__card" data-deck-item>
+                      <button type="button" class="exhibit-card" data-exhibit-src="../exhibits/round-2-2026-05/native-vs-invasive/index.html" aria-label="Open interactive exhibit: Native vs. Invasive">
+                        <span class="exhibit-card-image" style="background-image: url('../exhibits/round-2-2026-05/native-vs-invasive/cover.jpg')"></span>
+                        <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
+                      </button>
+                      <div class="sf-exhibit__meta" data-deck-meta>
+                        <span class="sf-exhibit__kicker">Interactive Exhibit</span>
+                        <span class="sf-exhibit__title">Native vs. Invasive</span>
+                        <span class="sf-exhibit__dots"><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span></span>
+                      </div>
+                    </div>
+
+                    <!-- Card 4 — Delta Smelt -->
+                    <div class="sf-deck__card" data-deck-item>
+                      <button type="button" class="exhibit-card" data-exhibit-src="../exhibits/2026-04-10-delta-smelt/index.html" aria-label="Open interactive exhibit: Delta Smelt: The Smallest Giant">
+                        <span class="exhibit-card-image" style="background-image: url('../exhibits/2026-04-10-delta-smelt/cover.jpg')"></span>
+                        <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
+                      </button>
+                      <div class="sf-exhibit__meta" data-deck-meta>
+                        <span class="sf-exhibit__kicker">Interactive Exhibit</span>
+                        <span class="sf-exhibit__title">Delta Smelt: The Smallest Giant</span>
+                        <span class="sf-exhibit__dots"><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span></span>
+                      </div>
+                    </div>
+
+                    <!-- Card 5 — How We Monitor -->
+                    <div class="sf-deck__card" data-deck-item>
+                      <button type="button" class="exhibit-card" data-exhibit-src="../exhibits/2026-04-10-how-we-look/index.html" aria-label="Open interactive exhibit: How We Monitor">
+                        <span class="exhibit-card-image" style="background-image: url('../exhibits/2026-04-10-how-we-look/cover.jpg')"></span>
+                        <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
+                      </button>
+                      <div class="sf-exhibit__meta" data-deck-meta>
+                        <span class="sf-exhibit__kicker">Interactive Exhibit</span>
+                        <span class="sf-exhibit__title">How We Monitor</span>
+                        <span class="sf-exhibit__dots"><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span><span class="sf-exhibit__dot"></span></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Crossfading meta read-out for the FRONT card -->
+                <div class="sf-deck__meta" data-deck-frontmeta aria-live="polite"></div>
+
+                <div class="sf-deck__controls">
+                  <button type="button" class="sf-deck__btn" data-deck-prev aria-label="Previous exhibit">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+                  </button>
+                  <button type="button" class="sf-deck__advance" data-deck-next>
+                    Next exhibit
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
+                  </button>
+                </div>
+              </aside>
+            </article>
+
+            <!-- ═══ Closing — more information ═══ -->
+            <div class="sf-more">
+              <div class="sf-more__item">
+                <h3 class="sf-more__heading">Where are we monitoring?</h3>
+                <p class="sf-more__body">
+                  The WRMP conducts monitoring throughout the San Francisco
+                  Estuary, including San Pablo, South, and Suisun Bays, within
+                  priority Operational Landscape Units.
+                </p>
+                <a class="text-link" href="#">
+                  View the monitoring site network
+                </a>
+              </div>
+              <div class="sf-more__item">
+                <h3 class="sf-more__heading">What metrics are monitored?</h3>
+                <p class="sf-more__body">
+                  WRMP metrics assess wetland function and restoration site
+                  development &mdash; water quality and depth, vegetation,
+                  condition, sediment, and fish habitat.
+                </p>
+                <a class="text-link" href="#">
+                  View in-progress and future metrics
+                </a>
+              </div>
+              <div class="sf-more__item">
+                <h3 class="sf-more__heading">Looking for more information?</h3>
+                <p class="sf-more__body">
+                  Explore how the WRMP developed the foundation of these
+                  monitoring efforts through the Program Plan, Monitoring Plan,
+                  and Monitoring Matrix.
+                </p>
+                <a class="text-link" href="#">
+                  Science Framework resources
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ═══════════════════ Footer ═══════════════════ -->
+    <footer class="site-footer">
+      <div class="site-container site-footer__inner">
+        <div>
+          <img
+            class="site-footer__logo"
+            src="../shared/img/WRMP_Logo_RGB_ADA_Trans_DarkMode_Website_1850.png"
+            alt="WRMP logo"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <div class="footer-col footer-col--nav">
+          <h2 class="footer-col__heading">Navigation</h2>
+          <ul class="footer-nav">
+            <li><a href="#">Monitoring Results</a></li>
+            <li><a href="#">Science Framework</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Engage</a></li>
+            <li><a href="#">Resources</a></li>
+          </ul>
+        </div>
+        <div class="footer-col footer-col--subscribe">
+          <h2 class="footer-col__heading">Subscribe to our newsletter</h2>
+          <p class="footer-newsletter__copy">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m2 7 10 6 10-6" /></svg>
+            Signup for news about the Wetlands Regional Monitoring Program
+          </p>
+          <form class="footer-newsletter__form" onsubmit="return false">
+            <input
+              class="footer-newsletter__input"
+              type="email"
+              placeholder="Email Address"
+              aria-label="Email Address"
+            />
+            <button class="footer-newsletter__submit" type="submit">
+              Subscribe
+            </button>
+          </form>
+        </div>
+        <div class="footer-col footer-col--partners">
+          <h2 class="footer-col__heading">Staffed by</h2>
+          <div class="footer-staffed">
+            <img
+              class="footer-partner-logo"
+              src="assets/img/sfei-logo.png"
+              width="102"
+              height="32"
+              alt="San Francisco Estuary Institute"
+              loading="lazy"
+              decoding="async"
+            />
+            <img
+              class="footer-partner-logo"
+              src="assets/img/sfep-logo.png"
+              width="120"
+              height="32"
+              alt="San Francisco Estuary Partnership"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- ═══════════════════ Exhibit dialog ═══════════════════ -->
+    <dialog class="exhibit-dialog" id="exhibit-dialog">
+      <div class="exhibit-dialog__inner">
+        <button
+          class="exhibit-dialog__close"
+          type="button"
+          aria-label="Close exhibit"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+        </button>
+        <iframe
+          class="exhibit-dialog__iframe"
+          title="WRMP interactive exhibit"
+        ></iframe>
+      </div>
+    </dialog>
+
+    <script src="assets/site.js"></script>
+
+    <!-- ════════════════════════════════════════════════════════════
+         ROUND-2 RAIL CONTROLLERS
+         ------------------------------------------------------------
+         One sectioned IIFE per design. Each query is scoped to its own
+         rail container (or to the unique scope class) so the five
+         designs never grab each other's nodes. Designs without JS
+         (Q3 list rows, Q4 grid) need no controller — they're pure CSS;
+         exhibit-card / sf-list__link opening is handled by site.js.
+         ════════════════════════════════════════════════════════════ -->
+    <script>
+      /* ──────────────────────────────────────────────────────────
+         Q1 — Arrow carousel  (scope: .rail--carousel)
+         Arrows scroll ~one card; disabled at the ends; whole nav
+         hidden when nothing overflows (→ vertical fallback). One
+         instance per .rail--carousel.
+         ────────────────────────────────────────────────────────── */
+      (function () {
+        var MIN_FOR_RAIL = 3; // below this, fall back to vertical stack
+
+        function prefersReducedMotion() {
+          return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        }
+
+        function initCarousel(root) {
+          var rail = root.querySelector(".sf-carousel__rail");
+          var prev = root.querySelector('[data-dir="prev"]');
+          var next = root.querySelector('[data-dir="next"]');
+          if (!rail) return;
+
+          var cardCount = rail.querySelectorAll(".sf-exhibit-item").length;
+
+          function step() {
+            var card = rail.querySelector(".sf-exhibit-item");
+            if (!card) return rail.clientWidth * 0.8;
+            var styles = window.getComputedStyle(rail);
+            var gap = parseFloat(styles.columnGap || styles.gap) || 0;
+            return card.getBoundingClientRect().width + gap;
+          }
+
+          function update() {
+            var isStatic = cardCount < MIN_FOR_RAIL;
+            root.classList.toggle("is-static", isStatic);
+            if (isStatic) return;
+
+            var maxScroll = rail.scrollWidth - rail.clientWidth;
+            if (maxScroll <= 1) {
+              root.classList.add("is-static");
+              return;
+            }
+            var x = rail.scrollLeft;
+            if (prev) prev.disabled = x <= 1;
+            if (next) next.disabled = x >= maxScroll - 1;
+          }
+
+          function scrollByStep(sign) {
+            rail.scrollBy({
+              left: sign * step(),
+              behavior: prefersReducedMotion() ? "auto" : "smooth",
+            });
+          }
+
+          if (prev)
+            prev.addEventListener("click", function () {
+              scrollByStep(-1);
+            });
+          if (next)
+            next.addEventListener("click", function () {
+              scrollByStep(1);
+            });
+
+          rail.addEventListener("scroll", update, { passive: true });
+          window.addEventListener("resize", update);
+
+          // Cover images load async and change scrollWidth — recheck.
+          root.querySelectorAll(".exhibit-card-image").forEach(function (el) {
+            var bg = el.style.backgroundImage.slice(5, -2);
+            if (!bg) return;
+            var img = new Image();
+            img.onload = update;
+            img.src = bg;
+          });
+
+          update();
+        }
+
+        document.querySelectorAll(".rail--carousel").forEach(initCarousel);
+      })();
+
+      /* ──────────────────────────────────────────────────────────
+         Q2 — Featured + thumbnail strip  (scope: .rail--featured)
+         Click / Enter / Space (or arrow keys) on a thumb promotes it
+         to the featured card with a crossfade. Roving tablist. One
+         instance per .rail--featured[data-featured].
+         ────────────────────────────────────────────────────────── */
+      (function () {
+        var reduceMotion = window.matchMedia(
+          "(prefers-reduced-motion: reduce)"
+        ).matches;
+
+        function initFeatured(root) {
+          var stage = root.querySelector("[data-stage]");
+          var card = root.querySelector("[data-feature-card]");
+          var image = root.querySelector("[data-feature-image]");
+          var title = root.querySelector("[data-feature-title]");
+          var thumbs = Array.prototype.slice.call(
+            root.querySelectorAll(".sf-thumb")
+          );
+          if (!stage || !card || !thumbs.length) return;
+
+          // Nothing to switch to with a single exhibit — hide the strip.
+          if (thumbs.length < 2) {
+            root.classList.add("is-single");
+            return;
+          }
+
+          function feature(thumb) {
+            if (thumb.getAttribute("aria-current") === "true") return;
+
+            var newTitle = thumb.getAttribute("data-title") || "";
+            var newImage = thumb.getAttribute("data-image") || "";
+            var newSrc = thumb.getAttribute("data-src") || "";
+
+            thumbs.forEach(function (t) {
+              var active = t === thumb;
+              t.setAttribute("aria-current", active ? "true" : "false");
+              t.setAttribute("aria-selected", active ? "true" : "false");
+              t.tabIndex = active ? 0 : -1;
+            });
+
+            function apply() {
+              if (newImage) {
+                image.style.backgroundImage = "url('" + newImage + "')";
+              }
+              if (title) title.textContent = newTitle;
+              card.setAttribute(
+                "aria-label",
+                "Open interactive exhibit: " + newTitle
+              );
+              card.setAttribute("data-exhibit-src", newSrc);
+            }
+
+            if (reduceMotion) {
+              apply();
+            } else {
+              stage.classList.add("is-swapping");
+              window.setTimeout(function () {
+                apply();
+                window.requestAnimationFrame(function () {
+                  stage.classList.remove("is-swapping");
+                });
+              }, 200);
+            }
+          }
+
+          // Roving tabindex: only the active thumb is in the tab order.
+          thumbs.forEach(function (t) {
+            t.tabIndex = t.getAttribute("aria-current") === "true" ? 0 : -1;
+          });
+
+          thumbs.forEach(function (thumb, i) {
+            thumb.addEventListener("click", function () {
+              feature(thumb);
+            });
+            thumb.addEventListener("keydown", function (e) {
+              var idx = -1;
+              if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+                idx = (i + 1) % thumbs.length;
+              } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+                idx = (i - 1 + thumbs.length) % thumbs.length;
+              } else if (e.key === "Home") {
+                idx = 0;
+              } else if (e.key === "End") {
+                idx = thumbs.length - 1;
+              } else {
+                return;
+              }
+              e.preventDefault();
+              thumbs[idx].focus();
+              feature(thumbs[idx]);
+            });
+          });
+        }
+
+        document
+          .querySelectorAll(".rail--featured[data-featured]")
+          .forEach(initFeatured);
+      })();
+
+      /* ──────────────────────────────────────────────────────────
+         Q5 — Stacked deck / coverflow  (scope: .rail--deck)
+         Ordered card list; advancing rotates the order (front → back).
+         Each card's depth, z-index, AT state, and the single front
+         read-out are derived from `order`. Only the front card is
+         interactive. Controls / tap / swipe / arrow-keys advance.
+         One instance per .rail--deck.
+         ────────────────────────────────────────────────────────── */
+      (function () {
+        var PEEK_MAX = 2; // how many cards peek behind the front one
+
+        function prefersReduced() {
+          return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        }
+
+        function initDeck(root) {
+          var stageCards = root.querySelector("[data-deck-cards]");
+          var frontMeta = root.querySelector("[data-deck-frontmeta]");
+          var countEl = root.querySelector("[data-deck-count]");
+          var prevBtn = root.querySelector("[data-deck-prev]");
+          var nextBtn = root.querySelector("[data-deck-next]");
+          if (!stageCards) return;
+
+          var cards = Array.prototype.slice.call(
+            stageCards.querySelectorAll("[data-deck-item]")
+          );
+          var n = cards.length;
+          if (n === 0) return;
+
+          // Copy the front card's meta into the visible read-out.
+          function adoptMeta(cardEl) {
+            var src = cardEl.querySelector("[data-deck-meta]");
+            if (!src || !frontMeta) return;
+            frontMeta.innerHTML = src.innerHTML;
+          }
+
+          // Single-card fallback — keep it from looking like a broken deck.
+          if (n === 1) {
+            root.classList.add("is-single");
+            var only = cards[0];
+            only.style.setProperty("--depth", 0);
+            only.style.zIndex = 2;
+            only.setAttribute("data-front", "true");
+            adoptMeta(only);
+            return;
+          }
+
+          var order = cards.map(function (_, i) {
+            return i;
+          });
+          var animating = false;
+
+          function frontDataIndex() {
+            return order[0];
+          }
+
+          function render() {
+            order.forEach(function (cardIdx, pos) {
+              var card = cards[cardIdx];
+              var isFront = pos === 0;
+              var depth = Math.min(pos, PEEK_MAX);
+              card.style.setProperty("--depth", depth);
+              card.style.zIndex = String(n - pos);
+              card.style.opacity = pos > PEEK_MAX ? "0" : "1";
+              card.setAttribute("data-front", isFront ? "true" : "false");
+
+              var btn = card.querySelector(".exhibit-card");
+              if (isFront) {
+                card.removeAttribute("aria-hidden");
+                if (btn) btn.removeAttribute("tabindex");
+              } else {
+                card.setAttribute("aria-hidden", "true");
+                if (btn) btn.setAttribute("tabindex", "-1");
+              }
+            });
+            adoptMeta(cards[frontDataIndex()]);
+            if (countEl) {
+              countEl.textContent = frontDataIndex() + 1 + " / " + n;
+            }
+          }
+
+          function advance() {
+            if (animating) return;
+            var leavingIdx = order[0];
+            var leaving = cards[leavingIdx];
+
+            function commit() {
+              order.push(order.shift()); // rotate front → back
+              leaving.classList.remove("is-leaving");
+              animating = false;
+              render();
+              swapMeta();
+            }
+
+            if (prefersReduced()) {
+              commit();
+              return;
+            }
+            animating = true;
+            leaving.classList.add("is-leaving");
+            var done = false;
+            var finish = function () {
+              if (done) return;
+              done = true;
+              commit();
+            };
+            leaving.addEventListener("transitionend", finish, { once: true });
+            setTimeout(finish, 600); // safety if transitionend doesn't fire
+          }
+
+          function reverse() {
+            if (animating) return;
+            order.unshift(order.pop()); // rotate back → front
+            render();
+            swapMeta();
+          }
+
+          function swapMeta() {
+            if (!frontMeta || prefersReduced()) return;
+            frontMeta.classList.add("is-swapping");
+            window.setTimeout(function () {
+              frontMeta.classList.remove("is-swapping");
+            }, 30);
+          }
+
+          if (nextBtn) nextBtn.addEventListener("click", advance);
+          if (prevBtn) prevBtn.addEventListener("click", reverse);
+
+          // Tap the deck (not the cover button, which opens the exhibit).
+          stageCards.addEventListener("click", function (e) {
+            if (e.target.closest(".exhibit-card")) return;
+            advance();
+          });
+
+          stageCards.addEventListener("keydown", function (e) {
+            if (e.key === "ArrowRight") {
+              e.preventDefault();
+              advance();
+            } else if (e.key === "ArrowLeft") {
+              e.preventDefault();
+              reverse();
+            }
+          });
+
+          // Swipe / pointer drag.
+          var dragX0 = null;
+          var dragId = null;
+          stageCards.addEventListener("pointerdown", function (e) {
+            dragX0 = e.clientX;
+            dragId = e.pointerId;
+          });
+          stageCards.addEventListener("pointerup", function (e) {
+            if (dragX0 === null || e.pointerId !== dragId) return;
+            var dx = e.clientX - dragX0;
+            dragX0 = null;
+            dragId = null;
+            if (Math.abs(dx) < 40) return; // treat as a tap/click instead
+            if (dx < 0) advance();
+            else reverse();
+          });
+          stageCards.addEventListener("pointercancel", function () {
+            dragX0 = null;
+            dragId = null;
+          });
+
+          render();
+        }
+
+        document.querySelectorAll(".rail--deck").forEach(initDeck);
+      })();
+    </script>
+  </body>
+</html>
