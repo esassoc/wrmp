@@ -1,0 +1,1239 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Anatomy of an Exhibit — WRMP</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="shared/css/tokens.css" />
+        <style>
+            /* ── Reading-page layout ───────────────────────────
+               Tokens own color/spacing/radius. Body type is bumped
+               one step above the exhibit body scale (which tops out
+               at 16px) for comfortable long-form reading: ~17–18px. */
+
+            :root {
+                --reading-size: clamp(1.0625rem, 1rem + 0.3vw, 1.125rem); /* 17–18px */
+                --reading-line: 1.65;
+                --column: 720px; /* reading column */
+                --toc-width: 260px; /* sticky TOC column */
+                --header-offset: 16px; /* sticky top offset */
+                --font-serif: "Source Serif 4", Georgia, serif; /* headings only */
+            }
+
+            /* Smooth in-page scrolling for TOC jumps — respects
+               reduced-motion preferences. */
+            @media (prefers-reduced-motion: no-preference) {
+                html {
+                    scroll-behavior: smooth;
+                }
+            }
+
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                font-family: var(--font-body);
+                font-size: var(--reading-size);
+                line-height: var(--reading-line);
+                color: var(--color-text);
+                background: var(--gray-2);
+                -webkit-font-smoothing: antialiased;
+            }
+
+            /* ── Masthead ──────────────────────────────────── */
+            .masthead {
+                background: #fff;
+                border-bottom: 1px solid var(--gray-5);
+            }
+            .masthead-inner {
+                /* aligns with the layout grid below */
+                max-width: calc(var(--toc-width) + var(--space-xl) + var(--column));
+                margin: 0 auto;
+                padding: var(--space-lg) var(--space-lg) var(--space-xl);
+            }
+            .brand {
+                display: flex;
+                align-items: center;
+                gap: var(--space-sm);
+                margin-bottom: var(--space-lg);
+            }
+            .brand img {
+                height: 44px;
+                width: auto;
+                display: block;
+            }
+            .masthead h1 {
+                margin: 0;
+                font-size: var(--step-4);
+                font-weight: 600;
+                line-height: 1.1;
+                color: var(--wrmp-ada-teal);
+                letter-spacing: -0.01em;
+            }
+            .masthead .subtitle {
+                margin: var(--space-sm) 0 0;
+                font-size: var(--step-1);
+                font-weight: 400;
+                color: var(--color-text-subtle);
+                max-width: 56ch;
+            }
+
+            /* ── Two-column layout: sticky TOC + reading column ──
+               Mirrors the science-framework.html pattern: a CSS grid
+               with a sticky aside beside the content, centered within
+               a wider max-width. Collapses to one column below 900px. */
+            .layout {
+                max-width: calc(var(--toc-width) + var(--space-xl) + var(--column));
+                margin: 0 auto;
+                padding: var(--space-xl) var(--space-lg);
+                display: grid;
+                grid-template-columns: var(--toc-width) minmax(0, 1fr);
+                gap: var(--space-xl);
+                align-items: start;
+            }
+
+            /* ── Sticky table of contents ──────────────────── */
+            .toc {
+                position: sticky;
+                top: var(--header-offset);
+                background: var(--gray-1);
+                border: 1px solid var(--gray-5);
+                border-radius: var(--radius-lg);
+                padding: var(--space-md) var(--space-lg);
+                max-height: calc(100vh - 2 * var(--header-offset));
+                overflow-y: auto;
+            }
+            .toc-heading {
+                margin: 0 0 var(--space-sm);
+                font-size: var(--step-0);
+                font-weight: 600;
+                color: var(--wrmp-ada-teal);
+            }
+            .toc ol {
+                list-style: none;
+                margin: 0;
+                padding: 0;
+            }
+            .toc li {
+                margin: 0;
+            }
+            .toc a {
+                display: block;
+                padding: var(--space-xs) var(--space-sm);
+                border-radius: var(--radius-sm);
+                font-size: var(--step-0);
+                line-height: 1.35;
+                color: var(--wrmp-dark);
+                text-decoration: none;
+                transition: background 0.15s ease, color 0.15s ease;
+            }
+            .toc a:hover {
+                background: var(--gray-4);
+                color: var(--wrmp-ada-teal);
+            }
+            .toc a:focus-visible {
+                outline: 2px solid var(--wrmp-teal);
+                outline-offset: 1px;
+            }
+            /* Nested H3 links — indented + slightly smaller/quieter */
+            .toc .toc-sub a {
+                padding-left: var(--space-lg);
+                font-size: 0.9375rem; /* ~15px */
+                color: var(--color-text-subtle);
+            }
+            /* Scrollspy active state — teal text + a quiet neutral fill */
+            .toc a.is-active {
+                background: var(--gray-3);
+                color: var(--wrmp-ada-teal);
+                font-weight: 600;
+            }
+
+            /* ── Article column ────────────────────────────── */
+            .article {
+                max-width: var(--column);
+                min-width: 0;
+            }
+
+            /* Opening paragraphs set slightly larger as a lede */
+            .article-intro p {
+                font-size: var(--step-1);
+                line-height: 1.55;
+                color: var(--color-text);
+            }
+
+            /* ── Headings ──────────────────────────────────── */
+            .article h2 {
+                font-family: var(--font-serif);
+                font-size: var(--step-3);
+                font-weight: 600;
+                line-height: 1.2;
+                color: var(--wrmp-ada-teal);
+                margin: calc(var(--space-xl) + var(--space-sm)) 0 var(--space-md);
+                /* sticky offset + breathing room so TOC jumps land cleanly */
+                scroll-margin-top: calc(var(--header-offset) + var(--space-lg));
+            }
+            .article h2:first-of-type {
+                margin-top: var(--space-sm);
+            }
+
+            /* H3 — subordinate to H2 (step-2 vs step-3), but clearly a
+               structural sub-head: semibold teal, with a short teal rule
+               above to mark a new part. */
+            .article h3 {
+                font-family: var(--font-serif);
+                font-size: var(--step-2);
+                font-weight: 600;
+                line-height: 1.25;
+                color: var(--wrmp-ada-teal);
+                margin: var(--space-xl) 0 var(--space-sm);
+                padding-top: var(--space-md);
+                border-top: 1px solid var(--gray-5);
+                /* sticky offset + breathing room so TOC jumps land cleanly */
+                scroll-margin-top: calc(var(--header-offset) + var(--space-lg));
+            }
+            .article h2 + h3 {
+                margin-top: var(--space-lg);
+            }
+
+            .article p {
+                margin: 0 0 var(--space-lg);
+            }
+
+            .article strong {
+                font-weight: 600;
+                color: var(--color-text);
+            }
+
+            .article em {
+                font-style: italic;
+            }
+
+            .article a {
+                color: var(--wrmp-ada-teal);
+                text-decoration: underline;
+                text-underline-offset: 2px;
+                text-decoration-thickness: 1px;
+            }
+            .article a:hover {
+                text-decoration-thickness: 2px;
+            }
+            .article a:focus-visible {
+                outline: 2px solid var(--wrmp-teal);
+                outline-offset: 2px;
+                border-radius: var(--radius-sm);
+            }
+
+            /* ── Lists ─────────────────────────────────────── */
+            .article ul,
+            .article ol {
+                margin: 0 0 var(--space-lg);
+                padding-left: var(--space-lg);
+            }
+            .article li {
+                margin-bottom: var(--space-sm);
+            }
+            .article li::marker {
+                color: var(--wrmp-teal);
+            }
+            .article li > strong:first-child {
+                color: var(--wrmp-ada-teal);
+            }
+
+            /* "What it is / Examples / Best practices" blocks inside
+               the outline steps — the bold lead-in carries the label. */
+            .field {
+                margin: 0 0 var(--space-md);
+            }
+            .field .field-label {
+                font-weight: 600;
+                color: var(--wrmp-ada-teal);
+            }
+
+            /* ── Table ─────────────────────────────────────── */
+            .table-wrap {
+                margin: 0 0 var(--space-xl);
+                overflow-x: auto;
+                border: 1px solid var(--gray-5);
+                border-radius: var(--radius-lg);
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: var(--step-0);
+                line-height: 1.5;
+            }
+            thead th {
+                text-align: left;
+                font-weight: 600;
+                color: #fff;
+                background: var(--wrmp-ada-teal);
+                padding: var(--space-sm) var(--space-md);
+                vertical-align: bottom;
+            }
+            tbody td {
+                padding: var(--space-sm) var(--space-md);
+                border-top: 1px solid var(--gray-5);
+                vertical-align: top;
+                color: var(--color-text);
+            }
+            tbody tr:nth-child(even) td {
+                background: var(--gray-2);
+            }
+            tbody td:first-child {
+                font-weight: 600;
+                color: var(--wrmp-ada-teal);
+                white-space: nowrap;
+            }
+
+            /* ── Figures ───────────────────────────────────────
+               Exhibit screenshots span the full reading column,
+               16:9, soft elevation + hairline border (tokens only,
+               no left bar). Quiet secondary caption a step below
+               body. */
+            .article figure {
+                margin: var(--space-xl) 0;
+            }
+            .article figure img {
+                display: block;
+                width: 100%;
+                height: auto;
+                aspect-ratio: 16 / 9;
+                object-fit: cover;
+                border: 1px solid var(--gray-5);
+                border-radius: var(--radius-lg);
+                box-shadow: var(--shadow-card);
+                background: var(--gray-3);
+            }
+            .article figcaption {
+                margin-top: var(--space-sm);
+                font-size: 0.9375rem; /* ~15px — a step below body, still readable */
+                line-height: 1.45;
+                color: var(--color-text-subtle);
+            }
+
+            /* ── Current-exhibits items ─────────────────────
+               Each exhibit is an H4 link-title (item title, not a
+               section — kept in sans, a step below H3 and not in the
+               TOC), a one-line description, and a five-element
+               Hook/Stakes/Stage/Reveal/Payoff bullet outline. */
+            .article h4 {
+                font-size: var(--step-1);
+                font-weight: 600;
+                line-height: 1.3;
+                margin: var(--space-lg) 0 var(--space-xs);
+            }
+            .article h4 a {
+                color: var(--wrmp-ada-teal);
+                text-decoration: none;
+            }
+            .article h4 a:hover {
+                text-decoration: underline;
+                text-underline-offset: 2px;
+            }
+            .exhibit-desc {
+                margin-top: 0;
+                margin-bottom: var(--space-sm);
+                color: var(--color-text);
+            }
+
+            /* ── Section divider ───────────────────────────── */
+            .article hr {
+                border: 0;
+                border-top: 1px solid var(--gray-5);
+                margin: var(--space-xl) 0;
+            }
+
+            /* ── Footer ────────────────────────────────────── */
+            .page-footer {
+                border-top: 1px solid var(--gray-5);
+                background: #fff;
+            }
+            .page-footer-inner {
+                max-width: calc(var(--toc-width) + var(--space-xl) + var(--column));
+                margin: 0 auto;
+                padding: var(--space-lg);
+                font-size: var(--step-0);
+                color: var(--color-text-subtle);
+            }
+
+            /* ── Responsive: collapse TOC above the article ─────
+               Below 900px the grid becomes one column, the reading
+               column goes full width, and the TOC becomes a boxed
+               <details> "Contents" at the top (no horizontal scroll). */
+            @media (max-width: 900px) {
+                .layout {
+                    grid-template-columns: 1fr;
+                    gap: var(--space-lg);
+                }
+                .toc {
+                    position: static;
+                    max-height: none;
+                    overflow: visible;
+                }
+                .toc summary {
+                    cursor: pointer;
+                    list-style: none;
+                    font-size: var(--step-0);
+                    font-weight: 600;
+                    color: var(--wrmp-ada-teal);
+                    display: flex;
+                    align-items: center;
+                    gap: var(--space-sm);
+                }
+                .toc summary::-webkit-details-marker {
+                    display: none;
+                }
+                .toc summary::after {
+                    content: "";
+                    width: 0.5em;
+                    height: 0.5em;
+                    border-right: 2px solid currentColor;
+                    border-bottom: 2px solid currentColor;
+                    transform: rotate(45deg);
+                    transition: transform 0.18s ease;
+                    margin-left: auto;
+                }
+                .toc[open] summary::after {
+                    transform: rotate(-135deg);
+                }
+                .toc-heading {
+                    display: none; /* the <summary> carries the label on mobile */
+                }
+                .toc ol {
+                    margin-top: var(--space-sm);
+                }
+                .article {
+                    max-width: none;
+                }
+            }
+            /* On desktop the <summary> is redundant with .toc-heading; hide it */
+            @media (min-width: 901px) {
+                .toc summary {
+                    display: none;
+                }
+            }
+
+            @media (max-width: 640px) {
+                .masthead-inner,
+                .layout,
+                .page-footer-inner {
+                    padding-left: var(--space-md);
+                    padding-right: var(--space-md);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <header class="masthead">
+            <div class="masthead-inner">
+                <div class="brand">
+                    <img
+                        src="shared/img/WRMP_Logo_2in_RGB_ADA_Transparent.png"
+                        alt="Wetland Regional Monitoring Program"
+                    />
+                </div>
+                <h1>Anatomy of an Exhibit</h1>
+                <p class="subtitle">
+                    How — and why — we build the WRMP’s interactive exhibits.
+                </p>
+            </div>
+        </header>
+
+        <div class="layout">
+            <!-- ── Sticky table of contents ──────────────────
+                 <details> so it collapses to a "Contents" toggle on
+                 mobile; open by default, summary hidden on desktop. -->
+            <details class="toc" id="toc" open>
+                <summary>Contents</summary>
+                <nav aria-label="Contents">
+                    <p class="toc-heading">Contents</p>
+                    <ol>
+                        <li><a href="#introduction">Introduction</a></li>
+                        <li>
+                            <a href="#exhibits-not-dashboards"
+                                >Exhibits, Not Dashboards</a
+                            >
+                        </li>
+                        <li>
+                            <a href="#start-with-one-idea"
+                                >Start With One Idea</a
+                            >
+                        </li>
+                        <li>
+                            <a href="#exhibit-outline">Exhibit Outline</a>
+                            <ol class="toc-sub">
+                                <li><a href="#hook">Hook</a></li>
+                                <li><a href="#stakes">Stakes</a></li>
+                                <li><a href="#stage">Stage</a></li>
+                                <li><a href="#reveal">Reveal</a></li>
+                                <li><a href="#payoff">Payoff</a></li>
+                            </ol>
+                        </li>
+                        <li>
+                            <a href="#interactive-elements"
+                                >Interactive Elements</a
+                            >
+                        </li>
+                        <li><a href="#external-data">External Data</a></li>
+                        <li>
+                            <a href="#current-exhibits">Current Exhibits</a>
+                        </li>
+                    </ol>
+                </nav>
+            </details>
+
+            <main class="article">
+                <h2 id="introduction">Introduction</h2>
+                <div class="article-intro">
+                    <p>
+                        The WRMP holds a remarkable record of the San Francisco
+                        Estuary — years of fish, habitat, and water-quality
+                        monitoring across a shifting, living system. These
+                        interactive exhibits are how that record gets
+                        <em>told</em>: how a monitoring dataset becomes something
+                        a curious person will choose to explore, and leave
+                        understanding something they didn’t before.
+                    </p>
+                    <p>
+                        Every exhibit follows the same outline. This document
+                        explains the approach, walks through that outline step by
+                        step, and shows it applied — to the exhibits already built
+                        and to a few that could be.
+                    </p>
+                </div>
+
+                <hr />
+
+                <h2 id="exhibits-not-dashboards">Exhibits, Not Dashboards</h2>
+                <p>
+                    The approach follows the tradition of the natural history
+                    museum exhibition rather than the analytics dashboard. The
+                    distinction matters, because the two forms have opposite
+                    instincts.
+                </p>
+                <p>
+                    A <strong>dashboard</strong> is built for the expert who
+                    already knows what they’re looking for. It maximizes access —
+                    every metric, every filter, every cut of the data, available
+                    at once. It answers questions. It assumes a question.
+                </p>
+                <p>
+                    An <strong>exhibition</strong> is built for the curious
+                    visitor who doesn’t yet know what’s interesting. It makes a
+                    choice on the visitor’s behalf — <em>this, here, is worth your
+                    attention, and here is why.</em> It doesn’t wait to be
+                    queried; it leads. A great aquarium doesn’t hand you a database
+                    of every fish in the bay and a set of filters. It builds the
+                    kelp forest, puts you inside it, and lets the story of that
+                    ecosystem unfold as you move through it.
+                </p>
+                <p>
+                    Monitoring data is almost always presented as a dashboard. The
+                    WRMP’s data earns the exhibition treatment, because it is a
+                    genuinely dramatic multi-year story: a drought that reset a
+                    fish community, restored marshes racing sea level rise, a few
+                    species that drive an entire estuary. The queryable record
+                    matters too, and it stays available — but the <em>first</em>
+                    encounter, for a board member, a partner, a journalist, or a
+                    member of the public, should be a story, not a search box.
+                </p>
+
+                <figure>
+                    <img
+                        src="methodology-figures/the-stage.webp"
+                        width="1200"
+                        height="675"
+                        loading="lazy"
+                        decoding="async"
+                        alt="An exhibit opens on its subject, not a control panel — the story panel sits over the estuary itself."
+                    />
+                    <figcaption>
+                        An exhibit opens on its subject, not a control panel — the
+                        story panel sits over the estuary itself.
+                    </figcaption>
+                </figure>
+
+                <hr />
+
+                <h2 id="start-with-one-idea">Start With One Idea</h2>
+                <p>
+                    The governing discipline is subtraction.
+                    <strong>Each exhibit makes one point.</strong> Before anything
+                    is designed, we name the single sentence a visitor should
+                    carry away — then include only what earns that sentence.
+                </p>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th scope="col">Exhibit</th>
+                                <th scope="col">The one idea it carries</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>A Decade in Alviso Marsh</td>
+                                <td>
+                                    A single drought reset the marsh’s fish
+                                    community from native- to
+                                    non-native-dominated.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Native vs. Invasive</td>
+                                <td>
+                                    You can watch that shift happen — year by
+                                    year, species by species.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Is the Bay Keeping Up?</td>
+                                <td>
+                                    Restored marshes are gaining ground in their
+                                    race against sea level rise.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Designing the Experiment</td>
+                                <td>
+                                    Restoration is a designed experiment, with
+                                    benchmark sites and project sites read against
+                                    each other.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>How We Monitor</td>
+                                <td>
+                                    Different gear catches different fish — which
+                                    is why the program uses several.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p>
+                    This is also why some results appear in forms that aren’t the
+                    obvious ones. The most faithful chart is rarely the most
+                    legible, and the most comprehensive view is rarely the most
+                    memorable. A fourteen-year time series can be drawn as a forest
+                    of lines, or as the single tipping point those lines actually
+                    describe — and the tipping point is what a visitor remembers.
+                    We choose the view that makes the point <em>land</em>, and we
+                    trade completeness for clarity in the narrative.
+                </p>
+                <p>
+                    We can afford that trade because nothing is hidden. Every
+                    exhibit carries a quiet
+                    <strong>“data and tools” panel</strong> — the full datasets,
+                    the source tools, the wider context — one step behind the
+                    story, for anyone who wants to go past the narrative and into
+                    the evidence.
+                </p>
+
+                <figure>
+                    <img
+                        src="methodology-figures/one-idea.webp"
+                        width="1200"
+                        height="675"
+                        loading="lazy"
+                        decoding="async"
+                        alt="A fourteen-year record shown as a regime shift: water years grouped by their community signature, before and after the 2014–15 drought."
+                    />
+                    <figcaption>
+                        A fourteen-year record shown as a regime shift: water
+                        years grouped by their community signature, before and
+                        after the 2014–15 drought.
+                    </figcaption>
+                </figure>
+
+                <hr />
+
+                <h2 id="exhibit-outline">Exhibit Outline</h2>
+                <p>
+                    With the one idea chosen, every exhibit carries it through the
+                    same five steps. This is the blueprint — the part to follow
+                    when building a new one.
+                </p>
+
+                <h3 id="hook">Hook</h3>
+                <p class="field">
+                    <span class="field-label">What it is.</span> The opening
+                    moment, and a way in that isn’t a chart. Its only job is to
+                    earn the next thirty seconds.
+                </p>
+                <p class="field">
+                    <span class="field-label">Examples.</span> <em>Delta Smelt</em>
+                    opens on a slow, full-screen film of the fish itself.
+                    <em>A Decade in Alviso Marsh</em> opens on an aerial of the
+                    marsh at dawn. A species exhibit can open on a single number —
+                    “seven species, ninety percent of the catch.”
+                </p>
+                <p class="field"><span class="field-label">Best practices.</span></p>
+                <ul>
+                    <li>
+                        Lead with the subject, not the data — an image, a motion,
+                        or one arresting fact.
+                    </li>
+                    <li>
+                        One hook, not three. A second competing element weakens
+                        the first.
+                    </li>
+                    <li>
+                        Keep words minimal over the hook; let it do the pulling.
+                    </li>
+                </ul>
+
+                <h3 id="stakes">Stakes</h3>
+                <p class="field">
+                    <span class="field-label">What it is.</span> Why this matters,
+                    established <em>before</em> any data appears. It gives the
+                    visitor a reason to care about the numbers that follow.
+                </p>
+                <p class="field">
+                    <span class="field-label">Examples.</span> <em>Delta Smelt</em>
+                    — a native fish that reshaped California water policy, now near
+                    extinction. <em>Is the Bay Keeping Up?</em> — tidal marshes are
+                    the region’s living seawall, but only if they can rise as fast
+                    as the sea.
+                </p>
+                <p class="field"><span class="field-label">Best practices.</span></p>
+                <ul>
+                    <li>
+                        State the stakes in human or ecological terms, not
+                        statistical ones.
+                    </li>
+                    <li>
+                        Keep it to a sentence or two — the stakes set up the
+                        evidence, they aren’t the evidence.
+                    </li>
+                    <li>
+                        An exhibit that feels flat is almost always missing the
+                        hook or the stakes.
+                    </li>
+                </ul>
+
+                <h3 id="stage">Stage</h3>
+                <p class="field">
+                    <span class="field-label">What it is.</span> The single
+                    interactive surface that carries the evidence — a map, a chart,
+                    or media — filling the frame. The narration is an overlay on
+                    it, not a sidebar beside it.
+                </p>
+                <p class="field">
+                    <span class="field-label">Examples.</span> The station map in
+                    <em>The Bay: Where We’re Watching</em>. The condition map in
+                    <em>Is the Bay Keeping Up?</em>. The clustered water-year chart
+                    in <em>A Decade in Alviso Marsh</em>.
+                </p>
+                <p class="field"><span class="field-label">Best practices.</span></p>
+                <ul>
+                    <li>
+                        One stage per exhibit — don’t split the visitor’s
+                        attention between two surfaces.
+                    </li>
+                    <li>
+                        The stage fills the frame; text floats over it rather than
+                        crowding it aside.
+                    </li>
+                    <li>
+                        The stage responds to the narration — it changes as the
+                        visitor advances.
+                    </li>
+                </ul>
+
+                <h3 id="reveal">Reveal</h3>
+                <p class="field">
+                    <span class="field-label">What it is.</span> A short, stepped
+                    sequence that uncovers the data one move at a time, leading the
+                    visitor <em>through</em> the finding rather than handing them a
+                    control panel to assemble it themselves.
+                </p>
+                <p class="field">
+                    <span class="field-label">Examples.</span>
+                    <em>Native vs. Invasive</em> moves from “The Home Team” to “The
+                    Uninvited” to “Where They Meet” to “Counting the Balance.”
+                    <em>How We Monitor</em> walks one gear type at a time — otter
+                    trawl, beach seine, gill net.
+                </p>
+                <p class="field"><span class="field-label">Best practices.</span></p>
+                <ul>
+                    <li>Four to six steps, not twelve. Each step is one idea.</li>
+                    <li>
+                        Every step changes the stage — a new step that doesn’t move
+                        the visual is a paragraph, not a step.
+                    </li>
+                    <li>
+                        Keep forward momentum; each step should feel like progress
+                        toward the point.
+                    </li>
+                </ul>
+
+                <h3 id="payoff">Payoff</h3>
+                <p class="field">
+                    <span class="field-label">What it is.</span> The point landing
+                    — and then a graceful handoff to depth for anyone who wants
+                    more.
+                </p>
+                <p class="field">
+                    <span class="field-label">Examples.</span>
+                    <em>A Decade in Alviso Marsh</em> closes on “Why This Shape of
+                    Program?”. <em>Delta Smelt</em> closes on “You Can’t Save What
+                    You Can’t See.” Every exhibit ends with the data and tools
+                    panel and a path to related exhibits.
+                </p>
+                <p class="field"><span class="field-label">Best practices.</span></p>
+                <ul>
+                    <li>
+                        Restate the one idea in plain terms — the visitor should be
+                        able to repeat it.
+                    </li>
+                    <li>
+                        Offer a next step: deeper data, a related exhibit, a way to
+                        act.
+                    </li>
+                    <li>
+                        Don’t end abruptly; the payoff is the moment the exhibit
+                        earns its keep.
+                    </li>
+                </ul>
+
+                <hr />
+
+                <h2 id="interactive-elements">Interactive Elements</h2>
+                <p>
+                    Most of the time, the narration leads and the stage responds —
+                    the visitor reads, and the map or chart changes beneath the
+                    words. The interaction is
+                    <em>exploration in service of the story</em>, and keeping it
+                    that way is what makes an exhibit feel composed rather than
+                    operated.
+                </p>
+                <p>
+                    Occasionally, though, the point itself is something a visitor
+                    grasps best by working it with their own hands. Wetland
+                    condition, as measured by the California Rapid Assessment
+                    Method (CRAM), is not a single number — it’s several dimensions
+                    of habitat health rolled into one score. You can <em>tell</em>
+                    someone that, or you can let them recolor every site by a
+                    single attribute and watch the picture change. The second
+                    teaches what the first only asserts.
+                </p>
+                <p>
+                    So we put an interactive control into the narrative itself when
+                    three things are true:
+                </p>
+                <ol>
+                    <li>
+                        <strong>Manipulating it teaches</strong> — the idea is
+                        genuinely multi-dimensional, and handling it <em>is</em>
+                        the explanation.
+                    </li>
+                    <li>
+                        <strong>The control is small and legible</strong> — a
+                        toggle, a short set of choices, not a form.
+                    </li>
+                    <li>
+                        <strong>It stays optional</strong> — the story still reads
+                        start to finish for a visitor who never touches it.
+                    </li>
+                </ol>
+                <p>
+                    When those conditions don’t hold, the interaction belongs on
+                    the stage — filtering the map, scrubbing the timeline — not in
+                    the narration. Making every panel interactive by default would
+                    quietly turn the exhibit back into the dashboard we set out not
+                    to build.
+                </p>
+
+                <figure>
+                    <img
+                        src="methodology-figures/the-controls.webp"
+                        width="1200"
+                        height="675"
+                        loading="lazy"
+                        decoding="async"
+                        alt="The condition step lets a visitor recolor every site by a single CRAM attribute — taking the index apart to see what 'healthy' is made of."
+                    />
+                    <figcaption>
+                        The condition step lets a visitor recolor every site by a
+                        single CRAM attribute — taking the index apart to see what
+                        “healthy” is made of.
+                    </figcaption>
+                </figure>
+
+                <hr />
+
+                <h2 id="external-data">External Data</h2>
+                <p>
+                    The WRMP’s own monitoring is the protagonist of every exhibit;
+                    it answers <em>what we have observed.</em> But some of the most
+                    important questions are <em>why</em> and
+                    <em>compared to what</em> — and those answers often live
+                    outside the program’s own measurements.
+                </p>
+                <p>We reach for external data in three situations:</p>
+                <ul>
+                    <li>
+                        <strong>To supply the driver</strong> behind a WRMP signal
+                        — the drought severity behind a community shift, the rate
+                        of sea level rise a marsh is racing. Pairing the program’s
+                        observations with outside data on external drivers is built
+                        into the WRMP’s own science framework, which calls for
+                        exactly this.
+                    </li>
+                    <li>
+                        <strong>To set a baseline</strong> the program is too young
+                        to provide itself — the regional and historical context
+                        that situates a finding.
+                    </li>
+                    <li>
+                        <strong>To offer a tool, not a claim</strong> — a shared
+                        map or reference a visitor can carry onward into their own
+                        work.
+                    </li>
+                </ul>
+                <p>
+                    Three rules keep external data in its proper, supporting role:
+                </p>
+                <ul>
+                    <li>
+                        It is always <strong>attributed and dated</strong>, so its
+                        provenance is visible.
+                    </li>
+                    <li>
+                        It <strong>frames or explains</strong> the WRMP finding; it
+                        never <em>becomes</em> the finding.
+                    </li>
+                    <li>
+                        We <strong>point to it rather than reproduce it</strong>,
+                        so authority stays with its source and the exhibit stays
+                        current.
+                    </li>
+                </ul>
+                <p>
+                    The moment an outside number appears inside an exhibit, it
+                    carries the program’s credibility. So the bar for including it
+                    is the same bar the WRMP sets for its own data.
+                </p>
+
+                <figure>
+                    <img
+                        src="methodology-figures/outside-data.webp"
+                        width="1200"
+                        height="675"
+                        loading="lazy"
+                        decoding="async"
+                        alt="The 'data and tools' panel keeps full datasets, source tools, and outside context one step behind the story."
+                    />
+                    <figcaption>
+                        The “data and tools” panel keeps full datasets, source
+                        tools, and outside context one step behind the story.
+                    </figcaption>
+                </figure>
+
+                <hr />
+
+
+                <h2 id="current-exhibits">Current Exhibits</h2>
+                <p>
+                    The exhibits built to this outline, for reference. Each link
+                    opens the live exhibit; beneath it, the same five steps, filled
+                    in. The steps are the underlying structure, not on-screen
+                    labels — the Hook and Stakes live in the opening, the Stage is
+                    the surface every step shares, the Reveal is the stepped
+                    middle, and the Payoff is the close.
+                </p>
+
+                <h4>
+                    <a
+                        href="exhibits/round-3-2026-06/station-map-stepper/index.html"
+                        >The Bay: Where We’re Watching</a
+                    >
+                </h4>
+                <p class="exhibit-desc">
+                    The monitoring network across the estuary.
+                </p>
+                <ul>
+                    <li>
+                        <strong>Hook</strong> — the estuary seen whole, from above.
+                    </li>
+                    <li>
+                        <strong>Stakes</strong> — you can’t read a system you
+                        haven’t mapped; where you watch shapes what you learn.
+                    </li>
+                    <li>
+                        <strong>Stage</strong> — the station map of the entire bay.
+                    </li>
+                    <li>
+                        <strong>Reveal</strong> — the estuary’s three regions → the
+                        monitoring network → restoration in progress.
+                    </li>
+                    <li>
+                        <strong>Payoff</strong> — what the network will watch next.
+                    </li>
+                </ul>
+
+                <h4>
+                    <a href="exhibits/round-3-2026-06/delta-smelt/index.html"
+                        >Delta Smelt: The Smallest Giant</a
+                    >
+                </h4>
+                <p class="exhibit-desc">
+                    A featured-species profile of an endangered native.
+                </p>
+                <ul>
+                    <li>
+                        <strong>Hook</strong> — meet the smallest giant, on film.
+                    </li>
+                    <li>
+                        <strong>Stakes</strong> — a tiny native that reshaped
+                        California water policy, now near extinction.
+                    </li>
+                    <li>
+                        <strong>Stage</strong> — a video hero giving way to the
+                        species’ range map.
+                    </li>
+                    <li>
+                        <strong>Reveal</strong> — this is its world → who shares
+                        this water → a species under pressure → the network that
+                        watches.
+                    </li>
+                    <li>
+                        <strong>Payoff</strong> — you can’t save what you can’t
+                        see.
+                    </li>
+                </ul>
+
+                <h4>
+                    <a href="exhibits/round-3-2026-06/how-we-look/index.html"
+                        >How We Monitor</a
+                    >
+                </h4>
+                <p class="exhibit-desc">
+                    Why no single net catches the whole community.
+                </p>
+                <ul>
+                    <li>
+                        <strong>Hook</strong> — no single net catches everything.
+                    </li>
+                    <li>
+                        <strong>Stakes</strong> — what you catch depends on how you
+                        fish; gear choice shapes the record.
+                    </li>
+                    <li>
+                        <strong>Stage</strong> — field photography of each gear
+                        type at work.
+                    </li>
+                    <li>
+                        <strong>Reveal</strong> — otter trawls → beach seines →
+                        gill nets &amp; fyke traps, each catching a different
+                        slice.
+                    </li>
+                    <li>
+                        <strong>Payoff</strong> — matching tools to questions.
+                    </li>
+                </ul>
+
+                <h4>
+                    <a
+                        href="exhibits/round-3-2026-06/native-vs-invasive/index.html"
+                        >Native vs. Invasive</a
+                    >
+                </h4>
+                <p class="exhibit-desc">
+                    The shifting balance of native and non-native species.
+                </p>
+                <ul>
+                    <li>
+                        <strong>Hook</strong> — 237 species call it home.
+                    </li>
+                    <li>
+                        <strong>Stakes</strong> — which ones belong, and whether
+                        the balance is tipping.
+                    </li>
+                    <li>
+                        <strong>Stage</strong> — the species-composition timeline
+                        over the map.
+                    </li>
+                    <li>
+                        <strong>Reveal</strong> — the home team → the uninvited →
+                        where they meet.
+                    </li>
+                    <li>
+                        <strong>Payoff</strong> — counting the balance.
+                    </li>
+                </ul>
+
+                <h4>
+                    <a
+                        href="exhibits/round-3-2026-06/restoration-network/index.html"
+                        >Designing the Experiment</a
+                    >
+                </h4>
+                <p class="exhibit-desc">Restoration as a designed experiment.</p>
+                <ul>
+                    <li>
+                        <strong>Hook</strong> — restoration as a designed
+                        experiment.
+                    </li>
+                    <li>
+                        <strong>Stakes</strong> — you only learn whether
+                        restoration works if the comparison is built in from the
+                        start.
+                    </li>
+                    <li>
+                        <strong>Stage</strong> — the site-network map: benchmark,
+                        reference, and project sites.
+                    </li>
+                    <li>
+                        <strong>Reveal</strong> — benchmarks (the gold standard) →
+                        reference sites → project sites.
+                    </li>
+                    <li>
+                        <strong>Payoff</strong> — what comes next, and the full
+                        picture.
+                    </li>
+                </ul>
+
+                <h4>
+                    <a href="exhibits/round-3-2026-06/alviso-decade/index.html"
+                        >A Decade in Alviso Marsh</a
+                    >
+                </h4>
+                <p class="exhibit-desc">
+                    Fourteen years of monitoring and a drought-driven regime shift.
+                </p>
+                <ul>
+                    <li>
+                        <strong>Hook</strong> — the marsh as a living laboratory at
+                        the bay’s edge.
+                    </li>
+                    <li>
+                        <strong>Stakes</strong> — what fourteen years reveal that a
+                        single survey can’t.
+                    </li>
+                    <li>
+                        <strong>Stage</strong> — the SBOTS charts: time series and
+                        water-year clustering.
+                    </li>
+                    <li>
+                        <strong>Reveal</strong> — the salinity gradient → two
+                        seasons, not four → the drought that didn’t end.
+                    </li>
+                    <li>
+                        <strong>Payoff</strong> — why the program is shaped the way
+                        it is.
+                    </li>
+                </ul>
+
+                <h4>
+                    <a href="exhibits/round-3-2026-06/bay-keeping-up/index.html"
+                        >Is the Bay Keeping Up?</a
+                    >
+                </h4>
+                <p class="exhibit-desc">
+                    Whether restored marshes can outpace sea level rise.
+                </p>
+                <ul>
+                    <li>
+                        <strong>Hook</strong> — the marsh as the shield at the
+                        water’s edge.
+                    </li>
+                    <li>
+                        <strong>Stakes</strong> — the living seawall only works if
+                        it rises as fast as the sea.
+                    </li>
+                    <li>
+                        <strong>Stage</strong> — the condition and extent map, and
+                        the scorecard gauges.
+                    </li>
+                    <li>
+                        <strong>Reveal</strong> — how much wetland is left → is it
+                        rising fast enough → is it healthy (CRAM).
+                    </li>
+                    <li>
+                        <strong>Payoff</strong> — the bay’s report card.
+                    </li>
+                </ul>
+            </main>
+        </div>
+
+        <footer class="page-footer">
+            <div class="page-footer-inner">
+                Wetland Regional Monitoring Program
+            </div>
+        </footer>
+
+        <script>
+            // Scrollspy — highlight the TOC link for the section in view.
+            // Plain IntersectionObserver, no dependencies.
+            (function () {
+                var tocLinks = Array.prototype.slice.call(
+                    document.querySelectorAll(".toc a[href^='#']")
+                );
+                if (!tocLinks.length) return;
+
+                var byId = {};
+                tocLinks.forEach(function (link) {
+                    var id = link.getAttribute("href").slice(1);
+                    byId[id] = link;
+                });
+
+                var targets = Object.keys(byId)
+                    .map(function (id) {
+                        return document.getElementById(id);
+                    })
+                    .filter(Boolean);
+
+                var current = null;
+                function setActive(id) {
+                    if (current === id) return;
+                    if (current && byId[current])
+                        byId[current].classList.remove("is-active");
+                    current = id;
+                    if (byId[id]) byId[id].classList.add("is-active");
+                }
+
+                var observer = new IntersectionObserver(
+                    function (entries) {
+                        // Pick the topmost heading currently intersecting.
+                        var visible = entries
+                            .filter(function (e) {
+                                return e.isIntersecting;
+                            })
+                            .sort(function (a, b) {
+                                return (
+                                    a.boundingClientRect.top -
+                                    b.boundingClientRect.top
+                                );
+                            });
+                        if (visible.length) {
+                            setActive(visible[0].target.id);
+                        }
+                    },
+                    {
+                        // Activate when a heading nears the top of the viewport.
+                        rootMargin: "0px 0px -75% 0px",
+                        threshold: 0,
+                    }
+                );
+
+                targets.forEach(function (t) {
+                    observer.observe(t);
+                });
+            })();
+        </script>
+    </body>
+</html>
