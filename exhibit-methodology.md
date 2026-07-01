@@ -218,6 +218,41 @@ data.
 
 ---
 
+## How Exhibits Connect
+
+Every exhibit carries more than a title and a cover. Beneath each one is a small
+set of structured tags that place it within the program's science and name who it
+is for. Three classifications matter most:
+
+- **Management question** — which of the science framework's management questions
+  the exhibit speaks to, such as 1A or 4B. An exhibit can speak to more than one,
+  and a single question can gather several exhibits. This is the primary tag,
+  because the management questions are the framework's answerable, actionable
+  level — more so than the broader guiding questions above them.
+- **Audience** — who the exhibit is chiefly for: the general public, land
+  managers, regulators and agency staff, or researchers. The same format serves
+  different readers, and the tag records the intent.
+- **Monitoring topic** — the subject area, such as fish and fish habitat, matching
+  how the gallery is organized.
+
+These tags are what let an exhibit connect to the rest of the site:
+
+- **A question badge rides on every poster.** Wherever an exhibit appears —
+  homepage, topic page, gallery, science framework — its poster announces which
+  management question it speaks to and links back to that question.
+- **The gallery filters by management question.** Someone who cares about a single
+  question can gather every exhibit that speaks to it.
+- **The audience tag prepares the ground** for serving regulators and managers as
+  deliberately as the general public, without a separate site.
+
+These tags are deliberate authoring choices, set alongside the exhibit's one idea
+and kept honest. An exhibit is tagged to a management question only when it
+genuinely speaks to that question — never when it merely illustrates the same
+subject. The badge is a claim the program stands behind, so the connection has to
+be real.
+
+---
+
 ## Current Exhibits
 
 The exhibits built to this outline, for reference. Each link opens the live

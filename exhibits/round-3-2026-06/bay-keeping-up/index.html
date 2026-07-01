@@ -20,6 +20,7 @@
         <link rel="stylesheet" href="../../../shared/css/marker-popup.css" />
         <link rel="stylesheet" href="../../../shared/css/metrics-card.css" />
         <link rel="stylesheet" href="../../../shared/css/exhibit-cover.css" />
+        <link rel="stylesheet" href="../../../shared/css/exhibit-tags.css" />
         <link rel="stylesheet" href="../../../shared/css/level3.css?v=6" />
         <style>
             .exhibit-frame {
@@ -706,7 +707,24 @@
                     aria-hidden="true"
                 ></div>
                 <div class="exhibit-cover-gradient" aria-hidden="true"></div>
-                <div class="exhibit-cover-content">
+                <p class="exhibit-cover-updated">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="12" cy="12" r="9" />
+                            <path d="M12 7v5l3 2" />
+                        </svg>
+                        Last updated May 28, 2026
+                    </p>
+        <div class="exhibit-cover-content">
+                    <div class="exhibit-cover-tags">
+                        <div class="exhibit-tags">
+                            <a class="exhibit-tag" data-gq="2" href="../../../website-integration/science-framework-round2.html#mq-2A" title="2A — How are tidal marshes and tidal flats, including restoration projects, changing in elevation and extent relative to local tidal datums?">2A</a>
+                            <a class="exhibit-tag" data-gq="3" href="../../../website-integration/science-framework-round2.html#mq-3B" title="3B — Where and when can interventions, such as placement of dredged sediment, reconnection of restoration projects to watersheds, and construction of living shorelines, help to sustain or increase the quantity and quality of tidal marsh ecosystems?">3B</a>
+                        </div>
+                        <div class="exhibit-topics exhibit-topics--on-cover">
+                            <a class="exhibit-topic" href="../../../website-integration/topic-page.html">Wetlands &amp; Sea Level Rise</a>
+                            <a class="exhibit-topic" href="../../../website-integration/topic-page.html">Wetland Condition</a>
+                        </div>
+                    </div>
                     <span class="exhibit-cover-kicker">WRMP Exhibit · Wetland Resilience</span>
                     <h2 class="exhibit-cover-title">Is the Bay Keeping Up?</h2>
                     <p class="exhibit-cover-lede">
@@ -716,13 +734,7 @@
                     </p>
                     <!-- Last-updated stamp — illustrative placeholder date for the July
                          review; no real data ships yet. Adjust the date freely. -->
-                    <p class="exhibit-cover-updated">
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                            <circle cx="12" cy="12" r="9" />
-                            <path d="M12 7v5l3 2" />
-                        </svg>
-                        Last updated May 28, 2026
-                    </p>
+                    
                     <button id="btn-enter" class="exhibit-cover-cta" type="button">
                         <svg viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M8 5v14l11-7z" />

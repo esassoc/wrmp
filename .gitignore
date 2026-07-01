@@ -15,3 +15,10 @@ reference.zip
 
 # Private project context (engagement framing, contacts, budgets, meeting history)
 CLAUDE.local.md
+
+# Local scratch: verification screenshots + throwaway dev server
+/*.png
+/serve.py
+
+# Per-session agent scratch memory
+.claude/agent-memory/

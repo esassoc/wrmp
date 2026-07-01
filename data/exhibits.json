@@ -1,0 +1,162 @@
+{
+  "_note": "Single source of truth for exhibit metadata. The management-question AND topic mappings below are a STRAWMAN for SFEI/the TAC to confirm — the visual mechanism (badges, links, filters) is built; the tag values are a content decision. Presentation (badge colors per question tier) lives in CSS, not here. guidingQuestion of any exhibit is derived from the leading digit of its managementQuestions. Topics map to the 7 site content topics (see taxonomy.topics).",
+  "taxonomy": {
+    "guidingQuestions": {
+      "1": "Where are the region's tidal marsh ecosystems, and what net changes in area and condition are occurring?",
+      "2": "How are external drivers — sea level rise, development, runoff and sediment supply — impacting tidal marsh ecosystems?",
+      "3": "What new information do we need to better understand regional lessons from tidal wetland restoration projects?",
+      "4": "How do policies, programs, and projects to protect and restore tidal marshes affect the distribution, abundance, and health of plants and animals?",
+      "5": "How do efforts to protect and restore tidal wetlands benefit and/or impact public health, safety, and recreation?"
+    },
+    "managementQuestions": {
+      "1A": "What is the distribution, abundance and condition of tidal marsh ecosystems, and how are they changing over time?",
+      "1B": "Are changes in tidal marsh ecosystems impacting water quality?",
+      "2A": "How are tidal marshes and tidal flats, including restoration projects, changing in elevation and extent relative to local tidal datums?",
+      "2B": "What are the regional differences in the sources and amounts of sediment available to support accretion in tidal marsh ecosystems?",
+      "3A": "What new information do we need to better understand regional lessons from tidal marsh restoration projects, advance tidal marsh science, and ensure the continued success of restoration projects?",
+      "3B": "Where and when can interventions, such as placement of dredged sediment, reconnection of restoration projects to watersheds, and construction of living shorelines, help to sustain or increase the quantity and quality of tidal marsh ecosystems?",
+      "4A": "How are habitats for assemblages of resident species of fish and wildlife in tidal marsh ecosystems changing over time?",
+      "4B": "How are the distribution and abundance of key resident species of fish and wildlife of tidal marsh ecosystems changing over time?",
+      "5A": "What mosquito and vector control strategies need to be considered in restoration design and management to understand the effects that restoration can have on mosquito and vector populations?",
+      "5B": "What monitoring data and/or analyses are needed to improve the relationships between tidal marsh restoration, fish and wildlife support, mosquito and vector control, and public access?",
+      "5C": "How are the benefits of wetlands (flood risk reduction, water quality, public access, community stewardship, knowledge production, and cultural and spiritual experiences) distributed regionally?",
+      "5D": "How does the provision of wetland benefits progress over time at existing and restored wetland sites?"
+    },
+    "managementQuestionsShort": {
+      "1A": "Tidal marsh extent, abundance, and condition",
+      "1B": "Marsh change effects on water quality",
+      "2A": "Marsh elevation and extent over time",
+      "2B": "Sediment supply for marsh accretion",
+      "3A": "New information to advance restoration",
+      "3B": "Interventions to sustain tidal marshes",
+      "4A": "Change in fish and wildlife habitats",
+      "4B": "Trends in key fish and wildlife species",
+      "5A": "Mosquito and vector control in restoration",
+      "5B": "Data linking restoration, wildlife, and access",
+      "5C": "Regional distribution of wetland benefits",
+      "5D": "Wetland benefits over time at sites"
+    },
+    "audiences": {
+      "public": "General public",
+      "land-managers": "Land managers",
+      "regulators": "Regulators & agency staff",
+      "researchers": "Researchers"
+    },
+    "topics": {
+      "baylands-geography": "Baylands Geography",
+      "fish-wildlife": "Fish & Wildlife",
+      "wetlands-sea-level-rise": "Wetlands & Sea Level Rise",
+      "plant-communities": "Plant Communities",
+      "wetland-condition": "Wetland Condition",
+      "people-wetlands": "People & Wetlands",
+      "water-quality": "Water Quality"
+    }
+  },
+  "exhibits": [
+    {
+      "slug": "delta-smelt",
+      "title": "Delta Smelt: The Smallest Giant",
+      "kicker": "Featured species",
+      "blurb": "A tiny endangered native that reshaped California water policy.",
+      "href": "exhibits/round-3-2026-06/delta-smelt/",
+      "cover": "exhibits/round-3-2026-06/delta-smelt/cover.jpg",
+      "steps": 6,
+      "tier": 1,
+      "monitoringTopic": "fish-and-fish-habitat",
+      "managementQuestions": ["4B"],
+      "audiences": ["public", "land-managers"],
+      "topics": ["fish-wildlife"],
+      "sourceLinks": []
+    },
+    {
+      "slug": "station-map-stepper",
+      "title": "The Bay: Where We're Watching",
+      "kicker": "Station network",
+      "blurb": "The monitoring network across the estuary — where we watch, and why.",
+      "href": "exhibits/round-3-2026-06/station-map-stepper/",
+      "cover": "exhibits/round-3-2026-06/station-map-stepper/cover.jpg",
+      "steps": 5,
+      "tier": 1,
+      "monitoringTopic": "fish-and-fish-habitat",
+      "managementQuestions": ["1A"],
+      "audiences": ["public", "regulators", "land-managers"],
+      "topics": ["baylands-geography", "fish-wildlife"],
+      "sourceLinks": []
+    },
+    {
+      "slug": "how-we-look",
+      "title": "How We Monitor",
+      "kicker": "Monitoring methods",
+      "blurb": "Different gear catches different fish — which is why we use several.",
+      "href": "exhibits/round-3-2026-06/how-we-look/",
+      "cover": "exhibits/round-3-2026-06/how-we-look/cover.jpg",
+      "steps": 5,
+      "tier": 1,
+      "monitoringTopic": "fish-and-fish-habitat",
+      "managementQuestions": ["4A"],
+      "audiences": ["public", "researchers"],
+      "topics": ["fish-wildlife"],
+      "sourceLinks": []
+    },
+    {
+      "slug": "native-vs-invasive",
+      "title": "Native vs. Invasive",
+      "kicker": "Species composition",
+      "blurb": "Watch the balance of native and non-native species shift, year by year.",
+      "href": "exhibits/round-3-2026-06/native-vs-invasive/",
+      "cover": "exhibits/round-3-2026-06/native-vs-invasive/cover.jpg",
+      "steps": 5,
+      "tier": 1,
+      "monitoringTopic": "fish-and-fish-habitat",
+      "managementQuestions": ["4A", "4B"],
+      "audiences": ["public", "land-managers"],
+      "topics": ["fish-wildlife"],
+      "sourceLinks": []
+    },
+    {
+      "slug": "restoration-network",
+      "title": "Designing the Experiment",
+      "kicker": "Restoration design",
+      "blurb": "Restoration as a designed experiment: benchmark sites read against project sites.",
+      "href": "exhibits/round-3-2026-06/restoration-network/",
+      "cover": "exhibits/round-3-2026-06/restoration-network/cover.jpg",
+      "steps": 6,
+      "tier": 1,
+      "monitoringTopic": "fish-and-fish-habitat",
+      "managementQuestions": ["3A", "1A"],
+      "audiences": ["land-managers", "regulators", "researchers"],
+      "topics": ["baylands-geography", "fish-wildlife"],
+      "sourceLinks": []
+    },
+    {
+      "slug": "alviso-decade",
+      "title": "A Decade in Alviso Marsh",
+      "kicker": "Long-term trends",
+      "blurb": "Fourteen years of monitoring, and the drought that reset a fish community.",
+      "href": "exhibits/round-3-2026-06/alviso-decade/",
+      "cover": "exhibits/round-3-2026-06/alviso-decade/cover.jpg",
+      "steps": 5,
+      "tier": 1,
+      "monitoringTopic": "fish-and-fish-habitat",
+      "managementQuestions": ["4A", "1A"],
+      "audiences": ["public", "land-managers"],
+      "topics": ["fish-wildlife", "wetland-condition"],
+      "sourceLinks": []
+    },
+    {
+      "slug": "bay-keeping-up",
+      "title": "Is the Bay Keeping Up?",
+      "kicker": "Restoration progress",
+      "blurb": "Whether restored marshes can rise as fast as the sea.",
+      "href": "exhibits/round-3-2026-06/bay-keeping-up/",
+      "cover": "exhibits/round-3-2026-06/bay-keeping-up/cover.jpg",
+      "steps": 5,
+      "tier": 1,
+      "monitoringTopic": "fish-and-fish-habitat",
+      "managementQuestions": ["2A", "3B"],
+      "audiences": ["public", "land-managers", "regulators"],
+      "topics": ["wetlands-sea-level-rise", "wetland-condition"],
+      "sourceLinks": []
+    }
+  ]
+}

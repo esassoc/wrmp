@@ -85,6 +85,25 @@
   max-width: 680px;
 }
 
+/* ── Meta row: MQ badge(s) + topic chip(s) ──────────
+   Sits at the top of the cover content, just above the
+   kicker (reads: tags → kicker → title). Badge and chip
+   visuals come from exhibit-tags.css — this only lays the
+   group out as a wrapping row over the dark hero. */
+.exhibit-cover-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  margin-bottom: 16px;
+}
+/* The on-cover topic group carries a bottom margin meant for
+   poster cards, where it sits directly above a title. Here it
+   flows inline in the meta row, so drop that margin. */
+.exhibit-cover-tags .exhibit-topics {
+  margin-bottom: 0;
+}
+
 .exhibit-cover-kicker {
   display: block;
   font-size: 0.82rem;
@@ -125,6 +144,19 @@
   stroke-width: 2;
   fill: none;
   opacity: 0.85;
+}
+
+/* On the OPENING cover, the updated stamp is pulled out of the content
+   column and pinned to the frame's bottom-right — level with the step
+   dots at bottom-left (same distance up from the cover's bottom edge as
+   the content's bottom padding). Direct-child selector so the end-card's
+   stamp (a grandchild, inside its content) is unaffected. */
+.exhibit-cover > .exhibit-cover-updated {
+  position: absolute;
+  right: clamp(28px, 5vw, 56px);
+  bottom: clamp(28px, 5vw, 56px);
+  margin: 0;
+  z-index: 2;
 }
 
 .exhibit-cover-title {

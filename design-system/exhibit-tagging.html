@@ -1,0 +1,1475 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>WRMP — Exhibit Tagging &amp; Recognition</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="../shared/css/tokens.css" />
+        <style>
+            /* ═══ Specimen tokens ═══
+               Tint / border / ink per guiding question already live in
+               tokens.css (--gq1-tint … --gq5-ink). Added here only for
+               this specimen: a saturated mid-tone per tier (option A2)
+               and a neutral topic-chip set (section C). */
+            :root {
+                --gq1-sat: #b8dde2; /* Q1 · ada-teal     */
+                --gq2-sat: #bfe3c9; /* Q2 · green        */
+                --gq3-sat: #f6d9a8; /* Q3 · orange       */
+                --gq4-sat: #b3dfe6; /* Q4 · teal         */
+                --gq5-sat: #d9e8b3; /* Q5 · light-green  */
+
+                --topic-ink: var(--gray-12);
+                --topic-ink-muted: var(--gray-11);
+                --topic-border: var(--gray-6);
+                --topic-surface: var(--gray-2);
+
+                /* ── Science Framework palette (usable brand colors;
+                     teal + orange set aside) + alternates ─────── */
+                --pal-teal: #228b9c;
+                --pal-green: #379352;
+                --pal-red: #b22e33;
+                --pal-indigo: #3c5191;
+                --pal-sky: #00acec;
+                --pal-clay: #986631;
+                --pal-sand: #f2ce87;
+                --pal-sand-gold: #c2b200; /* Sand pushed to high-chroma olive-gold */
+                --pal-brown: #968575;
+                --pal-earth: #664d26;
+                --pal-gray: #4e4e50;
+                --pal-liteblue: #9bc0e7;
+                --pal-grass: #92bb4d;
+                --pal-orange: #e09337;
+
+                /* ── Per-question ramps ─────────────────────────
+                     Crisp dark → medium → pale staircase:
+                     gq = deepest solid, WHITE text · mq = medium solid,
+                     WHITE text (a clear step lighter) · pra = pale wash,
+                     ink text · badge-bg = light tint, ink text · ink =
+                     deep hue for pra/badge text. A natural landscape ramp:
+                     Sky Blue, Grass, Sand, Orange, Earth. The warm trio
+                     (sand/orange/earth) separates by lightness — light
+                     gold, burnt orange, deep brown. All ≥4.5:1.  */
+                --q1-gq: #005575;  --q1-mq: #007eac; --q1-pra: #d9f3fc; --q1-badge-bg: #99def7; --q1-ink: #005575; /* Sky Blue (#00ACEC) */
+                --q2-gq: #40611c;  --q2-mq: #5c7d2b; --q2-pra: #eef4e0; --q2-badge-bg: #cfe3ab; --q2-ink: #40611c; /* Grass (#92BB4D) */
+                --q3-gq: #575000;  --q3-mq: #807500; --q3-pra: #f6f3d9; --q3-badge-bg: #e7e099; --q3-ink: #575000; /* Sand → olive-gold (#F2CE87) */
+                --q4-gq: #8a4b0a;  --q4-mq: #a85a0d; --q4-pra: #fbe9d5; --q4-badge-bg: #f4cfa2; --q4-ink: #6f3c07; /* Orange (#E09337) */
+                --q5-gq: #57411c;  --q5-mq: #7a5c2b; --q5-pra: #ece5d8; --q5-badge-bg: #cbb998; --q5-ink: #57411c; /* Earth (#664D26) */
+            }
+
+            /* ═══ Reset + base ═══ */
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+                padding: clamp(24px, 4vw, 48px);
+                font-family: var(--font-body);
+                font-size: 16px;
+                line-height: 1.6;
+                color: var(--color-text);
+                background: var(--gray-2);
+                -webkit-font-smoothing: antialiased;
+            }
+
+            /* ═══ Page header ═══ */
+            .page-head {
+                max-width: 74ch;
+                margin-bottom: 40px;
+            }
+            h1 {
+                font-size: var(--step-3, 1.95rem);
+                font-weight: 400;
+                color: var(--wrmp-ada-teal);
+                margin: 0 0 10px;
+                line-height: 1.1;
+            }
+            .lede {
+                color: var(--color-text-subtle);
+                font-size: 17px;
+                margin: 0;
+            }
+
+            /* ═══ Section + option headings ═══ */
+            .section {
+                margin: 0 0 60px;
+            }
+            .section-title {
+                font-size: 22px;
+                font-weight: 600;
+                color: var(--wrmp-ada-teal);
+                margin: 0 0 4px;
+            }
+            .section-intro {
+                color: var(--color-text-subtle);
+                font-size: 16px;
+                margin: 0 0 24px;
+                max-width: 74ch;
+            }
+            .rec {
+                display: inline-block;
+                font-size: 15px;
+                font-weight: 600;
+                color: var(--gq2-ink);
+                background: var(--gq2-tint);
+                border: 1px solid var(--gq2-border);
+                border-radius: var(--radius-sm, 4px);
+                padding: 4px 12px;
+                margin: 4px 0 0;
+            }
+            .option {
+                margin-bottom: 32px;
+            }
+            .option-title {
+                font-size: 18px;
+                font-weight: 600;
+                color: var(--color-text);
+                margin: 0 0 4px;
+            }
+            .option-caption {
+                font-size: 16px;
+                color: var(--color-text-subtle);
+                margin: 0 0 16px;
+                max-width: 72ch;
+            }
+            .option-caption .tradeoff {
+                color: var(--wrmp-ada-teal);
+                font-weight: 600;
+            }
+
+            .specimen-row {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(290px, 320px));
+                gap: 26px;
+                justify-content: start;
+            }
+
+            /* ═══ Guiding-question legend ═══ */
+            .gq-legend {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px 16px;
+                padding: 16px 20px;
+                margin: 0 0 26px;
+                background: #fff;
+                border: 1px solid var(--gray-5);
+                border-radius: var(--radius-lg, 8px);
+            }
+            .gq-legend__lead {
+                flex: 0 0 100%;
+                font-size: 15px;
+                color: var(--color-text-subtle);
+            }
+            .gq-legend__item {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 15px;
+            }
+            .gq-swatch {
+                width: 14px;
+                height: 14px;
+                border-radius: 3px;
+            }
+            .gq-swatch.gq-1 {
+                background: var(--gq1-ink);
+            }
+            .gq-swatch.gq-2 {
+                background: var(--gq2-ink);
+            }
+            .gq-swatch.gq-3 {
+                background: var(--gq3-ink);
+            }
+            .gq-swatch.gq-4 {
+                background: var(--gq4-ink);
+            }
+            .gq-swatch.gq-5 {
+                background: var(--gq5-ink);
+            }
+
+            /* ═══ Management-question badge — smaller compact meta tag ═══
+               Tier sets four staging vars; the option wrapper (.opt-pale /
+               .opt-sat / .opt-solid) picks which fill + ink to use. */
+            .exhibit-tag {
+                display: inline-flex;
+                align-items: center;
+                font-family: var(--font-body);
+                font-size: 11.5px;
+                font-weight: 700;
+                line-height: 1.2;
+                letter-spacing: 0.02em;
+                padding: 1px 6px;
+                border-radius: var(--radius-sm, 4px);
+                border: 1px solid var(--tag-border, transparent);
+                background: var(--tag-bg, var(--gray-3));
+                color: var(--tag-ink, var(--gray-12));
+                white-space: nowrap;
+                cursor: default;
+            }
+            .exhibit-tag[data-gq="1"] {
+                --t-tint: var(--gq1-tint);
+                --t-sat: var(--gq1-sat);
+                --t-ink: var(--gq1-ink);
+                --t-border: var(--gq1-border);
+            }
+            .exhibit-tag[data-gq="2"] {
+                --t-tint: var(--gq2-tint);
+                --t-sat: var(--gq2-sat);
+                --t-ink: var(--gq2-ink);
+                --t-border: var(--gq2-border);
+            }
+            .exhibit-tag[data-gq="3"] {
+                --t-tint: var(--gq3-tint);
+                --t-sat: var(--gq3-sat);
+                --t-ink: var(--gq3-ink);
+                --t-border: var(--gq3-border);
+            }
+            .exhibit-tag[data-gq="4"] {
+                --t-tint: var(--gq4-tint);
+                --t-sat: var(--gq4-sat);
+                --t-ink: var(--gq4-ink);
+                --t-border: var(--gq4-border);
+            }
+            .exhibit-tag[data-gq="5"] {
+                --t-tint: var(--gq5-tint);
+                --t-sat: var(--gq5-sat);
+                --t-ink: var(--gq5-ink);
+                --t-border: var(--gq5-border);
+            }
+            /* Option fills */
+            .opt-pale .exhibit-tag {
+                --tag-bg: var(--t-tint);
+                --tag-ink: var(--t-ink);
+                --tag-border: var(--t-border);
+            }
+            .opt-sat .exhibit-tag {
+                --tag-bg: var(--t-sat);
+                --tag-ink: var(--t-ink);
+                --tag-border: color-mix(in srgb, var(--t-ink) 26%, transparent);
+            }
+            .opt-solid .exhibit-tag {
+                --tag-bg: var(--t-ink);
+                --tag-ink: #fff;
+                --tag-border: var(--t-ink);
+            }
+
+            .exhibit-tags {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            .exhibit-tags--on-poster {
+                position: absolute;
+                top: 11px;
+                left: 11px;
+                z-index: 3;
+                max-width: 70%;
+            }
+            .exhibit-tags--on-poster .exhibit-tag {
+                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+            }
+
+            /* ═══ Poster card ═══ */
+            .exhibit-card {
+                position: relative;
+                display: block;
+                aspect-ratio: 16 / 9;
+                border-radius: 12px;
+                overflow: hidden;
+                text-decoration: none;
+                color: inherit;
+                background: var(--gray-5);
+                box-shadow:
+                    0 4px 16px rgba(0, 0, 0, 0.08),
+                    0 1px 2px rgba(0, 0, 0, 0.06);
+                isolation: isolate;
+            }
+            .exhibit-card-image {
+                position: absolute;
+                inset: 0;
+                background-size: cover;
+                background-position: center;
+            }
+            .exhibit-card-gradient {
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(
+                    to top,
+                    rgba(0, 0, 0, 0.78) 0%,
+                    rgba(0, 0, 0, 0.4) 32%,
+                    rgba(0, 0, 0, 0.05) 58%,
+                    transparent 80%
+                );
+            }
+            .exhibit-card-content {
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                padding: 18px 20px;
+                color: #fff;
+                z-index: 2;
+            }
+            .exhibit-card-kicker {
+                display: block;
+                font-size: 0.72rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                color: rgba(255, 255, 255, 0.82);
+                margin-bottom: 5px;
+            }
+            .exhibit-card-title {
+                font-family: var(--font-heading);
+                font-size: clamp(1.05rem, 1.5vw, 1.3rem);
+                font-weight: 600;
+                line-height: 1.2;
+                color: #fff;
+                margin: 0;
+            }
+            .exhibit-card-dots {
+                display: flex;
+                gap: 6px;
+                margin-top: 9px;
+            }
+            .exhibit-card-dot {
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.55);
+            }
+
+            /* ═══ Recognition marker — frosted top-right circle ═══ */
+            .exhibit-marker {
+                position: absolute;
+                top: 11px;
+                right: 11px;
+                z-index: 4;
+                width: 30px;
+                height: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.92);
+                backdrop-filter: blur(6px);
+                -webkit-backdrop-filter: blur(6px);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+            }
+            /* Filled glyph (current play marker) */
+            .mk-fill svg {
+                width: 13px;
+                height: 13px;
+                fill: var(--wrmp-ada-teal);
+                margin-left: 1px;
+            }
+            /* Stroke glyph (Lucide candidates) */
+            .mk-stroke svg {
+                width: 15px;
+                height: 15px;
+                color: var(--wrmp-ada-teal);
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 2;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
+
+            /* Marker comparison grid */
+            .marker-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(240px, 280px));
+                gap: 24px;
+                justify-content: start;
+            }
+            .marker-demo {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .demo-label {
+                font-size: 15px;
+                color: var(--color-text);
+                margin: 0;
+            }
+            .demo-label code {
+                font-family:
+                    ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+                font-size: 14px;
+                color: var(--wrmp-ada-teal);
+                font-weight: 600;
+            }
+            .demo-label .demo-note {
+                color: var(--color-text-subtle);
+            }
+
+            /* ═══ Topic indicator (section C) ═══ */
+            .topic-chip {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                font-size: 12px;
+                font-weight: 600;
+                line-height: 1.25;
+                padding: 3px 9px 3px 7px;
+                border-radius: var(--radius-sm, 4px);
+                white-space: nowrap;
+            }
+            .topic-chip svg {
+                width: 13px;
+                height: 13px;
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 2;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+                flex-shrink: 0;
+            }
+            /* On the cover — frosted neutral, reads over the gradient */
+            .topic-chip--on-cover {
+                background: rgba(255, 255, 255, 0.9);
+                color: var(--gray-12);
+                border: 1px solid rgba(255, 255, 255, 0.55);
+                backdrop-filter: blur(4px);
+                -webkit-backdrop-filter: blur(4px);
+            }
+            /* In the meta row — neutral outline */
+            .topic-chip--meta {
+                background: var(--topic-surface);
+                color: var(--topic-ink-muted);
+                border: 1px solid var(--topic-border);
+            }
+            .topic-row {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+                margin-bottom: 8px;
+            }
+
+            /* Below-cover meta block (option C2) */
+            .thumb {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+            .thumb-meta {
+                display: flex;
+                flex-direction: column;
+                gap: 7px;
+            }
+            .thumb-kicker-row {
+                display: flex;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .thumb-title {
+                font-family: var(--font-heading);
+                font-size: 18px;
+                font-weight: 600;
+                line-height: 1.25;
+                color: var(--color-text);
+                margin: 0;
+            }
+
+            /* ═══ Filter bar (section D) ═══ */
+            .filter-bar {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: flex-end;
+                gap: 22px 32px;
+                padding: 18px 20px;
+                background: var(--gray-3);
+                border: 1px solid var(--gray-6);
+                border-radius: var(--radius-sm, 4px);
+                max-width: 1000px;
+            }
+            .filter-group {
+                display: flex;
+                flex-direction: column;
+                gap: 9px;
+            }
+            .filter-label {
+                font-size: 15px;
+                font-weight: 600;
+                color: var(--color-text);
+            }
+            .filter-chips {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 7px;
+            }
+            .mq-chip {
+                display: inline-flex;
+                align-items: center;
+                font-family: var(--font-body);
+                font-size: 14px;
+                font-weight: 600;
+                padding: 5px 13px;
+                border-radius: 999px;
+                border: 1px solid var(--gray-7);
+                background: #fff;
+                color: var(--gray-12);
+                cursor: pointer;
+            }
+            .mq-chip[aria-pressed="true"][data-gq="1"] {
+                background: var(--gq1-ink);
+                border-color: var(--gq1-ink);
+                color: #fff;
+            }
+            .mq-chip[aria-pressed="true"][data-gq="2"] {
+                background: var(--gq2-ink);
+                border-color: var(--gq2-ink);
+                color: #fff;
+            }
+            .mq-chip[aria-pressed="true"][data-gq="3"] {
+                background: var(--gq3-ink);
+                border-color: var(--gq3-ink);
+                color: #fff;
+            }
+            .mq-chip[aria-pressed="true"][data-gq="4"] {
+                background: var(--gq4-ink);
+                border-color: var(--gq4-ink);
+                color: #fff;
+            }
+            .mq-chip--all[aria-pressed="true"] {
+                background: var(--wrmp-ada-teal);
+                border-color: var(--wrmp-ada-teal);
+                color: #fff;
+            }
+            .topic-select {
+                appearance: none;
+                -webkit-appearance: none;
+                font-family: var(--font-body);
+                font-size: 16px;
+                color: var(--gray-12);
+                padding: 8px 38px 8px 13px;
+                border: 1px solid var(--gray-7);
+                border-radius: var(--radius-sm, 4px);
+                background-color: #fff;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%234e4e50' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 12px center;
+                min-width: 220px;
+                cursor: pointer;
+            }
+
+            /* ═══ Science Framework color system ═══ */
+            /* Palette swatch strip */
+            .palette-strip {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 14px;
+                margin: 0 0 12px;
+            }
+            .swatch {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                width: 128px;
+            }
+            .swatch-chip {
+                height: 52px;
+                border-radius: var(--radius-md, 6px);
+                border: 1px solid rgba(0, 0, 0, 0.1);
+            }
+            .swatch-name {
+                font-size: 14px;
+                font-weight: 600;
+                color: var(--color-text);
+            }
+            .swatch-hex {
+                font-size: 13px;
+                color: var(--color-text-subtle);
+                font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+            }
+            .sw-teal { background: var(--pal-teal); }
+            .sw-green { background: var(--pal-green); }
+            .sw-red { background: var(--pal-red); }
+            .sw-indigo { background: var(--pal-indigo); }
+            .sw-sky { background: var(--pal-sky); }
+            .sw-clay { background: var(--pal-clay); }
+            .sw-sand { background: var(--pal-sand); }
+            .sw-sandgold { background: var(--pal-sand-gold); }
+            .sw-brown { background: var(--pal-brown); }
+            .sw-earth { background: var(--pal-earth); }
+            .sw-gray { background: var(--pal-gray); }
+            .sw-liteblue { background: var(--pal-liteblue); }
+            .sw-grass { background: var(--pal-grass); }
+            .sw-orange { background: var(--pal-orange); }
+            .palette-note {
+                font-size: 15px;
+                color: var(--color-text-subtle);
+                margin: 4px 0 28px;
+                max-width: 72ch;
+            }
+            /* Pending (Q1) placeholder — no hue chosen yet */
+            .ramp-row--pending .ramp-name {
+                color: var(--color-text-subtle);
+            }
+            .pending-note {
+                font-size: 15px;
+                color: var(--color-text-subtle);
+                border: 1px dashed var(--gray-7);
+                border-radius: var(--radius-md, 6px);
+                padding: 9px 14px;
+                background: var(--gray-2);
+            }
+
+            /* Per-question ramp — local vars set by .q1 … .q5 */
+            .q1 { --gq: var(--q1-gq); --mq: var(--q1-mq); --pra: var(--q1-pra); --badge-bg: var(--q1-badge-bg); --ink: var(--q1-ink); }
+            .q2 { --gq: var(--q2-gq); --mq: var(--q2-mq); --pra: var(--q2-pra); --badge-bg: var(--q2-badge-bg); --ink: var(--q2-ink); }
+            .q3 { --gq: var(--q3-gq); --mq: var(--q3-mq); --pra: var(--q3-pra); --badge-bg: var(--q3-badge-bg); --ink: var(--q3-ink); }
+            .q4 { --gq: var(--q4-gq); --mq: var(--q4-mq); --pra: var(--q4-pra); --badge-bg: var(--q4-badge-bg); --ink: var(--q4-ink); }
+            .q5 { --gq: var(--q5-gq); --mq: var(--q5-mq); --pra: var(--q5-pra); --badge-bg: var(--q5-badge-bg); --ink: var(--q5-ink); }
+
+            .ramps {
+                margin: 0 0 8px;
+            }
+            .ramp-row {
+                display: grid;
+                grid-template-columns: 170px 1fr;
+                gap: 20px;
+                align-items: center;
+                padding: 16px 0;
+                border-top: 1px solid var(--gray-5);
+            }
+            .ramp-row:first-child {
+                border-top: none;
+            }
+            .ramp-name {
+                font-size: 16px;
+                font-weight: 600;
+                color: var(--color-text);
+            }
+            .ramp-name small {
+                display: block;
+                font-weight: 400;
+                font-size: 13px;
+                color: var(--color-text-subtle);
+                font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+            }
+            .ramp-chips {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 14px;
+                align-items: flex-end;
+            }
+            .tier {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+            .tier-cap {
+                font-size: 13px;
+                color: var(--color-text-subtle);
+            }
+            .tier-pill {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 9px 14px;
+                border-radius: var(--radius-md, 6px);
+                font-size: 14px;
+                font-weight: 600;
+                letter-spacing: 0.02em;
+                text-transform: uppercase;
+                min-width: 168px;
+            }
+            .tier-pill.is-gq { background: var(--gq); color: #fff; }
+            .tier-pill.is-mq { background: var(--mq); color: #fff; }
+            .tier-pill.is-pra {
+                background: var(--pra);
+                color: var(--ink);
+                border: 1px solid color-mix(in srgb, var(--ink) 24%, transparent);
+            }
+            .q-badge {
+                display: inline-flex;
+                align-items: center;
+                font-family: var(--font-body);
+                font-size: 11.5px;
+                font-weight: 700;
+                letter-spacing: 0.02em;
+                padding: 1px 6px;
+                border-radius: var(--radius-sm, 4px);
+                background: var(--badge-bg);
+                color: var(--ink);
+                border: 1px solid color-mix(in srgb, var(--ink) 26%, transparent);
+            }
+
+            /* Science Framework layout mock */
+            .sf-mock {
+                display: flex;
+                flex-direction: column;
+                gap: 44px;
+                margin-top: 8px;
+            }
+            .mock-gq__label {
+                display: inline-flex;
+                align-items: center;
+                padding: 8px 14px;
+                border-radius: var(--radius-md, 6px);
+                background: var(--gq);
+                color: #fff;
+                font-size: 15px;
+                font-weight: 600;
+                letter-spacing: 0.03em;
+                text-transform: uppercase;
+                margin-bottom: 14px;
+            }
+            .mock-gq__text {
+                font-size: 26px;
+                font-weight: 400;
+                line-height: 1.25;
+                color: #1a1a1a;
+                max-width: 62ch;
+                margin: 0 0 24px;
+            }
+            .mock-mq {
+                margin: 0 0 20px;
+            }
+            .mock-mq__head {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                flex-wrap: wrap;
+                margin-bottom: 8px;
+            }
+            .mock-mq__label {
+                display: inline-flex;
+                align-items: center;
+                padding: 6px 12px;
+                border-radius: var(--radius-sm, 4px);
+                background: var(--mq);
+                color: #fff;
+                font-size: 14px;
+                font-weight: 600;
+                letter-spacing: 0.02em;
+                text-transform: uppercase;
+            }
+            .mock-mq__text {
+                font-size: 18px;
+                line-height: 1.55;
+                color: #111;
+                max-width: 74ch;
+                margin: 0;
+            }
+            .mock-pra {
+                margin-top: 22px;
+            }
+            .mock-pra__label {
+                display: inline-flex;
+                align-items: center;
+                padding: 6px 12px;
+                border-radius: var(--radius-sm, 4px);
+                background: var(--pra);
+                color: var(--ink);
+                border: 1px solid color-mix(in srgb, var(--ink) 28%, transparent);
+                font-size: 14px;
+                font-weight: 600;
+                letter-spacing: 0.02em;
+                text-transform: uppercase;
+                margin-bottom: 8px;
+            }
+            .mock-pra__text {
+                font-size: 16px;
+                line-height: 1.55;
+                color: #333;
+                max-width: 74ch;
+                margin: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- ═══ Page header ═══ -->
+        <header class="page-head">
+            <h1>Tagging &amp; recognizing exhibits</h1>
+            <p class="lede">
+                The Science Framework's question color system, and the
+                exhibit-poster decisions that build on it — the poster badges
+                inherit the same per-question hues. Approve the color system,
+                then one option in each poster section.
+            </p>
+        </header>
+
+        <!-- ═══════════════════════════════════════════════════════
+             Science Framework color system
+             ═══════════════════════════════════════════════════════ -->
+        <section class="section">
+            <h2 class="section-title">Science Framework question colors</h2>
+            <p class="section-intro">
+                Each guiding question gets a WRMP-brand hue with a light-to-dark
+                ramp across the three hierarchy levels — guiding question,
+                management question, priority recommended action — plus the
+                exhibit badge, which draws from the same ramp. The five hues
+                run cool-to-warm as a natural landscape ramp — sky blue, grass,
+                sand, orange, earth. Every tier meets WCAG AA contrast.
+            </p>
+
+            <!-- Palette -->
+            <h3 class="option-title">Palette</h3>
+            <p class="option-caption">
+                Usable brand colors. The mapping below is a proposal — any
+                question can take a different color from this set.
+            </p>
+            <div class="palette-strip">
+                <div class="swatch"><div class="swatch-chip sw-sky"></div><span class="swatch-name">Sky Blue</span><span class="swatch-hex">#00ACEC</span></div>
+                <div class="swatch"><div class="swatch-chip sw-grass"></div><span class="swatch-name">Grass</span><span class="swatch-hex">#92BB4D</span></div>
+                <div class="swatch"><div class="swatch-chip sw-sand"></div><span class="swatch-name">Sand</span><span class="swatch-hex">#F2CE87</span></div>
+                <div class="swatch"><div class="swatch-chip sw-orange"></div><span class="swatch-name">Orange</span><span class="swatch-hex">#E09337</span></div>
+                <div class="swatch"><div class="swatch-chip sw-earth"></div><span class="swatch-name">Earth</span><span class="swatch-hex">#664D26</span></div>
+            </div>
+            <div class="palette-strip">
+                <div class="swatch"><div class="swatch-chip sw-teal"></div><span class="swatch-name">Teal (alt)</span><span class="swatch-hex">#228B9C</span></div>
+                <div class="swatch"><div class="swatch-chip sw-clay"></div><span class="swatch-name">Clay (alt)</span><span class="swatch-hex">#986631</span></div>
+                <div class="swatch"><div class="swatch-chip sw-brown"></div><span class="swatch-name">Brown (alt)</span><span class="swatch-hex">#968575</span></div>
+                <div class="swatch"><div class="swatch-chip sw-gray"></div><span class="swatch-name">Gray (alt)</span><span class="swatch-hex">#4E4E50</span></div>
+            </div>
+            <p class="palette-note">
+                The five run cool-to-warm — sky, grass, sand, orange, earth.
+                The three warm hues (sand, orange, earth) are the ones to watch:
+                sand stays a light gold, orange a burnt mid-orange, earth a deep
+                brown, so lightness carries them apart where the hue crowds.
+            </p>
+
+            <!-- Proposed mapping + ramps -->
+            <h3 class="option-title">Proposed mapping &amp; ramp</h3>
+            <p class="option-caption">
+                Guiding question and management question are both solid with
+                white text — guiding deepest, management a clear step lighter —
+                and priority recommended action is the pale wash. The warm trio
+                (sand, orange, earth) separates mostly by lightness: light gold
+                → burnt orange → deep brown.
+            </p>
+            <div class="ramps">
+                <div class="ramp-row q1">
+                    <div class="ramp-name">Q1 · Sky Blue<small>#00ACEC</small></div>
+                    <div class="ramp-chips">
+                        <div class="tier"><span class="tier-cap">Guiding question</span><span class="tier-pill is-gq">Guiding Question 1</span></div>
+                        <div class="tier"><span class="tier-cap">Management question</span><span class="tier-pill is-mq">Management 1A</span></div>
+                        <div class="tier"><span class="tier-cap">Priority action</span><span class="tier-pill is-pra">Priority Action</span></div>
+                        <div class="tier"><span class="tier-cap">Badge</span><span class="q-badge">1A</span></div>
+                    </div>
+                </div>
+                <div class="ramp-row q2">
+                    <div class="ramp-name">Q2 · Grass<small>#92BB4D</small></div>
+                    <div class="ramp-chips">
+                        <div class="tier"><span class="tier-cap">Guiding question</span><span class="tier-pill is-gq">Guiding Question 2</span></div>
+                        <div class="tier"><span class="tier-cap">Management question</span><span class="tier-pill is-mq">Management 2A</span></div>
+                        <div class="tier"><span class="tier-cap">Priority action</span><span class="tier-pill is-pra">Priority Action</span></div>
+                        <div class="tier"><span class="tier-cap">Badge</span><span class="q-badge">2A</span></div>
+                    </div>
+                </div>
+                <div class="ramp-row q3">
+                    <div class="ramp-name">Q3 · Sand<small>olive-gold ramp</small></div>
+                    <div class="ramp-chips">
+                        <div class="tier"><span class="tier-cap">Guiding question</span><span class="tier-pill is-gq">Guiding Question 3</span></div>
+                        <div class="tier"><span class="tier-cap">Management question</span><span class="tier-pill is-mq">Management 3A</span></div>
+                        <div class="tier"><span class="tier-cap">Priority action</span><span class="tier-pill is-pra">Priority Action</span></div>
+                        <div class="tier"><span class="tier-cap">Badge</span><span class="q-badge">3A</span></div>
+                    </div>
+                </div>
+                <div class="ramp-row q4">
+                    <div class="ramp-name">Q4 · Orange<small>#E09337</small></div>
+                    <div class="ramp-chips">
+                        <div class="tier"><span class="tier-cap">Guiding question</span><span class="tier-pill is-gq">Guiding Question 4</span></div>
+                        <div class="tier"><span class="tier-cap">Management question</span><span class="tier-pill is-mq">Management 4A</span></div>
+                        <div class="tier"><span class="tier-cap">Priority action</span><span class="tier-pill is-pra">Priority Action</span></div>
+                        <div class="tier"><span class="tier-cap">Badge</span><span class="q-badge">4A</span></div>
+                    </div>
+                </div>
+                <div class="ramp-row q5">
+                    <div class="ramp-name">Q5 · Earth<small>#664D26</small></div>
+                    <div class="ramp-chips">
+                        <div class="tier"><span class="tier-cap">Guiding question</span><span class="tier-pill is-gq">Guiding Question 5</span></div>
+                        <div class="tier"><span class="tier-cap">Management question</span><span class="tier-pill is-mq">Management 5A</span></div>
+                        <div class="tier"><span class="tier-cap">Priority action</span><span class="tier-pill is-pra">Priority Action</span></div>
+                        <div class="tier"><span class="tier-cap">Badge</span><span class="q-badge">5A</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SF layout mock -->
+            <h3 class="option-title" style="margin-top: 36px">In context</h3>
+            <p class="option-caption">
+                The three warm hues — Sand, Orange, Earth — consecutive in the
+                Science Framework layout, so light-gold vs burnt-orange vs
+                deep-brown reads in real content.
+            </p>
+            <div class="sf-mock">
+                <div class="sf-mock-block q3">
+                    <span class="mock-gq__label">Guiding Question 3</span>
+                    <p class="mock-gq__text">
+                        What new information do we need to better understand
+                        regional lessons from tidal wetland restoration
+                        projects?
+                    </p>
+                    <div class="mock-mq">
+                        <div class="mock-mq__head">
+                            <span class="mock-mq__label">Management Question 3A</span>
+                            <span class="q-badge">3A</span>
+                        </div>
+                        <p class="mock-mq__text">
+                            What new information do we need to better understand
+                            regional lessons from tidal marsh restoration
+                            projects and ensure their continued success?
+                        </p>
+                    </div>
+                    <div class="mock-mq">
+                        <div class="mock-mq__head">
+                            <span class="mock-mq__label">Management Question 3B</span>
+                            <span class="q-badge">3B</span>
+                        </div>
+                        <p class="mock-mq__text">
+                            Where and when can interventions — dredged-sediment
+                            placement, watershed reconnection, living shorelines
+                            — help sustain tidal marsh ecosystems?
+                        </p>
+                    </div>
+                    <div class="mock-pra">
+                        <span class="mock-pra__label">Priority Recommended Action</span>
+                        <p class="mock-pra__text">
+                            Pilot sediment-placement and living-shoreline
+                            projects at index sites, and track marsh response
+                            against untreated references.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="sf-mock-block q4">
+                    <span class="mock-gq__label">Guiding Question 4</span>
+                    <p class="mock-gq__text">
+                        How do policies, programs, and projects to protect and
+                        restore tidal marshes affect the distribution,
+                        abundance, and health of plants and animals?
+                    </p>
+                    <div class="mock-mq">
+                        <div class="mock-mq__head">
+                            <span class="mock-mq__label">Management Question 4A</span>
+                            <span class="q-badge">4A</span>
+                        </div>
+                        <p class="mock-mq__text">
+                            How are habitats for assemblages of resident species
+                            of fish and wildlife in tidal marsh ecosystems
+                            changing over time?
+                        </p>
+                    </div>
+                    <div class="mock-mq">
+                        <div class="mock-mq__head">
+                            <span class="mock-mq__label">Management Question 4B</span>
+                            <span class="q-badge">4B</span>
+                        </div>
+                        <p class="mock-mq__text">
+                            How are the distribution and abundance of key
+                            resident species of fish and wildlife of tidal marsh
+                            ecosystems changing over time?
+                        </p>
+                    </div>
+                    <div class="mock-pra">
+                        <span class="mock-pra__label">Priority Recommended Action</span>
+                        <p class="mock-pra__text">
+                            Establish index stations for resident fish and
+                            wildlife assemblages and track community change
+                            alongside restoration milestones.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="sf-mock-block q5">
+                    <span class="mock-gq__label">Guiding Question 5</span>
+                    <p class="mock-gq__text">
+                        How do efforts to protect and restore tidal wetlands
+                        benefit and/or impact public health, safety, and
+                        recreation?
+                    </p>
+                    <div class="mock-mq">
+                        <div class="mock-mq__head">
+                            <span class="mock-mq__label">Management Question 5A</span>
+                            <span class="q-badge">5A</span>
+                        </div>
+                        <p class="mock-mq__text">
+                            What mosquito and vector control strategies need to
+                            be considered in restoration design and management?
+                        </p>
+                    </div>
+                    <div class="mock-mq">
+                        <div class="mock-mq__head">
+                            <span class="mock-mq__label">Management Question 5C</span>
+                            <span class="q-badge">5C</span>
+                        </div>
+                        <p class="mock-mq__text">
+                            How are the benefits of wetlands — flood-risk
+                            reduction, water quality, public access — distributed
+                            regionally?
+                        </p>
+                    </div>
+                    <div class="mock-pra">
+                        <span class="mock-pra__label">Priority Recommended Action</span>
+                        <p class="mock-pra__text">
+                            Coordinate vector control and public-access planning
+                            into restoration design, and track wetland benefits
+                            across communities over time.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════════
+             A — Management-question badge
+             ═══════════════════════════════════════════════════════ -->
+        <section class="section">
+            <h2 class="section-title">A. Management-question badge</h2>
+            <p class="section-intro">
+                One badge, on the poster only — smaller than before, with the
+                guiding-question color carrying clearly. Color encodes the
+                guiding question (leading digit); the label is the
+                management-question code. Each option is shown at the reduced
+                size with a single-tag card and a multi-tag card (3A + 1A).
+            </p>
+
+            <div class="gq-legend">
+                <span class="gq-legend__lead">Badge color = guiding question</span>
+                <span class="gq-legend__item"><span class="gq-swatch gq-1"></span>Q1 · Extent &amp; condition</span>
+                <span class="gq-legend__item"><span class="gq-swatch gq-2"></span>Q2 · External drivers</span>
+                <span class="gq-legend__item"><span class="gq-swatch gq-3"></span>Q3 · Restoration lessons</span>
+                <span class="gq-legend__item"><span class="gq-swatch gq-4"></span>Q4 · Plants &amp; animals</span>
+                <span class="gq-legend__item"><span class="gq-swatch gq-5"></span>Q5 · Public health</span>
+            </div>
+
+            <!-- A1 — Pale tint (current) -->
+            <div class="option opt-pale">
+                <h3 class="option-title">A1 — Pale tint (current)</h3>
+                <p class="option-caption">
+                    Today's near-white fill, shown for reference.
+                    <span class="tradeoff">Tradeoff:</span> quietest, but the
+                    color barely registers — this is the thing under review.
+                </p>
+                <div class="specimen-row">
+                    <a class="exhibit-card" href="#" aria-label="Delta Smelt, tagged 4B">
+                        <div class="exhibit-card-image" style="background-image: url('../exhibits/round-3-2026-06/delta-smelt/cover.jpg');"></div>
+                        <div class="exhibit-card-gradient"></div>
+                        <div class="exhibit-tags exhibit-tags--on-poster">
+                            <span class="exhibit-tag" data-gq="4" title="4B — How are the distribution and abundance of key resident species of fish and wildlife of tidal marsh ecosystems changing over time?">4B</span>
+                        </div>
+                        <div class="exhibit-card-content">
+                            <span class="exhibit-card-kicker">Featured species</span>
+                            <h3 class="exhibit-card-title">Delta Smelt: The Smallest Giant</h3>
+                        </div>
+                    </a>
+                    <a class="exhibit-card" href="#" aria-label="Designing the Experiment, tagged 3A and 1A">
+                        <div class="exhibit-card-image" style="background-image: url('../exhibits/round-3-2026-06/restoration-network/cover.jpg');"></div>
+                        <div class="exhibit-card-gradient"></div>
+                        <div class="exhibit-tags exhibit-tags--on-poster">
+                            <span class="exhibit-tag" data-gq="3" title="3A — What new information do we need to better understand regional lessons from tidal marsh restoration projects?">3A</span>
+                            <span class="exhibit-tag" data-gq="1" title="1A — What is the distribution, abundance and condition of tidal marsh ecosystems, and how are they changing over time?">1A</span>
+                        </div>
+                        <div class="exhibit-card-content">
+                            <span class="exhibit-card-kicker">Restoration design</span>
+                            <h3 class="exhibit-card-title">Designing the Experiment</h3>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- A2 — Saturated tint -->
+            <div class="option opt-sat">
+                <h3 class="option-title">A2 — Saturated tint</h3>
+                <p class="option-caption">
+                    A clearly-colored but still-light fill with dark text.
+                    <span class="tradeoff">Tradeoff:</span> color reads at a
+                    glance and the label stays dark and legible — a measured
+                    middle ground.
+                </p>
+                <div class="specimen-row">
+                    <a class="exhibit-card" href="#" aria-label="Delta Smelt, tagged 4B">
+                        <div class="exhibit-card-image" style="background-image: url('../exhibits/round-3-2026-06/delta-smelt/cover.jpg');"></div>
+                        <div class="exhibit-card-gradient"></div>
+                        <div class="exhibit-tags exhibit-tags--on-poster">
+                            <span class="exhibit-tag" data-gq="4" title="4B — key resident species of fish and wildlife">4B</span>
+                        </div>
+                        <div class="exhibit-card-content">
+                            <span class="exhibit-card-kicker">Featured species</span>
+                            <h3 class="exhibit-card-title">Delta Smelt: The Smallest Giant</h3>
+                        </div>
+                    </a>
+                    <a class="exhibit-card" href="#" aria-label="Designing the Experiment, tagged 3A and 1A">
+                        <div class="exhibit-card-image" style="background-image: url('../exhibits/round-3-2026-06/restoration-network/cover.jpg');"></div>
+                        <div class="exhibit-card-gradient"></div>
+                        <div class="exhibit-tags exhibit-tags--on-poster">
+                            <span class="exhibit-tag" data-gq="3" title="3A — regional lessons from restoration projects">3A</span>
+                            <span class="exhibit-tag" data-gq="1" title="1A — distribution, abundance and condition over time">1A</span>
+                        </div>
+                        <div class="exhibit-card-content">
+                            <span class="exhibit-card-kicker">Restoration design</span>
+                            <h3 class="exhibit-card-title">Designing the Experiment</h3>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- A3 — Solid fill -->
+            <div class="option opt-solid">
+                <h3 class="option-title">A3 — Solid fill</h3>
+                <p class="option-caption">
+                    Filled with the guiding-question color and white text — the
+                    same treatment as the active filter chip.
+                    <span class="tradeoff">Tradeoff:</span> boldest and
+                    unmistakably colored (ADA-safe 6–9:1), but heaviest on the
+                    image.
+                </p>
+                <div class="specimen-row">
+                    <a class="exhibit-card" href="#" aria-label="Delta Smelt, tagged 4B">
+                        <div class="exhibit-card-image" style="background-image: url('../exhibits/round-3-2026-06/delta-smelt/cover.jpg');"></div>
+                        <div class="exhibit-card-gradient"></div>
+                        <div class="exhibit-tags exhibit-tags--on-poster">
+                            <span class="exhibit-tag" data-gq="4" title="4B — key resident species of fish and wildlife">4B</span>
+                        </div>
+                        <div class="exhibit-card-content">
+                            <span class="exhibit-card-kicker">Featured species</span>
+                            <h3 class="exhibit-card-title">Delta Smelt: The Smallest Giant</h3>
+                        </div>
+                    </a>
+                    <a class="exhibit-card" href="#" aria-label="Designing the Experiment, tagged 3A and 1A">
+                        <div class="exhibit-card-image" style="background-image: url('../exhibits/round-3-2026-06/restoration-network/cover.jpg');"></div>
+                        <div class="exhibit-card-gradient"></div>
+                        <div class="exhibit-tags exhibit-tags--on-poster">
+                            <span class="exhibit-tag" data-gq="3" title="3A — regional lessons from restoration projects">3A</span>
+                            <span class="exhibit-tag" data-gq="1" title="1A — distribution, abundance and condition over time">1A</span>
+                        </div>
+                        <div class="exhibit-card-content">
+                            <span class="exhibit-card-kicker">Restoration design</span>
+                            <h3 class="exhibit-card-title">Designing the Experiment</h3>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <p class="rec">Recommendation: A2 (or A3). Q1 and Q4 are both teals, so they read as similar hues whichever option is chosen.</p>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════════
+             B — Recognition marker (non-"video" icon)
+             ═══════════════════════════════════════════════════════ -->
+        <section class="section">
+            <h2 class="section-title">B. Exhibit recognition marker</h2>
+            <p class="section-intro">
+                The corner marker should signal "step inside / explore," not
+                playback. The current play glyph reads as video, so here it sits
+                beside Lucide alternatives — same frosted top-right circle, each
+                labeled with its icon name.
+            </p>
+            <div class="marker-grid">
+                <!-- Current play (reference) -->
+                <div class="marker-demo">
+                    <a class="exhibit-card" href="#" aria-label="How We Monitor">
+                        <div class="exhibit-card-image" style="background-image: url('../exhibits/round-3-2026-06/how-we-look/cover.jpg');"></div>
+                        <div class="exhibit-card-gradient"></div>
+                        <span class="exhibit-marker mk-fill" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                        </span>
+                        <div class="exhibit-card-content"><h3 class="exhibit-card-title">How We Monitor</h3></div>
+                    </a>
+                    <p class="demo-label"><code>play</code> <span class="demo-note">— current (reads as video)</span></p>
+                </div>
+
+                <!-- telescope -->
+                <div class="marker-demo">
+                    <a class="exhibit-card" href="#" aria-label="The Bay: Where We're Watching">
+                        <div class="exhibit-card-image" style="background-image: url('../exhibits/round-3-2026-06/station-map-stepper/cover.jpg');"></div>
+                        <div class="exhibit-card-gradient"></div>
+                        <span class="exhibit-marker mk-stroke" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="m10.065 12.493-6.18 1.318a.934.934 0 0 1-1.108-.702l-.537-2.15a1.07 1.07 0 0 1 .691-1.265l13.504-4.44" />
+                                <path d="m13.56 11.747 4.332-.924" />
+                                <path d="m16 21-3.105-6.21" />
+                                <path d="M16.485 5.94a2 2 0 0 1 1.455-2.425l1.09-.272a1 1 0 0 1 1.212.727l1.515 6.06a1 1 0 0 1-.727 1.213l-1.09.272a2 2 0 0 1-2.425-1.455z" />
+                                <path d="m6.158 8.633 1.114 4.456" />
+                                <path d="m8 21 3.105-6.21" />
+                                <circle cx="12" cy="13" r="2" />
+                            </svg>
+                        </span>
+                        <div class="exhibit-card-content"><h3 class="exhibit-card-title">The Bay: Where We're Watching</h3></div>
+                    </a>
+                    <p class="demo-label"><code>telescope</code> <span class="demo-note">— on-theme for a monitoring program</span></p>
+                </div>
+
+                <!-- compass -->
+                <div class="marker-demo">
+                    <a class="exhibit-card" href="#" aria-label="Designing the Experiment">
+                        <div class="exhibit-card-image" style="background-image: url('../exhibits/round-3-2026-06/restoration-network/cover.jpg');"></div>
+                        <div class="exhibit-card-gradient"></div>
+                        <span class="exhibit-marker mk-stroke" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z" />
+                            </svg>
+                        </span>
+                        <div class="exhibit-card-content"><h3 class="exhibit-card-title">Designing the Experiment</h3></div>
+                    </a>
+                    <p class="demo-label"><code>compass</code> <span class="demo-note">— explore / navigate</span></p>
+                </div>
+
+                <!-- layers -->
+                <div class="marker-demo">
+                    <a class="exhibit-card" href="#" aria-label="A Decade in Alviso Marsh">
+                        <div class="exhibit-card-image" style="background-image: url('../exhibits/round-3-2026-06/alviso-decade/cover.jpg');"></div>
+                        <div class="exhibit-card-gradient"></div>
+                        <span class="exhibit-marker mk-stroke" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z" />
+                                <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" />
+                                <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" />
+                            </svg>
+                        </span>
+                        <div class="exhibit-card-content"><h3 class="exhibit-card-title">A Decade in Alviso Marsh</h3></div>
+                    </a>
+                    <p class="demo-label"><code>layers</code> <span class="demo-note">— a stepped, layered exhibit</span></p>
+                </div>
+
+                <!-- maximize-2 -->
+                <div class="marker-demo">
+                    <a class="exhibit-card" href="#" aria-label="Native vs. Invasive">
+                        <div class="exhibit-card-image" style="background-image: url('../exhibits/round-3-2026-06/native-vs-invasive/cover.jpg');"></div>
+                        <div class="exhibit-card-gradient"></div>
+                        <span class="exhibit-marker mk-stroke" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M15 3h6v6" />
+                                <path d="m21 3-7 7" />
+                                <path d="m3 21 7-7" />
+                                <path d="M9 21H3v-6" />
+                            </svg>
+                        </span>
+                        <div class="exhibit-card-content"><h3 class="exhibit-card-title">Native vs. Invasive</h3></div>
+                    </a>
+                    <p class="demo-label"><code>maximize-2</code> <span class="demo-note">— open / enter full screen</span></p>
+                </div>
+
+                <!-- scan-eye -->
+                <div class="marker-demo">
+                    <a class="exhibit-card" href="#" aria-label="Is the Bay Keeping Up?">
+                        <div class="exhibit-card-image" style="background-image: url('../exhibits/round-3-2026-06/bay-keeping-up/cover.jpg');"></div>
+                        <div class="exhibit-card-gradient"></div>
+                        <span class="exhibit-marker mk-stroke" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+                                <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+                                <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+                                <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+                                <circle cx="12" cy="12" r="1" />
+                                <path d="M18.944 12.33a1 1 0 0 0 0-.66 7.5 7.5 0 0 0-13.888 0 1 1 0 0 0 0 .66 7.5 7.5 0 0 0 13.888 0" />
+                            </svg>
+                        </span>
+                        <div class="exhibit-card-content"><h3 class="exhibit-card-title">Is the Bay Keeping Up?</h3></div>
+                    </a>
+                    <p class="demo-label"><code>scan-eye</code> <span class="demo-note">— look closer / interactive</span></p>
+                </div>
+            </div>
+            <p class="rec">Recommendation: telescope — it ties to the monitoring mission and is unmistakably not a play button. Compass is the safe runner-up.</p>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════════
+             C — Topic indicator
+             ═══════════════════════════════════════════════════════ -->
+        <section class="section">
+            <h2 class="section-title">C. Topic indicator on the cover</h2>
+            <p class="section-intro">
+                Exhibits also belong to site topics (Fish &amp; Wildlife,
+                Baylands Geography, …). The topic is a quieter, neutral signal —
+                deliberately not guiding-question-colored — so the two systems
+                never get confused. The colored management-question badge stays
+                the bright overlay; topic reads as gray metadata.
+            </p>
+
+            <!-- C1 — Neutral chip on the cover -->
+            <div class="option">
+                <h3 class="option-title">C1 — Neutral topic chip on the cover</h3>
+                <p class="option-caption">
+                    A small neutral chip with a leading map icon, set just above
+                    the title — clear of the top-left badge and top-right marker.
+                    <span class="tradeoff">Tradeoff:</span> topic is visible on
+                    the poster itself, at the cost of one more element on the
+                    image.
+                </p>
+                <div class="specimen-row">
+                    <a class="exhibit-card" href="#" aria-label="Is the Bay Keeping Up?">
+                        <div class="exhibit-card-image" style="background-image: url('../exhibits/round-3-2026-06/bay-keeping-up/cover.jpg');"></div>
+                        <div class="exhibit-card-gradient"></div>
+                        <div class="exhibit-tags exhibit-tags--on-poster opt-sat">
+                            <span class="exhibit-tag" data-gq="2" title="2A">2A</span>
+                            <span class="exhibit-tag" data-gq="3" title="3B">3B</span>
+                        </div>
+                        <span class="exhibit-marker mk-stroke" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="m10.065 12.493-6.18 1.318a.934.934 0 0 1-1.108-.702l-.537-2.15a1.07 1.07 0 0 1 .691-1.265l13.504-4.44" />
+                                <path d="m13.56 11.747 4.332-.924" />
+                                <path d="m16 21-3.105-6.21" />
+                                <path d="M16.485 5.94a2 2 0 0 1 1.455-2.425l1.09-.272a1 1 0 0 1 1.212.727l1.515 6.06a1 1 0 0 1-.727 1.213l-1.09.272a2 2 0 0 1-2.425-1.455z" />
+                                <path d="m6.158 8.633 1.114 4.456" />
+                                <path d="m8 21 3.105-6.21" />
+                                <circle cx="12" cy="13" r="2" />
+                            </svg>
+                        </span>
+                        <div class="exhibit-card-content">
+                            <div class="topic-row">
+                                <span class="topic-chip topic-chip--on-cover">
+                                    <svg viewBox="0 0 24 24"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z" /><path d="M15 5.764v15" /><path d="M9 3.236v15" /></svg>
+                                    Wetlands &amp; Sea Level Rise
+                                </span>
+                                <span class="topic-chip topic-chip--on-cover">Wetland Condition</span>
+                            </div>
+                            <span class="exhibit-card-kicker">Restoration progress</span>
+                            <h3 class="exhibit-card-title">Is the Bay Keeping Up?</h3>
+                        </div>
+                    </a>
+
+                    <a class="exhibit-card" href="#" aria-label="Delta Smelt">
+                        <div class="exhibit-card-image" style="background-image: url('../exhibits/round-3-2026-06/delta-smelt/cover.jpg');"></div>
+                        <div class="exhibit-card-gradient"></div>
+                        <div class="exhibit-tags exhibit-tags--on-poster opt-sat">
+                            <span class="exhibit-tag" data-gq="4" title="4B">4B</span>
+                        </div>
+                        <span class="exhibit-marker mk-stroke" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="m10.065 12.493-6.18 1.318a.934.934 0 0 1-1.108-.702l-.537-2.15a1.07 1.07 0 0 1 .691-1.265l13.504-4.44" />
+                                <path d="m13.56 11.747 4.332-.924" />
+                                <path d="m16 21-3.105-6.21" />
+                                <path d="M16.485 5.94a2 2 0 0 1 1.455-2.425l1.09-.272a1 1 0 0 1 1.212.727l1.515 6.06a1 1 0 0 1-.727 1.213l-1.09.272a2 2 0 0 1-2.425-1.455z" />
+                                <path d="m6.158 8.633 1.114 4.456" />
+                                <path d="m8 21 3.105-6.21" />
+                                <circle cx="12" cy="13" r="2" />
+                            </svg>
+                        </span>
+                        <div class="exhibit-card-content">
+                            <div class="topic-row">
+                                <span class="topic-chip topic-chip--on-cover">
+                                    <svg viewBox="0 0 24 24"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z" /><path d="M15 5.764v15" /><path d="M9 3.236v15" /></svg>
+                                    Fish &amp; Wildlife
+                                </span>
+                            </div>
+                            <span class="exhibit-card-kicker">Featured species</span>
+                            <h3 class="exhibit-card-title">Delta Smelt: The Smallest Giant</h3>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- C2 — Topic in the kicker line beneath -->
+            <div class="option">
+                <h3 class="option-title">C2 — Topic in the kicker line</h3>
+                <p class="option-caption">
+                    The cover carries only the colored badge and marker; the
+                    topic sits in the metadata line beneath, with the title.
+                    <span class="tradeoff">Tradeoff:</span> cleanest image, but
+                    the topic is no longer visible on the poster on its own.
+                </p>
+                <div class="specimen-row">
+                    <div class="thumb">
+                        <a class="exhibit-card" href="#" aria-label="Is the Bay Keeping Up?">
+                            <div class="exhibit-card-image" style="background-image: url('../exhibits/round-3-2026-06/bay-keeping-up/cover.jpg');"></div>
+                            <div class="exhibit-card-gradient"></div>
+                            <div class="exhibit-tags exhibit-tags--on-poster opt-sat">
+                                <span class="exhibit-tag" data-gq="2" title="2A">2A</span>
+                                <span class="exhibit-tag" data-gq="3" title="3B">3B</span>
+                            </div>
+                            <span class="exhibit-marker mk-stroke" aria-hidden="true">
+                                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z" /></svg>
+                            </span>
+                            <div class="exhibit-card-content">
+                                <span class="exhibit-card-kicker">Restoration progress</span>
+                                <h3 class="exhibit-card-title">Is the Bay Keeping Up?</h3>
+                            </div>
+                        </a>
+                        <div class="thumb-meta">
+                            <div class="thumb-kicker-row">
+                                <span class="topic-chip topic-chip--meta">
+                                    <svg viewBox="0 0 24 24"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z" /><path d="M15 5.764v15" /><path d="M9 3.236v15" /></svg>
+                                    Wetlands &amp; Sea Level Rise
+                                </span>
+                                <span class="topic-chip topic-chip--meta">Wetland Condition</span>
+                            </div>
+                            <h4 class="thumb-title">Is the Bay Keeping Up?</h4>
+                        </div>
+                    </div>
+
+                    <div class="thumb">
+                        <a class="exhibit-card" href="#" aria-label="A Decade in Alviso Marsh">
+                            <div class="exhibit-card-image" style="background-image: url('../exhibits/round-3-2026-06/alviso-decade/cover.jpg');"></div>
+                            <div class="exhibit-card-gradient"></div>
+                            <div class="exhibit-tags exhibit-tags--on-poster opt-sat">
+                                <span class="exhibit-tag" data-gq="4" title="4A">4A</span>
+                                <span class="exhibit-tag" data-gq="1" title="1A">1A</span>
+                            </div>
+                            <span class="exhibit-marker mk-stroke" aria-hidden="true">
+                                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z" /></svg>
+                            </span>
+                            <div class="exhibit-card-content">
+                                <span class="exhibit-card-kicker">Long-term trends</span>
+                                <h3 class="exhibit-card-title">A Decade in Alviso Marsh</h3>
+                            </div>
+                        </a>
+                        <div class="thumb-meta">
+                            <div class="thumb-kicker-row">
+                                <span class="topic-chip topic-chip--meta">
+                                    <svg viewBox="0 0 24 24"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z" /><path d="M15 5.764v15" /><path d="M9 3.236v15" /></svg>
+                                    Fish &amp; Wildlife
+                                </span>
+                                <span class="topic-chip topic-chip--meta">Wetland Condition</span>
+                            </div>
+                            <h4 class="thumb-title">A Decade in Alviso Marsh</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p class="rec">Recommendation: C1 when topic must read at poster glance; C2 for a calmer cover. Either way topic stays neutral-gray, clearly distinct from the colored badge.</p>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════════
+             D — Filter bar
+             ═══════════════════════════════════════════════════════ -->
+        <section class="section">
+            <h2 class="section-title">D. Gallery filter bar</h2>
+            <p class="section-intro">
+                The filter row reads as a defined component — a light-gray
+                container with a border and comfortable padding — and gains a
+                topic filter alongside the management-question chips.
+            </p>
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <span class="filter-label">Filter by management question</span>
+                    <div class="filter-chips">
+                        <button type="button" class="mq-chip mq-chip--all" aria-pressed="false">All</button>
+                        <button type="button" class="mq-chip" data-gq="1" aria-pressed="false">1A</button>
+                        <button type="button" class="mq-chip" data-gq="2" aria-pressed="false">2A</button>
+                        <button type="button" class="mq-chip" data-gq="3" aria-pressed="false">3A</button>
+                        <button type="button" class="mq-chip" data-gq="3" aria-pressed="false">3B</button>
+                        <button type="button" class="mq-chip" data-gq="4" aria-pressed="false">4A</button>
+                        <button type="button" class="mq-chip" data-gq="4" aria-pressed="true">4B</button>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <span class="filter-label" id="topic-label">Topic</span>
+                    <select class="topic-select" aria-labelledby="topic-label">
+                        <option>All topics</option>
+                        <option>Baylands Geography</option>
+                        <option>Fish &amp; Wildlife</option>
+                        <option>Wetlands &amp; Sea Level Rise</option>
+                        <option>Plant Communities</option>
+                        <option>Wetland Condition</option>
+                        <option>People &amp; Wetlands</option>
+                        <option>Water Quality</option>
+                    </select>
+                </div>
+            </div>
+            <p class="rec">The active management-question chip uses the solid guiding-question color (here 4B); the topic dropdown lists the seven site topics with an "All topics" default.</p>
+        </section>
+    </body>
+</html>

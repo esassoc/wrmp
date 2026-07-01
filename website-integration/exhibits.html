@@ -4,8 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Interactive Exhibits — WRMP</title>
+    <!-- Shared design tokens first so the guiding-question badge tiers
+         (--gq*) exist; site.css then re-wins the page's own token
+         collisions (e.g. --color-text). exhibit-tags.css styles the
+         badges + marker; the gallery CSS/JS drive the MQ filter. -->
+    <link rel="stylesheet" href="../shared/css/tokens.css" />
     <link rel="stylesheet" href="assets/site.css" />
     <link rel="stylesheet" href="assets/exhibits.css" />
+    <link rel="stylesheet" href="../shared/css/exhibit-tags.css" />
+    <link rel="stylesheet" href="assets/exhibits-gallery.css" />
   </head>
   <body>
     <!-- ═══════════════════ Header ═══════════════════ -->
@@ -84,344 +91,34 @@
         </div>
       </section>
 
-      <!-- ═══════════════════ Gallery ═══════════════════ -->
+      <!-- ═══════════════════ Gallery ═══════════════════
+           Cards, MQ chips, and the Topic <select> render from
+           data/exhibits.json via assets/exhibits-gallery.js. -->
       <div class="site-container section--after-hero">
         <p class="gallery-lead">
-          Exhibits are organized by monitoring topic.
+          Browse the interactive exhibits, or filter by the management
+          question each one helps answer and by monitoring topic.
         </p>
 
-        <!-- ─── Baylands Geography ─── -->
-        <section class="topic-section" aria-labelledby="topic-baylands">
-          <div class="topic-section__head">
-            <h2 class="topic-section__title" id="topic-baylands">
-              Baylands Geography
-            </h2>
+        <div class="filter-bar">
+          <div class="filter-group">
+            <span class="filter-label" id="mq-label">
+              Filter by management question
+            </span>
+            <div class="mq-filter" id="mq-filter"></div>
           </div>
-          <div class="exhibit-gallery">
-            <!-- The Bay: Where We're Watching -->
-            <article class="gallery-item">
-              <button
-                type="button"
-                class="exhibit-card"
-                data-exhibit-src="../exhibits/round-2-2026-05/station-map-stepper/index.html"
-                aria-label="Open interactive exhibit: The Bay — Where We're Watching"
-              >
-                <span
-                  class="exhibit-card-image"
-                  style="background-image: url('../exhibits/round-2-2026-05/station-map-stepper/cover.jpg')"
-                ></span>
-                <span class="exhibit-card-gradient"></span>
-                <span class="exhibit-card-begin">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
-                  Begin
-                </span>
-                <span class="exhibit-card-content">
-                  <span class="exhibit-card-kicker">Interactive exhibit</span>
-                  <span class="exhibit-card-title">The Bay: Where We're Watching</span>
-                  <span class="exhibit-card-dots">
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                  </span>
-                </span>
-              </button>
-              <p class="exhibit-blurb">
-                Tour the WRMP monitoring network station by station
-                across the San Francisco Estuary.
-              </p>
-              <div class="exhibit-meta">
-                <span class="exhibit-meta__updated">
-                  Updated <strong>May 2026</strong>
-                </span>
-              </div>
-            </article>
+          <div class="filter-group filter-group--topic">
+            <label class="filter-label" for="topic-select">Topic</label>
+            <select class="topic-select" id="topic-select"></select>
+          </div>
+        </div>
 
-            <!-- Designing the Experiment -->
-            <article class="gallery-item">
-              <button
-                type="button"
-                class="exhibit-card"
-                data-exhibit-src="../exhibits/2026-04-10-restoration-network/index.html"
-                aria-label="Open interactive exhibit: Designing the Experiment"
-              >
-                <span
-                  class="exhibit-card-image"
-                  style="background-image: url('../exhibits/2026-04-10-restoration-network/cover.jpg')"
-                ></span>
-                <span class="exhibit-card-gradient"></span>
-                <span class="exhibit-card-begin">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
-                  Begin
-                </span>
-                <span class="exhibit-card-content">
-                  <span class="exhibit-card-kicker">Interactive exhibit</span>
-                  <span class="exhibit-card-title">Designing the Experiment</span>
-                  <span class="exhibit-card-dots">
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                  </span>
-                </span>
-              </button>
-              <p class="exhibit-blurb">
-                How the restoration monitoring network is structured to
-                answer the region's biggest questions.
-              </p>
-              <div class="exhibit-meta">
-                <span class="exhibit-meta__updated">
-                  Updated <strong>Apr 2026</strong>
-                </span>
-              </div>
-            </article>
-          </div>
-        </section>
+        <div class="exhibit-gallery" id="exhibit-grid"></div>
 
-        <!-- ─── Wetland Condition ─── -->
-        <section class="topic-section" aria-labelledby="topic-condition">
-          <div class="topic-section__head">
-            <h2 class="topic-section__title" id="topic-condition">
-              Wetland Condition
-            </h2>
-          </div>
-          <div class="exhibit-gallery">
-            <!-- A Decade in Alviso Marsh -->
-            <article class="gallery-item">
-              <button
-                type="button"
-                class="exhibit-card"
-                data-exhibit-src="../exhibits/round-2-2026-05/alviso-decade/index.html"
-                aria-label="Open interactive exhibit: A Decade in Alviso Marsh"
-              >
-                <span
-                  class="exhibit-card-image"
-                  style="background-image: url('../exhibits/round-2-2026-05/alviso-decade/cover.jpg')"
-                ></span>
-                <span class="exhibit-card-gradient"></span>
-                <span class="exhibit-card-begin">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
-                  Begin
-                </span>
-                <span class="exhibit-card-content">
-                  <span class="exhibit-card-kicker">Interactive exhibit</span>
-                  <span class="exhibit-card-title">A Decade in Alviso Marsh</span>
-                  <span class="exhibit-card-dots">
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                  </span>
-                </span>
-              </button>
-              <p class="exhibit-blurb">
-                Ten years of change in a single South Bay marsh, traced
-                through the monitoring record.
-              </p>
-              <div class="exhibit-meta">
-                <span class="exhibit-meta__updated">
-                  Updated <strong>May 2026</strong>
-                </span>
-              </div>
-            </article>
-          </div>
-        </section>
-
-        <!-- ─── Fish & Wildlife ─── -->
-        <section class="topic-section" aria-labelledby="topic-fish">
-          <div class="topic-section__head">
-            <h2 class="topic-section__title" id="topic-fish">
-              Fish &amp; Wildlife
-            </h2>
-          </div>
-          <div class="exhibit-gallery">
-            <!-- Delta Smelt -->
-            <article class="gallery-item">
-              <button
-                type="button"
-                class="exhibit-card"
-                data-exhibit-src="../exhibits/2026-04-10-delta-smelt/index.html"
-                aria-label="Open interactive exhibit: Delta Smelt — The Smallest Giant"
-              >
-                <span
-                  class="exhibit-card-image"
-                  style="background-image: url('../exhibits/2026-04-10-delta-smelt/cover.jpg')"
-                ></span>
-                <span class="exhibit-card-gradient"></span>
-                <span class="exhibit-card-begin">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
-                  Begin
-                </span>
-                <span class="exhibit-card-content">
-                  <span class="exhibit-card-kicker">Interactive exhibit</span>
-                  <span class="exhibit-card-title">Delta Smelt: The Smallest Giant</span>
-                  <span class="exhibit-card-dots">
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                  </span>
-                </span>
-              </button>
-              <p class="exhibit-blurb">
-                Why a three-inch fish became the bellwether of the
-                Estuary's ecological health.
-              </p>
-              <div class="exhibit-meta">
-                <span class="exhibit-meta__updated">
-                  Updated <strong>Apr 2026</strong>
-                </span>
-              </div>
-            </article>
-
-            <!-- How We Monitor -->
-            <article class="gallery-item">
-              <button
-                type="button"
-                class="exhibit-card"
-                data-exhibit-src="../exhibits/2026-04-10-how-we-look/index.html"
-                aria-label="Open interactive exhibit: How We Monitor"
-              >
-                <span
-                  class="exhibit-card-image"
-                  style="background-image: url('../exhibits/2026-04-10-how-we-look/cover.jpg')"
-                ></span>
-                <span class="exhibit-card-gradient"></span>
-                <span class="exhibit-card-begin">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
-                  Begin
-                </span>
-                <span class="exhibit-card-content">
-                  <span class="exhibit-card-kicker">Interactive exhibit</span>
-                  <span class="exhibit-card-title">How We Monitor</span>
-                  <span class="exhibit-card-dots">
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                  </span>
-                </span>
-              </button>
-              <p class="exhibit-blurb">
-                Beach seines, gill nets, and otter trawls — the field
-                methods behind the fish data.
-              </p>
-              <div class="exhibit-meta">
-                <span class="exhibit-meta__updated">
-                  Updated <strong>Apr 2026</strong>
-                </span>
-              </div>
-            </article>
-          </div>
-        </section>
-
-        <!-- ─── Plant Communities ─── -->
-        <section class="topic-section" aria-labelledby="topic-plants">
-          <div class="topic-section__head">
-            <h2 class="topic-section__title" id="topic-plants">
-              Plant Communities
-            </h2>
-          </div>
-          <div class="exhibit-gallery">
-            <!-- Native vs. Invasive -->
-            <article class="gallery-item">
-              <button
-                type="button"
-                class="exhibit-card"
-                data-exhibit-src="../exhibits/round-2-2026-05/native-vs-invasive/index.html"
-                aria-label="Open interactive exhibit: Native vs. Invasive"
-              >
-                <span
-                  class="exhibit-card-image"
-                  style="background-image: url('../exhibits/round-2-2026-05/native-vs-invasive/cover.jpg')"
-                ></span>
-                <span class="exhibit-card-gradient"></span>
-                <span class="exhibit-card-begin">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
-                  Begin
-                </span>
-                <span class="exhibit-card-content">
-                  <span class="exhibit-card-kicker">Interactive exhibit</span>
-                  <span class="exhibit-card-title">Native vs. Invasive</span>
-                  <span class="exhibit-card-dots">
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                  </span>
-                </span>
-              </button>
-              <p class="exhibit-blurb">
-                Tracking the contest between native marsh plants and
-                invasive species over time.
-              </p>
-              <div class="exhibit-meta">
-                <span class="exhibit-meta__updated">
-                  Updated <strong>May 2026</strong>
-                </span>
-              </div>
-            </article>
-          </div>
-        </section>
-
-        <!-- ─── Wetlands & Sea Level Rise ─── -->
-        <section class="topic-section" aria-labelledby="topic-slr">
-          <div class="topic-section__head">
-            <h2 class="topic-section__title" id="topic-slr">
-              Wetlands &amp; Sea Level Rise
-            </h2>
-          </div>
-          <div class="exhibit-gallery">
-            <!-- Is the Bay Keeping Up? -->
-            <article class="gallery-item">
-              <button
-                type="button"
-                class="exhibit-card"
-                data-exhibit-src="../exhibits/2026-04-23-bay-keeping-up/index.html"
-                aria-label="Open interactive exhibit: Is the Bay Keeping Up?"
-              >
-                <span
-                  class="exhibit-card-image"
-                  style="background-image: url('../exhibits/2026-04-23-bay-keeping-up/cover.jpg')"
-                ></span>
-                <span class="exhibit-card-gradient"></span>
-                <span class="exhibit-card-begin">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
-                  Begin
-                </span>
-                <span class="exhibit-card-content">
-                  <span class="exhibit-card-kicker">Interactive exhibit</span>
-                  <span class="exhibit-card-title">Is the Bay Keeping Up?</span>
-                  <span class="exhibit-card-dots">
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                  </span>
-                </span>
-              </button>
-              <p class="exhibit-blurb">
-                A scorecard on whether marsh elevation gains are
-                outpacing rising sea levels.
-              </p>
-              <div class="exhibit-meta">
-                <span class="exhibit-meta__updated">
-                  Updated <strong>Apr 2026</strong>
-                </span>
-              </div>
-            </article>
-          </div>
-        </section>
+        <p class="gallery-empty" id="gallery-empty" role="status" hidden>
+          No exhibits match these filters yet.
+        </p>
       </div>
-
     </main>
 
     <!-- ═══════════════════ Footer ═══════════════════ -->
@@ -490,23 +187,9 @@
       </div>
     </footer>
 
-    <!-- ═══════════════════ Exhibit dialog ═══════════════════ -->
-    <dialog class="exhibit-dialog" id="exhibit-dialog">
-      <div class="exhibit-dialog__inner">
-        <button
-          class="exhibit-dialog__close"
-          type="button"
-          aria-label="Close exhibit"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
-        </button>
-        <iframe
-          class="exhibit-dialog__iframe"
-          title="WRMP interactive exhibit"
-        ></iframe>
-      </div>
-    </dialog>
-
-    <script src="assets/site.js"></script>
+    <!-- Cards link straight to each exhibit, so the iframe dialog +
+         site.js are no longer needed here. The gallery script renders
+         the grid + management-question filter from exhibits.json. -->
+    <script src="assets/exhibits-gallery.js"></script>
   </body>
 </html>

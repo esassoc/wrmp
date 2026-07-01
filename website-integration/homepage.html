@@ -4,8 +4,34 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Home — WRMP</title>
+    <!-- Shared tokens + exhibit-tag styles must load before the page CSS
+         so the recognition marker / MQ badges pick up --gq*, --radius-sm,
+         --wrmp-ada-teal, --font-body. -->
+    <link rel="stylesheet" href="../shared/css/tokens.css" />
+    <link rel="stylesheet" href="../shared/css/exhibit-tags.css" />
     <link rel="stylesheet" href="assets/site.css" />
     <link rel="stylesheet" href="assets/homepage.css" />
+    <!-- ── Exhibit marker + MQ badge-links overlay (homepage-only) ── -->
+    <style>
+      /* The card trigger is a <button>; an <a> can't nest inside it, so the
+         marker + badge-links sit as SIBLINGS over the poster corners. */
+      .exhibit-card-wrap {
+        position: relative;
+      }
+      /* Marker is decorative — let clicks fall through to the card. */
+      .exhibit-card-wrap .exhibit-marker {
+        pointer-events: none;
+      }
+      /* Off-framework page: MQ badges link home to the Science Framework. */
+      a.exhibit-tag {
+        text-decoration: none;
+        cursor: pointer;
+      }
+      a.exhibit-tag:focus-visible {
+        outline: 2px solid var(--wrmp-ada-teal);
+        outline-offset: 2px;
+      }
+    </style>
   </head>
   <body>
     <!-- ═══════════════════ Header ═══════════════════ -->
@@ -207,34 +233,50 @@
           <div class="featured-exhibit__body">
             <div class="featured-exhibit__cover">
               <!-- Shared exhibit-card poster — markup copied verbatim
-                   from topic-page.html. site.js auto-wires the trigger. -->
-              <button
-                type="button"
-                class="exhibit-card"
-                data-exhibit-src="../exhibits/round-2-2026-05/station-map-stepper/index.html"
-                aria-label="Open interactive exhibit: The Bay — Where We're Watching"
-              >
-                <span
-                  class="exhibit-card-image"
-                  style="background-image: url('../exhibits/round-2-2026-05/station-map-stepper/cover.jpg')"
-                ></span>
-                <span class="exhibit-card-gradient"></span>
-                <span class="exhibit-card-begin">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
-                  Begin
-                </span>
-                <span class="exhibit-card-content">
-                  <span class="exhibit-card-kicker">Interactive exhibit</span>
-                  <span class="exhibit-card-title">The Bay: Where We're Watching</span>
-                  <span class="exhibit-card-dots">
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
-                    <span class="exhibit-card-dot"></span>
+                   from topic-page.html. site.js auto-wires the trigger.
+                   Wrapped so the marker + MQ badge-links can overlay the
+                   corners as siblings (the trigger is a <button>). -->
+              <div class="exhibit-card-wrap">
+                <button
+                  type="button"
+                  class="exhibit-card"
+                  data-exhibit-src="../exhibits/round-2-2026-05/station-map-stepper/index.html"
+                  aria-label="Open interactive exhibit: The Bay — Where We're Watching"
+                >
+                  <span
+                    class="exhibit-card-image"
+                    style="background-image: url('../exhibits/round-2-2026-05/station-map-stepper/cover.jpg')"
+                  ></span>
+                  <span class="exhibit-card-gradient"></span>
+                  <span class="exhibit-card-begin">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+                    Begin
                   </span>
+                  <span class="exhibit-card-content">
+                    <div class="exhibit-topics exhibit-topics--on-cover">
+                      <span class="exhibit-topic">Baylands Geography</span>
+                      <span class="exhibit-topic">Fish &amp; Wildlife</span>
+                    </div>
+                    <span class="exhibit-card-kicker">Interactive exhibit</span>
+                    <span class="exhibit-card-title">The Bay: Where We're Watching</span>
+                    <span class="exhibit-card-dots">
+                      <span class="exhibit-card-dot"></span>
+                      <span class="exhibit-card-dot"></span>
+                      <span class="exhibit-card-dot"></span>
+                      <span class="exhibit-card-dot"></span>
+                      <span class="exhibit-card-dot"></span>
+                    </span>
+                  </span>
+                </button>
+                <!-- MQ badge-links, top-left → Science Framework -->
+                <div class="exhibit-tags exhibit-tags--on-poster">
+                  <a class="exhibit-tag" data-gq="1" href="science-framework.html#mq-1A" title="1A — What is the distribution, abundance and condition of tidal marsh ecosystems, and how are they changing over time?">1A</a>
+                </div>
+                <!-- recognition marker, top-right -->
+                <span class="exhibit-marker" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                 </span>
-              </button>
+              </div>
             </div>
           </div>
         </div>

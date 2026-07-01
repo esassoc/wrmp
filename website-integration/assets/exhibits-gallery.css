@@ -1,0 +1,261 @@
+/* ════════════════════════════════════════════════════════════
+   WRMP.org — Exhibits gallery: filter bar + poster overlays
+   ────────────────────────────────────────────────────────────
+   Page-unique CSS layered onto the shared .exhibit-card poster
+   (site.css) and the exhibit-tags badge/marker/topic system. Owns:
+
+     • the filter bar — a defined box holding the management-question
+       chips (left) and the Topic <select> (right), per the approved
+       exhibit-tagging specimen (section D),
+     • the .exhibit-card-frame that anchors the sibling badge-links +
+       recognition marker over each poster (so badges stay clickable
+       without nesting an <a> inside the card's <a>),
+     • the filtered-out + empty-result states.
+
+   Load order: tokens.css → site.css → exhibits.css → exhibit-tags.css
+   → THIS. Tokens: --space-*, --radius-sm, --color-* (site.css);
+   --gray-*, --gq*-ink, --wrmp-ada-teal (tokens.css). Chip colors come
+   from the guiding-question ink tokens — no invented colors.
+   ════════════════════════════════════════════════════════════ */
+
+/* ─ Filter bar (defined component) ─
+   A light-gray box that reads as one control surface. The MQ dropdown
+   and the Topic <select> sit side by side at the left; both align to a
+   shared baseline so their labels and controls line up. */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 22px 24px;
+  margin-top: var(--space-24);
+  margin-bottom: var(--space-32);
+  padding: 18px 20px;
+  background: var(--gray-3);
+  border: 1px solid var(--gray-6);
+  border-radius: var(--radius-sm, 4px);
+}
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.filter-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+/* ─ Management-question dropdown (custom listbox) ─
+   A native <select> can't carry a colored dot per option, so this is a
+   button trigger + a role="listbox" popup, each option prefixed with
+   the guiding-question color dot. Trigger matches the Topic <select>
+   look so the two controls read as a pair. */
+.mq-select {
+  position: relative;
+}
+.mq-select__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--gray-12);
+  text-align: left;
+  padding: 8px 12px 8px 13px;
+  border: 1px solid var(--gray-7);
+  border-radius: var(--radius-sm, 4px);
+  background: #fff;
+  min-width: 300px;
+  cursor: pointer;
+}
+.mq-select__trigger:hover {
+  border-color: var(--gray-9);
+}
+.mq-select__trigger:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
+}
+.mq-select__value {
+  flex: 1 1 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mq-select__chevron {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: var(--wrmp-dark, #4e4e50);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.mq-select__trigger[aria-expanded="true"] .mq-select__chevron {
+  transform: rotate(180deg);
+}
+
+/* Color dot — solid for a guiding-question tier, a hollow ring for All. */
+.mq-select__dot {
+  flex: 0 0 auto;
+  width: 11px;
+  height: 11px;
+  border-radius: 999px;
+  background: var(--gray-8);
+}
+.mq-select__dot--all {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--gray-8);
+}
+
+/* Popup listbox */
+.mq-select__list {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 100%;
+  max-width: 420px;
+  max-height: 320px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 5px;
+  list-style: none;
+  background: #fff;
+  border: 1px solid var(--gray-7);
+  border-radius: var(--radius-sm, 4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+}
+.mq-select__list[hidden] {
+  display: none;
+}
+.mq-select__option {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: 3px;
+  font-size: 15px;
+  line-height: 1.35;
+  color: var(--gray-12);
+  cursor: pointer;
+}
+.mq-select__option .mq-select__dot {
+  position: relative;
+  top: 2px; /* nudge the dot onto the first text line */
+}
+.mq-select__option:hover,
+.mq-select__option:focus {
+  background: var(--gray-4);
+  outline: none;
+}
+.mq-select__option.is-selected {
+  background: var(--gray-5);
+}
+.mq-select__opt-code {
+  flex: 0 0 auto;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.mq-select__opt-text {
+  flex: 1 1 auto;
+  color: var(--color-text-muted, #555);
+}
+
+/* ─ Topic select ─
+   Native <select> with the UA chevron removed and a custom one drawn
+   in. 16px text (it's a form control, ADA min). */
+.topic-select {
+  appearance: none;
+  -webkit-appearance: none;
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: var(--gray-12);
+  padding: 8px 38px 8px 13px;
+  border: 1px solid var(--gray-7);
+  border-radius: var(--radius-sm, 4px);
+  background-color: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%234e4e50' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  min-width: 220px;
+  cursor: pointer;
+}
+.topic-select:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
+}
+
+/* ─ Card frame ─
+   Positioning context for the sibling badge-links + marker that
+   overlay each poster's corners. The .exhibit-card link fills the
+   frame; the badges/marker sit above it (exhibit-tags.css sets their
+   z-index) so each is independently clickable without an anchor
+   nested inside the card anchor. */
+.exhibit-card-frame {
+  position: relative;
+}
+
+/* The on-poster badge container's gaps pass pointer events through to
+   the card link beneath; only the badges themselves capture clicks. */
+.exhibit-card-frame .exhibit-tags--on-poster {
+  pointer-events: none;
+}
+.exhibit-card-frame .exhibit-tags--on-poster .exhibit-tag {
+  pointer-events: auto;
+}
+
+/* The recognition marker is decorative: let clicks on it fall through
+   to the card link so the poster still opens. */
+.exhibit-card-frame .exhibit-marker {
+  pointer-events: none;
+}
+
+/* ─ Badge as link ─
+   On-poster MQ badges are links to the Science Framework. The base
+   .exhibit-tag is cursor:default for a static span; as a link it
+   should read clickable and drop the underline. */
+a.exhibit-tag {
+  cursor: pointer;
+  text-decoration: none;
+}
+a.exhibit-tag:hover {
+  border-color: var(--tag-ink);
+}
+a.exhibit-tag:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
+}
+
+/* ─ Filtered-out cards ─
+   The JS sets the `hidden` attribute (keeps cards out of the a11y
+   tree), but exhibits.css gives .gallery-item `display:flex`, which in
+   the author origin overrides the UA `[hidden]{display:none}` rule —
+   so a plain hidden attribute leaves the card visible. This attribute
+   selector (specificity 0,0,2,0) re-wins and removes it from layout. */
+.gallery-item[hidden] {
+  display: none;
+}
+
+/* ─ Stable grid height ─
+   Filtering hides cards, which would otherwise collapse the grid from
+   three rows to one and lurch the whole page height. Reserve the height
+   of the unfiltered set (three rows at the 1400px container cap) so the
+   page holds steady as filters narrow the results. This only binds when
+   filtered — the unfiltered grid is always this tall or taller (it gets
+   taller, never shorter, as the viewport narrows toward one column). */
+.exhibit-gallery {
+  min-height: 790px;
+}
+
+/* ─ Empty result state ─ */
+.gallery-empty {
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  padding-block: var(--space-32);
+}
+.gallery-empty[hidden] {
+  display: none;
+}
