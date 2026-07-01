@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Science Framework — WRMP (Round 2 rails)</title>
+    <link rel="stylesheet" href="../shared/css/tokens.css" />
+    <link rel="stylesheet" href="../shared/css/exhibit-tags.css" />
     <link rel="stylesheet" href="assets/site.css" />
     <link rel="stylesheet" href="assets/science-framework.css" />
 
@@ -876,7 +878,7 @@
               <span class="sf-toc__text">About the Science Framework</span>
             </a>
 
-            <a class="sf-toc__link sf-toc__link--active" href="#q1">
+            <a class="sf-toc__link" href="#q1">
               <span class="sf-toc__num">Q1</span>
               <span class="sf-toc__text">What and where is the tidal marsh ecosystem?</span>
             </a>
@@ -946,7 +948,7 @@
 
               <div class="sf-question__body">
                 <!-- MQ 1A -->
-                <div class="sf-mq">
+                <div class="sf-mq" id="mq-1A">
                   <span class="sf-mq__label">Management Question 1A</span>
                   <p class="sf-mq__text">
                     What is the distribution, abundance and condition of tidal
@@ -955,7 +957,7 @@
                 </div>
 
                 <!-- MQ 1B -->
-                <div class="sf-mq">
+                <div class="sf-mq" id="mq-1B">
                   <span class="sf-mq__label">Management Question 1B</span>
                   <p class="sf-mq__text">
                     Are changes in tidal marsh ecosystems impacting water
@@ -1021,6 +1023,7 @@
                   <div class="sf-exhibit-item">
                     <button type="button" class="exhibit-card" data-exhibit-src="../exhibits/round-2-2026-05/alviso-decade/index.html" aria-label="Open interactive exhibit: A Decade in Alviso Marsh">
                       <span class="exhibit-card-image" style="background-image: url('../exhibits/round-2-2026-05/alviso-decade/cover.jpg')"></span>
+                      <span class="exhibit-tags exhibit-tags--on-poster"><span class="exhibit-tag" data-gq="4" title="4A — How are habitats for assemblages of resident species of fish and wildlife in tidal marsh ecosystems changing over time?">4A</span><span class="exhibit-tag" data-gq="1" title="1A — What is the distribution, abundance and condition of tidal marsh ecosystems, and how are they changing over time?">1A</span></span>
                       <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
                     </button>
                     <div class="sf-exhibit__meta">
@@ -1034,6 +1037,7 @@
                   <div class="sf-exhibit-item">
                     <button type="button" class="exhibit-card" data-exhibit-src="../exhibits/round-2-2026-05/native-vs-invasive/index.html" aria-label="Open interactive exhibit: Native vs. Invasive">
                       <span class="exhibit-card-image" style="background-image: url('../exhibits/round-2-2026-05/native-vs-invasive/cover.jpg')"></span>
+                      <span class="exhibit-tags exhibit-tags--on-poster"><span class="exhibit-tag" data-gq="4" title="4A — How are habitats for assemblages of resident species of fish and wildlife in tidal marsh ecosystems changing over time?">4A</span><span class="exhibit-tag" data-gq="4" title="4B — How are the distribution and abundance of key resident species of fish and wildlife of tidal marsh ecosystems changing over time?">4B</span></span>
                       <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
                     </button>
                     <div class="sf-exhibit__meta">
@@ -1047,6 +1051,7 @@
                   <div class="sf-exhibit-item">
                     <button type="button" class="exhibit-card" data-exhibit-src="../exhibits/2026-04-23-bay-keeping-up/index.html" aria-label="Open interactive exhibit: Is the Bay Keeping Up?">
                       <span class="exhibit-card-image" style="background-image: url('../exhibits/2026-04-23-bay-keeping-up/cover.jpg')"></span>
+                      <span class="exhibit-tags exhibit-tags--on-poster"><span class="exhibit-tag" data-gq="2" title="2A — How are tidal marshes and tidal flats, including restoration projects, changing in elevation and extent relative to local tidal datums?">2A</span><span class="exhibit-tag" data-gq="3" title="3B — Where and when can interventions, such as placement of dredged sediment, reconnection of restoration projects to watersheds, and construction of living shorelines, help to sustain or increase the quantity and quality of tidal marsh ecosystems?">3B</span></span>
                       <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
                     </button>
                     <div class="sf-exhibit__meta">
@@ -1060,6 +1065,7 @@
                   <div class="sf-exhibit-item">
                     <button type="button" class="exhibit-card" data-exhibit-src="../exhibits/round-2-2026-05/station-map-stepper/index.html" aria-label="Open interactive exhibit: The Bay: Where We're Watching">
                       <span class="exhibit-card-image" style="background-image: url('../exhibits/round-2-2026-05/station-map-stepper/cover.jpg')"></span>
+                      <span class="exhibit-tags exhibit-tags--on-poster"><span class="exhibit-tag" data-gq="1" title="1A — What is the distribution, abundance and condition of tidal marsh ecosystems, and how are they changing over time?">1A</span></span>
                       <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
                     </button>
                     <div class="sf-exhibit__meta">
@@ -1073,6 +1079,7 @@
                   <div class="sf-exhibit-item">
                     <button type="button" class="exhibit-card" data-exhibit-src="../exhibits/2026-04-10-restoration-network/index.html" aria-label="Open interactive exhibit: Designing the Experiment">
                       <span class="exhibit-card-image" style="background-image: url('../exhibits/2026-04-10-restoration-network/cover.jpg')"></span>
+                      <span class="exhibit-tags exhibit-tags--on-poster"><span class="exhibit-tag" data-gq="3" title="3A — What new information do we need to better understand regional lessons from tidal marsh restoration projects, advance tidal marsh science, and ensure the continued success of restoration projects?">3A</span><span class="exhibit-tag" data-gq="1" title="1A — What is the distribution, abundance and condition of tidal marsh ecosystems, and how are they changing over time?">1A</span></span>
                       <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
                     </button>
                     <div class="sf-exhibit__meta">
@@ -1098,7 +1105,7 @@
 
               <div class="sf-question__body">
                 <!-- MQ 2A -->
-                <div class="sf-mq">
+                <div class="sf-mq" id="mq-2A">
                   <span class="sf-mq__label">Management Question 2A</span>
                   <p class="sf-mq__text">
                     How are tidal marshes and tidal flats, including
@@ -1108,7 +1115,7 @@
                 </div>
 
                 <!-- MQ 2B -->
-                <div class="sf-mq">
+                <div class="sf-mq" id="mq-2B">
                   <span class="sf-mq__label">Management Question 2B</span>
                   <p class="sf-mq__text">
                     What are the regional differences in the sources and
@@ -1151,6 +1158,7 @@
                     aria-label="Open interactive exhibit: Is the Bay Keeping Up?"
                   >
                     <span class="exhibit-card-image" data-feature-image style="background-image: url('../exhibits/2026-04-23-bay-keeping-up/cover.jpg')"></span>
+                    <span class="exhibit-tags exhibit-tags--on-poster"><span class="exhibit-tag" data-gq="2" title="2A — How are tidal marshes and tidal flats, including restoration projects, changing in elevation and extent relative to local tidal datums?">2A</span><span class="exhibit-tag" data-gq="3" title="3B — Where and when can interventions, such as placement of dredged sediment, reconnection of restoration projects to watersheds, and construction of living shorelines, help to sustain or increase the quantity and quality of tidal marsh ecosystems?">3B</span></span>
                     <span class="exhibit-card-gradient"></span>
                     <span class="exhibit-card-content">
                       <span class="exhibit-card-kicker">Interactive Exhibit</span>
@@ -1237,7 +1245,7 @@
 
               <div class="sf-question__body">
                 <!-- MQ 3A -->
-                <div class="sf-mq">
+                <div class="sf-mq" id="mq-3A">
                   <span class="sf-mq__label">Management Question 3A</span>
                   <p class="sf-mq__text">
                     What new information do we need to better understand regional
@@ -1248,7 +1256,7 @@
                 </div>
 
                 <!-- MQ 3B -->
-                <div class="sf-mq">
+                <div class="sf-mq" id="mq-3B">
                   <span class="sf-mq__label">Management Question 3B</span>
                   <p class="sf-mq__text">
                     Where and when can interventions, such as placement of
@@ -1370,7 +1378,7 @@
 
               <div class="sf-question__body">
                 <!-- MQ 4A -->
-                <div class="sf-mq">
+                <div class="sf-mq" id="mq-4A">
                   <span class="sf-mq__label">Management Question 4A</span>
                   <p class="sf-mq__text">
                     How are habitats for assemblages of resident species of
@@ -1380,7 +1388,7 @@
                 </div>
 
                 <!-- MQ 4B -->
-                <div class="sf-mq">
+                <div class="sf-mq" id="mq-4B">
                   <span class="sf-mq__label">Management Question 4B</span>
                   <p class="sf-mq__text">
                     How are the distribution and abundance of key resident
@@ -1489,7 +1497,7 @@
 
               <div class="sf-question__body">
                 <!-- MQ 5A -->
-                <div class="sf-mq">
+                <div class="sf-mq" id="mq-5A">
                   <span class="sf-mq__label">Management Question 5A</span>
                   <p class="sf-mq__text">
                     What mosquito and vector control strategies need to be
@@ -1500,7 +1508,7 @@
                 </div>
 
                 <!-- MQ 5B -->
-                <div class="sf-mq">
+                <div class="sf-mq" id="mq-5B">
                   <span class="sf-mq__label">Management Question 5B</span>
                   <p class="sf-mq__text">
                     What monitoring data and/or analyses are needed to improve the
@@ -1511,7 +1519,7 @@
                 </div>
 
                 <!-- MQ 5C -->
-                <div class="sf-mq">
+                <div class="sf-mq" id="mq-5C">
                   <span class="sf-mq__label">Management Question 5C</span>
                   <p class="sf-mq__text">
                     How are the benefits of wetlands (such as flood risk
@@ -1523,7 +1531,7 @@
                 </div>
 
                 <!-- MQ 5D -->
-                <div class="sf-mq">
+                <div class="sf-mq" id="mq-5D">
                   <span class="sf-mq__label">Management Question 5D</span>
                   <p class="sf-mq__text">
                     How does the provision of benefits (such as flood risk
@@ -1573,6 +1581,7 @@
                     <div class="sf-deck__card" data-deck-item>
                       <button type="button" class="exhibit-card" data-exhibit-src="../exhibits/round-2-2026-05/station-map-stepper/index.html" aria-label="Open interactive exhibit: The Bay: Where We're Watching">
                         <span class="exhibit-card-image" style="background-image: url('../exhibits/round-2-2026-05/station-map-stepper/cover.jpg')"></span>
+                        <span class="exhibit-tags exhibit-tags--on-poster"><span class="exhibit-tag" data-gq="1" title="1A — What is the distribution, abundance and condition of tidal marsh ecosystems, and how are they changing over time?">1A</span></span>
                         <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
                       </button>
                       <div class="sf-exhibit__meta" data-deck-meta>
@@ -1586,6 +1595,7 @@
                     <div class="sf-deck__card" data-deck-item>
                       <button type="button" class="exhibit-card" data-exhibit-src="../exhibits/round-2-2026-05/alviso-decade/index.html" aria-label="Open interactive exhibit: A Decade in Alviso Marsh">
                         <span class="exhibit-card-image" style="background-image: url('../exhibits/round-2-2026-05/alviso-decade/cover.jpg')"></span>
+                        <span class="exhibit-tags exhibit-tags--on-poster"><span class="exhibit-tag" data-gq="4" title="4A — How are habitats for assemblages of resident species of fish and wildlife in tidal marsh ecosystems changing over time?">4A</span><span class="exhibit-tag" data-gq="1" title="1A — What is the distribution, abundance and condition of tidal marsh ecosystems, and how are they changing over time?">1A</span></span>
                         <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
                       </button>
                       <div class="sf-exhibit__meta" data-deck-meta>
@@ -1599,6 +1609,7 @@
                     <div class="sf-deck__card" data-deck-item>
                       <button type="button" class="exhibit-card" data-exhibit-src="../exhibits/round-2-2026-05/native-vs-invasive/index.html" aria-label="Open interactive exhibit: Native vs. Invasive">
                         <span class="exhibit-card-image" style="background-image: url('../exhibits/round-2-2026-05/native-vs-invasive/cover.jpg')"></span>
+                        <span class="exhibit-tags exhibit-tags--on-poster"><span class="exhibit-tag" data-gq="4" title="4A — How are habitats for assemblages of resident species of fish and wildlife in tidal marsh ecosystems changing over time?">4A</span><span class="exhibit-tag" data-gq="4" title="4B — How are the distribution and abundance of key resident species of fish and wildlife of tidal marsh ecosystems changing over time?">4B</span></span>
                         <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
                       </button>
                       <div class="sf-exhibit__meta" data-deck-meta>
@@ -1612,6 +1623,7 @@
                     <div class="sf-deck__card" data-deck-item>
                       <button type="button" class="exhibit-card" data-exhibit-src="../exhibits/2026-04-10-delta-smelt/index.html" aria-label="Open interactive exhibit: Delta Smelt: The Smallest Giant">
                         <span class="exhibit-card-image" style="background-image: url('../exhibits/2026-04-10-delta-smelt/cover.jpg')"></span>
+                        <span class="exhibit-tags exhibit-tags--on-poster"><span class="exhibit-tag" data-gq="4" title="4B — How are the distribution and abundance of key resident species of fish and wildlife of tidal marsh ecosystems changing over time?">4B</span></span>
                         <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
                       </button>
                       <div class="sf-exhibit__meta" data-deck-meta>
@@ -1625,6 +1637,7 @@
                     <div class="sf-deck__card" data-deck-item>
                       <button type="button" class="exhibit-card" data-exhibit-src="../exhibits/2026-04-10-how-we-look/index.html" aria-label="Open interactive exhibit: How We Monitor">
                         <span class="exhibit-card-image" style="background-image: url('../exhibits/2026-04-10-how-we-look/cover.jpg')"></span>
+                        <span class="exhibit-tags exhibit-tags--on-poster"><span class="exhibit-tag" data-gq="4" title="4A — How are habitats for assemblages of resident species of fish and wildlife in tidal marsh ecosystems changing over time?">4A</span></span>
                         <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
                       </button>
                       <div class="sf-exhibit__meta" data-deck-meta>

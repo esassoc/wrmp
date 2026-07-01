@@ -1,0 +1,290 @@
+/* ════════════════════════════════════════════════════════════
+   WRMP — Exhibit tags, marker & topic chip
+   ────────────────────────────────────────────────────────────
+   Drop-in styles for three poster-card affordances, approved from
+   the exhibit-tagging specimen:
+
+     • .exhibit-tag     — management-question badge. Color encodes
+                          the guiding question (leading digit 1–5);
+                          the label is the MQ code (e.g. "4B").
+                          Saturated fill so the color reads at a glance.
+     • .exhibit-marker  — frosted corner mark (Lucide telescope) that
+                          signals an interactive, step-inside exhibit.
+                          The icon is drawn in CSS, so swapping it is a
+                          one-line change here — page markup never changes.
+     • .exhibit-topic   — neutral topic chip. Deliberately gray (NOT a
+                          guiding-question color) so the topic system reads
+                          as distinct from the colored MQ badge.
+
+   Requires tokens.css (--gq*-tier vars, --topic-chip-*, --radius-sm,
+   --wrmp-ada-teal, --font-body, --gray-*). The host poster card must
+   be positioned (the project's .exhibit-card already is
+   position:relative) for the on-cover placements to anchor.
+
+   ─ Class API ────────────────────────────────────────────────
+
+   (a) MQ badge + recognition marker + topic chip ON a poster card:
+
+       <a class="exhibit-card" href="…">
+         <div class="exhibit-card-image" style="background-image:url(cover.jpg)"></div>
+         <div class="exhibit-card-gradient"></div>
+
+         <!-- management-question badge(s), top-left -->
+         <div class="exhibit-tags exhibit-tags--on-poster">
+           <span class="exhibit-tag" data-gq="2" title="2A — full question text">2A</span>
+           <span class="exhibit-tag" data-gq="3" title="3B — full question text">3B</span>
+         </div>
+
+         <!-- recognition marker, top-right (icon comes from CSS;
+              an inner <svg> is optional and ignored) -->
+         <span class="exhibit-marker" aria-hidden="true"></span>
+
+         <div class="exhibit-card-content">
+           <!-- neutral topic chip(s), just above the title -->
+           <div class="exhibit-topics exhibit-topics--on-cover">
+             <span class="exhibit-topic">Wetlands &amp; Sea Level Rise</span>
+             <span class="exhibit-topic">Wetland Condition</span>
+           </div>
+           … kicker / title / dots …
+         </div>
+       </a>
+
+   (b) MQ badge in a plain row beneath a card (no positioning):
+
+       <div class="exhibit-tags">
+         <span class="exhibit-tag" data-gq="4" title="4A — …">4A</span>
+         <span class="exhibit-tag" data-gq="4" title="4B — …">4B</span>
+       </div>
+
+   (c) Topic chip(s) in a meta row beneath a card (no positioning):
+
+       <div class="exhibit-topics">
+         <span class="exhibit-topic">Fish &amp; Wildlife</span>
+         <span class="exhibit-topic">Wetland Condition</span>
+       </div>
+
+   The guiding-question tier is set by data-gq="1".."5" (preferred
+   for JS-rendered cards). Equivalent .exhibit-tag--gq1 … --gq5
+   modifier classes are provided as an alias. Topic chips need no
+   tier — they are always neutral gray; the leading map icon is
+   drawn in CSS, so the markup is just the topic name.
+   ════════════════════════════════════════════════════════════ */
+
+/* ─ Management-question badge ─
+   Small saturated chip — NOT a pill. Tier hooks set three local
+   custom properties; a neutral gray default keeps an untagged badge
+   visible rather than blank. */
+.exhibit-tag {
+  --tag-bg: var(--gray-3);
+  --tag-border: var(--gray-7);
+  --tag-ink: var(--gray-12);
+
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+  padding: 3px 8px 3px 7px;
+  border-radius: var(--radius-sm, 4px);
+  border: 1px solid var(--tag-border);
+  background: var(--tag-bg);
+  color: var(--tag-ink);
+  white-space: nowrap;
+  cursor: default;
+}
+
+/* Leading Lucide "clipboard" icon — signals the management-question /
+   Science-Framework tag, and gives the badge the same height as the
+   topic chip (which carries the map icon). One URI to swap it site-wide. */
+.exhibit-tag::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  background-color: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='8' height='4' x='8' y='2' rx='1' ry='1'/%3E%3Cpath d='M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='8' height='4' x='8' y='2' rx='1' ry='1'/%3E%3Cpath d='M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2'/%3E%3C/svg%3E");
+}
+
+/* Badge + topic as links (used on exhibit covers → SF page / topic page).
+   Keep the chip look; just drop underline and read as clickable. */
+a.exhibit-tag,
+a.exhibit-topic {
+  text-decoration: none;
+  cursor: pointer;
+}
+a.exhibit-tag:hover { filter: brightness(0.97); }
+a.exhibit-topic:hover { filter: brightness(0.97); }
+a.exhibit-tag:focus-visible,
+a.exhibit-topic:focus-visible {
+  outline: 2px solid var(--wrmp-ada-teal, #005e6a);
+  outline-offset: 2px;
+}
+
+/* Guiding-question tiers — data-attribute hook + class alias.
+   Background uses the saturated mid-tone so the color reads. */
+.exhibit-tag[data-gq="1"],
+.exhibit-tag--gq1 {
+  --tag-bg: var(--gq1-sat);
+  --tag-border: var(--gq1-border);
+  --tag-ink: var(--gq1-ink);
+}
+.exhibit-tag[data-gq="2"],
+.exhibit-tag--gq2 {
+  --tag-bg: var(--gq2-sat);
+  --tag-border: var(--gq2-border);
+  --tag-ink: var(--gq2-ink);
+}
+.exhibit-tag[data-gq="3"],
+.exhibit-tag--gq3 {
+  --tag-bg: var(--gq3-sat);
+  --tag-border: var(--gq3-border);
+  --tag-ink: var(--gq3-ink);
+}
+.exhibit-tag[data-gq="4"],
+.exhibit-tag--gq4 {
+  --tag-bg: var(--gq4-sat);
+  --tag-border: var(--gq4-border);
+  --tag-ink: var(--gq4-ink);
+}
+.exhibit-tag[data-gq="5"],
+.exhibit-tag--gq5 {
+  --tag-bg: var(--gq5-sat);
+  --tag-border: var(--gq5-border);
+  --tag-ink: var(--gq5-ink);
+}
+
+/* On browse posters (gallery + gallery grid), a wall of colored badges
+   reads as visual noise. So the ON-POSTER badge is NEUTRAL gray — the
+   code + clipboard icon still identify the management question, and full
+   guiding-question COLOR is reserved for the Science Framework page,
+   where it encodes the GQ → MQ → PRA hierarchy. Same specificity as the
+   data-gq rules above (two classes); wins by source order. */
+.exhibit-tags--on-poster .exhibit-tag {
+  --tag-bg: var(--gray-3);
+  --tag-border: var(--gray-7);
+  --tag-ink: var(--gray-12);
+}
+
+/* ─ Badge container ─
+   Default = label-row layout (flows in normal content, wraps).
+   --on-poster floats the group at the card's top-left and adds a
+   shadow so the chips read over any cover image. */
+.exhibit-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.exhibit-tags--on-poster {
+  position: absolute;
+  top: 11px;
+  left: 11px;
+  z-index: 3;
+  max-width: 70%; /* keep clear of the top-right marker */
+}
+.exhibit-tags--on-poster .exhibit-tag {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* ─ Recognition marker ─
+   Frosted circle, fixed top-right, always visible. The glyph is the
+   Lucide "telescope" icon, drawn via a CSS mask so it changes on
+   every page from here alone — page markup carries no icon. Any
+   inner <svg> a page happens to include is hidden. Width tracks card
+   size between 24–30px so it scales down on small thumbnails. */
+.exhibit-marker {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 4;
+  width: clamp(24px, 9%, 30px);
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+}
+.exhibit-marker svg {
+  display: none; /* icon is drawn by ::before; ignore inline markup */
+}
+.exhibit-marker::before {
+  content: "";
+  width: 50%;
+  height: 50%;
+  background-color: var(--wrmp-ada-teal);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  /* Lucide telescope — swap this one URI to change the icon site-wide */
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m10.065 12.493-6.18 1.318a.934.934 0 0 1-1.108-.702l-.537-2.15a1.07 1.07 0 0 1 .691-1.265l13.504-4.44'/%3E%3Cpath d='m13.56 11.747 4.332-.924'/%3E%3Cpath d='m16 21-3.105-6.21'/%3E%3Cpath d='M16.485 5.94a2 2 0 0 1 1.455-2.425l1.09-.272a1 1 0 0 1 1.212.727l1.515 6.06a1 1 0 0 1-.727 1.213l-1.09.272a2 2 0 0 1-2.425-1.455z'/%3E%3Cpath d='m6.158 8.633 1.114 4.456'/%3E%3Cpath d='m8 21 3.105-6.21'/%3E%3Ccircle cx='12' cy='13' r='2'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m10.065 12.493-6.18 1.318a.934.934 0 0 1-1.108-.702l-.537-2.15a1.07 1.07 0 0 1 .691-1.265l13.504-4.44'/%3E%3Cpath d='m13.56 11.747 4.332-.924'/%3E%3Cpath d='m16 21-3.105-6.21'/%3E%3Cpath d='M16.485 5.94a2 2 0 0 1 1.455-2.425l1.09-.272a1 1 0 0 1 1.212.727l1.515 6.06a1 1 0 0 1-.727 1.213l-1.09.272a2 2 0 0 1-2.425-1.455z'/%3E%3Cpath d='m6.158 8.633 1.114 4.456'/%3E%3Cpath d='m8 21 3.105-6.21'/%3E%3Ccircle cx='12' cy='13' r='2'/%3E%3C/svg%3E");
+}
+
+/* ─ Topic chip ─
+   Neutral gray, small, with a leading Lucide "map" icon drawn via
+   ::before so page markup is just the topic name. Distinct from the
+   colored MQ badge by hue (gray), shape, and the icon. */
+.exhibit-topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.exhibit-topics--on-cover {
+  margin-bottom: 8px; /* sits just above the title, in card content */
+}
+.exhibit-topic {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.25;
+  padding: 3px 9px 3px 7px;
+  border-radius: var(--radius-sm, 4px);
+  white-space: nowrap;
+  /* meta default — neutral outline */
+  background: var(--topic-chip-bg);
+  border: 1px solid var(--topic-chip-border);
+  color: var(--topic-chip-ink);
+}
+.exhibit-topic::before {
+  content: "";
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  background-color: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  /* Lucide map */
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z'/%3E%3Cpath d='M15 5.764v15'/%3E%3Cpath d='M9 3.236v15'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z'/%3E%3Cpath d='M15 5.764v15'/%3E%3Cpath d='M9 3.236v15'/%3E%3C/svg%3E");
+}
+/* On-cover variant — frosted, legible over the image */
+.exhibit-topics--on-cover .exhibit-topic {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.55);
+  color: var(--gray-12);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}

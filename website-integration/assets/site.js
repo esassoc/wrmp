@@ -93,3 +93,75 @@
     }
   });
 })();
+
+/* ════════════════════════════════════════════════════════════
+   Science-Framework TOC scroll-spy
+   ────────────────────────────────────────────────────────────
+   Highlights the table-of-contents entry for whichever section is
+   currently in view (About + each guiding question), so the active
+   chip reflects scroll position instead of a hardcoded default.
+   Own IIFE — the dialog script above returns early on pages without
+   an #exhibit-dialog, and this must still run on the SF pages. No-ops
+   anywhere there's no .sf-toc (or where IntersectionObserver is
+   unsupported), so it's safe to ship in the shared site.js.
+   ════════════════════════════════════════════════════════════ */
+(function () {
+  "use strict";
+
+  var toc = document.querySelector(".sf-toc");
+  if (!toc || !("IntersectionObserver" in window)) return;
+
+  // Map each TOC link to its target section (skip links whose section
+  // isn't on the page — keeps this resilient to page-to-page markup).
+  var linkById = {};
+  var sections = [];
+  toc.querySelectorAll(".sf-toc__link").forEach(function (link) {
+    var href = link.getAttribute("href") || "";
+    if (href.charAt(0) !== "#") return;
+    var id = href.slice(1);
+    var section = document.getElementById(id);
+    if (!section) return;
+    linkById[id] = link;
+    sections.push(section);
+  });
+  if (!sections.length) return;
+
+  var visible = {};
+  var activeId = null;
+
+  function setActive(id) {
+    if (id === activeId) return;
+    activeId = id;
+    Object.keys(linkById).forEach(function (key) {
+      linkById[key].classList.toggle("sf-toc__link--active", key === id);
+    });
+  }
+
+  // Active = the section highest in document order that overlaps the
+  // trigger band. A tall section stays active until its bottom clears
+  // the band and the next one takes over.
+  function update() {
+    for (var i = 0; i < sections.length; i++) {
+      if (visible[sections[i].id]) {
+        setActive(sections[i].id);
+        return;
+      }
+    }
+  }
+
+  // Trigger band sits ~15–25% down the viewport (rootMargin crops the
+  // root to a thin horizontal strip near the top).
+  var observer = new IntersectionObserver(
+    function (entries) {
+      entries.forEach(function (entry) {
+        visible[entry.target.id] = entry.isIntersecting;
+      });
+      update();
+    },
+    { rootMargin: "-15% 0px -75% 0px", threshold: 0 }
+  );
+
+  sections.forEach(function (section) {
+    observer.observe(section);
+  });
+})();

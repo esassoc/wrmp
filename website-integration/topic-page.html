@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Baylands Geography — WRMP</title>
+    <!-- Shared tokens + exhibit-tag styles must load before the page CSS
+         so the recognition marker / MQ badges pick up --gq*, --radius-sm,
+         --wrmp-ada-teal, --font-body. -->
+    <link rel="stylesheet" href="../shared/css/tokens.css" />
+    <link rel="stylesheet" href="../shared/css/exhibit-tags.css" />
     <link rel="stylesheet" href="assets/site.css" />
     <!-- ── Exhibit carousel (topic-page only; scoped to .exhibit-carousel) ── -->
     <style>
@@ -100,6 +105,23 @@
       }
       .exhibit-carousel__dot:focus-visible {
         outline: 2px solid var(--color-teal-ada);
+        outline-offset: 2px;
+      }
+
+      /* ── Exhibit marker + MQ badge-links overlay ──
+         Each carousel slide is wrapped so the marker + badge-links can
+         overlay the poster corners as siblings of the <button> trigger.
+         The wrapper already carries .exhibit-carousel__slide (position:
+         absolute), so no extra positioning is needed here. */
+      .exhibit-card-wrap .exhibit-marker {
+        pointer-events: none; /* decorative — clicks fall through to the card */
+      }
+      a.exhibit-tag {
+        text-decoration: none;
+        cursor: pointer;
+      }
+      a.exhibit-tag:focus-visible {
+        outline: 2px solid var(--wrmp-ada-teal);
         outline-offset: 2px;
       }
     </style>
@@ -212,9 +234,10 @@
               >
                 <div class="exhibit-carousel__viewport">
                   <!-- Slide 1 -->
+                  <div class="exhibit-card-wrap exhibit-carousel__slide is-active">
                   <button
                     type="button"
-                    class="exhibit-card exhibit-carousel__slide is-active"
+                    class="exhibit-card"
                     data-exhibit-src="../exhibits/round-3-2026-06/station-map-stepper/index.html"
                     aria-label="Open interactive exhibit: The Bay — Where We're Watching"
                   >
@@ -228,6 +251,10 @@
                       Begin
                     </span>
                     <span class="exhibit-card-content">
+                      <div class="exhibit-topics exhibit-topics--on-cover">
+                        <span class="exhibit-topic">Baylands Geography</span>
+                        <span class="exhibit-topic">Fish &amp; Wildlife</span>
+                      </div>
                       <span class="exhibit-card-kicker">Interactive exhibit</span>
                       <span class="exhibit-card-title">The Bay: Where We're Watching</span>
                       <span class="exhibit-card-dots">
@@ -239,11 +266,19 @@
                       </span>
                     </span>
                   </button>
+                  <div class="exhibit-tags exhibit-tags--on-poster">
+                    <a class="exhibit-tag" data-gq="1" href="science-framework.html#mq-1A" title="1A — What is the distribution, abundance and condition of tidal marsh ecosystems, and how are they changing over time?">1A</a>
+                  </div>
+                  <span class="exhibit-marker" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                  </span>
+                  </div>
 
                   <!-- Slide 2 -->
+                  <div class="exhibit-card-wrap exhibit-carousel__slide">
                   <button
                     type="button"
-                    class="exhibit-card exhibit-carousel__slide"
+                    class="exhibit-card"
                     data-exhibit-src="../exhibits/round-3-2026-06/restoration-network/index.html"
                     aria-label="Open interactive exhibit: Designing the Experiment"
                   >
@@ -257,6 +292,10 @@
                       Begin
                     </span>
                     <span class="exhibit-card-content">
+                      <div class="exhibit-topics exhibit-topics--on-cover">
+                        <span class="exhibit-topic">Baylands Geography</span>
+                        <span class="exhibit-topic">Fish &amp; Wildlife</span>
+                      </div>
                       <span class="exhibit-card-kicker">Interactive exhibit</span>
                       <span class="exhibit-card-title">Designing the Experiment</span>
                       <span class="exhibit-card-dots">
@@ -269,11 +308,20 @@
                       </span>
                     </span>
                   </button>
+                  <div class="exhibit-tags exhibit-tags--on-poster">
+                    <a class="exhibit-tag" data-gq="3" href="science-framework.html#mq-3A" title="3A — What new information do we need to better understand regional lessons from tidal marsh restoration projects, advance tidal marsh science, and ensure the continued success of restoration projects?">3A</a>
+                    <a class="exhibit-tag" data-gq="1" href="science-framework.html#mq-1A" title="1A — What is the distribution, abundance and condition of tidal marsh ecosystems, and how are they changing over time?">1A</a>
+                  </div>
+                  <span class="exhibit-marker" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                  </span>
+                  </div>
 
                   <!-- Slide 3 -->
+                  <div class="exhibit-card-wrap exhibit-carousel__slide">
                   <button
                     type="button"
-                    class="exhibit-card exhibit-carousel__slide"
+                    class="exhibit-card"
                     data-exhibit-src="../exhibits/round-3-2026-06/alviso-decade/index.html"
                     aria-label="Open interactive exhibit: A Decade in Alviso Marsh"
                   >
@@ -287,6 +335,10 @@
                       Begin
                     </span>
                     <span class="exhibit-card-content">
+                      <div class="exhibit-topics exhibit-topics--on-cover">
+                        <span class="exhibit-topic">Fish &amp; Wildlife</span>
+                        <span class="exhibit-topic">Wetland Condition</span>
+                      </div>
                       <span class="exhibit-card-kicker">Interactive exhibit</span>
                       <span class="exhibit-card-title">A Decade in Alviso Marsh</span>
                       <span class="exhibit-card-dots">
@@ -298,11 +350,20 @@
                       </span>
                     </span>
                   </button>
+                  <div class="exhibit-tags exhibit-tags--on-poster">
+                    <a class="exhibit-tag" data-gq="4" href="science-framework.html#mq-4A" title="4A — How are habitats for assemblages of resident species of fish and wildlife in tidal marsh ecosystems changing over time?">4A</a>
+                    <a class="exhibit-tag" data-gq="1" href="science-framework.html#mq-1A" title="1A — What is the distribution, abundance and condition of tidal marsh ecosystems, and how are they changing over time?">1A</a>
+                  </div>
+                  <span class="exhibit-marker" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                  </span>
+                  </div>
 
                   <!-- Slide 4 -->
+                  <div class="exhibit-card-wrap exhibit-carousel__slide">
                   <button
                     type="button"
-                    class="exhibit-card exhibit-carousel__slide"
+                    class="exhibit-card"
                     data-exhibit-src="../exhibits/round-3-2026-06/bay-keeping-up/index.html"
                     aria-label="Open interactive exhibit: Is the Bay Keeping Up?"
                   >
@@ -316,6 +377,10 @@
                       Begin
                     </span>
                     <span class="exhibit-card-content">
+                      <div class="exhibit-topics exhibit-topics--on-cover">
+                        <span class="exhibit-topic">Wetlands &amp; Sea Level Rise</span>
+                        <span class="exhibit-topic">Wetland Condition</span>
+                      </div>
                       <span class="exhibit-card-kicker">Interactive exhibit</span>
                       <span class="exhibit-card-title">Is the Bay Keeping Up?</span>
                       <span class="exhibit-card-dots">
@@ -327,6 +392,14 @@
                       </span>
                     </span>
                   </button>
+                  <div class="exhibit-tags exhibit-tags--on-poster">
+                    <a class="exhibit-tag" data-gq="2" href="science-framework.html#mq-2A" title="2A — How are tidal marshes and tidal flats, including restoration projects, changing in elevation and extent relative to local tidal datums?">2A</a>
+                    <a class="exhibit-tag" data-gq="3" href="science-framework.html#mq-3B" title="3B — Where and when can interventions, such as placement of dredged sediment, reconnection of restoration projects to watersheds, and construction of living shorelines, help to sustain or increase the quantity and quality of tidal marsh ecosystems?">3B</a>
+                  </div>
+                  <span class="exhibit-marker" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                  </span>
+                  </div>
 
                   <!-- Prev / next controls -->
                   <button

@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="../../../shared/css/leaflet-overrides.css?v=2" />
     <link rel="stylesheet" href="../../../shared/css/marker-popup.css" />
     <link rel="stylesheet" href="../../../shared/css/exhibit-cover.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-tags.css" />
     <link rel="stylesheet" href="../../../shared/css/level3.css?v=6" />
     <style>
       /* ── Exhibit-specific: background frame tint ── */
@@ -193,19 +194,28 @@
           aria-hidden="true"
         ></div>
         <div class="exhibit-cover-gradient" aria-hidden="true"></div>
-        <div class="exhibit-cover-content">
-          <span class="exhibit-cover-kicker">WRMP Exhibit · Featured Species</span>
-          <h2 class="exhibit-cover-title">Delta Smelt: The Smallest Giant</h2>
-          <p class="exhibit-cover-lede">Meet the tiny endangered native that reshaped California water policy. See where it lives, why it matters, and what's at stake.</p>
-          <!-- Last-updated stamp — illustrative placeholder date for the July
-               review; no real data ships yet. Adjust the date freely. -->
-          <p class="exhibit-cover-updated">
+        <p class="exhibit-cover-updated">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <circle cx="12" cy="12" r="9" />
               <path d="M12 7v5l3 2" />
             </svg>
             Last updated May 28, 2026
           </p>
+        <div class="exhibit-cover-content">
+          <div class="exhibit-cover-tags">
+            <div class="exhibit-tags">
+              <a class="exhibit-tag" data-gq="4" href="../../../website-integration/science-framework-round2.html#mq-4B" title="4B — How are the distribution and abundance of key resident species of fish and wildlife of tidal marsh ecosystems changing over time?">4B</a>
+            </div>
+            <div class="exhibit-topics exhibit-topics--on-cover">
+              <a class="exhibit-topic" href="../../../website-integration/topic-page.html">Fish &amp; Wildlife</a>
+            </div>
+          </div>
+          <span class="exhibit-cover-kicker">WRMP Exhibit · Featured Species</span>
+          <h2 class="exhibit-cover-title">Delta Smelt: The Smallest Giant</h2>
+          <p class="exhibit-cover-lede">Meet the tiny endangered native that reshaped California water policy. See where it lives, why it matters, and what's at stake.</p>
+          <!-- Last-updated stamp — illustrative placeholder date for the July
+               review; no real data ships yet. Adjust the date freely. -->
+          
           <button id="btn-enter" class="exhibit-cover-cta" type="button">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M8 5v14l11-7z" />

@@ -103,17 +103,26 @@
   min-width: 26px;
   height: 24px;
   padding-inline: var(--space-8);
-  border: 1px solid var(--color-orange);
+  border: 1px solid var(--sf-toc-border, var(--color-orange));
   border-radius: var(--radius-sm);
   font-size: 11px;
   font-weight: 700;
-  color: var(--color-orange);
+  color: var(--sf-toc-ink, var(--color-orange));
   margin-top: 2px;
 }
 .sf-toc__link--active .sf-toc__num {
-  background: var(--color-orange);
+  background: var(--sf-toc-fill, var(--color-orange));
+  border-color: var(--sf-toc-fill, var(--color-orange));
   color: var(--color-white);
 }
+
+/* Per-question TOC chip color — mirrors the ramp so the nav matches
+   each section's hue (mid tone as fill/border, deep ink as rest text). */
+.sf-toc__link[href="#q1"] { --sf-toc-border: var(--q1-mq); --sf-toc-ink: var(--q1-ink); --sf-toc-fill: var(--q1-mq); }
+.sf-toc__link[href="#q2"] { --sf-toc-border: var(--q2-mq); --sf-toc-ink: var(--q2-ink); --sf-toc-fill: var(--q2-mq); }
+.sf-toc__link[href="#q3"] { --sf-toc-border: var(--q3-mq); --sf-toc-ink: var(--q3-ink); --sf-toc-fill: var(--q3-mq); }
+.sf-toc__link[href="#q4"] { --sf-toc-border: var(--q4-mq); --sf-toc-ink: var(--q4-ink); --sf-toc-fill: var(--q4-mq); }
+.sf-toc__link[href="#q5"] { --sf-toc-border: var(--q5-mq); --sf-toc-ink: var(--q5-ink); --sf-toc-fill: var(--q5-mq); }
 .sf-toc__text {
   font-size: 16px;
   line-height: 1.3;
@@ -213,7 +222,7 @@
   display: inline-flex;
   align-items: center;
   padding: var(--space-8) var(--space-12);
-  background: var(--color-teal-ada);
+  background: var(--sf-gq, var(--color-teal-ada));
   border-radius: var(--radius-sm);
   font-size: 16px;
   font-weight: 600;
@@ -241,7 +250,7 @@
   display: inline-flex;
   align-items: center;
   padding: var(--space-8) var(--space-12);
-  background: var(--color-teal);
+  background: var(--sf-mq, var(--color-teal));
   border-radius: var(--radius-sm);
   font-size: 14px;
   font-weight: 600;
@@ -250,8 +259,21 @@
   color: var(--color-white);
 }
 .sf-mq__label--action {
-  background: var(--color-orange);
+  background: var(--sf-pra-bg, var(--color-orange));
+  color: var(--sf-pra-ink, var(--color-white));
 }
+
+/* ─ Per-question color ramp ─
+   Each guiding-question section (#q1..#q5) sets its hue once; the
+   pills above read it: guiding = deepest solid (white text),
+   management = mid solid (white text), priority action = pale wash
+   (deep ink). Ramp lives in tokens.css (--qN-*). Q1 Sky · Q2 Grass
+   · Q3 Sand · Q4 Orange · Q5 Earth. */
+#q1 { --sf-gq: var(--q1-gq); --sf-mq: var(--q1-mq); --sf-pra-bg: var(--q1-pra); --sf-pra-ink: var(--q1-ink); }
+#q2 { --sf-gq: var(--q2-gq); --sf-mq: var(--q2-mq); --sf-pra-bg: var(--q2-pra); --sf-pra-ink: var(--q2-ink); }
+#q3 { --sf-gq: var(--q3-gq); --sf-mq: var(--q3-mq); --sf-pra-bg: var(--q3-pra); --sf-pra-ink: var(--q3-ink); }
+#q4 { --sf-gq: var(--q4-gq); --sf-mq: var(--q4-mq); --sf-pra-bg: var(--q4-pra); --sf-pra-ink: var(--q4-ink); }
+#q5 { --sf-gq: var(--q5-gq); --sf-mq: var(--q5-mq); --sf-pra-bg: var(--q5-pra); --sf-pra-ink: var(--q5-ink); }
 .sf-mq__text {
   font-size: 20px;
   line-height: 31px;
@@ -261,6 +283,14 @@
   font-size: 17px;
   line-height: 27px;
   color: var(--gray-800);
+}
+
+/* Second door — readable link to the gallery, pre-filtered to this
+   management question. Inherits .text-link colour/weight; pinned left
+   so it reads as a sentence, not a stretched full-width target. */
+.sf-mq__more {
+  align-self: flex-start;
+  font-size: 16px;
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -286,6 +316,23 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-12);
+}
+
+/* Empty state — a question with no exhibits yet. Quieter than the
+   populated panel: no solid fill, a dashed hairline signals
+   "placeholder", and a single muted status line sits centered. */
+.sf-exhibits--empty {
+  background: transparent;
+  border-style: dashed;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 112px;
+}
+.sf-exhibits__empty {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--color-text-muted);
 }
 .sf-exhibit-item .exhibit-card {
   border-radius: var(--radius-sm);
