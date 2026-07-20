@@ -1,0 +1,1369 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Science Framework — WRMP</title>
+    <link rel="stylesheet" href="../shared/css/tokens.css" />
+    <link rel="stylesheet" href="../shared/css/exhibit-tags.css" />
+    <link rel="stylesheet" href="assets/site.css" />
+    <link rel="stylesheet" href="assets/science-framework.css" />
+
+    <!-- Interactive-exhibit galleries: each Guiding Question is paired
+         with a featured exhibit + thumbnail strip (.rail--featured).
+         Selecting a thumbnail promotes it to the featured slot, swapping
+         the cover, title, link, management-question badges, and step
+         dots. Shared card atoms (.exhibit-card, .sf-exhibit__meta) come
+         from science-framework.css + site.css and are untouched. -->
+    <style>
+      /* ╔══════════════════════════════════════════════════════════╗
+         ║  EXHIBIT GALLERY — FEATURED + THUMBNAIL STRIP (.rail--featured)║
+         ╚══════════════════════════════════════════════════════════╝
+         One large featured cover on top; a horizontal strip of small
+         clickable thumbnails beneath swaps which exhibit is featured
+         with a quiet crossfade. The active thumb gets a teal ring +
+         check. FIX: thumbnails are a FIXED width (flex: 0 0 64px) so
+         they never stretch or shrink with the count; they wrap to a
+         new line if they exceed the row. */
+      .rail--featured.sf-exhibits {
+        display: block;
+      }
+
+      .rail--featured .sf-featured__head {
+        margin-bottom: var(--space-16);
+      }
+      .rail--featured .sf-featured__label {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--gray-700);
+      }
+
+      /* The featured stage: poster card + overlay meta; crossfades on
+         swap via .is-swapping (opacity dip). */
+      .rail--featured .sf-featured__stage {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-12);
+        transition: opacity 0.28s ease;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .rail--featured .sf-featured__stage {
+          transition: none;
+        }
+      }
+      .rail--featured .sf-featured__stage.is-swapping {
+        opacity: 0;
+      }
+
+      /* Thumbnail strip: wraps to a new line; thumbs are fixed-width. */
+      .rail--featured .sf-featured__strip {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-8);
+        margin-top: var(--space-16);
+        padding-top: var(--space-16);
+        border-top: 1px solid var(--color-border);
+        list-style: none;
+        margin-bottom: 0;
+        padding-left: 0;
+        padding-right: 0;
+      }
+      /* FIX (required #2): each thumb is a STATIC fixed width regardless
+         of how many there are. No grow, no shrink — they wrap or scroll
+         rather than stretch/compress as the count changes. */
+      .rail--featured .sf-featured__strip-item {
+        flex: 0 0 64px;
+        width: 64px;
+      }
+
+      /* The thumbnail control: a compact 16:9 poster button. */
+      .rail--featured .sf-thumb {
+        position: relative;
+        display: block;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        padding: 0;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        background: var(--gray-200);
+        cursor: pointer;
+        transition:
+          transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+          box-shadow 0.2s ease,
+          border-color 0.2s ease;
+      }
+      .rail--featured .sf-thumb-image {
+        position: absolute;
+        inset: 0;
+        background-size: cover;
+        background-position: center;
+      }
+      /* Soft scrim so dimmed (inactive) thumbs read as quieter. */
+      .rail--featured .sf-thumb-scrim {
+        position: absolute;
+        inset: 0;
+        background: var(--color-white);
+        opacity: 0.32;
+        transition: opacity 0.2s ease;
+      }
+      .rail--featured .sf-thumb:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-card);
+      }
+      .rail--featured .sf-thumb:hover .sf-thumb-scrim {
+        opacity: 0.12;
+      }
+      .rail--featured .sf-thumb:focus-visible {
+        outline: 2px solid var(--color-teal-ada);
+        outline-offset: 2px;
+      }
+
+      /* Active thumbnail: teal ring + full-color image + check marker. */
+      .rail--featured .sf-thumb[aria-current="true"] {
+        border-color: var(--color-teal);
+        box-shadow: 0 0 0 2px var(--color-teal);
+      }
+      .rail--featured .sf-thumb[aria-current="true"] .sf-thumb-scrim {
+        opacity: 0;
+      }
+      .rail--featured .sf-thumb-check {
+        position: absolute;
+        top: var(--space-4);
+        right: var(--space-4);
+        width: 18px;
+        height: 18px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: var(--color-teal);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+      }
+      .rail--featured .sf-thumb[aria-current="true"] .sf-thumb-check {
+        display: inline-flex;
+      }
+      .rail--featured .sf-thumb-check svg {
+        width: 11px;
+        height: 11px;
+        fill: none;
+        stroke: var(--color-white);
+        stroke-width: 3;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .rail--featured .sf-thumb,
+        .rail--featured .sf-thumb-scrim {
+          transition: none;
+        }
+      }
+
+      /* Single-exhibit guard: hide the strip (no dead controls). */
+      .rail--featured.is-single .sf-featured__strip {
+        display: none;
+      }
+
+    </style>
+  </head>
+  <body>
+    <!-- ═══════════════════ Header ═══════════════════ -->
+    <header class="site-header">
+      <div class="site-container site-header__inner">
+        <a class="site-brand" href="#">
+          <img
+            class="site-brand__mark"
+            src="../shared/img/wrmp-logo-2in-mark-crop.png"
+            alt="WRMP logo"
+          />
+          <span class="site-brand__text">
+            <span class="site-brand__eyebrow">SF Estuary</span>
+            <span class="site-brand__wordmark">Wetlands</span>
+            <span class="site-brand__wordmark">Regional</span>
+            <span class="site-brand__wordmark">Monitoring</span>
+            <span class="site-brand__wordmark">Program</span>
+          </span>
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+          <a class="site-nav__item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 5-6 4 4 6-8" /><path d="M16 7h3v3" /></svg>
+            Monitoring Results
+            <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+          </a>
+          <a class="site-nav__item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="3" width="8" height="4" rx="1" /><path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" /></svg>
+            Science Framework
+            <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+          </a>
+          <a class="site-nav__item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" /></svg>
+            About
+            <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+          </a>
+          <a class="site-nav__item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+            Engage
+            <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+          </a>
+          <a class="site-nav__item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" /></svg>
+            Resources
+            <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+          </a>
+          <a class="site-nav__item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+            Search
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <!-- ═══════════════════ Hero + overlapping title ═══════════════════ -->
+      <section class="hero">
+        <div class="hero__banner">
+          <img src="assets/img/hero.webp" alt="Aerial view of a tidal marsh with a researcher" fetchpriority="high" />
+        </div>
+
+        <!-- White title card — flush left, overlaps the hero -->
+        <div class="overlap-card title-card">
+          <div class="title-card__inner">
+            <a class="breadcrumb" href="#">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+              WRMP
+            </a>
+            <h1 class="page-title">Science Framework</h1>
+            <p class="page-subtitle">
+              The Guiding Questions, Management Questions, and Priority
+              Recommended Actions that focus all WRMP monitoring science.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════ Intro ═══════════════════ -->
+      <section class="sf-intro">
+        <div class="site-container">
+          <p class="sf-intro__lead">
+            The WRMP&rsquo;s science framework ensures the Program&rsquo;s
+            science stays <strong>relevant, actionable, and tied to its
+            mission</strong>. Each Guiding Question below is paired with
+            <strong>interactive exhibits</strong> &mdash; small, illustrative
+            looks at how the monitoring work is progressing against that
+            question.
+          </p>
+        </div>
+      </section>
+
+      <!-- ═══════════════════ TOC + Question content ═══════════════════ -->
+      <section>
+        <div class="site-container sf-layout">
+          <!-- ─── Sticky table of contents ─── -->
+          <aside class="sf-toc" aria-label="Table of contents">
+            <p class="sf-toc__heading">Table of Contents</p>
+
+            <a class="sf-toc__link sf-toc__about" href="#about">
+              <span class="sf-toc__about-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" /></svg>
+              </span>
+              <span class="sf-toc__text">About the Science Framework</span>
+            </a>
+
+            <a class="sf-toc__link" href="#q1">
+              <span class="sf-toc__num">Q1</span>
+              <span class="sf-toc__text">What and where is the tidal marsh ecosystem?</span>
+            </a>
+            <a class="sf-toc__link" href="#q2">
+              <span class="sf-toc__num">Q2</span>
+              <span class="sf-toc__text">What external drivers are impacting tidal marshes?</span>
+            </a>
+            <a class="sf-toc__link" href="#q3">
+              <span class="sf-toc__num">Q3</span>
+              <span class="sf-toc__text">What new information do we need?</span>
+            </a>
+            <a class="sf-toc__link" href="#q4">
+              <span class="sf-toc__num">Q4</span>
+              <span class="sf-toc__text">How effective are policies and programs?</span>
+            </a>
+            <a class="sf-toc__link" href="#q5">
+              <span class="sf-toc__num">Q5</span>
+              <span class="sf-toc__text">How is public health and safety impacted?</span>
+            </a>
+
+            <div class="sf-toc__note">
+              <p class="sf-toc__note-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 5-6 4 4 6-8" /><path d="M16 7h3v3" /></svg>
+                Exhibits on this page
+              </p>
+              <p class="sf-toc__note-body">
+                Where monitoring data speaks to a question, an interactive
+                exhibit is attached &mdash; open one to see that part of the
+                framework in motion.
+              </p>
+            </div>
+          </aside>
+
+          <!-- ─── Question content ─── -->
+          <div class="sf-content">
+            <!-- About -->
+            <article class="sf-about" id="about">
+              <h2 class="sf-about__title">About the Science Framework</h2>
+              <p>
+                All WRMP science activities are designed to answer practical
+                Guiding Questions, Management Questions, and Priority
+                Recommended Actions developed by the Steering Committee. The
+                Technical Advisory Committee and Workgroups develop key
+                indicators, metrics, and protocols for monitoring based on each
+                of the Management Questions.
+              </p>
+              <p>
+                In addition, nested under the Management Questions are
+                Monitoring Questions designed to answer the management issue at
+                hand. The Monitoring Questions are often technical and detailed
+                in nature &mdash; they are not included on this page and are
+                instead summarized in the WRMP&rsquo;s Monitoring Matrix.
+                <a href="#">Read more.</a>
+              </p>
+            </article>
+
+            <!-- ═══ Guiding Question 1 ═══ -->
+            <article class="sf-question" id="q1">
+              <header class="sf-guiding">
+                <span class="sf-guiding__label">Guiding Question 1</span>
+                <h2 class="sf-guiding__text">
+                  Where are the region&rsquo;s tidal marsh ecosystems,
+                  including tidal marsh restoration projects, and what net
+                  changes in ecosystem area and condition are occurring?
+                </h2>
+              </header>
+
+              <div class="sf-question__body">
+                <!-- MQ 1A -->
+                <div class="sf-mq" id="mq-1A">
+                  <span class="sf-mq__label">Management Question 1A</span>
+                  <p class="sf-mq__text">
+                    What is the distribution, abundance and condition of tidal
+                    marsh ecosystems, and how are they changing over time?
+                  </p>
+                </div>
+
+                <!-- MQ 1B -->
+                <div class="sf-mq" id="mq-1B">
+                  <span class="sf-mq__label">Management Question 1B</span>
+                  <p class="sf-mq__text">
+                    Are changes in tidal marsh ecosystems impacting water
+                    quality?
+                  </p>
+                </div>
+
+                <!-- Priority Recommended Action -->
+                <div class="sf-mq sf-mq--action">
+                  <span class="sf-mq__label sf-mq__label--action">Priority Recommended Action</span>
+                  <p class="sf-mq__text">
+                    Conduct regional baseline and subsequent routine surveys and
+                    inventories of the distribution, abundance and condition of
+                    tidal wetlands throughout the region, using existing tools
+                    and metrics to the extent practicable and developing new
+                    tools and metrics where necessary.
+                  </p>
+                </div>
+              </div>
+
+              <!-- ═══ GQ1 exhibits — Featured + Thumbnail gallery ═══ -->
+              <aside
+                class="sf-exhibits rail--featured"
+                aria-label="Interactive exhibits for Guiding Question 1"
+                data-featured
+              >
+                <div class="sf-featured__head">
+                  <span class="sf-featured__label">Interactive Exhibits</span>
+                </div>
+
+                <!-- Featured stage (live region announces the swap) -->
+                <div class="sf-featured__stage" data-stage aria-live="polite">
+                  <button
+                    type="button"
+                    class="exhibit-card"
+                    data-feature-card
+                    data-exhibit-src="../exhibits/round-4-2026-07/alviso-decade/index.html"
+                    aria-label="Open interactive exhibit: A Decade in Alviso Marsh"
+                  >
+                    <span class="exhibit-card-image" data-feature-image style="background-image: url('../exhibits/round-4-2026-07/alviso-decade/cover.jpg')"></span>
+                    <span class="exhibit-tags exhibit-tags--on-poster" data-feature-tags><span class="exhibit-tag" data-gq="4" title="4A — How are habitats for assemblages of resident species of fish and wildlife in tidal marsh ecosystems changing over time?">4A</span><span class="exhibit-tag" data-gq="1" title="1A — What is the distribution, abundance and condition of tidal marsh ecosystems, and how are they changing over time?">1A</span></span>
+                    <span class="exhibit-card-gradient"></span>
+                    <span class="exhibit-card-content">
+                      <span class="exhibit-card-kicker">Interactive Exhibit</span>
+                      <span class="exhibit-card-title" data-feature-title>A Decade in Alviso Marsh</span>
+                      <span class="exhibit-card-dots" data-feature-dots><span class="exhibit-card-dot"></span><span class="exhibit-card-dot"></span><span class="exhibit-card-dot"></span><span class="exhibit-card-dot"></span><span class="exhibit-card-dot"></span></span>
+                    </span>
+                    <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
+                  </button>
+                </div>
+
+                <!-- Thumbnail strip -->
+                <ul class="sf-featured__strip" role="tablist" aria-label="Choose an exhibit to feature">
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="true" aria-selected="true"
+                      data-title="A Decade in Alviso Marsh"
+                      data-image="../exhibits/round-4-2026-07/alviso-decade/cover.jpg"
+                      data-src="../exhibits/round-4-2026-07/alviso-decade/index.html"
+                      data-badges="4A|1A"
+                      data-steps="5"
+                      aria-label="Feature exhibit: A Decade in Alviso Marsh">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/round-4-2026-07/alviso-decade/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="false" aria-selected="false"
+                      data-title="Native vs. Invasive"
+                      data-image="../exhibits/round-4-2026-07/native-vs-invasive/cover.jpg"
+                      data-src="../exhibits/round-4-2026-07/native-vs-invasive/index.html"
+                      data-badges="4A|4B"
+                      data-steps="5"
+                      aria-label="Feature exhibit: Native vs. Invasive">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/round-4-2026-07/native-vs-invasive/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="false" aria-selected="false"
+                      data-title="Is the Bay Keeping Up?"
+                      data-image="../exhibits/round-4-2026-07/bay-keeping-up/cover.jpg"
+                      data-src="../exhibits/round-4-2026-07/bay-keeping-up/index.html"
+                      data-badges="2A|3B"
+                      data-steps="5"
+                      aria-label="Feature exhibit: Is the Bay Keeping Up?">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/round-4-2026-07/bay-keeping-up/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="false" aria-selected="false"
+                      data-title="The Bay: Where We're Watching"
+                      data-image="../exhibits/round-4-2026-07/station-map-stepper/cover.jpg"
+                      data-src="../exhibits/round-4-2026-07/station-map-stepper/index.html"
+                      data-badges="1A"
+                      data-steps="5"
+                      aria-label="Feature exhibit: The Bay: Where We're Watching">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/round-4-2026-07/station-map-stepper/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="false" aria-selected="false"
+                      data-title="Designing the Experiment"
+                      data-image="../exhibits/round-4-2026-07/restoration-network/cover.jpg"
+                      data-src="../exhibits/round-4-2026-07/restoration-network/index.html"
+                      data-badges="3A|1A"
+                      data-steps="6"
+                      aria-label="Feature exhibit: Designing the Experiment">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/round-4-2026-07/restoration-network/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                </ul>
+              </aside>
+            </article>
+
+            <!-- ═══ Guiding Question 2 ═══ -->
+            <article class="sf-question" id="q2">
+              <header class="sf-guiding">
+                <span class="sf-guiding__label">Guiding Question 2</span>
+                <h2 class="sf-guiding__text">
+                  How are external drivers, such as sea level rise, development
+                  pressure, and changes in runoff and sediment supply,
+                  impacting tidal marsh ecosystems?
+                </h2>
+              </header>
+
+              <div class="sf-question__body">
+                <!-- MQ 2A -->
+                <div class="sf-mq" id="mq-2A">
+                  <span class="sf-mq__label">Management Question 2A</span>
+                  <p class="sf-mq__text">
+                    How are tidal marshes and tidal flats, including
+                    restoration projects, changing in elevation and extent
+                    relative to local tidal datums?
+                  </p>
+                </div>
+
+                <!-- MQ 2B -->
+                <div class="sf-mq" id="mq-2B">
+                  <span class="sf-mq__label">Management Question 2B</span>
+                  <p class="sf-mq__text">
+                    What are the regional differences in the sources and
+                    amounts of sediment available to support accretion in tidal
+                    marsh ecosystems?
+                  </p>
+                </div>
+
+                <!-- Priority Recommended Action -->
+                <div class="sf-mq sf-mq--action">
+                  <span class="sf-mq__label sf-mq__label--action">Priority Recommended Action</span>
+                  <p class="sf-mq__text">
+                    Establish Benchmark Sites and other components of the WRMP
+                    monitoring site network (dependent on available funding and
+                    resources), and analyze WRMP data collected to answer Guiding
+                    Question 1 together with non-WRMP data on external drivers to
+                    track external drivers as potential causes or correlates of
+                    tidal marsh change.
+                  </p>
+                </div>
+              </div>
+
+              <!-- ═══ GQ2 exhibits — Featured + Thumbnail gallery ═══ -->
+              <aside
+                class="sf-exhibits rail--featured"
+                aria-label="Interactive exhibits for Guiding Question 2"
+                data-featured
+              >
+                <div class="sf-featured__head">
+                  <span class="sf-featured__label">Interactive Exhibits</span>
+                </div>
+
+                <!-- Featured stage (live region announces the swap) -->
+                <div class="sf-featured__stage" data-stage aria-live="polite">
+                  <button
+                    type="button"
+                    class="exhibit-card"
+                    data-feature-card
+                    data-exhibit-src="../exhibits/round-4-2026-07/bay-keeping-up/index.html"
+                    aria-label="Open interactive exhibit: Is the Bay Keeping Up?"
+                  >
+                    <span class="exhibit-card-image" data-feature-image style="background-image: url('../exhibits/round-4-2026-07/bay-keeping-up/cover.jpg')"></span>
+                    <span class="exhibit-tags exhibit-tags--on-poster" data-feature-tags><span class="exhibit-tag" data-gq="2" title="2A — How are tidal marshes and tidal flats, including restoration projects, changing in elevation and extent relative to local tidal datums?">2A</span><span class="exhibit-tag" data-gq="3" title="3B — Where and when can interventions, such as placement of dredged sediment, reconnection of restoration projects to watersheds, and construction of living shorelines, help to sustain or increase the quantity and quality of tidal marsh ecosystems?">3B</span></span>
+                    <span class="exhibit-card-gradient"></span>
+                    <span class="exhibit-card-content">
+                      <span class="exhibit-card-kicker">Interactive Exhibit</span>
+                      <span class="exhibit-card-title" data-feature-title>Is the Bay Keeping Up?</span>
+                      <span class="exhibit-card-dots" data-feature-dots><span class="exhibit-card-dot"></span><span class="exhibit-card-dot"></span><span class="exhibit-card-dot"></span><span class="exhibit-card-dot"></span><span class="exhibit-card-dot"></span></span>
+                    </span>
+                    <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
+                  </button>
+                </div>
+
+                <!-- Thumbnail strip -->
+                <ul class="sf-featured__strip" role="tablist" aria-label="Choose an exhibit to feature">
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="true" aria-selected="true"
+                      data-title="Is the Bay Keeping Up?"
+                      data-image="../exhibits/round-4-2026-07/bay-keeping-up/cover.jpg"
+                      data-src="../exhibits/round-4-2026-07/bay-keeping-up/index.html"
+                      data-badges="2A|3B"
+                      data-steps="5"
+                      aria-label="Feature exhibit: Is the Bay Keeping Up?">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/round-4-2026-07/bay-keeping-up/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="false" aria-selected="false"
+                      data-title="The Bay: Where We're Watching"
+                      data-image="../exhibits/round-4-2026-07/station-map-stepper/cover.jpg"
+                      data-src="../exhibits/round-4-2026-07/station-map-stepper/index.html"
+                      data-badges="1A"
+                      data-steps="5"
+                      aria-label="Feature exhibit: The Bay: Where We're Watching">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/round-4-2026-07/station-map-stepper/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="false" aria-selected="false"
+                      data-title="Designing the Experiment"
+                      data-image="../exhibits/round-4-2026-07/restoration-network/cover.jpg"
+                      data-src="../exhibits/round-4-2026-07/restoration-network/index.html"
+                      data-badges="3A|1A"
+                      data-steps="6"
+                      aria-label="Feature exhibit: Designing the Experiment">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/round-4-2026-07/restoration-network/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="false" aria-selected="false"
+                      data-title="Delta Smelt: The Smallest Giant"
+                      data-image="../exhibits/round-4-2026-07/delta-smelt/cover.jpg"
+                      data-src="../exhibits/round-4-2026-07/delta-smelt/index.html"
+                      data-badges="4B"
+                      data-steps="6"
+                      aria-label="Feature exhibit: Delta Smelt: The Smallest Giant">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/round-4-2026-07/delta-smelt/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="false" aria-selected="false"
+                      data-title="How We Monitor"
+                      data-image="../exhibits/round-4-2026-07/how-we-look/cover.jpg"
+                      data-src="../exhibits/round-4-2026-07/how-we-look/index.html"
+                      data-badges="4A"
+                      data-steps="5"
+                      aria-label="Feature exhibit: How We Monitor">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/round-4-2026-07/how-we-look/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                </ul>
+              </aside>
+            </article>
+
+            <!-- ═══ Guiding Question 3 ═══ -->
+            <article class="sf-question" id="q3">
+              <header class="sf-guiding">
+                <span class="sf-guiding__label">Guiding Question 3</span>
+                <h2 class="sf-guiding__text">
+                  What new information do we need to better understand regional
+                  lessons from tidal wetland restoration projects in the
+                  future?
+                </h2>
+              </header>
+
+              <div class="sf-question__body">
+                <!-- MQ 3A -->
+                <div class="sf-mq" id="mq-3A">
+                  <span class="sf-mq__label">Management Question 3A</span>
+                  <p class="sf-mq__text">
+                    What new information do we need to better understand regional
+                    lessons from tidal marsh restoration projects, advance tidal
+                    marsh science, and ensure the continued success of
+                    restoration projects?
+                  </p>
+                </div>
+
+                <!-- MQ 3B -->
+                <div class="sf-mq" id="mq-3B">
+                  <span class="sf-mq__label">Management Question 3B</span>
+                  <p class="sf-mq__text">
+                    Where and when can interventions, such as placement of
+                    dredged sediment, reconnection of restoration projects to
+                    watersheds, and construction of living shorelines, help to
+                    sustain or increase the quantity and quality of tidal marsh
+                    ecosystems?
+                  </p>
+                </div>
+
+                <!-- Priority Recommended Action -->
+                <div class="sf-mq sf-mq--action">
+                  <span class="sf-mq__label sf-mq__label--action">Priority Recommended Action</span>
+                  <p class="sf-mq__text">
+                    Analyze WRMP data collected to answer Guiding Questions 1, 2,
+                    and 4 with new data on the relative roles of estuarine and
+                    upland/watershed sources of sediment to counter the threat of
+                    sea level rise. Other drivers will be addressed in later WRMP
+                    phases.
+                  </p>
+                </div>
+              </div>
+
+              <!-- ═══ GQ3 exhibits — Featured + Thumbnail gallery ═══ -->
+              <aside
+                class="sf-exhibits rail--featured"
+                aria-label="Interactive exhibits for Guiding Question 3"
+                data-featured
+              >
+                <div class="sf-featured__head">
+                  <span class="sf-featured__label">Interactive Exhibits</span>
+                </div>
+
+                <!-- Featured stage (live region announces the swap) -->
+                <div class="sf-featured__stage" data-stage aria-live="polite">
+                  <button
+                    type="button"
+                    class="exhibit-card"
+                    data-feature-card
+                    data-exhibit-src="../exhibits/round-4-2026-07/restoration-network/index.html"
+                    aria-label="Open interactive exhibit: Designing the Experiment"
+                  >
+                    <span class="exhibit-card-image" data-feature-image style="background-image: url('../exhibits/round-4-2026-07/restoration-network/cover.jpg')"></span>
+                    <span class="exhibit-tags exhibit-tags--on-poster" data-feature-tags><span class="exhibit-tag" data-gq="3" title="3A — What new information do we need to better understand regional lessons from tidal marsh restoration projects, advance tidal marsh science, and ensure the continued success of restoration projects?">3A</span><span class="exhibit-tag" data-gq="1" title="1A — What is the distribution, abundance and condition of tidal marsh ecosystems, and how are they changing over time?">1A</span></span>
+                    <span class="exhibit-card-gradient"></span>
+                    <span class="exhibit-card-content">
+                      <span class="exhibit-card-kicker">Interactive Exhibit</span>
+                      <span class="exhibit-card-title" data-feature-title>Designing the Experiment</span>
+                      <span class="exhibit-card-dots" data-feature-dots><span class="exhibit-card-dot"></span><span class="exhibit-card-dot"></span><span class="exhibit-card-dot"></span><span class="exhibit-card-dot"></span><span class="exhibit-card-dot"></span><span class="exhibit-card-dot"></span></span>
+                    </span>
+                    <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
+                  </button>
+                </div>
+
+                <!-- Thumbnail strip -->
+                <ul class="sf-featured__strip" role="tablist" aria-label="Choose an exhibit to feature">
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="true" aria-selected="true"
+                      data-title="Designing the Experiment"
+                      data-image="../exhibits/round-4-2026-07/restoration-network/cover.jpg"
+                      data-src="../exhibits/round-4-2026-07/restoration-network/index.html"
+                      data-badges="3A|1A"
+                      data-steps="6"
+                      aria-label="Feature exhibit: Designing the Experiment">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/round-4-2026-07/restoration-network/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="false" aria-selected="false"
+                      data-title="Delta Smelt: The Smallest Giant"
+                      data-image="../exhibits/round-4-2026-07/delta-smelt/cover.jpg"
+                      data-src="../exhibits/round-4-2026-07/delta-smelt/index.html"
+                      data-badges="4B"
+                      data-steps="6"
+                      aria-label="Feature exhibit: Delta Smelt: The Smallest Giant">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/round-4-2026-07/delta-smelt/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="false" aria-selected="false"
+                      data-title="How We Monitor"
+                      data-image="../exhibits/round-4-2026-07/how-we-look/cover.jpg"
+                      data-src="../exhibits/round-4-2026-07/how-we-look/index.html"
+                      data-badges="4A"
+                      data-steps="5"
+                      aria-label="Feature exhibit: How We Monitor">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/round-4-2026-07/how-we-look/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="false" aria-selected="false"
+                      data-title="A Decade in Alviso Marsh"
+                      data-image="../exhibits/round-4-2026-07/alviso-decade/cover.jpg"
+                      data-src="../exhibits/round-4-2026-07/alviso-decade/index.html"
+                      data-badges="4A|1A"
+                      data-steps="5"
+                      aria-label="Feature exhibit: A Decade in Alviso Marsh">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/round-4-2026-07/alviso-decade/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="false" aria-selected="false"
+                      data-title="Native vs. Invasive"
+                      data-image="../exhibits/round-4-2026-07/native-vs-invasive/cover.jpg"
+                      data-src="../exhibits/round-4-2026-07/native-vs-invasive/index.html"
+                      data-badges="4A|4B"
+                      data-steps="5"
+                      aria-label="Feature exhibit: Native vs. Invasive">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/round-4-2026-07/native-vs-invasive/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                </ul>
+              </aside>
+            </article>
+
+            <!-- ═══ Guiding Question 4 ═══ -->
+            <article class="sf-question" id="q4">
+              <header class="sf-guiding">
+                <span class="sf-guiding__label">Guiding Question 4</span>
+                <h2 class="sf-guiding__text">
+                  How do policies, programs, and projects to protect and
+                  restore tidal marshes affect the distribution, abundance, and
+                  health of plants and animals?
+                </h2>
+              </header>
+
+              <div class="sf-question__body">
+                <!-- MQ 4A -->
+                <div class="sf-mq" id="mq-4A">
+                  <span class="sf-mq__label">Management Question 4A</span>
+                  <p class="sf-mq__text">
+                    How are habitats for assemblages of resident species of
+                    fish and wildlife in tidal marsh ecosystems changing over
+                    time?
+                  </p>
+                </div>
+
+                <!-- MQ 4B -->
+                <div class="sf-mq" id="mq-4B">
+                  <span class="sf-mq__label">Management Question 4B</span>
+                  <p class="sf-mq__text">
+                    How are the distribution and abundance of key resident
+                    species of fish and wildlife of tidal marsh ecosystems
+                    changing over time?
+                  </p>
+                </div>
+
+                <!-- Priority Recommended Action -->
+                <div class="sf-mq sf-mq--action">
+                  <span class="sf-mq__label sf-mq__label--action">Priority Recommended Action</span>
+                  <p class="sf-mq__text">
+                    Repeat surveys (detect change) of living organisms and their
+                    habitats (indicators), and standardize the metrics and
+                    reporting for indicators that are common to projects and
+                    baseline/subsequent ambient monitoring across the range of
+                    project designs and restoration practices.
+                  </p>
+                </div>
+              </div>
+
+              <!-- ═══ GQ4 exhibits — Featured + Thumbnail gallery ═══ -->
+              <aside
+                class="sf-exhibits rail--featured"
+                aria-label="Interactive exhibits for Guiding Question 4"
+                data-featured
+              >
+                <div class="sf-featured__head">
+                  <span class="sf-featured__label">Interactive Exhibits</span>
+                </div>
+
+                <!-- Featured stage (live region announces the swap) -->
+                <div class="sf-featured__stage" data-stage aria-live="polite">
+                  <button
+                    type="button"
+                    class="exhibit-card"
+                    data-feature-card
+                    data-exhibit-src="../exhibits/round-4-2026-07/how-we-look/index.html"
+                    aria-label="Open interactive exhibit: How We Monitor"
+                  >
+                    <span class="exhibit-card-image" data-feature-image style="background-image: url('../exhibits/round-4-2026-07/how-we-look/cover.jpg')"></span>
+                    <span class="exhibit-tags exhibit-tags--on-poster" data-feature-tags><span class="exhibit-tag" data-gq="4" title="4A — How are habitats for assemblages of resident species of fish and wildlife in tidal marsh ecosystems changing over time?">4A</span></span>
+                    <span class="exhibit-card-gradient"></span>
+                    <span class="exhibit-card-content">
+                      <span class="exhibit-card-kicker">Interactive Exhibit</span>
+                      <span class="exhibit-card-title" data-feature-title>How We Monitor</span>
+                      <span class="exhibit-card-dots" data-feature-dots><span class="exhibit-card-dot"></span><span class="exhibit-card-dot"></span><span class="exhibit-card-dot"></span><span class="exhibit-card-dot"></span><span class="exhibit-card-dot"></span></span>
+                    </span>
+                    <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
+                  </button>
+                </div>
+
+                <!-- Thumbnail strip -->
+                <ul class="sf-featured__strip" role="tablist" aria-label="Choose an exhibit to feature">
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="true" aria-selected="true"
+                      data-title="How We Monitor"
+                      data-image="../exhibits/round-4-2026-07/how-we-look/cover.jpg"
+                      data-src="../exhibits/round-4-2026-07/how-we-look/index.html"
+                      data-badges="4A"
+                      data-steps="5"
+                      aria-label="Feature exhibit: How We Monitor">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/round-4-2026-07/how-we-look/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="false" aria-selected="false"
+                      data-title="Delta Smelt: The Smallest Giant"
+                      data-image="../exhibits/round-4-2026-07/delta-smelt/cover.jpg"
+                      data-src="../exhibits/round-4-2026-07/delta-smelt/index.html"
+                      data-badges="4B"
+                      data-steps="6"
+                      aria-label="Feature exhibit: Delta Smelt: The Smallest Giant">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/round-4-2026-07/delta-smelt/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="false" aria-selected="false"
+                      data-title="Is the Bay Keeping Up?"
+                      data-image="../exhibits/round-4-2026-07/bay-keeping-up/cover.jpg"
+                      data-src="../exhibits/round-4-2026-07/bay-keeping-up/index.html"
+                      data-badges="2A|3B"
+                      data-steps="5"
+                      aria-label="Feature exhibit: Is the Bay Keeping Up?">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/round-4-2026-07/bay-keeping-up/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="false" aria-selected="false"
+                      data-title="The Bay: Where We're Watching"
+                      data-image="../exhibits/round-4-2026-07/station-map-stepper/cover.jpg"
+                      data-src="../exhibits/round-4-2026-07/station-map-stepper/index.html"
+                      data-badges="1A"
+                      data-steps="5"
+                      aria-label="Feature exhibit: The Bay: Where We're Watching">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/round-4-2026-07/station-map-stepper/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="false" aria-selected="false"
+                      data-title="Designing the Experiment"
+                      data-image="../exhibits/round-4-2026-07/restoration-network/cover.jpg"
+                      data-src="../exhibits/round-4-2026-07/restoration-network/index.html"
+                      data-badges="3A|1A"
+                      data-steps="6"
+                      aria-label="Feature exhibit: Designing the Experiment">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/round-4-2026-07/restoration-network/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                </ul>
+              </aside>
+            </article>
+
+            <!-- ═══ Guiding Question 5 ═══ -->
+            <article class="sf-question" id="q5">
+              <header class="sf-guiding">
+                <span class="sf-guiding__label">Guiding Question 5</span>
+                <h2 class="sf-guiding__text">
+                  How do policies, programs, and projects to protect and
+                  restore tidal wetlands benefit and/or impact public health,
+                  safety, and recreation?
+                </h2>
+              </header>
+
+              <div class="sf-question__body">
+                <!-- MQ 5A -->
+                <div class="sf-mq" id="mq-5A">
+                  <span class="sf-mq__label">Management Question 5A</span>
+                  <p class="sf-mq__text">
+                    What mosquito and vector control strategies need to be
+                    considered in restoration design and management to understand
+                    the effects that restoration can have on mosquito and vector
+                    populations?
+                  </p>
+                </div>
+
+                <!-- MQ 5B -->
+                <div class="sf-mq" id="mq-5B">
+                  <span class="sf-mq__label">Management Question 5B</span>
+                  <p class="sf-mq__text">
+                    What monitoring data and/or analyses are needed to improve the
+                    relationships between tidal marsh restoration, fish and
+                    wildlife support, mosquito and vector control, and public
+                    access?
+                  </p>
+                </div>
+
+                <!-- MQ 5C -->
+                <div class="sf-mq" id="mq-5C">
+                  <span class="sf-mq__label">Management Question 5C</span>
+                  <p class="sf-mq__text">
+                    How are the benefits of wetlands (such as flood risk
+                    reduction, water quality, public access, opportunities for
+                    community stewardship, knowledge production and
+                    transmission, and cultural and spiritual experiences)
+                    distributed regionally?
+                  </p>
+                </div>
+
+                <!-- MQ 5D -->
+                <div class="sf-mq" id="mq-5D">
+                  <span class="sf-mq__label">Management Question 5D</span>
+                  <p class="sf-mq__text">
+                    How does the provision of benefits (such as flood risk
+                    reduction, water quality, public access, opportunities for
+                    community stewardship, knowledge production and transmission,
+                    and cultural and spiritual experiences) progress over time at
+                    existing and restored wetland sites?
+                  </p>
+                </div>
+
+                <!-- Priority Recommended Action -->
+                <div class="sf-mq sf-mq--action">
+                  <span class="sf-mq__label sf-mq__label--action">Priority Recommended Action</span>
+                  <p class="sf-mq__text">
+                    Monitor the broad range of interactions between people and
+                    wetlands for the safety of people and health of the marshes.
+                    Better integrate flood control and mosquito and disease
+                    vector control into project planning and assessment, and
+                    similarly integrate wetland restoration into flood control
+                    planning. Continue to grow the WRMP to assess the effects of
+                    shoreline adaptation on relationships between people and
+                    nature.
+                  </p>
+                </div>
+              </div>
+
+              <!-- ═══ GQ5 exhibits — Featured + Thumbnail gallery ═══ -->
+              <aside
+                class="sf-exhibits rail--featured"
+                aria-label="Interactive exhibits for Guiding Question 5"
+                data-featured
+              >
+                <div class="sf-featured__head">
+                  <span class="sf-featured__label">Interactive Exhibits</span>
+                </div>
+
+                <!-- Featured stage (live region announces the swap) -->
+                <div class="sf-featured__stage" data-stage aria-live="polite">
+                  <button
+                    type="button"
+                    class="exhibit-card"
+                    data-feature-card
+                    data-exhibit-src="../exhibits/round-4-2026-07/station-map-stepper/index.html"
+                    aria-label="Open interactive exhibit: The Bay: Where We're Watching"
+                  >
+                    <span class="exhibit-card-image" data-feature-image style="background-image: url('../exhibits/round-4-2026-07/station-map-stepper/cover.jpg')"></span>
+                    <span class="exhibit-tags exhibit-tags--on-poster" data-feature-tags><span class="exhibit-tag" data-gq="1" title="1A — What is the distribution, abundance and condition of tidal marsh ecosystems, and how are they changing over time?">1A</span></span>
+                    <span class="exhibit-card-gradient"></span>
+                    <span class="exhibit-card-content">
+                      <span class="exhibit-card-kicker">Interactive Exhibit</span>
+                      <span class="exhibit-card-title" data-feature-title>The Bay: Where We're Watching</span>
+                      <span class="exhibit-card-dots" data-feature-dots><span class="exhibit-card-dot"></span><span class="exhibit-card-dot"></span><span class="exhibit-card-dot"></span><span class="exhibit-card-dot"></span><span class="exhibit-card-dot"></span></span>
+                    </span>
+                    <span class="exhibit-card-begin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>Begin</span>
+                  </button>
+                </div>
+
+                <!-- Thumbnail strip -->
+                <ul class="sf-featured__strip" role="tablist" aria-label="Choose an exhibit to feature">
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="true" aria-selected="true"
+                      data-title="The Bay: Where We're Watching"
+                      data-image="../exhibits/round-4-2026-07/station-map-stepper/cover.jpg"
+                      data-src="../exhibits/round-4-2026-07/station-map-stepper/index.html"
+                      data-badges="1A"
+                      data-steps="5"
+                      aria-label="Feature exhibit: The Bay: Where We're Watching">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/round-4-2026-07/station-map-stepper/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="false" aria-selected="false"
+                      data-title="A Decade in Alviso Marsh"
+                      data-image="../exhibits/round-4-2026-07/alviso-decade/cover.jpg"
+                      data-src="../exhibits/round-4-2026-07/alviso-decade/index.html"
+                      data-badges="4A|1A"
+                      data-steps="5"
+                      aria-label="Feature exhibit: A Decade in Alviso Marsh">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/round-4-2026-07/alviso-decade/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="false" aria-selected="false"
+                      data-title="Native vs. Invasive"
+                      data-image="../exhibits/round-4-2026-07/native-vs-invasive/cover.jpg"
+                      data-src="../exhibits/round-4-2026-07/native-vs-invasive/index.html"
+                      data-badges="4A|4B"
+                      data-steps="5"
+                      aria-label="Feature exhibit: Native vs. Invasive">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/round-4-2026-07/native-vs-invasive/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="false" aria-selected="false"
+                      data-title="Delta Smelt: The Smallest Giant"
+                      data-image="../exhibits/round-4-2026-07/delta-smelt/cover.jpg"
+                      data-src="../exhibits/round-4-2026-07/delta-smelt/index.html"
+                      data-badges="4B"
+                      data-steps="6"
+                      aria-label="Feature exhibit: Delta Smelt: The Smallest Giant">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/round-4-2026-07/delta-smelt/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                  <li class="sf-featured__strip-item">
+                    <button type="button" class="sf-thumb" role="tab" aria-current="false" aria-selected="false"
+                      data-title="How We Monitor"
+                      data-image="../exhibits/round-4-2026-07/how-we-look/cover.jpg"
+                      data-src="../exhibits/round-4-2026-07/how-we-look/index.html"
+                      data-badges="4A"
+                      data-steps="5"
+                      aria-label="Feature exhibit: How We Monitor">
+                      <span class="sf-thumb-image" style="background-image: url('../exhibits/round-4-2026-07/how-we-look/cover.jpg')"></span>
+                      <span class="sf-thumb-scrim"></span>
+                      <span class="sf-thumb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></svg></span>
+                    </button>
+                  </li>
+                </ul>
+              </aside>
+            </article>
+
+            <!-- ═══ Closing — more information ═══ -->
+            <div class="sf-more">
+              <div class="sf-more__item">
+                <h3 class="sf-more__heading">Where are we monitoring?</h3>
+                <p class="sf-more__body">
+                  The WRMP conducts monitoring throughout the San Francisco
+                  Estuary, including San Pablo, South, and Suisun Bays, within
+                  priority Operational Landscape Units.
+                </p>
+                <a class="text-link" href="#">
+                  View the monitoring site network
+                </a>
+              </div>
+              <div class="sf-more__item">
+                <h3 class="sf-more__heading">What metrics are monitored?</h3>
+                <p class="sf-more__body">
+                  WRMP metrics assess wetland function and restoration site
+                  development &mdash; water quality and depth, vegetation,
+                  condition, sediment, and fish habitat.
+                </p>
+                <a class="text-link" href="#">
+                  View in-progress and future metrics
+                </a>
+              </div>
+              <div class="sf-more__item">
+                <h3 class="sf-more__heading">Looking for more information?</h3>
+                <p class="sf-more__body">
+                  Explore how the WRMP developed the foundation of these
+                  monitoring efforts through the Program Plan, Monitoring Plan,
+                  and Monitoring Matrix.
+                </p>
+                <a class="text-link" href="#">
+                  Science Framework resources
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ═══════════════════ Footer ═══════════════════ -->
+    <footer class="site-footer">
+      <div class="site-container site-footer__inner">
+        <div>
+          <img
+            class="site-footer__logo"
+            src="../shared/img/WRMP_Logo_RGB_ADA_Trans_DarkMode_Website_1850.png"
+            alt="WRMP logo"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <div class="footer-col footer-col--nav">
+          <h2 class="footer-col__heading">Navigation</h2>
+          <ul class="footer-nav">
+            <li><a href="#">Monitoring Results</a></li>
+            <li><a href="#">Science Framework</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Engage</a></li>
+            <li><a href="#">Resources</a></li>
+          </ul>
+        </div>
+        <div class="footer-col footer-col--subscribe">
+          <h2 class="footer-col__heading">Subscribe to our newsletter</h2>
+          <p class="footer-newsletter__copy">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m2 7 10 6 10-6" /></svg>
+            Signup for news about the Wetlands Regional Monitoring Program
+          </p>
+          <form class="footer-newsletter__form" onsubmit="return false">
+            <input
+              class="footer-newsletter__input"
+              type="email"
+              placeholder="Email Address"
+              aria-label="Email Address"
+            />
+            <button class="footer-newsletter__submit" type="submit">
+              Subscribe
+            </button>
+          </form>
+        </div>
+        <div class="footer-col footer-col--partners">
+          <h2 class="footer-col__heading">Staffed by</h2>
+          <div class="footer-staffed">
+            <img
+              class="footer-partner-logo"
+              src="assets/img/sfei-logo.png"
+              width="102"
+              height="32"
+              alt="San Francisco Estuary Institute"
+              loading="lazy"
+              decoding="async"
+            />
+            <img
+              class="footer-partner-logo"
+              src="assets/img/sfep-logo.png"
+              width="120"
+              height="32"
+              alt="San Francisco Estuary Partnership"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- ═══════════════════ Exhibit dialog ═══════════════════ -->
+    <dialog class="exhibit-dialog" id="exhibit-dialog">
+      <div class="exhibit-dialog__inner">
+        <button
+          class="exhibit-dialog__close"
+          type="button"
+          aria-label="Close exhibit"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+        </button>
+        <iframe
+          class="exhibit-dialog__iframe"
+          title="WRMP interactive exhibit"
+        ></iframe>
+      </div>
+    </dialog>
+
+    <script src="assets/site.js"></script>
+
+    <!-- Featured-gallery controller: one instance per
+         .rail--featured[data-featured]. Exhibit opening (the featured
+         card's data-exhibit-src) is handled by site.js. -->
+    <script>
+      /* ──────────────────────────────────────────────────────────
+      /* --------------------------------------------------------------
+         Featured + thumbnail gallery  (scope: .rail--featured)
+         Click / Enter / Space (or arrow keys) on a thumb promotes it to
+         the featured card with a crossfade, swapping the cover, title,
+         link, management-question badges, and step dots. Roving tablist.
+         One instance per .rail--featured[data-featured].
+         -------------------------------------------------------------- */
+      (function () {
+        var reduceMotion = window.matchMedia(
+          "(prefers-reduced-motion: reduce)"
+        ).matches;
+
+        // Management-question badge lookup: code -> guiding-question digit + full text.
+        var BADGE_MAP = {
+          "1A": { gq: "1", title: "What is the distribution, abundance and condition of tidal marsh ecosystems, and how are they changing over time?" },
+          "2A": { gq: "2", title: "How are tidal marshes and tidal flats, including restoration projects, changing in elevation and extent relative to local tidal datums?" },
+          "3A": { gq: "3", title: "What new information do we need to better understand regional lessons from tidal marsh restoration projects, advance tidal marsh science, and ensure the continued success of restoration projects?" },
+          "3B": { gq: "3", title: "Where and when can interventions, such as placement of dredged sediment, reconnection of restoration projects to watersheds, and construction of living shorelines, help to sustain or increase the quantity and quality of tidal marsh ecosystems?" },
+          "4A": { gq: "4", title: "How are habitats for assemblages of resident species of fish and wildlife in tidal marsh ecosystems changing over time?" },
+          "4B": { gq: "4", title: "How are the distribution and abundance of key resident species of fish and wildlife of tidal marsh ecosystems changing over time?" }
+        };
+
+        function buildBadges(container, codes) {
+          if (!container) return;
+          container.textContent = "";
+          codes.forEach(function (code) {
+            var info = BADGE_MAP[code];
+            if (!info) return;
+            var span = document.createElement("span");
+            span.className = "exhibit-tag";
+            span.setAttribute("data-gq", info.gq);
+            span.setAttribute("title", code + " — " + info.title);
+            span.textContent = code;
+            container.appendChild(span);
+          });
+        }
+
+        function buildDots(container, count) {
+          if (!container) return;
+          container.textContent = "";
+          for (var i = 0; i < count; i++) {
+            var dot = document.createElement("span");
+            dot.className = "exhibit-card-dot";
+            container.appendChild(dot);
+          }
+        }
+
+        function initFeatured(root) {
+          var stage = root.querySelector("[data-stage]");
+          var card = root.querySelector("[data-feature-card]");
+          var image = root.querySelector("[data-feature-image]");
+          var title = root.querySelector("[data-feature-title]");
+          var tags = root.querySelector("[data-feature-tags]");
+          var dots = root.querySelector("[data-feature-dots]");
+          var thumbs = Array.prototype.slice.call(
+            root.querySelectorAll(".sf-thumb")
+          );
+          if (!stage || !card || !thumbs.length) return;
+
+          // Nothing to switch to with a single exhibit — hide the strip.
+          if (thumbs.length < 2) root.classList.add("is-single");
+
+          function paint(thumb) {
+            var newTitle = thumb.getAttribute("data-title") || "";
+            var newImage = thumb.getAttribute("data-image") || "";
+            var newSrc = thumb.getAttribute("data-src") || "";
+            var codes = (thumb.getAttribute("data-badges") || "")
+              .split("|")
+              .filter(Boolean);
+            var steps = parseInt(thumb.getAttribute("data-steps"), 10) || 0;
+            if (newImage) {
+              image.style.backgroundImage = "url('" + newImage + "')";
+            }
+            if (title) title.textContent = newTitle;
+            card.setAttribute("aria-label", "Open interactive exhibit: " + newTitle);
+            card.setAttribute("data-exhibit-src", newSrc);
+            buildBadges(tags, codes);
+            buildDots(dots, steps);
+          }
+
+          // Sync the stage to the initially-selected thumb on load.
+          var initial =
+            thumbs.filter(function (t) {
+              return t.getAttribute("aria-current") === "true";
+            })[0] || thumbs[0];
+          paint(initial);
+
+          function feature(thumb) {
+            if (thumb.getAttribute("aria-current") === "true") return;
+            thumbs.forEach(function (t) {
+              var active = t === thumb;
+              t.setAttribute("aria-current", active ? "true" : "false");
+              t.setAttribute("aria-selected", active ? "true" : "false");
+              t.tabIndex = active ? 0 : -1;
+            });
+            if (reduceMotion) {
+              paint(thumb);
+            } else {
+              stage.classList.add("is-swapping");
+              window.setTimeout(function () {
+                paint(thumb);
+                window.requestAnimationFrame(function () {
+                  stage.classList.remove("is-swapping");
+                });
+              }, 200);
+            }
+          }
+
+          // Roving tabindex: only the active thumb is in the tab order.
+          thumbs.forEach(function (t) {
+            t.tabIndex = t.getAttribute("aria-current") === "true" ? 0 : -1;
+          });
+
+          thumbs.forEach(function (thumb, i) {
+            thumb.addEventListener("click", function () {
+              feature(thumb);
+            });
+            thumb.addEventListener("keydown", function (e) {
+              var idx = -1;
+              if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+                idx = (i + 1) % thumbs.length;
+              } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+                idx = (i - 1 + thumbs.length) % thumbs.length;
+              } else if (e.key === "Home") {
+                idx = 0;
+              } else if (e.key === "End") {
+                idx = thumbs.length - 1;
+              } else {
+                return;
+              }
+              e.preventDefault();
+              thumbs[idx].focus();
+              feature(thumbs[idx]);
+            });
+          });
+        }
+
+        document
+          .querySelectorAll(".rail--featured[data-featured]")
+          .forEach(initFeatured);
+      })();
+    </script>
+  </body>
