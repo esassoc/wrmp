@@ -163,16 +163,13 @@ a.exhibit-topic:focus-visible {
   --tag-ink: var(--gq5-ink);
 }
 
-/* On browse posters (gallery + gallery grid), a wall of colored badges
-   reads as visual noise. So the ON-POSTER badge is NEUTRAL gray — the
-   code + clipboard icon still identify the management question, and full
-   guiding-question COLOR is reserved for the Science Framework page,
-   where it encodes the GQ → MQ → PRA hierarchy. Same specificity as the
-   data-gq rules above (two classes); wins by source order. */
-.exhibit-tags--on-poster .exhibit-tag {
-  --tag-bg: var(--gray-3);
-  --tag-border: var(--gray-7);
-  --tag-ink: var(--gray-12);
+/* On browse posters the MQ badge carries its guiding-question color
+   (option A2 — the saturated tint) so the encoding reads at a glance over
+   the cover. The [data-gq] tints above supply the fill; the only
+   poster-specific change is dropping the leading clipboard icon, which
+   crowds the small colored chip against a cover image. */
+.exhibit-tags--on-poster .exhibit-tag::before {
+  content: none;
 }
 
 /* ─ Badge container ─
