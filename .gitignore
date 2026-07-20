@@ -22,3 +22,11 @@ CLAUDE.local.md
 
 # Per-session agent scratch memory
 .claude/agent-memory/
+
+# Internal-facing deliverable working files — never publish to the public repo.
+# The client-facing deliverables (1.4 recommendations page + assets) ARE tracked;
+# these are the internal direction docs and the Word/markdown memo working files.
+deliverables/*.docx
+deliverables/~$*
+deliverables/1.1-platform-evaluation-memo.md
+deliverables/1.4-ecoatlas-integration-strategy.md

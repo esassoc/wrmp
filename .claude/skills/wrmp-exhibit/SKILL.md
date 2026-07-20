@@ -13,6 +13,13 @@ triggers:
 
 Use this skill to create a new interactive exhibit for the WRMP data visualization project. Each exhibit is a self-contained `index.html` inside a date-slugged directory under `exhibits/`.
 
+## Delivery context
+
+Exhibits ship to wrmp.org as a **custom WordPress plugin** that authors them natively in the WP admin — **not** as iframes. Two build constraints follow:
+
+- **Authoring simplicity:** structure exhibit content so it can be created and edited inside a WordPress management UI. Favor structured, repeatable content blocks over hand-tuned one-offs.
+- **Mobile-first responsiveness:** the desktop/tablet 16:9 frame is the primary experience; a vertical, swipe-friendly mobile treatment is required, not optional. Don't build desktop-only.
+
 ## Invocation
 
 ```
@@ -68,8 +75,11 @@ All exhibits share this structure:
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="../../shared/js/data-loader.js"></script>
 <script src="../../shared/js/map-init.js"></script>
+<script src="../../shared/js/marker-popup.js"></script>
 <script src="../../shared/js/stepper.js"></script>
 ```
+
+Load `marker-popup.js` (and link `marker-popup.css`) whenever the exhibit uses station marker popups.
 
 ## Exhibit Types
 
@@ -202,6 +212,16 @@ var NORTH_BAY = [[37.8, -122.55], [38.18, -122.3]];
 var SUISUN = [[38.03, -122.15], [38.22, -121.75]];
 ```
 
+## Register the exhibit's tags
+
+Every exhibit is registered in `data/exhibits.json` with its structured tags, which is what connects it to the rest of the site (badges on posters, gallery filtering, science-framework links). Add an entry with:
+
+- `managementQuestions` — one or more science-framework management questions the exhibit genuinely speaks to (e.g. `["4B"]`). This is the primary tag; `guidingQuestion` is derived from the leading digit.
+- `audiences` — who it is chiefly for (e.g. `["public"]`, optionally `land-managers`, `regulators`, `researchers`). Exhibits are generally Tier-1 (public) products.
+- `topics` / `monitoringTopic` — the site's monitoring topic (e.g. `fish-and-fish-habitat`).
+
+Type and audience-tier badges belong on **resource cards** (datasets, reports, maps, videos linked from an exhibit), not on the exhibit itself — an exhibit is mixed media and carries only management-question and topic tags. See `data/exhibits.json` `taxonomy` and `design-system/exhibit-tagging.html`.
+
 ## Checklist Before Finishing
 
 - [ ] All step dots match `totalSteps` count
@@ -213,3 +233,5 @@ var SUISUN = [[38.03, -122.15], [38.22, -121.75]];
 - [ ] Colors use CSS custom properties from tokens.css where possible
 - [ ] Body text is at least 16px (ADA requirement)
 - [ ] Photo/video backgrounds include `.photo-credit` attribution
+- [ ] Responsive: works on phone (vertical, swipe-friendly), not desktop-only
+- [ ] Registered in `data/exhibits.json` with `managementQuestions`, `audiences`, `topics`

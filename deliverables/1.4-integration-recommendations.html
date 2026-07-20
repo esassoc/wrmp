@@ -1,0 +1,1106 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Linking wrmp.org to EcoAtlas and the Geospatial Data Catalog</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            :root {
+                --ada-teal: #005e6a;
+                --teal: #228b9c;
+                --orange: #e09337;
+                --green: #379352;
+                --ink: #262b2b;
+                --muted: #5b6b6e;
+                --ground: #f5f8f8;
+                --card: #ffffff;
+                --hairline: #d7e0e0;
+                --teal-wash: #eaf3f4;
+                --orange-wash: #fbf1e4;
+                --maxw: 860px;
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            html {
+                -webkit-text-size-adjust: 100%;
+            }
+
+            body {
+                margin: 0;
+                background: var(--ground);
+                color: var(--ink);
+                font-family: "Source Sans 3", Helvetica, Arial, sans-serif;
+                font-size: 17px;
+                line-height: 1.6;
+            }
+
+            .doc {
+                max-width: var(--maxw);
+                margin: 0 auto;
+                padding: 64px 28px 96px;
+            }
+
+            /* ── Masthead ─────────────────────────────── */
+            .masthead {
+                border-bottom: 2px solid var(--ada-teal);
+                padding-bottom: 20px;
+                margin-bottom: 40px;
+            }
+
+            .masthead .program {
+                font-size: 16px;
+                color: var(--muted);
+                margin: 0 0 6px;
+            }
+
+            h1 {
+                font-size: 33px;
+                line-height: 1.2;
+                color: var(--ada-teal);
+                font-weight: 700;
+                margin: 0 0 10px;
+                letter-spacing: -0.01em;
+            }
+
+            .masthead .sub {
+                font-size: 18px;
+                color: var(--muted);
+                margin: 0;
+            }
+
+            /* ── Lede ─────────────────────────────────── */
+            .lede {
+                font-size: 20px;
+                line-height: 1.55;
+                color: var(--ink);
+                margin: 0 0 44px;
+            }
+
+            .lede strong {
+                color: var(--ada-teal);
+                font-weight: 600;
+            }
+
+            /* ── Sections ─────────────────────────────── */
+            section {
+                margin-bottom: 48px;
+            }
+
+            h2 {
+                font-size: 25px;
+                color: var(--ada-teal);
+                font-weight: 700;
+                margin: 0 0 14px;
+                letter-spacing: -0.01em;
+            }
+
+            h3 {
+                font-size: 19px;
+                color: var(--ink);
+                font-weight: 600;
+                margin: 28px 0 8px;
+            }
+
+            p {
+                margin: 0 0 16px;
+            }
+
+            a {
+                color: var(--teal);
+                text-decoration: none;
+                border-bottom: 1px solid rgba(34, 139, 156, 0.35);
+            }
+
+            a:hover {
+                border-bottom-color: var(--teal);
+            }
+
+            /* ── Three-jobs list ──────────────────────── */
+            .jobs {
+                list-style: none;
+                margin: 20px 0 0;
+                padding: 0;
+                display: grid;
+                gap: 14px;
+            }
+
+            .jobs li {
+                background: var(--card);
+                border: 1px solid var(--hairline);
+                border-radius: 8px;
+                padding: 18px 20px;
+                display: grid;
+                grid-template-columns: 14px 1fr;
+                gap: 16px;
+                align-items: start;
+            }
+
+            .jobs .dot {
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                margin-top: 7px;
+            }
+
+            .jobs .role {
+                font-weight: 600;
+                color: var(--ink);
+            }
+
+            .jobs .desc {
+                color: var(--muted);
+                font-size: 16px;
+            }
+
+            .dot-site {
+                background: var(--ada-teal);
+            }
+            .dot-eco {
+                background: var(--teal);
+            }
+            .dot-cat {
+                background: var(--orange);
+            }
+
+            /* ── Figures ──────────────────────────────── */
+            figure {
+                margin: 28px 0 8px;
+                background: var(--card);
+                border: 1px solid var(--hairline);
+                border-radius: 10px;
+                padding: 28px 24px 20px;
+                overflow-x: auto;
+            }
+
+            figure svg {
+                display: block;
+                width: 100%;
+                height: auto;
+                min-width: 520px;
+            }
+
+            figure img {
+                display: block;
+                width: 100%;
+                height: auto;
+                border-radius: 6px;
+                border: 1px solid var(--hairline);
+            }
+
+            figcaption {
+                font-size: 15.5px;
+                color: var(--muted);
+                margin-top: 16px;
+                line-height: 1.5;
+            }
+
+            /* ── Principle callout ────────────────────── */
+            .principle {
+                background: var(--teal-wash);
+                border: 1px solid #c5e0e3;
+                border-radius: 10px;
+                padding: 24px 26px;
+                margin: 24px 0;
+            }
+
+            .principle .headline {
+                font-size: 20px;
+                font-weight: 700;
+                color: var(--ada-teal);
+                margin: 0 0 8px;
+            }
+
+            .principle p:last-child {
+                margin-bottom: 0;
+            }
+
+            code {
+                font-family: "SF Mono", "Source Code Pro", ui-monospace, monospace;
+                font-size: 14.5px;
+                background: #eef3f3;
+                border: 1px solid var(--hairline);
+                border-radius: 5px;
+                padding: 2px 7px;
+                color: var(--ada-teal);
+                word-break: break-all;
+            }
+
+            .url-example {
+                display: block;
+                margin: 12px 0 4px;
+                padding: 12px 14px;
+                background: #fff;
+                border: 1px solid var(--hairline);
+                border-radius: 7px;
+                font-size: 14.5px;
+                line-height: 1.5;
+                word-break: break-all;
+            }
+
+            .url-example .frag {
+                color: var(--orange);
+                font-weight: 600;
+            }
+
+            /* ── Two-system columns ───────────────────── */
+            .systems {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                margin-top: 20px;
+            }
+
+            .system {
+                background: var(--card);
+                border: 1px solid var(--hairline);
+                border-radius: 10px;
+                padding: 4px 22px 22px;
+            }
+
+            .system .tab {
+                display: inline-block;
+                margin: -1px 0 0;
+                padding: 6px 14px;
+                border-radius: 0 0 8px 8px;
+                font-size: 15px;
+                font-weight: 600;
+                color: #fff;
+            }
+
+            .system.eco .tab {
+                background: var(--teal);
+            }
+            .system.cat .tab {
+                background: var(--orange);
+            }
+
+            .system h3 {
+                margin-top: 16px;
+            }
+
+            .system ul {
+                margin: 0;
+                padding-left: 20px;
+                color: var(--muted);
+                font-size: 16px;
+            }
+
+            .system li {
+                margin-bottom: 8px;
+            }
+
+            .system li strong {
+                color: var(--ink);
+                font-weight: 600;
+            }
+
+            /* ── Worked example ───────────────────────── */
+            .example-frame {
+                border: 1px solid var(--hairline);
+                border-radius: 10px;
+                overflow: hidden;
+                background: #0d2b30;
+                margin-top: 20px;
+            }
+
+            .example-frame iframe {
+                display: block;
+                width: 100%;
+                height: 460px;
+                border: 0;
+            }
+
+            .example-note {
+                font-size: 15px;
+                color: var(--muted);
+                background: var(--card);
+                padding: 12px 16px;
+                border-top: 1px solid var(--hairline);
+            }
+
+            /* Data & tools panel mock */
+            .panel-mock {
+                background: var(--card);
+                border: 1px solid var(--hairline);
+                border-radius: 10px;
+                padding: 22px 24px;
+                margin-top: 20px;
+                max-width: 460px;
+            }
+
+            .panel-mock .panel-title {
+                font-size: 15px;
+                color: var(--muted);
+                margin: 0 0 14px;
+            }
+
+            .handoff {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                padding: 13px 0;
+                border-top: 1px solid var(--hairline);
+            }
+
+            .handoff:first-of-type {
+                border-top: 0;
+            }
+
+            .handoff .glyph {
+                flex: 0 0 40px;
+                height: 40px;
+                border-radius: 8px;
+                display: grid;
+                place-items: center;
+            }
+
+            .handoff .glyph svg {
+                width: 22px;
+                height: 22px;
+            }
+
+            .glyph-eco {
+                background: var(--teal-wash);
+                color: var(--teal);
+            }
+            .glyph-cat {
+                background: var(--orange-wash);
+                color: var(--orange);
+            }
+            .glyph-rep {
+                background: #eef1f1;
+                color: var(--muted);
+            }
+
+            .handoff .label {
+                flex: 1;
+            }
+
+            .handoff .label .act {
+                font-weight: 600;
+                color: var(--ink);
+            }
+
+            .handoff .label .carries {
+                font-size: 14.5px;
+                color: var(--muted);
+            }
+
+            .handoff .chev {
+                color: var(--muted);
+            }
+
+            /* ── Link map table ───────────────────────── */
+            .linkmap-wrap {
+                overflow-x: auto;
+                margin-top: 20px;
+            }
+
+            .linkmap {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 15.5px;
+                min-width: 640px;
+            }
+
+            .linkmap th,
+            .linkmap td {
+                text-align: left;
+                padding: 13px 16px;
+                border-bottom: 1px solid var(--hairline);
+                vertical-align: top;
+            }
+
+            .linkmap thead th {
+                font-weight: 600;
+                color: var(--ada-teal);
+                border-bottom: 2px solid var(--hairline);
+                background: var(--card);
+            }
+
+            .linkmap tbody tr:nth-child(odd) {
+                background: var(--card);
+            }
+
+            .linkmap .ex {
+                font-weight: 600;
+                color: var(--ink);
+            }
+
+            .linkmap code {
+                font-size: 12.5px;
+                background: #eef3f3;
+                padding: 1px 5px;
+            }
+
+            /* ── Next steps ───────────────────────────── */
+            .next {
+                background: var(--card);
+                border: 1px solid var(--hairline);
+                border-radius: 10px;
+                padding: 8px 26px 22px;
+            }
+
+            .next ol {
+                margin: 14px 0 0;
+                padding-left: 22px;
+            }
+
+            .next li {
+                margin-bottom: 12px;
+            }
+
+            .next li strong {
+                color: var(--ada-teal);
+            }
+
+            /* ── Footer ───────────────────────────────── */
+            footer {
+                margin-top: 56px;
+                padding-top: 20px;
+                border-top: 1px solid var(--hairline);
+                font-size: 15px;
+                color: var(--muted);
+            }
+
+            @media (max-width: 640px) {
+                .doc {
+                    padding: 40px 18px 64px;
+                }
+                h1 {
+                    font-size: 27px;
+                }
+                .lede {
+                    font-size: 18px;
+                }
+                .systems {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="doc">
+            <header class="masthead">
+                <p class="program">Wetland Regional Monitoring Program · wrmp.org</p>
+                <h1>Linking wrmp.org to EcoAtlas and the Geospatial Data Catalog</h1>
+                <p class="sub">Integration recommendations</p>
+            </header>
+
+            <p class="lede">
+                wrmp.org is where the region's monitoring story is told. EcoAtlas and
+                the Geospatial Data Catalog are where the maps and data behind that
+                story live. Connecting them well is a matter of
+                <strong>handoff</strong> — sending a visitor from a finding to the exact
+                map or dataset beneath it, without making them start their search over.
+                These recommendations set out where those links belong and the one
+                principle that keeps them useful: <strong>link to the specific view,
+                never to a generic front door.</strong>
+            </p>
+
+            <!-- ── Three places, three jobs ─────────────────── -->
+            <section>
+                <h2>Three places, three jobs</h2>
+                <p>
+                    The website and the two regional tools each do a different job, and
+                    the links between them should respect that division. The website is
+                    the front door; a visitor follows a link outward only when they want
+                    the map or the data underneath.
+                </p>
+                <ul class="jobs">
+                    <li>
+                        <span class="dot dot-site"></span>
+                        <span>
+                            <span class="role">wrmp.org tells the story.</span>
+                            <span class="desc">
+                                — A guided, plain-language view of what the monitoring
+                                shows, for a general audience.</span
+                            >
+                        </span>
+                    </li>
+                    <li>
+                        <span class="dot dot-eco"></span>
+                        <span>
+                            <span class="role">EcoAtlas holds the maps.</span>
+                            <span class="desc">
+                                — Habitat layers, project boundaries, and monitoring
+                                locations, for anyone who wants to see the geography
+                                behind a finding.</span
+                            >
+                        </span>
+                    </li>
+                    <li>
+                        <span class="dot dot-cat"></span>
+                        <span>
+                            <span class="role"
+                                >The Geospatial Data Catalog holds the data.</span
+                            >
+                            <span class="desc">
+                                — Raw, downloadable datasets, for researchers and
+                                analysts who need the numbers themselves.</span
+                            >
+                        </span>
+                    </li>
+                </ul>
+
+                <figure>
+                    <svg viewBox="0 0 720 336" role="img" aria-label="The website links out and down to EcoAtlas and the Geospatial Data Catalog.">
+                        <defs>
+                            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                                <path d="M0,0 L10,5 L0,10 z" fill="#8aa0a3" />
+                            </marker>
+                        </defs>
+                        <!-- website -->
+                        <rect x="210" y="20" width="300" height="92" rx="10" fill="#ffffff" stroke="#005e6a" stroke-width="2" />
+                        <rect x="210" y="20" width="300" height="6" rx="3" fill="#005e6a" />
+                        <text x="360" y="58" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="19" font-weight="700" fill="#005e6a">wrmp.org — the story</text>
+                        <text x="360" y="84" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="15" fill="#5b6b6e">Guided findings for a general audience</text>
+
+                        <!-- arrows -->
+                        <path d="M300,112 C230,150 175,178 150,214" fill="none" stroke="#8aa0a3" stroke-width="2" marker-end="url(#arrow)" />
+                        <path d="M420,112 C490,150 545,178 570,214" fill="none" stroke="#8aa0a3" stroke-width="2" marker-end="url(#arrow)" />
+
+                        <!-- ecoatlas -->
+                        <rect x="20" y="222" width="290" height="94" rx="10" fill="#ffffff" stroke="#228b9c" stroke-width="2" />
+                        <rect x="20" y="222" width="290" height="6" rx="3" fill="#228b9c" />
+                        <text x="165" y="260" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="18" font-weight="700" fill="#1a6c7a">EcoAtlas — the maps</text>
+                        <text x="165" y="285" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="14.5" fill="#5b6b6e">Habitat layers, project boundaries,</text>
+                        <text x="165" y="303" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="14.5" fill="#5b6b6e">monitoring locations</text>
+
+                        <!-- catalog -->
+                        <rect x="410" y="222" width="290" height="94" rx="10" fill="#ffffff" stroke="#e09337" stroke-width="2" />
+                        <rect x="410" y="222" width="290" height="6" rx="3" fill="#e09337" />
+                        <text x="555" y="260" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="18" font-weight="700" fill="#b9701c">Data Catalog — the data</text>
+                        <text x="555" y="285" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="14.5" fill="#5b6b6e">Raw, downloadable datasets</text>
+                    </svg>
+                    <figcaption>
+                        The website is the on-ramp. Visitors arrive at the story and
+                        move outward to the maps or the data only when they want the
+                        depth beneath a finding.
+                    </figcaption>
+                </figure>
+            </section>
+
+            <!-- ── How a visitor reaches the map and the data ─── -->
+            <section>
+                <h2>How a visitor reaches the map and the data</h2>
+                <p>
+                    Every exhibit on wrmp.org carries a <em>data &amp; tools</em> panel —
+                    a drawer, one step behind the story, holding the sources the exhibit
+                    draws on. This panel is the natural place for the handoff. From it, a
+                    visitor can open the exact map in EcoAtlas, download the exact dataset
+                    from the Catalog, or read the source report at the relevant section.
+                </p>
+                <p>
+                    Each link carries its context. <em>Explore in EcoAtlas</em> does not
+                    drop the visitor at the EcoAtlas homepage; it opens the wetland
+                    habitat layer, centered on the marsh the exhibit just described.
+                </p>
+
+                <figure>
+                    <svg viewBox="0 0 760 380" role="img" aria-label="From an exhibit's data and tools drawer, three links open EcoAtlas, the Data Catalog, and the source report, each carrying the visitor's context.">
+                        <defs>
+                            <marker id="arrow2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                                <path d="M0,0 L10,5 L0,10 z" fill="#8aa0a3" />
+                            </marker>
+                        </defs>
+
+                        <!-- exhibit -->
+                        <rect x="24" y="34" width="300" height="312" rx="12" fill="#ffffff" stroke="#005e6a" stroke-width="2" />
+                        <text x="174" y="66" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="17" font-weight="700" fill="#005e6a">An exhibit on wrmp.org</text>
+
+                        <!-- story steps -->
+                        <rect x="48" y="86" width="252" height="20" rx="5" fill="#e8eeee" />
+                        <rect x="48" y="114" width="252" height="20" rx="5" fill="#e8eeee" />
+                        <rect x="48" y="142" width="200" height="20" rx="5" fill="#e8eeee" />
+                        <text x="48" y="192" font-family="Source Sans 3, sans-serif" font-size="14.5" fill="#5b6b6e">the story steps</text>
+
+                        <!-- data & tools drawer -->
+                        <rect x="48" y="240" width="252" height="88" rx="9" fill="#eaf3f4" stroke="#228b9c" stroke-width="1.5" />
+                        <text x="64" y="268" font-family="Source Sans 3, sans-serif" font-size="15" font-weight="700" fill="#1a6c7a">Data &amp; tools</text>
+                        <text x="64" y="292" font-family="Source Sans 3, sans-serif" font-size="13.5" fill="#5b6b6e">Explore in EcoAtlas</text>
+                        <text x="64" y="310" font-family="Source Sans 3, sans-serif" font-size="13.5" fill="#5b6b6e">Download the data · Read the report</text>
+
+                        <!-- arrows out -->
+                        <path d="M300,270 C380,250 400,110 512,96" fill="none" stroke="#8aa0a3" stroke-width="2" marker-end="url(#arrow2)" />
+                        <path d="M300,284 C400,284 430,208 512,200" fill="none" stroke="#8aa0a3" stroke-width="2" marker-end="url(#arrow2)" />
+                        <path d="M300,300 C380,320 400,300 512,304" fill="none" stroke="#8aa0a3" stroke-width="2" marker-end="url(#arrow2)" />
+
+                        <!-- parameter labels -->
+                        <text x="404" y="150" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="13" font-style="italic" fill="#1a6c7a">layer + map extent</text>
+                        <text x="410" y="232" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="13" font-style="italic" fill="#b9701c">dataset</text>
+                        <text x="404" y="332" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="13" font-style="italic" fill="#5b6b6e">report + section</text>
+
+                        <!-- targets -->
+                        <rect x="516" y="68" width="220" height="58" rx="9" fill="#ffffff" stroke="#228b9c" stroke-width="2" />
+                        <text x="536" y="94" font-family="Source Sans 3, sans-serif" font-size="16" font-weight="700" fill="#1a6c7a">EcoAtlas</text>
+                        <text x="536" y="113" font-family="Source Sans 3, sans-serif" font-size="13.5" fill="#5b6b6e">the exact layer, in place</text>
+
+                        <rect x="516" y="172" width="220" height="58" rx="9" fill="#ffffff" stroke="#e09337" stroke-width="2" />
+                        <text x="536" y="198" font-family="Source Sans 3, sans-serif" font-size="16" font-weight="700" fill="#b9701c">Data Catalog</text>
+                        <text x="536" y="217" font-family="Source Sans 3, sans-serif" font-size="13.5" fill="#5b6b6e">the exact dataset</text>
+
+                        <rect x="516" y="276" width="220" height="58" rx="9" fill="#ffffff" stroke="#c2cccc" stroke-width="2" />
+                        <text x="536" y="302" font-family="Source Sans 3, sans-serif" font-size="16" font-weight="700" fill="#5b6b6e">Source report</text>
+                        <text x="536" y="321" font-family="Source Sans 3, sans-serif" font-size="13.5" fill="#5b6b6e">opened to the section</text>
+                    </svg>
+                    <figcaption>
+                        The data &amp; tools drawer is the single home for the handoff.
+                        Each link carries a parameter — the map layer and extent, the
+                        dataset, or the report section — so the visitor lands on the exact
+                        view, not a search box.
+                    </figcaption>
+                </figure>
+            </section>
+
+            <!-- ── The principle ────────────────────────────── -->
+            <section>
+                <h2>The principle: link to the view, not the front door</h2>
+                <p>
+                    The difference between a link that helps and a link that frustrates
+                    is whether it carries the visitor's place with it. A link to the
+                    EcoAtlas homepage asks the visitor to rebuild, by hand, the map the
+                    exhibit already showed them. A link to the specific layer and extent
+                    hands them that map directly.
+                </p>
+                <div class="principle">
+                    <p class="headline">Every outbound link opens a specific view.</p>
+                    <p>
+                        EcoAtlas and the Data Catalog each address a specific region,
+                        layer, tool, or dataset directly through its URL — so a link can
+                        carry the visitor straight to the view the exhibit was showing.
+                        These are the real patterns:
+                    </p>
+                    <span class="url-example"
+                        >ecoatlas.org<span class="frag">/regions/ecoregion/bay-delta</span></span
+                    >
+                    <span class="url-example"
+                        >ecoatlas.org/regions/ecoregion/statewide<span class="frag">/?cramt=1</span></span
+                    >
+                    <span class="url-example"
+                        >sfei.org<span class="frag">/data/wrmp-subembayments-v11</span></span
+                    >
+                    <p style="margin-bottom: 0; font-size: 16px; color: var(--muted)">
+                        The first opens the Bay/Delta map with its aquatic-resource
+                        layers; the second opens the wetland-condition (CRAM) data; the
+                        third opens a specific WRMP dataset in the catalog, ready to
+                        download. Each lands the visitor in place — not on a homepage.
+                    </p>
+                </div>
+            </section>
+
+            <!-- ── What the visitor lands on ────────────────── -->
+            <section>
+                <h2>What the visitor lands on</h2>
+                <p>
+                    Both tools already hold the WRMP's data. A link to the Bay/Delta
+                    region in EcoAtlas opens the aquatic-resource map — tidal marsh,
+                    managed habitats, and the program's own Operational Landscape Units
+                    and subembayments, drawn across the whole estuary.
+                </p>
+                <figure>
+                    <img
+                        src="1.4-assets/ecoatlas-baydelta-map.jpg"
+                        alt="EcoAtlas Bay/Delta map showing aquatic-resource habitat layers across the San Francisco Estuary."
+                    />
+                    <figcaption>
+                        EcoAtlas, Bay/Delta region — the California Aquatic Resource
+                        Inventory (CARI) layer, showing tidal marsh and managed habitats
+                        across the estuary, opened directly at
+                        <code>ecoatlas.org/regions/ecoregion/bay-delta</code>.
+                    </figcaption>
+                </figure>
+                <p>
+                    A link to the Data Catalog opens the matching dataset, ready to
+                    download — including maps built for the WRMP, such as the Baylands
+                    Habitat Map 2020.
+                </p>
+                <figure>
+                    <img
+                        src="1.4-assets/sfei-data-catalog.jpg"
+                        alt="The SFEI Data Center catalog listing datasets including CARI GIS Data and the Baylands Habitat Map 2020."
+                    />
+                    <figcaption>
+                        The Geospatial Data Catalog — searchable, with a stable page per
+                        dataset. The Baylands Habitat Map 2020 was built to meet the
+                        WRMP's monitoring needs, and the CARI inventory underlies the
+                        EcoAtlas map above.
+                    </figcaption>
+                </figure>
+            </section>
+
+            <!-- ── Two systems, two patterns ────────────────── -->
+            <section>
+                <h2>What each link points to</h2>
+                <p>
+                    The pattern is the same for both tools — a direct link to a specific
+                    view — but what travels differs. EcoAtlas carries a map; the Catalog
+                    carries a dataset.
+                </p>
+                <div class="systems">
+                    <div class="system eco">
+                        <span class="tab">EcoAtlas · the maps</span>
+                        <h3>Link to a layer in place</h3>
+                        <ul>
+                            <li>
+                                <strong>What it opens:</strong> the specific layer — the
+                                aquatic-resource inventory (CARI), wetland condition
+                                (CRAM), restoration Habitat Projects, or the WRMP's own
+                                Operational Landscape Units and subembayments — on the
+                                Bay/Delta map.
+                            </li>
+                            <li>
+                                <strong>Where it lives:</strong> the exhibit's data &amp;
+                                tools drawer, the local-data box on topic pages, and the
+                                resources index.
+                            </li>
+                            <li>
+                                <strong>How it behaves:</strong> opens in a new tab, so the
+                                story stays where the visitor left it.
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="system cat">
+                        <span class="tab">Data Catalog · the data</span>
+                        <h3>Link to a dataset by its address</h3>
+                        <ul>
+                            <li>
+                                <strong>What it opens:</strong> the specific dataset behind
+                                the exhibit — the Baylands Habitat Map 2020, CARI, or a
+                                WRMP subembayments layer — at its own stable page
+                                (<code>sfei.org/data/…</code>).
+                            </li>
+                            <li>
+                                <strong>What travels with it:</strong> the dataset's
+                                citation and date, shown in the exhibit before the click,
+                                so the source is clear.
+                            </li>
+                            <li>
+                                <strong>Where it lives:</strong> the <em>download the
+                                data</em> action in the data &amp; tools drawer, and the
+                                resources index.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── Where the links live ─────────────────────── -->
+            <section>
+                <h2>Where the links live across the site</h2>
+                <p>
+                    Links to EcoAtlas and the Catalog belong in two kinds of places:
+                    inside the story, where they carry context, and in a browsable index,
+                    where a visitor can reach a tool directly.
+                </p>
+
+                <figure>
+                    <svg viewBox="0 0 720 360" role="img" aria-label="Contextual links run from exhibits, topic pages, and the science framework; index links run from the resources page. Both reach EcoAtlas and the Data Catalog.">
+                        <defs>
+                            <marker id="arrow3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+                                <path d="M0,0 L10,5 L0,10 z" fill="#8aa0a3" />
+                            </marker>
+                        </defs>
+
+                        <!-- surfaces -->
+                        <text x="40" y="30" font-family="Source Sans 3, sans-serif" font-size="14.5" fill="#5b6b6e">wrmp.org</text>
+                        <rect x="40" y="44" width="210" height="42" rx="8" fill="#ffffff" stroke="#005e6a" stroke-width="1.6" />
+                        <text x="60" y="70" font-family="Source Sans 3, sans-serif" font-size="15" font-weight="600" fill="#005e6a">Exhibits</text>
+                        <rect x="40" y="96" width="210" height="42" rx="8" fill="#ffffff" stroke="#005e6a" stroke-width="1.6" />
+                        <text x="60" y="122" font-family="Source Sans 3, sans-serif" font-size="15" font-weight="600" fill="#005e6a">Topic pages</text>
+                        <rect x="40" y="148" width="210" height="42" rx="8" fill="#ffffff" stroke="#005e6a" stroke-width="1.6" />
+                        <text x="60" y="174" font-family="Source Sans 3, sans-serif" font-size="15" font-weight="600" fill="#005e6a">Science framework</text>
+                        <rect x="40" y="238" width="210" height="42" rx="8" fill="#ffffff" stroke="#9aa8a8" stroke-width="1.6" stroke-dasharray="5 4" />
+                        <text x="60" y="264" font-family="Source Sans 3, sans-serif" font-size="15" font-weight="600" fill="#5b6b6e">Resources index</text>
+
+                        <!-- targets -->
+                        <rect x="500" y="86" width="190" height="52" rx="9" fill="#ffffff" stroke="#228b9c" stroke-width="2" />
+                        <text x="595" y="117" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="16" font-weight="700" fill="#1a6c7a">EcoAtlas</text>
+                        <rect x="500" y="190" width="190" height="52" rx="9" fill="#ffffff" stroke="#e09337" stroke-width="2" />
+                        <text x="595" y="221" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="16" font-weight="700" fill="#b9701c">Data Catalog</text>
+
+                        <!-- contextual (solid) -->
+                        <path d="M250,65 C360,70 410,105 500,110" fill="none" stroke="#8aa0a3" stroke-width="2" marker-end="url(#arrow3)" />
+                        <path d="M250,117 C350,140 410,200 500,210" fill="none" stroke="#8aa0a3" stroke-width="2" marker-end="url(#arrow3)" />
+                        <path d="M250,169 C360,175 410,120 500,124" fill="none" stroke="#8aa0a3" stroke-width="2" marker-end="url(#arrow3)" />
+
+                        <!-- index (dashed) -->
+                        <path d="M250,259 C380,255 410,150 500,132" fill="none" stroke="#9aa8a8" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrow3)" />
+                        <path d="M250,262 C390,262 410,230 500,222" fill="none" stroke="#9aa8a8" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrow3)" />
+
+                        <!-- legend -->
+                        <line x1="330" y1="316" x2="372" y2="316" stroke="#8aa0a3" stroke-width="2" />
+                        <text x="380" y="321" font-family="Source Sans 3, sans-serif" font-size="14" fill="#5b6b6e">Contextual — carries the view</text>
+                        <line x1="330" y1="340" x2="372" y2="340" stroke="#9aa8a8" stroke-width="2" stroke-dasharray="5 4" />
+                        <text x="380" y="345" font-family="Source Sans 3, sans-serif" font-size="14" fill="#5b6b6e">Index — browsable</text>
+                    </svg>
+                    <figcaption>
+                        Contextual links run from exhibits, topic pages, and the science
+                        framework, each carrying the visitor's place. Index links run from
+                        a resources page, for visitors who arrive knowing which tool they
+                        want.
+                    </figcaption>
+                </figure>
+            </section>
+
+            <!-- ── Worked example ───────────────────────────── -->
+            <section>
+                <h2>The handoff in place</h2>
+                <p>
+                    In an exhibit, the handoff reads as three plain choices at the close
+                    of the story — each opening the exact map, dataset, or report behind
+                    what the visitor just saw.
+                </p>
+
+                <div class="panel-mock" aria-label="Example data and tools panel">
+                    <p class="panel-title">Data &amp; tools — A Decade in Alviso Marsh</p>
+
+                    <div class="handoff">
+                        <span class="glyph glyph-eco" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 8 3 16 6 23 3 23 18 16 21 8 18 1 21"/><line x1="8" y1="3" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="21"/></svg>
+                        </span>
+                        <span class="label">
+                            <span class="act">Explore in EcoAtlas</span><br />
+                            <span class="carries">CARI aquatic-resource layer, Bay/Delta — centered on Alviso Marsh</span>
+                        </span>
+                        <span class="chev" aria-hidden="true">↗</span>
+                    </div>
+
+                    <div class="handoff">
+                        <span class="glyph glyph-cat" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg>
+                        </span>
+                        <span class="label">
+                            <span class="act">Download the data</span><br />
+                            <span class="carries">SBOTS catch data, 2010–2024 · Geospatial Data Catalog</span>
+                        </span>
+                        <span class="chev" aria-hidden="true">↗</span>
+                    </div>
+
+                    <div class="handoff">
+                        <span class="glyph glyph-rep" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        </span>
+                        <span class="label">
+                            <span class="act">Read the report</span><br />
+                            <span class="carries">Alviso Marsh monitoring synthesis · the community-shift section</span>
+                        </span>
+                        <span class="chev" aria-hidden="true">↗</span>
+                    </div>
+                </div>
+
+                <div class="example-frame">
+                    <iframe
+                        src="../exhibits/round-3-2026-06/alviso-decade/index.html"
+                        title="A Decade in Alviso Marsh — live exhibit"
+                        loading="lazy"
+                    ></iframe>
+                    <p class="example-note">
+                        A live exhibit sits inside this document — the same format that
+                        carries the handoff. The data &amp; tools panel closing the story
+                        is where the links to EcoAtlas and the Catalog live.
+                    </p>
+                </div>
+            </section>
+
+            <!-- ── The handoffs, exhibit by exhibit ─────────── -->
+            <section>
+                <h2>The handoffs, exhibit by exhibit</h2>
+                <p>
+                    For the exhibits built so far, the links are specific and mostly ready
+                    to wire. The strongest handoffs are where an exhibit's subject is
+                    already a layer or dataset in the tools.
+                </p>
+                <div class="linkmap-wrap">
+                    <table class="linkmap">
+                        <thead>
+                            <tr>
+                                <th>Exhibit</th>
+                                <th>Opens in EcoAtlas</th>
+                                <th>Opens in the Data Catalog</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="ex">The Bay: Where We're Watching</td>
+                                <td>
+                                    Bay/Delta map with the WRMP subembayment &amp;
+                                    landscape-unit framework<br /><code
+                                        >/regions/ecoregion/bay-delta</code
+                                    >
+                                </td>
+                                <td>
+                                    WRMP Subembayments v1.1<br /><code
+                                        >/data/wrmp-subembayments-v11</code
+                                    >
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="ex">A Decade in Alviso Marsh</td>
+                                <td>
+                                    Aquatic-resource map (CARI), Bay/Delta — South Bay<br /><code
+                                        >/regions/ecoregion/bay-delta</code
+                                    >
+                                </td>
+                                <td>
+                                    Baylands Habitat Map 2020<br /><code
+                                        >/data/baylands-habitat-map-2020-…</code
+                                    >
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="ex">Is the Bay Keeping Up?</td>
+                                <td>
+                                    Wetland condition (CRAM) data<br /><code
+                                        >/regions/ecoregion/…/?cramt=1</code
+                                    >
+                                </td>
+                                <td>Baylands Habitat Map 2020 — extent &amp; condition</td>
+                            </tr>
+                            <tr>
+                                <td class="ex">Designing the Experiment</td>
+                                <td>
+                                    Bay/Delta restoration Habitat Projects<br /><code
+                                        >/regions/ecoregion/bay-delta/projects</code
+                                    >
+                                </td>
+                                <td>Habitat Projects data — EcoAtlas Projects Tool / API</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p style="font-size: 16px; color: var(--muted); margin-top: 16px">
+                    The species and methods exhibits — Delta Smelt, Native vs. Invasive,
+                    How We Monitor — link to the Bay/Delta map for habitat context, but
+                    their core fish-catch data is not yet published in EcoAtlas or the
+                    catalog; those handoffs point to the source report until the data is
+                    catalogued.
+                </p>
+            </section>
+
+            <!-- ── Closing the loop ─────────────────────────── -->
+            <section>
+                <h2>Closing the loop: from the tools back to the story</h2>
+                <p>
+                    So far this is a one-way trip — from the story out to the data. It is
+                    worth sending people the other way too, and the two directions serve
+                    different needs.
+                </p>
+
+                <h3>Getting back is already handled</h3>
+                <p>
+                    A visitor who follows a link out from an exhibit keeps the story open:
+                    every outbound link opens in a new tab, so returning is closing the
+                    tab, not finding a way home. That needs no link inside EcoAtlas.
+                </p>
+
+                <h3>The opportunity is the other audience</h3>
+                <p>
+                    EcoAtlas and the Data Catalog are where regulators, land managers, and
+                    researchers already work — the professional audience the public
+                    exhibits don't naturally reach. A quiet link from the WRMP's own layers
+                    and datasets back to wrmp.org gives that audience the interpretation the
+                    raw data can't: why a pattern matters, the regional story, what the
+                    program concludes. The WRMP's layers already name wrmp.org in their
+                    descriptions — this turns a citation into a doorway.
+                </p>
+                <p>Three natural, contextual places for the return link:</p>
+                <ul class="jobs">
+                    <li>
+                        <span class="dot dot-eco"></span>
+                        <span>
+                            <span class="role">EcoAtlas WRMP-layer panels.</span>
+                            <span class="desc">
+                                — On the Operational Landscape Units, Subembayments,
+                                Wetland Management Units, and Baylands Habitat Map layers, a
+                                "See the story on wrmp.org" link to the exhibit or topic
+                                that interprets them.</span
+                            >
+                        </span>
+                    </li>
+                    <li>
+                        <span class="dot dot-cat"></span>
+                        <span>
+                            <span class="role">Data Catalog dataset pages.</span>
+                            <span class="desc">
+                                — The reverse of "download the data": a "Featured on
+                                wrmp.org" link, so someone who came for the file leaves
+                                knowing the story behind it.</span
+                            >
+                        </span>
+                    </li>
+                    <li>
+                        <span class="dot dot-site"></span>
+                        <span>
+                            <span class="role">EcoAtlas restoration projects.</span>
+                            <span class="desc">
+                                — Bay/Delta Habitat Projects link out to the WRMP's
+                                restoration exhibits.</span
+                            >
+                        </span>
+                    </li>
+                </ul>
+                <p style="margin-top: 16px">
+                    Point the professional to the matching depth — the synthesized results
+                    on a topic page first, with the public exhibit one step further —
+                    rather than dropping them into an explainer. And keep it modest: one
+                    contextual link on the relevant page, never a banner across someone
+                    else's tool.
+                </p>
+
+                <div
+                    class="principle"
+                    style="background: var(--orange-wash); border-color: #ecd4ab"
+                >
+                    <p class="headline" style="color: var(--orange)">A note on scope</p>
+                    <p style="margin-bottom: 0">
+                        EcoAtlas and the Data Catalog are SFEI's tools, so these return
+                        links are suggestions for SFEI rather than changes to wrmp.org —
+                        offered here because a complete linkage runs both ways.
+                    </p>
+                </div>
+            </section>
+
+            <!-- ── Next steps ───────────────────────────────── -->
+            <section>
+                <h2>Turning this into working links</h2>
+                <div class="next">
+                    <ol>
+                        <li>
+                            <strong>Map the specific links.</strong> EcoAtlas addresses
+                            regions and tools by URL — the Bay/Delta map, the CRAM
+                            wetland-condition data, the Landscape Profile Tool — and the
+                            catalog gives each dataset a stable page. Pin the exact URL for
+                            each layer and dataset an exhibit references.
+                        </li>
+                        <li>
+                            <strong>Build the handoff into the exhibit template.</strong>
+                            Add the three data &amp; tools links to the shared exhibit
+                            format, so every exhibit ships with the pathway rather than
+                            adding it one at a time.
+                        </li>
+                        <li>
+                            <strong>Stand up the resources index.</strong> A single page
+                            listing the tools and key datasets gives visitors a direct
+                            route in, alongside the contextual links inside the stories.
+                        </li>
+                    </ol>
+                </div>
+            </section>
+
+            <footer>
+                Environmental Science Associates · for the Wetland Regional Monitoring
+                Program
+            </footer>
+        </div>
+    </body>
+</html>

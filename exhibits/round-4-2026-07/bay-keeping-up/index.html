@@ -1,0 +1,960 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Is the Bay Keeping Up? — WRMP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://unpkg.com" />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="../../../shared/css/tokens.css" />
+    <!-- Shared stage CSS (desktop shell) -->
+    <link rel="stylesheet" href="../../../shared/css/leaflet-overrides.css?v=2" />
+    <link rel="stylesheet" href="../../../shared/css/marker-popup.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-frame.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-cover.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-tags.css" />
+    <link rel="stylesheet" href="../../../shared/css/level3.css?v=6" />
+    <!-- Mobile player CSS — loads last so it wins the shared global rules -->
+    <link rel="stylesheet" href="../../../shared/css/exhibit-mobile.css" />
+    <style>
+      /* ── Exhibit-specific figure chrome (custom media steps) ──
+         Charts fill the figure area; the scorecard is a stack of
+         white metric cards. Both live inside the engine's figure
+         container: .card-figure (mobile, dark) or #d-figure
+         (desktop, light stage). Cards are opaque, so their text is
+         mode-independent; chart axis/grid/legend colors adapt to
+         ctx.mode in the render functions below. */
+      .bku-chartwrap {
+        position: relative;
+        width: 100%;
+        height: 100%;
+      }
+
+      .bku-scorecard {
+        display: grid;
+        grid-template-rows: 1fr 1fr 1fr;
+        gap: 12px;
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+      }
+      .bku-score-row {
+        display: grid;
+        grid-template-columns: 96px 1fr;
+        gap: 18px;
+        padding: 14px 20px;
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
+        align-items: center;
+        min-height: 0;
+      }
+      .bku-gauge-wrap {
+        position: relative;
+        width: 96px;
+        height: 96px;
+      }
+      .bku-gauge-wrap canvas {
+        display: block;
+      }
+      .bku-gauge-center {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        pointer-events: none;
+      }
+      .bku-gauge-value {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--wrmp-ada-teal);
+        line-height: 1;
+      }
+      .bku-gauge-sub {
+        font-size: 11px;
+        color: #5b6668;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-top: 3px;
+      }
+      .bku-score-label {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #5b6668;
+      }
+      .bku-score-headline {
+        font-family: var(--font-heading);
+        font-size: 17px;
+        font-weight: 600;
+        color: var(--wrmp-ada-teal);
+        line-height: 1.25;
+        margin-top: 3px;
+      }
+      .bku-score-sub {
+        font-size: 13px;
+        color: #5b6668;
+        line-height: 1.4;
+        margin-top: 6px;
+      }
+      .bku-score-sub em {
+        color: #7a8486;
+      }
+
+      /* Mobile shell (< 900px): compress the scorecard so three rows
+         fit the figure's ~46% height band. */
+      @media (max-width: 899px) {
+        .bku-scorecard {
+          gap: 8px;
+        }
+        .bku-score-row {
+          grid-template-columns: 72px 1fr;
+          gap: 12px;
+          padding: 10px 14px;
+        }
+        .bku-gauge-wrap {
+          width: 72px;
+          height: 72px;
+        }
+        .bku-gauge-value {
+          font-size: 18px;
+        }
+        .bku-score-headline {
+          font-size: 15px;
+        }
+        .bku-score-sub {
+          font-size: 12px;
+          margin-top: 4px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root-mobile"></div>
+    <div id="root-desktop"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script src="../../../shared/js/data-loader.js"></script>
+    <script src="../../../shared/js/marker-popup.js"></script>
+    <script src="../../../shared/js/exhibit-r4.js"></script>
+    <script>
+      // ══════════════════════════════════════════════════
+      // Is the Bay Keeping Up? — content + chart builders.
+      // Ported from round-3-2026-06/bay-keeping-up. Every step is
+      // chart/scorecard-forward, so all five use the `custom` media
+      // type: each render() draws a Chart.js figure (or the gauge
+      // scorecard) into the engine's figure container.
+      // ══════════════════════════════════════════════════
+
+      // ── Brand colors, read from CSS tokens (same as R3) ──
+      function tokenColor(name, fallback) {
+        var v = getComputedStyle(document.documentElement).getPropertyValue(name);
+        return v ? v.trim() || fallback : fallback;
+      }
+      var C = {
+        ADA_TEAL: tokenColor("--wrmp-ada-teal-brand", "#005E6A"),
+        TEAL: tokenColor("--wrmp-teal-brand", "#228B9C"),
+        GREEN: tokenColor("--wrmp-green-brand", "#379352"),
+        LIGHT_GREEN: tokenColor("--wrmp-light-green-brand", "#92BB4D"),
+        ORANGE: tokenColor("--wrmp-orange-brand", "#E09337"),
+        DARK: tokenColor("--wrmp-dark-brand", "#4E4E50"),
+        RED: "#B45242", // brand-aligned muted brick
+      };
+
+      function withAlpha(hex, a) {
+        var h = hex.replace("#", "");
+        var r = parseInt(h.substring(0, 2), 16);
+        var g = parseInt(h.substring(2, 4), 16);
+        var b = parseInt(h.substring(4, 6), 16);
+        return "rgba(" + r + "," + g + "," + b + "," + a + ")";
+      }
+
+      // ── Chart.js global defaults (from R3) ──
+      Chart.defaults.font.family =
+        "'Source Sans Pro', 'Source Sans 3', Helvetica, Arial, sans-serif";
+      Chart.defaults.font.size = 13;
+      Chart.defaults.color = C.DARK;
+      Chart.defaults.borderColor = "rgba(0,0,0,0.08)";
+      Chart.defaults.plugins.legend.display = false;
+      Chart.defaults.plugins.tooltip.backgroundColor = "rgba(24,24,24,0.88)";
+      Chart.defaults.plugins.tooltip.titleFont = {
+        size: 14,
+        weight: "600",
+        family: "'Source Sans Pro', 'Source Sans 3', Helvetica, Arial, sans-serif",
+      };
+      Chart.defaults.plugins.tooltip.bodyFont = {
+        size: 13,
+        family: "'Source Sans Pro', 'Source Sans 3', Helvetica, Arial, sans-serif",
+      };
+      Chart.defaults.plugins.tooltip.padding = 10;
+      Chart.defaults.plugins.tooltip.cornerRadius = 6;
+      Chart.defaults.plugins.tooltip.displayColors = false;
+
+      // ── Per-mode figure colors ──
+      // Mobile figure card is dark (#0e1416) → light text/grid.
+      // Desktop figure stage is the light frame tint → dark text/grid.
+      function figText(mode) {
+        return mode === "mobile" ? "#e8eef2" : "#1d2427";
+      }
+      function figGrid(mode) {
+        return mode === "mobile" ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.1)";
+      }
+
+      // ── Figure disposal + canvas helpers ──
+      // The desktop shell renders every custom step into one shared
+      // container (#d-figure), so disposal must destroy whatever the
+      // previous step left behind before drawing again.
+      function figDispose(container) {
+        (container._charts || []).forEach(function (ch) {
+          try {
+            ch.destroy();
+          } catch (e) {}
+        });
+        container._charts = [];
+        container.innerHTML = "";
+      }
+      function figCanvas(container) {
+        var wrap = document.createElement("div");
+        wrap.className = "bku-chartwrap";
+        var cv = document.createElement("canvas");
+        wrap.appendChild(cv);
+        container.appendChild(wrap);
+        return cv;
+      }
+      function renderChart(container, ctx, builder) {
+        figDispose(container);
+        var cv = figCanvas(container);
+        container._charts.push(builder(cv, ctx.mode));
+      }
+
+      // ════════════════════════════════════════════════
+      // Chart builders (each returns a Chart.js instance)
+      // ════════════════════════════════════════════════
+
+      // Step 1 · Bay Area sea level, 1900–2100 (line)
+      function buildSlr(canvas, mode) {
+        var tx = figText(mode);
+        var gr = figGrid(mode);
+        var years = [];
+        var observed = [];
+        var lowBand = [];
+        var midBand = [];
+        var highBand = [];
+        for (var y = 1900; y <= 2025; y += 5) {
+          years.push(y);
+          observed.push(+((y - 1900) * 0.122).toFixed(2));
+          lowBand.push(null);
+          midBand.push(null);
+          highBand.push(null);
+        }
+        var base2025 = (2025 - 1900) * 0.122;
+        for (var yy = 2030; yy <= 2100; yy += 5) {
+          years.push(yy);
+          observed.push(null);
+          var t = (yy - 2025) / (2100 - 2025);
+          lowBand.push(+(base2025 + 6 * t).toFixed(2));
+          midBand.push(+(base2025 + 30 * Math.pow(t, 1.2)).toFixed(2));
+          highBand.push(+(base2025 + 72 * Math.pow(t, 1.35)).toFixed(2));
+        }
+        var idx2025 = years.indexOf(2025);
+        lowBand[idx2025] = base2025;
+        midBand[idx2025] = base2025;
+        highBand[idx2025] = base2025;
+        return new Chart(canvas, {
+          type: "line",
+          data: {
+            labels: years,
+            datasets: [
+              {
+                label: "High projection",
+                data: highBand,
+                borderColor: "rgba(180, 82, 66, 0.85)",
+                backgroundColor: "rgba(180, 82, 66, 0.12)",
+                borderWidth: 1.5,
+                borderDash: [4, 3],
+                fill: false,
+                pointRadius: 0,
+                tension: 0.25,
+              },
+              {
+                label: "Mid projection",
+                data: midBand,
+                borderColor: "rgba(224,147,55,0.95)",
+                backgroundColor: "rgba(224,147,55,0.12)",
+                borderWidth: 1.5,
+                borderDash: [4, 3],
+                fill: false,
+                pointRadius: 0,
+                tension: 0.25,
+              },
+              {
+                label: "Low projection",
+                data: lowBand,
+                borderColor: "rgba(146,187,77,0.95)",
+                borderWidth: 1.5,
+                borderDash: [4, 3],
+                fill: false,
+                pointRadius: 0,
+                tension: 0.25,
+              },
+              {
+                label: "Observed",
+                data: observed,
+                borderColor: C.ADA_TEAL,
+                backgroundColor: withAlpha(C.ADA_TEAL, 0.1),
+                borderWidth: 2.5,
+                fill: true,
+                pointRadius: 0,
+                tension: 0.2,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 900, easing: "easeOutCubic" },
+            scales: {
+              x: {
+                grid: { display: false },
+                ticks: {
+                  color: tx,
+                  font: { size: 11 },
+                  maxTicksLimit: 6,
+                  callback: function (v, i) {
+                    var yr = years[i];
+                    if (yr % 25 === 0) return yr;
+                    return "";
+                  },
+                },
+              },
+              y: {
+                grid: { color: gr },
+                ticks: {
+                  color: tx,
+                  font: { size: 11 },
+                  callback: function (v) {
+                    return v + '"';
+                  },
+                },
+                title: {
+                  display: true,
+                  text: "Sea level rise (in)",
+                  color: tx,
+                  font: { size: 12, weight: "600" },
+                },
+              },
+            },
+            plugins: {
+              legend: {
+                display: true,
+                position: "bottom",
+                labels: {
+                  color: tx,
+                  font: { size: 11 },
+                  boxWidth: 10,
+                  boxHeight: 2,
+                  padding: 8,
+                },
+              },
+              tooltip: {
+                callbacks: {
+                  title: function (items) {
+                    return items[0].label;
+                  },
+                  label: function (c) {
+                    if (c.raw == null) return null;
+                    return c.dataset.label + ": " + c.raw + " in";
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // Step 2 · Tidal wetland extent (horizontal bar)
+      var EXTENT_DATA = { historical: 190000, today: 45000, goal: 100000 };
+      function buildExtent(canvas, mode) {
+        var tx = figText(mode);
+        var gr = figGrid(mode);
+        var activeEra = "today"; // R3 default highlight
+        return new Chart(canvas, {
+          type: "bar",
+          data: {
+            labels: ["Historical (1850)", "Today (2025)", "2030 Goal"],
+            datasets: [
+              {
+                data: [EXTENT_DATA.historical, EXTENT_DATA.today, EXTENT_DATA.goal],
+                backgroundColor: [
+                  activeEra === "historical" ? C.LIGHT_GREEN : withAlpha(C.LIGHT_GREEN, 0.35),
+                  activeEra === "today" ? C.ORANGE : withAlpha(C.ORANGE, 0.35),
+                  activeEra === "goal" ? C.GREEN : withAlpha(C.GREEN, 0.35),
+                ],
+                borderRadius: 6,
+                borderSkipped: false,
+                barThickness: 22,
+              },
+            ],
+          },
+          options: {
+            indexAxis: "y",
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 900, easing: "easeOutCubic" },
+            scales: {
+              x: {
+                grid: { color: gr },
+                ticks: {
+                  color: tx,
+                  font: { size: 12 },
+                  callback: function (v) {
+                    return (v / 1000).toLocaleString() + "k";
+                  },
+                },
+                title: {
+                  display: true,
+                  text: "Acres (thousands)",
+                  color: tx,
+                  font: { size: 12, weight: "600" },
+                },
+              },
+              y: {
+                grid: { display: false },
+                ticks: { color: tx, font: { size: 13, weight: "600" } },
+              },
+            },
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: function (c) {
+                    return c.raw.toLocaleString() + " acres";
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // Step 3 · SET accretion rates, 10 Bay sites (horizontal bar +
+      // SLR reference lines drawn by a plugin)
+      var SET_SITES = [
+        { name: "Napa Sonoma", rate: 5.1 },
+        { name: "China Camp", rate: 4.2 },
+        { name: "Petaluma Marsh", rate: 3.8 },
+        { name: "Palo Alto Baylands", rate: 3.4 },
+        { name: "Corte Madera", rate: 2.9 },
+        { name: "Dumbarton", rate: 2.7 },
+        { name: "Eden Landing", rate: 2.4 },
+        { name: "Rush Ranch (Suisun)", rate: 2.1 },
+        { name: "Hill Slough", rate: 1.8 },
+        { name: "Coon Island", rate: 1.5 },
+      ];
+      var SLR_CURRENT = 3.1;
+      var SLR_2050 = 7.0;
+      function setStatusColor(rate) {
+        if (rate >= 3.5) return C.GREEN;
+        if (rate >= 2.5) return C.ORANGE;
+        return C.RED;
+      }
+      function buildSet(canvas, mode) {
+        var tx = figText(mode);
+        var gr = figGrid(mode);
+        var labels = SET_SITES.map(function (s) {
+          return s.name;
+        });
+        var values = SET_SITES.map(function (s) {
+          return s.rate;
+        });
+        var colors = SET_SITES.map(function (s) {
+          return setStatusColor(s.rate);
+        });
+        var refLinePlugin = {
+          id: "refLines",
+          afterDraw: function (chart) {
+            var x = chart.scales.x;
+            var yScale = chart.scales.y;
+            var ctx2 = chart.ctx;
+            function drawLine(val, label, color, dash, opts) {
+              opts = opts || {};
+              var xp = x.getPixelForValue(val);
+              ctx2.save();
+              ctx2.strokeStyle = color;
+              ctx2.lineWidth = 1.5;
+              ctx2.setLineDash(dash || [4, 4]);
+              ctx2.beginPath();
+              ctx2.moveTo(xp, yScale.top);
+              ctx2.lineTo(xp, yScale.bottom);
+              ctx2.stroke();
+              ctx2.setLineDash([]);
+
+              ctx2.font = "600 11px 'Source Sans Pro', sans-serif";
+              var textW = ctx2.measureText(label).width;
+              var padX = 6;
+              var ty = yScale.top - 26 + (opts.yOffset || 0);
+              var anchor = opts.anchor;
+              if (!anchor) {
+                anchor = xp + padX * 2 + textW > x.right - 2 ? "left" : "right";
+              }
+              var bx, tx2, align;
+              if (anchor === "left") {
+                bx = xp - textW - padX * 2;
+                tx2 = xp - padX;
+                align = "right";
+              } else {
+                bx = xp;
+                tx2 = xp + padX;
+                align = "left";
+              }
+              if (bx < x.left) bx = x.left;
+              if (bx + textW + padX * 2 > x.right) bx = x.right - textW - padX * 2;
+
+              ctx2.fillStyle = "rgba(255,255,255,0.92)";
+              ctx2.strokeStyle = color;
+              ctx2.lineWidth = 1;
+              var rx = 4;
+              var pillW = textW + padX * 2;
+              var pillH = 18;
+              ctx2.beginPath();
+              ctx2.moveTo(bx + rx, ty);
+              ctx2.lineTo(bx + pillW - rx, ty);
+              ctx2.quadraticCurveTo(bx + pillW, ty, bx + pillW, ty + rx);
+              ctx2.lineTo(bx + pillW, ty + pillH - rx);
+              ctx2.quadraticCurveTo(bx + pillW, ty + pillH, bx + pillW - rx, ty + pillH);
+              ctx2.lineTo(bx + rx, ty + pillH);
+              ctx2.quadraticCurveTo(bx, ty + pillH, bx, ty + pillH - rx);
+              ctx2.lineTo(bx, ty + rx);
+              ctx2.quadraticCurveTo(bx, ty, bx + rx, ty);
+              ctx2.closePath();
+              ctx2.fill();
+              ctx2.stroke();
+
+              ctx2.fillStyle = color;
+              ctx2.textAlign = align === "right" ? "right" : "left";
+              ctx2.textBaseline = "middle";
+              ctx2.fillText(
+                label,
+                align === "right" ? bx + pillW - padX : bx + padX,
+                ty + pillH / 2,
+              );
+              ctx2.restore();
+            }
+            drawLine(SLR_CURRENT, "Current SLR · 3.1 mm/yr", "rgba(34,139,156,0.95)", [5, 4], {
+              anchor: "left",
+              yOffset: 0,
+            });
+            drawLine(SLR_2050, "2050 projection · 7 mm/yr", "rgba(180,82,66,0.95)", [2, 3], {
+              anchor: "left",
+              yOffset: 22,
+            });
+          },
+        };
+        return new Chart(canvas, {
+          type: "bar",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                data: values,
+                backgroundColor: colors,
+                borderRadius: 4,
+                borderSkipped: false,
+                barThickness: 10,
+              },
+            ],
+          },
+          options: {
+            indexAxis: "y",
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 900, easing: "easeOutCubic" },
+            layout: { padding: { top: 56, right: 16 } },
+            scales: {
+              x: {
+                grid: { color: gr },
+                ticks: {
+                  color: tx,
+                  font: { size: 11 },
+                  callback: function (v) {
+                    return v + " mm";
+                  },
+                },
+                min: 0,
+                max: 8,
+                title: {
+                  display: true,
+                  text: "Accretion (mm / yr)",
+                  color: tx,
+                  font: { size: 12, weight: "600" },
+                },
+              },
+              y: {
+                grid: { display: false },
+                ticks: { color: tx, font: { size: 11.5, weight: "500" } },
+              },
+            },
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: function (c) {
+                    return c.raw + " mm/yr";
+                  },
+                },
+              },
+            },
+          },
+          plugins: [refLinePlugin],
+        });
+      }
+
+      // Step 4 · CRAM attribute profile (radar) — typical Bay wetland
+      function buildCram(canvas, mode) {
+        var tx = figText(mode);
+        var gr = figGrid(mode);
+        var tickColor = mode === "mobile" ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.45)";
+        var values = [74, 74, 76, 76]; // buffer, biotic, physical, hydrology
+        return new Chart(canvas, {
+          type: "radar",
+          data: {
+            labels: ["Buffer", "Biotic", "Physical", "Hydrology"],
+            datasets: [
+              {
+                data: values,
+                backgroundColor: withAlpha(C.ADA_TEAL, 0.18),
+                borderColor: C.ADA_TEAL,
+                borderWidth: 2,
+                pointBackgroundColor: C.GREEN,
+                pointBorderColor: "#fff",
+                pointRadius: 4,
+                pointHoverRadius: 6,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 700, easing: "easeOutCubic" },
+            scales: {
+              r: {
+                min: 0,
+                max: 100,
+                ticks: {
+                  stepSize: 25,
+                  color: tickColor,
+                  backdropColor: "transparent",
+                  font: { size: 10 },
+                },
+                grid: { color: gr },
+                angleLines: { color: gr },
+                pointLabels: {
+                  font: { size: 13, weight: "600" },
+                  color: tx,
+                },
+              },
+            },
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: function (c) {
+                    return c.label + ": " + c.raw + " / 100";
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // Step 5 · Scorecard gauges (doughnut)
+      function buildGauge(canvas, value, max, color, track) {
+        var pct = Math.min(1, value / max);
+        return new Chart(canvas, {
+          type: "doughnut",
+          data: {
+            datasets: [
+              {
+                data: [pct * 100, (1 - pct) * 100],
+                backgroundColor: [color, track],
+                borderWidth: 0,
+                circumference: 270,
+                rotation: 225,
+              },
+            ],
+          },
+          options: {
+            cutout: "78%",
+            responsive: true,
+            maintainAspectRatio: true,
+            animation: { duration: 1100, easing: "easeOutCubic" },
+            plugins: {
+              tooltip: { enabled: false },
+              legend: { display: false },
+            },
+          },
+        });
+      }
+      function renderScorecard(container, ctx) {
+        figDispose(container);
+        // Cards are opaque white in both shells; gauge track is the
+        // only surface that could shift, but it sits on white — keep
+        // it constant. Text color is fixed by the card, not the mode.
+        var track = "rgba(0,0,0,0.06)";
+        var rows = [
+          {
+            color: C.ORANGE,
+            value: 45,
+            max: 100,
+            gv: "45k",
+            gs: "of 100k",
+            label: "Extent",
+            headline: "45,000 acres · 45% of 2030 goal",
+            sub: "Up ~2,400 acres since 2015. Restoration is bending the curve, slowly.",
+          },
+          {
+            color: C.ORANGE,
+            value: 4,
+            max: 10,
+            gv: "4/10",
+            gs: "keeping pace",
+            label: "Elevation",
+            headline: "Four of ten SET sites hold current SLR",
+            sub: "Zero of ten keep pace with 2050 projections. <em>Illustrative.</em>",
+          },
+          {
+            color: C.GREEN,
+            value: 74,
+            max: 100,
+            gv: "74",
+            gs: "avg CRAM",
+            label: "Condition",
+            headline: "Average CRAM score 74 · range 62–91",
+            sub: "Reference marshes set the ceiling; restored sites climb toward it. <em>Illustrative.</em>",
+          },
+        ];
+        var stage = document.createElement("div");
+        stage.className = "bku-scorecard";
+        var pending = [];
+        rows.forEach(function (r) {
+          var row = document.createElement("div");
+          row.className = "bku-score-row";
+          var gw = document.createElement("div");
+          gw.className = "bku-gauge-wrap";
+          var cv = document.createElement("canvas");
+          gw.appendChild(cv);
+          var gc = document.createElement("div");
+          gc.className = "bku-gauge-center";
+          gc.innerHTML =
+            '<span class="bku-gauge-value">' + r.gv + "</span>" +
+            '<span class="bku-gauge-sub">' + r.gs + "</span>";
+          gw.appendChild(gc);
+          var body = document.createElement("div");
+          body.className = "bku-score-body";
+          body.innerHTML =
+            '<div class="bku-score-label">' + r.label + "</div>" +
+            '<div class="bku-score-headline">' + r.headline + "</div>" +
+            '<div class="bku-score-sub">' + r.sub + "</div>";
+          row.appendChild(gw);
+          row.appendChild(body);
+          stage.appendChild(row);
+          pending.push({ cv: cv, r: r });
+        });
+        container.appendChild(stage);
+        pending.forEach(function (o) {
+          container._charts.push(buildGauge(o.cv, o.r.value, o.r.max, o.r.color, track));
+        });
+      }
+
+      // ════════════════════════════════════════════════
+      // Exhibit config
+      // ════════════════════════════════════════════════
+      WRMP.createR4Exhibit({
+        frameTint: "#e8eef2",
+
+        cover: {
+          image: "cover.jpg",
+          tags: [
+            { tag: "2A", gq: 2, href: "../../../website-integration/science-framework-round2.html#mq-2A" },
+            { tag: "3B", gq: 3, href: "../../../website-integration/science-framework-round2.html#mq-3B" },
+          ],
+          topic: "Wetlands & Sea Level Rise",
+          topicHref: "../../../website-integration/topic-page.html",
+          kicker: "WRMP Exhibit · Wetland Resilience",
+          title: "Is the Bay Keeping Up?",
+          lede: "Sea level is rising. Tidal wetlands are the Bay Area's living seawall — if they can keep pace. WRMP tracks three questions, every year: how much wetland is left, is it growing fast enough, and is it healthy?",
+          updated: "Last updated May 28, 2026",
+        },
+
+        steps: [
+          {
+            kicker: "Bay Wetland Scorecard",
+            title: "The Shield at the Water's Edge",
+            media: {
+              type: "custom",
+              render: function (container, ctx) {
+                renderChart(container, ctx, buildSlr);
+              },
+            },
+            body: [
+              "7.7 million people live around San Francisco Bay. Tidal wetlands are the living seawall between them and a rising ocean — but only if the marsh can keep up.",
+              "WRMP tracks three questions, every year.",
+            ],
+            stats: [
+              { num: "Extent", lbl: "Acres of tidal wetland" },
+              { num: "Elevation", lbl: "Accretion vs. sea level" },
+              { num: "Condition", lbl: "CRAM habitat score" },
+            ],
+          },
+          {
+            kicker: "Metric 1 · Extent",
+            title: "How Much Wetland Is Left?",
+            media: {
+              type: "custom",
+              render: function (container, ctx) {
+                renderChart(container, ctx, buildExtent);
+              },
+            },
+            body: [
+              "Before California was dammed and diked, the Bay held roughly <strong>190,000 acres</strong> of tidal wetland. Today, about <strong>45,000 acres</strong> remain. The regional goal by 2030 is <strong>100,000 acres</strong>.",
+              "<em>Source: SFEI Baylands Goals Project.</em>",
+            ],
+          },
+          {
+            kicker: "Metric 2 · Elevation",
+            title: "Is It Rising Fast Enough?",
+            media: {
+              type: "custom",
+              render: function (container, ctx) {
+                renderChart(container, ctx, buildSet);
+              },
+            },
+            body: [
+              "Marshes keep pace with sea level by trapping sediment. <strong>Surface Elevation Tables</strong> (SETs) measure that growth, in millimeters per year. If the marsh grows faster than the sea rises, it wins. If not, it drowns.",
+              "<em>Example SET rates, in realistic ranges. 2026 BHM data integration pending. SLR reference lines from NOAA &amp; California State Sea Level Rise Guidance.</em>",
+            ],
+            stats: [
+              { num: "4 / 10", lbl: "Pace current SLR" },
+              { num: "0 / 10", lbl: "Pace 2050 projections" },
+            ],
+          },
+          {
+            kicker: "Metric 3 · Condition",
+            title: "Is It Healthy?",
+            media: {
+              type: "custom",
+              render: function (container, ctx) {
+                renderChart(container, ctx, buildCram);
+              },
+            },
+            body: [
+              "The <strong>California Rapid Assessment Method</strong> (CRAM) scores wetland condition across four attributes — Buffer, Biotic Structure, Physical Structure, and Hydrology — on a 0 to 100 scale.",
+              "The radar shows the attribute profile for a typical Bay wetland.",
+              "<em>Illustrative CRAM profile. 2026 data integration pending.</em>",
+            ],
+          },
+          {
+            kicker: "2026 Scorecard",
+            title: "The Bay's Report Card",
+            media: {
+              type: "custom",
+              render: function (container, ctx) {
+                renderScorecard(container, ctx);
+              },
+            },
+            body: [
+              "Three numbers, one question — is the Bay keeping up? Each gauge tracks a different dimension of wetland resilience against a regional goal.",
+              "<em><strong>Data sources:</strong> Extent figures — SFEI Baylands Goals Project. Current SLR — NOAA SF tide gauge (3.1 mm/yr long-term). 2050 projections — California State Sea Level Rise Guidance. Per-site SET and CRAM values shown are illustrative, pending 2026 BHM integration.</em>",
+            ],
+            callout:
+              "WRMP tracks all three, every year. When 2026 BHM data arrives, this scorecard updates automatically.",
+          },
+        ],
+
+        end: {
+          kicker: "Thanks for exploring",
+          title: "When the data lands, the picture sharpens",
+          lede: "This exhibit is a prototype — illustrative numbers in the right shape. When 2026 BHM data arrives, the scorecard updates automatically. Until then, explore the larger WRMP data ecosystem.",
+        },
+
+        resources: [
+          {
+            cat: "Data",
+            items: [
+              {
+                name: "Baylands Habitat Map 2020",
+                chip: "Data catalog",
+                icon: "i-download",
+                desc: "Wetland extent and habitat condition across the baylands, mapped for the WRMP.",
+                href: "https://www.sfei.org/data/baylands-habitat-map-2020-bhm-2020-version-13-gis-data",
+                ext: true,
+              },
+              {
+                name: "Species catalog",
+                chip: "JSON",
+                icon: "i-download",
+                desc: "Every fish and invertebrate taxon documented across the estuary, with native and invasive status.",
+                href: "../../../data/species.json",
+              },
+              {
+                name: "Station network",
+                chip: "JSON",
+                icon: "i-download",
+                desc: "All 119 monitoring stations with coordinates, region and network.",
+                href: "../../../data/stations.json",
+              },
+            ],
+          },
+          {
+            cat: "Tools",
+            items: [
+              {
+                name: "EcoAtlas",
+                chip: "Web tool",
+                icon: "i-map",
+                desc: "Interactive geospatial maps of every wetland, restoration project and station in the estuary.",
+                href: "https://www.ecoatlas.org/regions/ecoregion/bay-delta/?cramt=1",
+                ext: true,
+              },
+            ],
+          },
+          {
+            cat: "Context",
+            items: [
+              {
+                name: "WRMP Science Framework",
+                chip: "Web report",
+                icon: "i-file",
+                desc: "The monitoring design — management questions, indicators and how the station network answers them.",
+                href: "https://www.wrmp.org/science-framework/",
+                ext: true,
+              },
+              {
+                name: "State of Our Estuary",
+                chip: "Web report",
+                icon: "i-file",
+                desc: "Regional status reporting on the estuary's health, habitats and long-term species trends.",
+                href: "https://www.stateofourestuary.org/",
+                ext: true,
+              },
+            ],
+          },
+        ],
+      });
+    </script>
+  </body>
+</html>
