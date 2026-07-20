@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>The Bay: Where We're Watching — WRMP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://unpkg.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="../../../shared/css/tokens.css" />
+    <!-- Shared stage CSS (desktop shell) -->
+    <link rel="stylesheet" href="../../../shared/css/leaflet-overrides.css?v=2" />
+    <link rel="stylesheet" href="../../../shared/css/marker-popup.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-frame.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-cover.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-tags.css" />
+    <link rel="stylesheet" href="../../../shared/css/level3.css?v=6" />
+    <!-- Mobile player CSS — loads last so it wins the shared global rules -->
+    <link rel="stylesheet" href="../../../shared/css/exhibit-mobile.css" />
+  </head>
+  <body>
+    <div id="root-mobile"></div>
+    <div id="root-desktop"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="../../../shared/js/data-loader.js"></script>
+    <script src="../../../shared/js/marker-popup.js"></script>
+    <script src="../../../shared/js/exhibit-r4.js"></script>
+    <script>
+      // ══════════════════════════════════════════════════
+      // The Bay: Where We're Watching — content only. The
+      // dual-shell engine (shared/js/exhibit-r4.js) renders
+      // both shells from this config. Ported from the Round 3
+      // station-map-stepper exhibit.
+      // ══════════════════════════════════════════════════
+
+      // Map framing (from the R3 exhibit).
+      var BAY_FULL = [[37.4, -122.55], [38.28, -121.85]];
+      var SOUTH_BAY = [[37.42, -122.1], [37.62, -121.88]];
+
+      // Color keys (brand hex, matching the R3 render functions).
+      var REGION = {
+        "South Bay": "#005E6A",
+        "North Bay": "#379352",
+        "Suisun Bay": "#E09337",
+      };
+      var NETWORK = {
+        "Santa Clara - Primary": "#005E6A",
+        "Alameda - Primary": "#228B9C",
+        "Belmon-Redwood - Secondary": "#6BB5C2",
+        "Wildcat Creek - Primary": "#00ACEC",
+        "Novato-Gallinas/West San Pablo Bay - Primary": "#379352",
+        "Napa-Sonoma - Primary": "#92BB4D",
+        "Petaluma River - Secondary": "#664D26",
+        "Suisun Slough - Primary": "#E09337",
+        "Montezuma - Delta - Secondary": "#D66B2C",
+      };
+      var SITE = {
+        Benchmark: "#92BB4D",
+        "Benchmark-Reference": "#C7D865",
+        Reference: "#005E6A",
+        "Reference Site Candidate": "#228B9C",
+        Project: "#379352",
+        "Other Restored Site": "#6A9E3A",
+        "Planned Restoration": "#E09337",
+        NA: "#bbb",
+      };
+
+      WRMP.createR4Exhibit({
+        data: { stations: true },
+
+        cover: {
+          image: "cover.jpg",
+          tag: "1A",
+          tagGq: 1,
+          tagHref: "../../../website-integration/science-framework-round2.html#mq-1A",
+          topic: "Baylands Geography",
+          topicHref: "../../../website-integration/topic-page.html",
+          kicker: "WRMP Exhibit · Overview",
+          title: "The Bay: Where We're Watching",
+          lede: "Explore how WRMP monitors the San Francisco Estuary across regions, networks, and restoration sites.",
+          updated: "Last updated May 28, 2026",
+        },
+
+        steps: [
+          {
+            kicker: "SF Estuary",
+            title: "The Estuary",
+            media: { type: "map", view: "all" },
+            body: [
+              "The San Francisco Estuary is the largest on North America's Pacific coast — a vast network of tidal marshes, sloughs, and open water where freshwater rivers meet the sea.",
+              "It's home to over 250 species of fish and invertebrates, including several listed for protection: Winter-run Chinook Salmon, Delta and Longfin Smelt, Green and White Sturgeon.",
+              "The Wetland Regional Monitoring Program (WRMP) watches over this system with a network of monitoring stations stretching from Suisun Bay to the southern tip of the South Bay.",
+            ],
+            stats: [
+              { num: "119", lbl: "Stations" },
+              { num: "250+", lbl: "Species" },
+              { num: "9", lbl: "Networks" },
+            ],
+          },
+          {
+            kicker: "Salinity Gradient",
+            title: "Three Worlds",
+            media: { type: "map", view: "regions" },
+            body: [
+              'You can\'t study the estuary as one thing. It\'s three distinct ecological zones, shaped by a single force: <strong>salinity</strong>.',
+              '<strong style="color: var(--amber-11)">Suisun Bay</strong> in the east is nearly fresh — fed by the Sacramento and San Joaquin rivers. It hosts freshwater species like Threespine Stickleback and Siberian Prawn.',
+              '<strong style="color: var(--grass-11)">North Bay</strong> is the mixing zone — brackish water where freshwater and marine species overlap. The most dynamic habitat, shifting with the tides and seasons.',
+              '<strong style="color: var(--cyan-11)">South Bay</strong> is the most saline, connected to the Pacific. Here you find marine species — jellyfish, tunicates, English Sole — alongside estuary residents.',
+            ],
+          },
+          {
+            kicker: "Nine Networks",
+            title: "The Network",
+            media: { type: "map", view: "networks" },
+            body: [
+              "Scientists cover this vast territory through nine sampling networks — circuits that field crews run by research vessel, timed to the tides.",
+              "Each circuit is sampled with <strong>otter trawls</strong> — nets towed behind the boat for 10 minutes, sweeping up fish and invertebrates from the channel bottom. A single quarter produced 244 trawl samples across the Bay.",
+              "Shallow stations require spring tides for access. Crews plan around weather, tidal windows, and even submerged hazards — one network lost a propeller to an unmarked rock wall.",
+            ],
+            callout:
+              "No single gear catches everything. Trawls catch the broadest diversity of species, but beach seines and gillnets add larger fish and shallow-water species that trawls miss.",
+          },
+          {
+            kicker: "Wetland Restoration",
+            title: "Restoration in Progress",
+            media: { type: "map", view: "sites" },
+            body: [
+              "The South Bay is home to the <strong>largest tidal wetland restoration in the United States</strong> — 15,000 acres of former salt ponds being returned to tidal marsh habitat.",
+              "The monitoring network is designed to answer a critical question: <strong>is restoration working?</strong>",
+              "By sampling at restored project sites alongside natural reference sites and long-term benchmarks, scientists can directly compare fish communities.",
+            ],
+            callout:
+              "Early results from 14 years of monitoring at Alviso Marsh show that restored tidal ponds support fish communities equivalent to natural sloughs. Restoration is working.",
+          },
+          {
+            kicker: "Future Monitoring",
+            title: "What Comes Next",
+            media: { type: "map", view: "planned" },
+            body: [
+              "Across the Bay, <strong>17 planned restoration sites</strong> mark where the next chapter of recovery will unfold. Baseline monitoring at these locations will begin before construction starts — establishing what's there before transformation.",
+              "As data accumulates, each station on this map will grow to reflect what was found there — species abundance, community diversity, seasonal patterns.",
+              "The map becomes a living portrait of the estuary's ecological health — showing not just <em>where</em> we look, but <em>what we find</em>.",
+            ],
+            stats: [
+              { num: "17", lbl: "Planned Sites" },
+              { num: "14+", lbl: "Years of Data" },
+            ],
+          },
+        ],
+
+        end: {
+          kicker: "Thanks for exploring",
+          title: "The data runs deeper",
+          lede: "This exhibit is one layer. WRMP's monitoring lives inside a larger data ecosystem — from the Bay-wide EcoAtlas toolset to the raw datasets scientists work with every day.",
+        },
+
+        resources: [
+          {
+            cat: "Data",
+            icon: "i-database",
+            items: [
+              { name: "WRMP Subembayments", chip: "DATA CATALOG", icon: "i-download", desc: "The subembayment and landscape-unit boundaries that frame the monitoring network.", href: "https://www.sfei.org/data/wrmp-subembayments-v11", ext: true },
+              { name: "Species catalog", chip: "JSON", icon: "i-download", desc: "Every fish and invertebrate taxon documented across the estuary, native and invasive.", href: "../../../data/species.json" },
+              { name: "Station network", chip: "JSON", icon: "i-download", desc: "All 119 monitoring stations with coordinates, region and network — where each catch was recorded.", href: "../../../data/stations.json" },
+            ],
+          },
+          {
+            cat: "Tools",
+            icon: "i-compass",
+            items: [
+              { name: "EcoAtlas", chip: "WEB TOOL", icon: "i-map", desc: "Interactive geospatial maps of every wetland, restoration project and station in the estuary.", href: "https://www.ecoatlas.org/regions/ecoregion/bay-delta", ext: true },
+            ],
+          },
+          {
+            cat: "Context",
+            icon: "i-book",
+            items: [
+              { name: "WRMP Science Framework", chip: "WEB REPORT", icon: "i-file", desc: "The monitoring design — management questions, indicators and how the station network answers them.", href: "https://www.wrmp.org/science-framework/", ext: true },
+              { name: "State of Our Estuary", chip: "WEB REPORT", icon: "i-file", desc: "Regional status reporting on the estuary's health, habitats and long-term species trends.", href: "https://www.stateofourestuary.org/", ext: true },
+            ],
+          },
+        ],
+
+        map: {
+          popupFields: [
+            ["Region", "region"],
+            ["Network", "WRMP_Network"],
+            ["Habitat", "habitat"],
+            ["Site Type", "WRMP_Site_Type"],
+          ],
+          views: {
+            // Step 1 — all stations, one teal, no legend/filter.
+            all: {
+              bounds: BAY_FULL,
+              radius: 5,
+              colorFor: function () { return "#228B9C"; },
+            },
+            // Step 2 — colored + filtered by region.
+            regions: {
+              bounds: BAY_FULL,
+              radius: 7,
+              colorFor: function (s) { return REGION[s.region] || "#999"; },
+              filter: {
+                field: "region",
+                options: [
+                  { label: "Suisun Bay", short: "Suisun", value: "Suisun Bay", color: "#E09337" },
+                  { label: "North Bay", short: "North", value: "North Bay", color: "#379352" },
+                  { label: "South Bay", short: "South", value: "South Bay", color: "#005E6A" },
+                ],
+              },
+            },
+            // Step 3 — colored + filtered by sampling network.
+            networks: {
+              bounds: BAY_FULL,
+              radius: 7,
+              colorFor: function (s) { return NETWORK[s.WRMP_Network] || "#999"; },
+              filter: {
+                field: "WRMP_Network",
+                options: [
+                  { label: "Santa Clara", value: "Santa Clara - Primary", color: "#005E6A" },
+                  { label: "Alameda", value: "Alameda - Primary", color: "#228B9C" },
+                  { label: "Wildcat", value: "Wildcat Creek - Primary", color: "#00ACEC" },
+                  { label: "Novato", value: "Novato-Gallinas/West San Pablo Bay - Primary", color: "#379352" },
+                  { label: "Napa", value: "Napa-Sonoma - Primary", color: "#92BB4D" },
+                  { label: "Suisun", value: "Suisun Slough - Primary", color: "#E09337" },
+                  { label: "Montezuma", value: "Montezuma - Delta - Secondary", color: "#D66B2C" },
+                  { label: "Petaluma", value: "Petaluma River - Secondary", color: "#664D26" },
+                  { label: "Belmont", value: "Belmon-Redwood - Secondary", color: "#6BB5C2" },
+                ],
+              },
+            },
+            // Step 4 — South Bay restoration site types (camera on South Bay;
+            // filtering runs bay-wide, matching the R3 behavior).
+            sites: {
+              bounds: SOUTH_BAY,
+              radius: 8,
+              colorFor: function (s) { return SITE[s.WRMP_Site_Type] || "#bbb"; },
+              filter: {
+                field: "WRMP_Site_Type",
+                options: [
+                  { label: "Benchmark", value: "Benchmark", color: "#92BB4D" },
+                  { label: "Reference", value: "Reference", color: "#005E6A" },
+                  { label: "Project", value: "Project", color: "#379352" },
+                  { label: "Other Restored", short: "Restored", value: "Other Restored Site", color: "#6A9E3A" },
+                  { label: "Planned", value: "Planned Restoration", color: "#E09337" },
+                ],
+              },
+            },
+            // Step 5 — planned vs. existing, static two-key legend.
+            planned: {
+              bounds: BAY_FULL,
+              radius: 7,
+              colorFor: function (s) {
+                return s.WRMP_Site_Type === "Planned Restoration" ? "#E09337" : "#888";
+              },
+              legend: [
+                { label: "Planned Restoration", color: "#E09337" },
+                { label: "Existing Stations", color: "#888" },
+              ],
+            },
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

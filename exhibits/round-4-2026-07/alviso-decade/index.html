@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>A Decade in Alviso Marsh — WRMP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://unpkg.com" />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="../../../shared/css/tokens.css" />
+    <!-- Shared stage CSS (desktop shell) -->
+    <link rel="stylesheet" href="../../../shared/css/leaflet-overrides.css?v=2" />
+    <link rel="stylesheet" href="../../../shared/css/marker-popup.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-frame.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-cover.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-tags.css" />
+    <link rel="stylesheet" href="../../../shared/css/level3.css?v=6" />
+    <!-- Mobile player CSS — loads last so it wins the shared global rules -->
+    <link rel="stylesheet" href="../../../shared/css/exhibit-mobile.css" />
+  </head>
+  <body>
+    <div id="root-mobile"></div>
+    <div id="root-desktop"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script src="../../../shared/js/data-loader.js"></script>
+    <script src="../../../shared/js/marker-popup.js"></script>
+    <script src="../../../shared/js/exhibit-r4.js"></script>
+    <script>
+      // ══════════════════════════════════════════════════
+      // A Decade in Alviso Marsh — content only. The dual-shell
+      // engine (shared/js/exhibit-r4.js) renders both shells.
+      //
+      // Four steps are chart-forward: they use media:{type:'custom'}
+      // and draw a Chart.js canvas into the engine-sized figure area.
+      // Chart data is static (ported from the SBOTS analyses in R3);
+      // only the closing map step reads the loaded station data.
+      // ══════════════════════════════════════════════════
+
+      // WRMP brand palette — data-series colors, mode-independent.
+      var P = {
+        ADA: "#005E6A",
+        TEAL: "#228B9C",
+        GREEN: "#379352",
+        LIGHT_GREEN: "#92BB4D",
+        ORANGE: "#E09337",
+        DARK: "#4E4E50",
+      };
+      var REGION = {
+        "South Bay": "#005E6A",
+        "North Bay": "#379352",
+        "Suisun Bay": "#E09337",
+      };
+
+      // Chart.js shared defaults (font, animation, tooltip chrome).
+      // Per-chart tick / grid / legend colors are set from ctx.mode
+      // below, never from a single global default.
+      if (window.Chart) {
+        Chart.defaults.font.family =
+          "'Source Sans 3', 'Source Sans Pro', Helvetica, Arial, sans-serif";
+        Chart.defaults.font.size = 13;
+        Chart.defaults.animation.duration = 900;
+        Chart.defaults.animation.easing = "easeOutCubic";
+        Chart.defaults.plugins.legend.display = false;
+        Chart.defaults.plugins.tooltip.backgroundColor = "rgba(20,22,25,0.92)";
+        Chart.defaults.plugins.tooltip.titleColor = "#fff";
+        Chart.defaults.plugins.tooltip.bodyColor = "#fff";
+        Chart.defaults.plugins.tooltip.titleFont = { size: 14, weight: "600" };
+        Chart.defaults.plugins.tooltip.bodyFont = { size: 14 };
+        Chart.defaults.plugins.tooltip.padding = 10;
+        Chart.defaults.plugins.tooltip.displayColors = false;
+        Chart.defaults.plugins.tooltip.cornerRadius = 6;
+      }
+
+      // Mobile figure cards are dark; desktop figure stage is light.
+      function figColors(ctx) {
+        var mobile = ctx.mode === "mobile";
+        return {
+          text: mobile ? "#e8eef2" : "#1d2427",
+          grid: mobile ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.1)",
+        };
+      }
+      // Dispose any prior chart, then mount a fresh full-size canvas.
+      // The engine re-invokes render on data load, so this runs > once.
+      function mountCanvas(container) {
+        if (container._chart) {
+          container._chart.destroy();
+          container._chart = null;
+        }
+        container.innerHTML = "";
+        var wrap = document.createElement("div");
+        wrap.style.cssText = "position:relative;width:100%;height:100%";
+        var canvas = document.createElement("canvas");
+        wrap.appendChild(canvas);
+        container.appendChild(wrap);
+        return canvas;
+      }
+
+      // ── Step 1: Top-7 species horizontal bar ─────────
+      function renderTop7(container, ctx) {
+        var col = figColors(ctx);
+        var canvas = mountCanvas(container);
+        var data = [
+          { name: "Bay Shrimp", pct: 24 },
+          { name: "Topsmelt", pct: 17 },
+          { name: "Yellowfin Goby", pct: 14 },
+          { name: "Mississippi Silverside", pct: 12 },
+          { name: "Oriental Shrimp", pct: 10 },
+          { name: "Threespine Stickleback", pct: 7 },
+          { name: "Overbite Clam", pct: 6 },
+          { name: "All others (230+ species)", pct: 10 },
+        ];
+        var labels = data.map(function (d) { return d.name; });
+        var values = data.map(function (d) { return d.pct; });
+        var invasive = [
+          "Yellowfin Goby",
+          "Mississippi Silverside",
+          "Oriental Shrimp",
+          "Overbite Clam",
+        ];
+        var colors = data.map(function (d) {
+          if (d.name.indexOf("All others") === 0) return "rgba(78,78,80,0.55)";
+          return invasive.indexOf(d.name) >= 0 ? P.ORANGE : P.ADA;
+        });
+        container._chart = new Chart(canvas, {
+          type: "bar",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                data: values,
+                backgroundColor: colors,
+                borderRadius: 4,
+                borderSkipped: false,
+                barThickness: 12,
+              },
+            ],
+          },
+          options: {
+            indexAxis: "y",
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: { padding: { left: 0, right: 8, top: 2, bottom: 2 } },
+            scales: {
+              x: {
+                beginAtZero: true,
+                max: 30,
+                grid: { color: col.grid, drawBorder: false },
+                ticks: {
+                  color: col.text,
+                  font: { size: 12 },
+                  callback: function (v) { return v + "%"; },
+                },
+              },
+              y: {
+                grid: { display: false, drawBorder: false },
+                ticks: { color: col.text, font: { size: 12 } },
+              },
+            },
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: function (c) { return "~" + c.parsed.x + "% of catch"; },
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // ── Step 2: Cluster fingerprint radar ────────────
+      function renderRadar(container, ctx) {
+        var col = figColors(ctx);
+        var canvas = mountCanvas(container);
+        container._chart = new Chart(canvas, {
+          type: "radar",
+          data: {
+            labels: ["Temp", "Salinity", "Dissolved O₂", "Clarity"],
+            datasets: [
+              {
+                label: "Upstream",
+                data: [0.85, 0.25, 0.35, 0.35],
+                borderColor: P.ORANGE,
+                backgroundColor: "rgba(224,147,55,0.16)",
+                pointBackgroundColor: P.ORANGE,
+                borderWidth: 2,
+                pointRadius: 3,
+              },
+              {
+                label: "Middle Alviso",
+                data: [0.55, 0.7, 0.8, 0.65],
+                borderColor: P.TEAL,
+                backgroundColor: "rgba(34,139,156,0.16)",
+                pointBackgroundColor: P.TEAL,
+                borderWidth: 2,
+                pointRadius: 3,
+              },
+              {
+                label: "Lower South Bay",
+                data: [0.45, 0.9, 0.7, 0.55],
+                borderColor: P.ADA,
+                backgroundColor: "rgba(0,94,106,0.14)",
+                pointBackgroundColor: P.ADA,
+                borderWidth: 2,
+                pointRadius: 3,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              r: {
+                min: 0,
+                max: 1,
+                ticks: { display: false, stepSize: 0.25 },
+                grid: { color: col.grid },
+                angleLines: { color: col.grid },
+                pointLabels: {
+                  color: col.text,
+                  font: { size: 12, weight: "600" },
+                },
+              },
+            },
+            plugins: {
+              legend: {
+                display: true,
+                position: "bottom",
+                labels: {
+                  color: col.text,
+                  font: { size: 12 },
+                  boxWidth: 10,
+                  boxHeight: 10,
+                  padding: 8,
+                },
+              },
+              tooltip: {
+                callbacks: {
+                  label: function (c) {
+                    return c.dataset.label + ": relative " + c.parsed.r.toFixed(2);
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // ── Step 3: Seasonal pulse line ──────────────────
+      function renderSeasons(container, ctx) {
+        var col = figColors(ctx);
+        var canvas = mountCanvas(container);
+        var months = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
+        var wet = [0.85, 0.9, 0.8, 0.55, 0.3, 0.18, 0.12, 0.12, 0.18, 0.35, 0.6, 0.8];
+        var dry = [0.2, 0.22, 0.3, 0.45, 0.65, 0.82, 0.9, 0.88, 0.78, 0.6, 0.38, 0.25];
+        container._chart = new Chart(canvas, {
+          type: "line",
+          data: {
+            labels: months,
+            datasets: [
+              {
+                label: "Wet-season signal",
+                data: wet,
+                borderColor: P.ADA,
+                backgroundColor: "rgba(0,94,106,0.18)",
+                tension: 0.4,
+                pointRadius: 0,
+                borderWidth: 2.5,
+                fill: true,
+              },
+              {
+                label: "Dry-season signal",
+                data: dry,
+                borderColor: P.ORANGE,
+                backgroundColor: "rgba(224,147,55,0.18)",
+                tension: 0.4,
+                pointRadius: 0,
+                borderWidth: 2.5,
+                fill: true,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: "index", intersect: false },
+            scales: {
+              x: {
+                grid: { display: false, drawBorder: false },
+                ticks: { color: col.text, font: { size: 12 } },
+              },
+              y: {
+                min: 0,
+                max: 1,
+                grid: { color: col.grid, drawBorder: false },
+                ticks: {
+                  color: col.text,
+                  font: { size: 12 },
+                  stepSize: 0.5,
+                  callback: function (v) {
+                    if (v === 0) return "low";
+                    if (v === 1) return "high";
+                    return "";
+                  },
+                },
+              },
+            },
+            plugins: {
+              legend: {
+                display: true,
+                position: "bottom",
+                labels: {
+                  color: col.text,
+                  font: { size: 12 },
+                  boxWidth: 12,
+                  boxHeight: 8,
+                  padding: 8,
+                },
+              },
+              tooltip: {
+                callbacks: {
+                  label: function (c) {
+                    return c.dataset.label + ": " + c.parsed.y.toFixed(2);
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // ── Step 4: NMDS ordination scatter (with cluster hulls) ──
+      function renderNmds(container, ctx) {
+        var col = figColors(ctx);
+        var canvas = mountCanvas(container);
+        var YEAR_CLUSTER = {
+          2014: 1, 2015: 1, 2016: 2, 2017: 3, 2018: 3,
+          2019: 2, 2020: 2, 2021: 2, 2022: 2, 2023: 3, 2024: 3,
+        };
+        var NMDS_POINTS = [
+          { year: 2014, x: -1.2, y: 0.35 },
+          { year: 2015, x: -1.05, y: -0.2 },
+          { year: 2016, x: 0.45, y: -0.85 },
+          { year: 2017, x: 0.9, y: 0.75 },
+          { year: 2018, x: 1.15, y: 0.55 },
+          { year: 2019, x: 0.6, y: -0.5 },
+          { year: 2020, x: 0.75, y: -0.95 },
+          { year: 2021, x: 0.3, y: -0.65 },
+          { year: 2022, x: 0.85, y: -0.75 },
+          { year: 2023, x: 1.35, y: 0.9 },
+          { year: 2024, x: 1.05, y: 0.45 },
+        ];
+        function regimeColor(k) {
+          if (k === 1) return P.ORANGE;
+          if (k === 2) return P.ADA;
+          if (k === 3) return P.GREEN;
+          return "#999";
+        }
+        var pointsByCluster = { 1: [], 2: [], 3: [] };
+        NMDS_POINTS.forEach(function (p) {
+          pointsByCluster[YEAR_CLUSTER[p.year]].push({ x: p.x, y: p.y, year: p.year });
+        });
+        function dataset(k, label) {
+          return {
+            label: label,
+            data: pointsByCluster[k],
+            backgroundColor: regimeColor(k) + "cc",
+            borderColor: "#fff",
+            borderWidth: 1.5,
+            pointRadius: 9,
+            pointHoverRadius: 12,
+          };
+        }
+        var hullPlugin = {
+          id: "hull",
+          beforeDatasetsDraw: function (chart) {
+            var c = chart.ctx;
+            var sx = chart.scales.x;
+            var sy = chart.scales.y;
+            [1, 2, 3].forEach(function (k) {
+              var pts = pointsByCluster[k];
+              if (pts.length < 2) return;
+              var xs = pts.map(function (p) { return sx.getPixelForValue(p.x); });
+              var ys = pts.map(function (p) { return sy.getPixelForValue(p.y); });
+              var cx = xs.reduce(function (a, b) { return a + b; }, 0) / xs.length;
+              var cy = ys.reduce(function (a, b) { return a + b; }, 0) / ys.length;
+              var rx =
+                Math.max.apply(null, xs.map(function (x) { return Math.abs(x - cx); })) + 22;
+              var ry =
+                Math.max.apply(null, ys.map(function (y) { return Math.abs(y - cy); })) + 22;
+              c.save();
+              c.fillStyle = regimeColor(k) + "22";
+              c.strokeStyle = regimeColor(k) + "66";
+              c.lineWidth = 1;
+              c.setLineDash([3, 3]);
+              c.beginPath();
+              c.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+              c.fill();
+              c.stroke();
+              c.restore();
+            });
+          },
+          afterDatasetsDraw: function (chart) {
+            var c = chart.ctx;
+            c.save();
+            c.font = "600 11px 'Source Sans 3', sans-serif";
+            c.fillStyle = col.text;
+            c.textAlign = "center";
+            c.textBaseline = "bottom";
+            chart.data.datasets.forEach(function (ds) {
+              ds.data.forEach(function (p) {
+                var x = chart.scales.x.getPixelForValue(p.x);
+                var y = chart.scales.y.getPixelForValue(p.y);
+                c.fillText(String(p.year), x, y - 11);
+              });
+            });
+            c.restore();
+          },
+        };
+        container._chart = new Chart(canvas, {
+          type: "scatter",
+          data: {
+            datasets: [
+              dataset(1, "Transition (2014–15)"),
+              dataset(2, "Dry cluster"),
+              dataset(3, "Wet cluster"),
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: "NMDS 1",
+                  color: col.text,
+                  font: { size: 12, weight: "600" },
+                },
+                min: -1.6,
+                max: 1.7,
+                grid: { color: col.grid },
+                ticks: { color: col.text, font: { size: 11 } },
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: "NMDS 2",
+                  color: col.text,
+                  font: { size: 12, weight: "600" },
+                },
+                min: -1.3,
+                max: 1.2,
+                grid: { color: col.grid },
+                ticks: { color: col.text, font: { size: 11 } },
+              },
+            },
+            plugins: {
+              legend: {
+                display: true,
+                position: "bottom",
+                labels: {
+                  color: col.text,
+                  font: { size: 12 },
+                  boxWidth: 10,
+                  boxHeight: 10,
+                  padding: 10,
+                },
+              },
+              tooltip: {
+                callbacks: {
+                  title: function (items) { return "Water year " + items[0].raw.year; },
+                  label: function (c) { return c.dataset.label; },
+                },
+              },
+            },
+          },
+          plugins: [hullPlugin],
+        });
+      }
+
+      WRMP.createR4Exhibit({
+        frameTint: "#e8eef2",
+        data: { stations: true },
+
+        cover: {
+          image: "cover.jpg",
+          tags: [
+            { tag: "4A", gq: 4, href: "../../../website-integration/science-framework-round2.html#mq-4A" },
+            { tag: "1A", gq: 1, href: "../../../website-integration/science-framework-round2.html#mq-1A" },
+          ],
+          topic: "Fish & Wildlife",
+          topicHref: "../../../website-integration/topic-page.html",
+          kicker: "WRMP Exhibit · Long-Term Monitoring",
+          title: "A Decade in Alviso Marsh",
+          lede: "Fourteen years of monthly sampling in one tidal marsh at the southern edge of San Francisco Bay — the longest continuous fish-community record in the South Bay, and the prototype that shaped the WRMP network.",
+          updated: "Last updated May 28, 2026",
+        },
+
+        steps: [
+          {
+            kicker: "SBOTS · 2010–2024",
+            title: "The Laboratory at the Bay's Edge",
+            media: { type: "custom", render: renderTop7 },
+            body: [
+              "For fourteen years, scientists have towed the same trawl through the same channels of Alviso Marsh. This is the longest continuous fish-community record in the South Bay — <strong>the SBOTS dataset</strong> — and it has quietly become the estuary's living laboratory.",
+              "A few taxa carry the community: the top seven species account for more than 90% of everything the trawl brings up.",
+            ],
+            stats: [
+              { num: "14 yrs", lbl: "of monitoring" },
+              { num: "Monthly", lbl: "sampling" },
+              { num: "~20", lbl: "stations" },
+              { num: "240+", lbl: "species observed" },
+            ],
+          },
+          {
+            kicker: "Space · Eco-cline",
+            title: "The Gradient You Can Taste",
+            media: { type: "custom", render: renderRadar },
+            body: [
+              "Walk the marsh from the wastewater outfall down to the open bay and the water changes under your boat — warmer and fresher upstream, saltier and oxygen-rich below. Fourteen years of trawls sort neatly into <strong>four station clusters</strong>, each with its own chemistry and its own cast of species.",
+              "The radar traces each cluster's water-quality fingerprint — a qualitative pattern from the SBOTS clusters, illustrative of direction, not measured values.",
+            ],
+            callout:
+              "<strong>ART 1 is its own cluster of one.</strong> The station just below the San José–Santa Clara wastewater outfall diverges from every other site in the marsh — its water chemistry and its fauna look like nowhere else.",
+          },
+          {
+            kicker: "Time · Annual Cycle",
+            title: "Two Seasons, Not Four",
+            media: { type: "custom", render: renderSeasons },
+            body: [
+              "California's Mediterranean climate gives the estuary a <strong>two-season pulse</strong> — wet winter into spring, then a long warm dry. Water quality sorts neatly into wet and dry. <em>The fish see finer seasons than the thermometer does.</em>",
+              "Winter and early-spring runoff pull anadromous and marine species upstream into Alviso's sloughs; warm, low-flow months favor resident benthic and invasive species adapted to stagnant, saline water.",
+            ],
+          },
+          {
+            kicker: "Time · Decade Scale",
+            title: "The Drought That Didn't End",
+            media: { type: "custom", render: renderNmds },
+            body: [
+              "After the <strong>2014–2015 drought</strong>, the Alviso assemblage reorganized — and it has not returned. Those two years form their own cluster in the ordination: a short hinge between the old community and the new.",
+              "The wet years that followed looked nothing like the wet years before. The estuary kept breathing, but the rhythm had changed.",
+            ],
+          },
+          {
+            kicker: "From Marsh to Network",
+            title: "Why This Shape of Program?",
+            media: { type: "map", view: "bay" },
+            body: [
+              "Everything Alviso has taught us is now built into the WRMP network's design.",
+              "<strong style=\"color: var(--wrmp-orange)\">Upstream–downstream eco-cline</strong> → stations stratified by position on the salinity gradient.",
+              "<strong style=\"color: var(--wrmp-green)\">Two-season biology</strong> → at minimum two sampling events per year, tuned to the wet and dry pulses.",
+              "<strong style=\"color: var(--wrmp-ada-teal)\">Regime-shift visibility</strong> → long-term monitoring, not one-off studies. You can only see a regime shift if you were already watching.",
+            ],
+            callout: "Alviso is the prototype. WRMP is the network.",
+          },
+        ],
+
+        end: {
+          kicker: "Thanks for exploring",
+          title: "The data runs deeper",
+          lede: "This exhibit is one layer. WRMP's monitoring lives inside a larger data ecosystem — from the Bay-wide EcoAtlas toolset to the raw datasets scientists work with every day.",
+        },
+
+        resources: [
+          {
+            cat: "Data",
+            icon: "i-database",
+            items: [
+              { name: "Baylands Habitat Map 2020", chip: "Data catalog", icon: "i-download", desc: "Habitat type and extent across the San Francisco Bay baylands, mapped for the WRMP.", href: "https://www.sfei.org/data/baylands-habitat-map-2020-bhm-2020-version-13-gis-data", ext: true },
+              { name: "Species catalog", chip: "JSON", icon: "i-download", desc: "Every fish and invertebrate taxon documented across the estuary, native and invasive.", href: "../../../data/species.json" },
+              { name: "Station network", chip: "JSON", icon: "i-download", desc: "All 119 monitoring stations with coordinates, region and network — where each catch was recorded.", href: "../../../data/stations.json" },
+            ],
+          },
+          {
+            cat: "Tools",
+            icon: "i-compass",
+            items: [
+              { name: "EcoAtlas", chip: "Web tool", icon: "i-map", desc: "Interactive geospatial maps of every wetland, restoration project and station in the estuary.", href: "https://www.ecoatlas.org/regions/ecoregion/bay-delta", ext: true },
+            ],
+          },
+          {
+            cat: "Context",
+            icon: "i-book",
+            items: [
+              { name: "WRMP Science Framework", chip: "Web report", icon: "i-file", desc: "The monitoring design — management questions, indicators and how the station network answers them.", href: "https://www.wrmp.org/science-framework/", ext: true },
+              { name: "State of Our Estuary", chip: "Web report", icon: "i-file", desc: "Regional status reporting on the estuary's health, habitats and long-term species trends.", href: "https://www.stateofourestuary.org/", ext: true },
+            ],
+          },
+        ],
+
+        map: {
+          popupFields: [
+            ["Habitat", "habitat"],
+            ["Site Type", "WRMP_Site_Type"],
+            ["Region", "region"],
+          ],
+          views: {
+            bay: {
+              bounds: [[37.4, -122.55], [38.28, -121.85]],
+              radius: 5,
+              colorFor: function (s) { return REGION[s.region] || "#999"; },
+              filter: {
+                field: "region",
+                options: [
+                  { label: "Suisun Bay", short: "Suisun", value: "Suisun Bay", color: "#E09337" },
+                  { label: "North Bay", short: "North", value: "North Bay", color: "#379352" },
+                  { label: "South Bay", short: "South", value: "South Bay", color: "#005E6A" },
+                ],
+              },
+            },
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

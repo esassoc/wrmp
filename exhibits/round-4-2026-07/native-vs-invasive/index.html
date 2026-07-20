@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Native vs. Invasive — WRMP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://unpkg.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="../../../shared/css/tokens.css" />
+    <!-- Shared stage CSS (desktop shell) -->
+    <link rel="stylesheet" href="../../../shared/css/leaflet-overrides.css?v=2" />
+    <link rel="stylesheet" href="../../../shared/css/marker-popup.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-frame.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-cover.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-tags.css" />
+    <link rel="stylesheet" href="../../../shared/css/level3.css?v=6" />
+    <!-- Mobile player CSS — loads last so it wins the shared global rules -->
+    <link rel="stylesheet" href="../../../shared/css/exhibit-mobile.css" />
+  </head>
+  <body>
+    <div id="root-mobile"></div>
+    <div id="root-desktop"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script src="../../../shared/js/data-loader.js"></script>
+    <script src="../../../shared/js/marker-popup.js"></script>
+    <script src="../../../shared/js/exhibit-r4.js"></script>
+    <script>
+      // ══════════════════════════════════════════════════
+      // Native vs. Invasive — content only. The dual-shell
+      // engine (shared/js/exhibit-r4.js) renders both shells
+      // from this config. Ported from the Round 3 exhibit.
+      //
+      // NOTE: Step 5's "Species by Habitat" bar chart is now a
+      // live Chart.js figure via the engine's `custom` media hook
+      // (see its render() below), ported faithfully from R3's
+      // canvas chart. Steps 2 & 3 were R3 species-card galleries —
+      // still on tasteful dark brand gradients pending a gallery
+      // design call; their narrative and stats stay verbatim.
+      // ══════════════════════════════════════════════════
+      var REGION_TEAL = "#228B9C"; // --wrmp-teal, R3 station color
+      var HAB_SLOUGH = "#228B9C"; // --wrmp-teal
+      var HAB_TIDAL = "#379352"; // --wrmp-green
+
+      WRMP.createR4Exhibit({
+        frameTint: "#e8eef2",
+        data: { stations: true, species: true },
+
+        cover: {
+          image: "cover.jpg",
+          tag: "4B",
+          tagGq: 4,
+          tagHref: "../../../website-integration/science-framework-round2.html#mq-4B",
+          topic: "Fish & Wildlife",
+          topicHref: "../../../website-integration/topic-page.html",
+          kicker: "WRMP Exhibit · Data Story",
+          title: "Native vs. Invasive",
+          lede: "Fourteen years of catch data reveal a regime shift — who's winning, who's losing, and how a single drought rewrote the estuary's fish community.",
+          updated: "Last updated May 28, 2026",
+        },
+
+        steps: [
+          {
+            // Step 1 — map (full bay, all stations)
+            kicker: "Biodiversity",
+            title: "237 Species Call It Home",
+            media: { type: "map", view: "bay" },
+            body: [
+              "The San Francisco Estuary supports incredible biodiversity. From sharks to shrimp, salmon to sponges — <strong>237 species</strong> of fish and invertebrates have been documented across the monitoring network.",
+              "These 119 monitoring stations are the eyes and ears of the estuary — each one a window into the community of species that lives there.",
+            ],
+            stats: [
+              { num: "237", lbl: "Species" },
+              { num: "146", lbl: "Fish" },
+              { num: "91", lbl: "Invertebrates" },
+            ],
+          },
+          {
+            // Step 2 — R3 was a native-species card gallery.
+            // NEEDS CUSTOM CHART HOOK (deferred) — gradient placeholder.
+            kicker: "Native Species",
+            title: "The Home Team",
+            media: { type: "gradient", gradient: "linear-gradient(135deg, #00363e 0%, #0c5560 50%, #24713f 100%)" },
+            body: [
+              "<strong>151 native species</strong> have been documented in the estuary. From 9 species of shark to 7 species of smelt, these animals evolved with the estuary over thousands of years.",
+              "Many are uniquely adapted to estuarine life — tolerating the daily swings in salinity, temperature, and turbidity that make this habitat so challenging.",
+            ],
+            stats: [
+              { num: "113", lbl: "Native Fish" },
+              { num: "38", lbl: "Native Inverts" },
+            ],
+          },
+          {
+            // Step 3 — R3 was an invasive-species card gallery.
+            // NEEDS CUSTOM CHART HOOK (deferred) — gradient placeholder.
+            kicker: "Invasive Species",
+            title: "The Uninvited",
+            media: { type: "gradient", gradient: "linear-gradient(135deg, #062f35 0%, #2e3330 55%, #5c4222 100%)" },
+            body: [
+              "<strong>50 invasive species</strong> have been documented in the estuary. They arrive through ballast water, aquaculture, and intentional introduction. <strong>7 species from Japan</strong> alone.",
+              "Some, like Striped Bass, were introduced intentionally in the 1870s for sport fishing. Others hitchhiked in ship ballast tanks from ports around the world.",
+            ],
+            stats: [
+              { num: "27", lbl: "Invasive Fish" },
+              { num: "23", lbl: "Invasive Inverts" },
+            ],
+          },
+          {
+            // Step 4 — map (Alviso Marsh, habitat filter)
+            kicker: "Alviso Marsh",
+            title: "Where They Meet",
+            media: { type: "map", view: "alviso" },
+            body: [
+              "Zoom into Alviso Marsh — <strong>21 monitoring stations</strong> where scientists track which species use restored and natural habitats.",
+              "This is where native and invasive species share the same slough channels. Every trawl sample records what's there.",
+            ],
+            callout:
+              "The South Bay Salt Pond Restoration Project — 15,000 acres of former salt ponds returning to tidal marsh.",
+          },
+          {
+            // Step 5 — "Species by Habitat" stacked bar chart, ported
+            // from R3's canvas chart to a live Chart.js figure via the
+            // engine's `custom` media hook. Counts derive from species.json
+            // (read from ctx.data), so the figure fills in when data loads.
+            kicker: "The Balance",
+            title: "Counting the Balance",
+            media: {
+              type: "custom",
+              render: function (container, ctx) {
+                // R3's counts: species tallied by habitat × native/invasive.
+                var habitats = ["Benthic", "Littoral", "Pelagic"];
+                var counts = {
+                  Benthic: { Native: 0, Invasive: 0 },
+                  Littoral: { Native: 0, Invasive: 0 },
+                  Pelagic: { Native: 0, Invasive: 0 },
+                };
+                ((ctx.data && ctx.data.species) || []).forEach(function (sp) {
+                  if (sp.hab && counts[sp.hab] && (sp.natinv === "Native" || sp.natinv === "Invasive")) {
+                    counts[sp.hab][sp.natinv]++;
+                  }
+                });
+
+                // Re-invoked on data load, so dispose any prior instance.
+                if (container._chart) { container._chart.destroy(); container._chart = null; }
+                container.innerHTML = "";
+                var canvas = document.createElement("canvas");
+                container.appendChild(canvas);
+
+                // Mobile figure panel is dark → light text; desktop figure
+                // sits on the light frame → dark text.
+                var dark = ctx.mode === "mobile";
+                var textColor = dark ? "#e8eef2" : "#1d2427";
+                var gridColor = dark ? "rgba(255,255,255,.12)" : "rgba(0,0,0,.1)";
+                var FONT = "'Source Sans 3', sans-serif";
+                var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+                container._chart = new Chart(canvas, {
+                  type: "bar",
+                  data: {
+                    labels: habitats,
+                    datasets: [
+                      {
+                        label: "Native",
+                        data: habitats.map(function (h) { return counts[h].Native; }),
+                        backgroundColor: "#228B9C", // --wrmp-teal
+                        borderRadius: 4,
+                      },
+                      {
+                        label: "Invasive",
+                        data: habitats.map(function (h) { return counts[h].Invasive; }),
+                        backgroundColor: "#E09337", // --wrmp-orange
+                        borderRadius: 4,
+                      },
+                    ],
+                  },
+                  options: {
+                    indexAxis: "y",
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: reduce ? false : { duration: 700 },
+                    layout: { padding: { top: 4, right: 8 } },
+                    plugins: {
+                      title: {
+                        // Desktop only — on mobile the step caption ("Counting
+                        // the Balance") already titles it, and a top-left chart
+                        // title collides with the shared Data & tools icon.
+                        display: ctx.mode === "desktop",
+                        text: "Species by Habitat",
+                        align: "start",
+                        color: textColor,
+                        font: { family: FONT, size: 16, weight: "600" },
+                        padding: { bottom: 14 },
+                      },
+                      legend: {
+                        position: "bottom",
+                        labels: {
+                          color: textColor,
+                          boxWidth: 12,
+                          boxHeight: 12,
+                          font: { family: FONT, size: 13 },
+                        },
+                      },
+                      tooltip: {
+                        titleFont: { family: FONT },
+                        bodyFont: { family: FONT },
+                      },
+                    },
+                    scales: {
+                      x: {
+                        stacked: true,
+                        beginAtZero: true,
+                        ticks: { color: textColor, precision: 0, font: { family: FONT } },
+                        grid: { color: gridColor },
+                        border: { color: gridColor },
+                      },
+                      y: {
+                        stacked: true,
+                        ticks: { color: textColor, font: { family: FONT, size: 14 } },
+                        grid: { display: false },
+                        border: { color: gridColor },
+                      },
+                    },
+                  },
+                });
+              },
+            },
+            body: [
+              "Monitoring tracks the balance between native and invasive species across every habitat type. The ratio tells us about ecosystem health.",
+              "WRMP's network provides the data to understand whether the balance is shifting. Quarterly surveys across the estuary reveal the patterns that matter most.",
+            ],
+            stats: [
+              { num: "119", lbl: "Stations" },
+              { num: "9", lbl: "Networks" },
+            ],
+          },
+        ],
+
+        end: {
+          kicker: "Thanks for exploring",
+          title: "The data runs deeper",
+          lede: "This exhibit is one layer. WRMP's monitoring lives inside a larger data ecosystem — from the Bay-wide EcoAtlas toolset to the raw datasets scientists work with every day.",
+        },
+
+        resources: [
+          {
+            cat: "Data",
+            icon: "i-database",
+            items: [
+              { name: "Species catalog", chip: "JSON", icon: "i-download", desc: "Every fish and invertebrate taxon documented across the estuary, with native and invasive status.", href: "../../../data/species.json" },
+              { name: "Station network", chip: "JSON", icon: "i-download", desc: "All 119 monitoring stations with coordinates, region and network — where each catch was recorded.", href: "../../../data/stations.json" },
+            ],
+          },
+          {
+            cat: "Tools",
+            icon: "i-compass",
+            items: [
+              { name: "EcoAtlas", chip: "Web tool", icon: "i-map", desc: "Interactive geospatial maps of every wetland, restoration project and station in the estuary.", href: "https://www.ecoatlas.org/regions/ecoregion/bay-delta", ext: true },
+            ],
+          },
+          {
+            cat: "Context",
+            icon: "i-book",
+            items: [
+              { name: "WRMP Science Framework", chip: "Web report", icon: "i-file", desc: "The monitoring design — management questions, indicators and how the station network answers them.", href: "https://www.wrmp.org/science-framework/", ext: true },
+              { name: "State of Our Estuary", chip: "Web report", icon: "i-file", desc: "Regional status reporting on the estuary's health, habitats and long-term species trends.", href: "https://www.stateofourestuary.org/", ext: true },
+            ],
+          },
+        ],
+
+        map: {
+          popupFields: [
+            ["Region", "region"],
+            ["Network", "WRMP_Network"],
+            ["Habitat", "habitat"],
+            ["Site Type", "WRMP_Site_Type"],
+          ],
+          views: {
+            bay: {
+              bounds: [[37.4, -122.55], [38.28, -121.85]],
+              radius: 5,
+              colorFor: function () { return REGION_TEAL; },
+              legend: [{ label: "Monitoring stations", color: REGION_TEAL }],
+            },
+            alviso: {
+              bounds: [[37.43, -122.05], [37.47, -121.93]],
+              radius: 8,
+              select: function (stations) {
+                return stations.filter(function (s) { return s.subregion === "Alviso Marsh"; });
+              },
+              colorFor: function (s) {
+                var h = (s.habitat || "").trim();
+                return h === "Slough" ? HAB_SLOUGH : h === "Tidal Pond Slough" ? HAB_TIDAL : "#999";
+              },
+              filter: {
+                field: "habitat",
+                options: [
+                  { label: "Slough", value: "Slough", color: HAB_SLOUGH },
+                  { label: "Tidal Pond Slough", value: "Tidal Pond Slough", color: HAB_TIDAL },
+                ],
+              },
+            },
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

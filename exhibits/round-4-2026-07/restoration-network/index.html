@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Designing the Experiment — WRMP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://unpkg.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="../../../shared/css/tokens.css" />
+    <!-- Shared stage CSS (desktop shell) -->
+    <link rel="stylesheet" href="../../../shared/css/leaflet-overrides.css?v=2" />
+    <link rel="stylesheet" href="../../../shared/css/marker-popup.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-frame.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-cover.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-tags.css" />
+    <link rel="stylesheet" href="../../../shared/css/level3.css?v=6" />
+    <!-- Mobile player CSS — loads last so it wins the shared global rules -->
+    <link rel="stylesheet" href="../../../shared/css/exhibit-mobile.css" />
+  </head>
+  <body>
+    <div id="root-mobile"></div>
+    <div id="root-desktop"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="../../../shared/js/data-loader.js"></script>
+    <script src="../../../shared/js/marker-popup.js"></script>
+    <script src="../../../shared/js/exhibit-r4.js"></script>
+    <script>
+      // ══════════════════════════════════════════════════
+      // Designing the Experiment — content only. The dual-shell
+      // engine (shared/js/exhibit-r4.js) renders both shells from
+      // this. Ported from round-3-2026-06/restoration-network.
+      // ══════════════════════════════════════════════════
+
+      // Site-type palette (verbatim from the R3 SITE_COLORS map).
+      var SITE = {
+        Benchmark: "#92BB4D",
+        "Benchmark-Reference": "#C7D865",
+        Reference: "#005E6A",
+        "Reference Site Candidate": "#228B9C",
+        Project: "#379352",
+        "Other Restored Site": "#6A9E3A",
+        "Planned Restoration": "#E09337",
+      };
+      var GRAY = "#c4c4c4"; // context stations outside the step's focus
+
+      function siteType(s) {
+        return (s.WRMP_Site_Type || "").trim();
+      }
+      // colorFor that keeps `types` in brand color and mutes the rest —
+      // mirrors each R3 step's "highlight this role, dim the network" default.
+      function focus(types) {
+        return function (s) {
+          var t = siteType(s);
+          return types.indexOf(t) >= 0 ? SITE[t] : GRAY;
+        };
+      }
+
+      var BAY_FULL = [
+        [37.4, -122.55],
+        [38.28, -121.85],
+      ];
+      var SOUTH_BAY = [
+        [37.42, -122.1],
+        [37.62, -121.88],
+      ];
+
+      WRMP.createR4Exhibit({
+        frameTint: "#e8eef2",
+        data: { stations: true },
+
+        cover: {
+          image: "cover.jpg",
+          tags: [
+            { tag: "3A", gq: 3, href: "../../../website-integration/science-framework-round2.html#mq-3A" },
+            { tag: "1A", gq: 1, href: "../../../website-integration/science-framework-round2.html#mq-1A" },
+          ],
+          topic: "Baylands Geography",
+          topicHref: "../../../website-integration/topic-page.html",
+          kicker: "WRMP Exhibit · Restoration Science",
+          title: "Designing the Experiment",
+          lede: "Restoration sites across the Bay form a distributed experiment — benchmark marshes, reference sites, and project sites, each answering different questions about how wetlands recover.",
+          updated: "Last updated May 28, 2026",
+        },
+
+        steps: [
+          {
+            kicker: "How Science Works",
+            title: "Designing the Experiment",
+            media: { type: "map", view: "network" },
+            body: [
+              "Before you can measure restoration success, you need a plan. WRMP's 119 monitoring stations aren't placed at random — they're a carefully designed scientific network spanning three regions of the San Francisco Estuary.",
+              "Each station plays a specific role in answering the question: <strong>is wetland restoration working?</strong>",
+            ],
+            stats: [
+              { num: "119", lbl: "Stations" },
+              { num: "9", lbl: "Networks" },
+              { num: "4", lbl: "Habitat Types" },
+            ],
+          },
+          {
+            kicker: "The Control Group",
+            title: "Benchmarks: The Gold Standard",
+            media: { type: "map", view: "benchmark" },
+            body: [
+              "Benchmark sites are healthy, undisturbed habitats that define what “good” looks like. Scientists measure fish communities here to establish the ecological baseline — the gold standard against which everything else is compared.",
+              "These are the <strong>control group</strong>. If a restored wetland eventually supports the same species diversity and abundance as a benchmark site, restoration is succeeding.",
+            ],
+            stats: [{ num: "15", lbl: "Benchmark Sites" }],
+            callout:
+              "Benchmark sites are selected for long-term ecological stability — natural sloughs and channels that have remained largely undisturbed.",
+          },
+          {
+            kicker: "The Comparison",
+            title: "Reference Sites",
+            media: { type: "map", view: "reference" },
+            body: [
+              "Reference sites are natural areas adjacent to restoration projects. They show what the local ecosystem looks like <strong>without intervention</strong> — the “before” picture that gives restoration targets their meaning.",
+              "Reference Site Candidates are locations being evaluated for this role. Together, these sites form the comparison framework that makes the science rigorous.",
+            ],
+            stats: [
+              { num: "18", lbl: "Reference" },
+              { num: "9", lbl: "Candidates" },
+            ],
+          },
+          {
+            kicker: "Restoration in Action",
+            title: "Project Sites",
+            media: { type: "map", view: "project" },
+            body: [
+              "These are the restored wetlands being actively monitored — former salt ponds, diked marshlands, and degraded habitats being returned to tidal influence.",
+              "By sampling at restored project sites alongside natural reference sites and long-term benchmarks, scientists can directly compare fish communities and track recovery over time.",
+            ],
+            stats: [
+              { num: "40", lbl: "Project Sites" },
+              { num: "11", lbl: "Other Restored" },
+            ],
+            callout:
+              "The South Bay Salt Pond Restoration is the largest tidal wetland restoration in the US — 15,000 acres of former salt ponds being returned to marsh habitat.",
+          },
+          {
+            kicker: "Future Monitoring",
+            title: "What Comes Next",
+            media: { type: "map", view: "planned" },
+            body: [
+              "Across the Bay, <strong>17 planned restoration sites</strong> mark where the next chapter of recovery will unfold — 10 in Alviso Marsh, 3 at Eden Landing, and 6 in Suisun Marsh.",
+              "Baseline monitoring at these locations will begin before construction starts — establishing what's there before transformation begins. This “before” snapshot is essential to measuring future change.",
+            ],
+            stats: [
+              { num: "17", lbl: "Planned Sites" },
+              { num: "3", lbl: "Marsh Systems" },
+            ],
+          },
+          {
+            kicker: "All Together",
+            title: "The Full Picture",
+            media: { type: "map", view: "all-types" },
+            body: [
+              "Benchmark, Reference, Project, Planned — each station type plays a distinct role in the monitoring design. Together they answer the central question: <strong>is restoration working?</strong>",
+              "Are fish communities in restored wetlands approaching those in natural ones? Are the right species returning? Is the ecosystem recovering?",
+            ],
+            callout:
+              "Early results from 14 years of monitoring at Alviso Marsh say yes — restored tidal ponds support fish communities equivalent to natural sloughs.",
+          },
+        ],
+
+        end: {
+          kicker: "Thanks for exploring",
+          title: "The data runs deeper",
+          lede: "This exhibit is one layer. WRMP's monitoring lives inside a larger data ecosystem — from the Bay-wide EcoAtlas toolset to the raw datasets scientists work with every day.",
+        },
+
+        resources: [
+          {
+            cat: "Data",
+            icon: "i-database",
+            items: [
+              {
+                name: "Species catalog",
+                chip: "JSON",
+                icon: "i-download",
+                desc: "Every fish and invertebrate taxon documented across the estuary, native and invasive.",
+                href: "../../../data/species.json",
+              },
+              {
+                name: "Station network",
+                chip: "JSON",
+                icon: "i-download",
+                desc: "All 119 monitoring stations with coordinates, region, network and site-type role.",
+                href: "../../../data/stations.json",
+              },
+            ],
+          },
+          {
+            cat: "Tools",
+            icon: "i-compass",
+            items: [
+              {
+                name: "EcoAtlas",
+                chip: "Web tool",
+                icon: "i-map",
+                desc: "Interactive geospatial maps of every wetland, restoration project and station in the estuary.",
+                href: "https://www.ecoatlas.org/regions/ecoregion/bay-delta/projects",
+                ext: true,
+              },
+            ],
+          },
+          {
+            cat: "Context",
+            icon: "i-book",
+            items: [
+              {
+                name: "WRMP Science Framework",
+                chip: "Web report",
+                icon: "i-file",
+                desc: "The monitoring design — management questions, indicators and how the station network answers them.",
+                href: "https://www.wrmp.org/science-framework/",
+                ext: true,
+              },
+              {
+                name: "State of Our Estuary",
+                chip: "Web report",
+                icon: "i-file",
+                desc: "Regional status reporting on the estuary's health, habitats and long-term species trends.",
+                href: "https://www.stateofourestuary.org/",
+                ext: true,
+              },
+            ],
+          },
+        ],
+
+        map: {
+          popupFields: [
+            ["Site Type", "WRMP_Site_Type"],
+            ["Habitat", "habitat"],
+            ["Region", "region"],
+            ["Subregion", "subregion"],
+          ],
+          views: {
+            // Step 1 — the whole network in one color, no legend.
+            network: {
+              bounds: BAY_FULL,
+              radius: 5,
+              colorFor: function () {
+                return "#228B9C";
+              },
+            },
+            // Step 2 — benchmark roles highlighted, rest of network muted.
+            benchmark: {
+              bounds: BAY_FULL,
+              radius: 7,
+              colorFor: focus(["Benchmark", "Benchmark-Reference"]),
+              filter: {
+                field: "WRMP_Site_Type",
+                options: [
+                  { label: "Benchmark", short: "Benchmark", value: "Benchmark", color: "#92BB4D" },
+                  { label: "Benchmark-Reference", short: "Bench-Ref", value: "Benchmark-Reference", color: "#C7D865" },
+                ],
+              },
+            },
+            // Step 3 — reference roles highlighted.
+            reference: {
+              bounds: BAY_FULL,
+              radius: 7,
+              colorFor: focus(["Reference", "Reference Site Candidate"]),
+              filter: {
+                field: "WRMP_Site_Type",
+                options: [
+                  { label: "Reference", short: "Reference", value: "Reference", color: "#005E6A" },
+                  { label: "Reference Candidate", short: "Candidate", value: "Reference Site Candidate", color: "#228B9C" },
+                ],
+              },
+            },
+            // Step 4 — project roles highlighted, zoomed to the South Bay.
+            project: {
+              bounds: SOUTH_BAY,
+              radius: 7,
+              colorFor: focus(["Project", "Other Restored Site"]),
+              filter: {
+                field: "WRMP_Site_Type",
+                options: [
+                  { label: "Project", short: "Project", value: "Project", color: "#379352" },
+                  { label: "Other Restored", short: "Other", value: "Other Restored Site", color: "#6A9E3A" },
+                ],
+              },
+            },
+            // Step 5 — planned restoration highlighted against existing stations.
+            planned: {
+              bounds: BAY_FULL,
+              radius: 7,
+              colorFor: focus(["Planned Restoration"]),
+              filter: {
+                field: "WRMP_Site_Type",
+                options: [
+                  { label: "Planned Restoration", short: "Planned", value: "Planned Restoration", color: "#E09337" },
+                ],
+              },
+            },
+            // Step 6 — every role colored at once; click to isolate any type.
+            "all-types": {
+              bounds: BAY_FULL,
+              radius: 7,
+              colorFor: function (s) {
+                return SITE[siteType(s)] || GRAY;
+              },
+              filter: {
+                field: "WRMP_Site_Type",
+                options: [
+                  { label: "Benchmark", short: "Benchmark", value: "Benchmark", color: "#92BB4D" },
+                  { label: "Benchmark-Ref", short: "Bench-Ref", value: "Benchmark-Reference", color: "#C7D865" },
+                  { label: "Reference", short: "Reference", value: "Reference", color: "#005E6A" },
+                  { label: "Ref Candidate", short: "Candidate", value: "Reference Site Candidate", color: "#228B9C" },
+                  { label: "Project", short: "Project", value: "Project", color: "#379352" },
+                  { label: "Other Restored", short: "Other", value: "Other Restored Site", color: "#6A9E3A" },
+                  { label: "Planned", short: "Planned", value: "Planned Restoration", color: "#E09337" },
+                ],
+              },
+            },
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

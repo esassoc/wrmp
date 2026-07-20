@@ -6,7 +6,7 @@ Interactive "museum exhibit" style visualizations for the [Wetland Regional Moni
 
 ## What We're Building
 
-Interactive exhibit experiences ("natural history museum type exhibitions") that embed into the WRMP WordPress site. Each exhibit is a self-contained HTML/CSS/JS artifact rendered inside a fixed 16:9 frame with a stepper/narrative panel overlaying an interactive background (Leaflet map, video, photo, or gradient).
+Interactive exhibit experiences ("natural history museum type exhibitions") delivered natively inside the WRMP WordPress site through a custom exhibit plugin — not iframes. Each exhibit is a self-contained HTML/CSS/JS artifact rendered inside a fixed 16:9 frame (desktop/tablet) with a stepper/narrative panel overlaying an interactive background (Leaflet map, video, photo, or gradient), and a mobile-first responsive treatment for phones.
 
 ### Architecture Decision
 
@@ -17,6 +17,8 @@ Interactive exhibit experiences ("natural history museum type exhibitions") that
 - If server-side computation is needed later, Shiny serves as a backend API, not a page shell
 - Think of it like YouTube embeds: HTML page = the experience, R widgets = embedded interactive elements
 - Design system bridges both: CSS tokens that HTML exhibits and R htmlwidgets share
+
+**Delivery: a custom WordPress plugin, not iframes.** Exhibits are authored and edited natively on wrmp.org through a purpose-built WordPress plugin, so program staff can craft and maintain them in the WordPress admin without embedding external pages. This supersedes the earlier iframe-embed plan. Two consequences for how exhibits are built: (1) authoring must stay simple enough to create and edit inside a WordPress management UI, so favor structured, editable content over hand-tuned one-offs; (2) exhibits must work responsively, since the plugin renders them across desktop, tablet, and phone (the desktop/tablet form is the "YouTube" experience; the mobile form is a vertical, swipe-friendly "TikTok" treatment).
 
 ## Exhibits
 

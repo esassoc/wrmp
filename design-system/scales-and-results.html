@@ -1,0 +1,1860 @@
+<!doctype html>
+<!--
+  ══════════════════════════════════════════════════════════════════
+  Staleness audit — current design-system/index.html vs round-3
+  exhibits and tokens.css. Nothing here is edited; flag-only.
+
+  1. Ornamental micro-labels. index.html's .ds-group-label
+     (11px · UPPERCASE · letter-spacing .1em · #999) and
+     .specimen-label (11px · UPPERCASE · #bbb) are exactly the
+     "ornamental section label" pattern the house rules now ban.
+     This new page uses readable labels (≥14px, normal case,
+     secondary text color) instead — index.html should be brought
+     to the same standard.
+
+  2. Sub-16px hardcoded body sizes. Several index.html specimen
+     descriptions/notes hardcode 11–14px in inline styles rather
+     than the fluid type tokens (--step-*). The round-3 exhibits
+     drive text from the tokens; index.html predates that.
+
+  3. Exhibit paths. index.html still references
+     exhibits/2026-04-10-restoration-network/… in the Site Chart
+     Card note. Round-3 exhibits live under
+     exhibits/round-3-2026-06/. The path in that note is stale.
+
+  4. Missing round-3 systems. index.html has no section for the
+     exhibit tagging / management-question badge system now shipping
+     in shared/css/exhibit-tags.css, nor for the audience-tier or
+     monitoring-topic facets. Those live only in exhibit-tagging.html
+     and this page.
+
+  5. Raw hex in inline styles. index.html sets marker/indicator
+     colors as inline hex (#228b9c, #1f2937 …) rather than brand
+     tokens. Fine for a specimen, but drifts from the token-first
+     rule the exhibits now follow.
+  ══════════════════════════════════════════════════════════════════
+-->
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>WRMP Design System — Scales &amp; Results</title>
+
+        <!-- Google Fonts variable Source Sans 3 (matches the other design-system pages) -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+            rel="stylesheet"
+        />
+
+        <!-- Real shared stylesheets — same source of truth the exhibits load -->
+        <link rel="stylesheet" href="../shared/css/tokens.css" />
+        <link rel="stylesheet" href="../shared/css/metrics-card.css" />
+        <link rel="stylesheet" href="../shared/css/level3.css?v=2" />
+        <link rel="stylesheet" href="../shared/css/exhibit-tags.css" />
+
+        <style>
+            /* ══════════════════════════════════════════════════════
+               Page tokens — declared once, referenced everywhere.
+               Brand hues below mirror the Map Color Palettes documented
+               in CLAUDE.md; the chart/condition ramps reuse the same
+               values the round-3 exhibits paint with.
+               ══════════════════════════════════════════════════════ */
+            :root {
+                /* Region palette (regional-scale maps + charts) */
+                --region-south: #005e6a;
+                --region-north: #379352;
+                --region-suisun: #e09337;
+
+                /* Habitat categorical palette (regional composition chart) */
+                --hab-marsh: #379352;
+                --hab-pond: #228b9c;
+                --hab-mudflat: #986631;
+                --hab-water: #6bb5c2;
+
+                /* CRAM condition bands (mirrors bay-keeping-up) */
+                --cram-high: #379352;
+                --cram-good: #92bb4d;
+                --cram-fair: #e09337;
+                --cram-low: #b45242;
+
+                /* Site-type palette (site-scale map) */
+                --site-benchmark: #c7d865;
+                --site-reference: #005e6a;
+                --site-project: #379352;
+
+                /* Native / invasive series (site time-series) */
+                --series-native: #228b9c;
+                --series-invasive: #e09337;
+
+                /* Chart chrome */
+                --axis-line: var(--gray-6);
+                --axis-text: var(--gray-11);
+                --grid-line: var(--gray-4);
+
+                /* Page surfaces */
+                --page-ground: #f2f4f5;
+                --card-hairline: #e0e0e0;
+                --sidebar-w: 264px;
+            }
+
+            html {
+                scroll-behavior: smooth;
+            }
+
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: var(--font-body);
+                font-size: 16px;
+                line-height: 1.6;
+                color: var(--color-text);
+                background: var(--page-ground);
+                -webkit-font-smoothing: antialiased;
+            }
+
+            a {
+                color: var(--wrmp-ada-teal);
+            }
+
+            /* ── Sidebar rail ─────────────────────────────────── */
+            .ds-sidebar {
+                position: fixed;
+                inset: 0 auto 0 0;
+                width: var(--sidebar-w);
+                background: #fff;
+                border-right: 1px solid var(--card-hairline);
+                overflow-y: auto;
+                padding: 22px 0 28px;
+                z-index: 100;
+            }
+            .ds-sidebar-brand {
+                padding: 0 22px 16px;
+                margin-bottom: 16px;
+                border-bottom: 1px solid #eee;
+            }
+            .ds-sidebar-brand-text {
+                font-family: var(--font-heading);
+                font-size: 16px;
+                font-weight: 600;
+                color: var(--wrmp-ada-teal);
+                line-height: 1.25;
+            }
+            .ds-sidebar-brand-sub {
+                font-size: 14px;
+                color: var(--color-text-subtle);
+                margin-top: 3px;
+            }
+            .ds-nav {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+                padding: 0 12px;
+            }
+            .ds-nav-group-label {
+                font-family: var(--font-heading);
+                font-size: 14px;
+                font-weight: 600;
+                color: var(--wrmp-ada-teal);
+                padding: 0 10px 6px;
+            }
+            .ds-nav a {
+                display: block;
+                padding: 7px 10px;
+                font-size: 15px;
+                color: #444;
+                text-decoration: none;
+                border-radius: 6px;
+            }
+            .ds-nav a:hover {
+                background: #eef4f5;
+                color: var(--wrmp-ada-teal);
+            }
+
+            /* ── Main column ──────────────────────────────────── */
+            .ds-main {
+                margin-left: var(--sidebar-w);
+            }
+            .ds-content {
+                max-width: 1120px;
+                margin: 0 auto;
+                padding: 40px 48px 96px;
+                display: flex;
+                flex-direction: column;
+                gap: 60px;
+            }
+
+            /* ── Intro / wayfinding ───────────────────────────── */
+            .ds-intro {
+                background: #fff;
+                border-radius: 12px;
+                padding: 40px 44px 40px;
+                box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+                border: 1px solid var(--card-hairline);
+            }
+            .ds-intro h1 {
+                font-family: var(--font-heading);
+                font-size: var(--step-4);
+                font-weight: 600;
+                line-height: 1.1;
+                color: var(--wrmp-ada-teal);
+                margin: 0 0 16px;
+            }
+            .ds-intro-lead {
+                max-width: 74ch;
+                font-size: 17px;
+                line-height: 1.6;
+                color: #333;
+                margin: 0 0 28px;
+            }
+            .ds-jobs {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 20px;
+                margin-bottom: 30px;
+            }
+            .ds-job {
+                background: var(--gray-2);
+                border: 1px solid var(--gray-5);
+                border-radius: 10px;
+                padding: 22px 24px;
+            }
+            .ds-job h2 {
+                font-family: var(--font-heading);
+                font-size: 18px;
+                font-weight: 600;
+                color: var(--wrmp-ada-teal);
+                margin: 0 0 8px;
+            }
+            .ds-job p {
+                font-size: 15.5px;
+                line-height: 1.55;
+                color: #444;
+                margin: 0;
+            }
+
+            /* Scales-vs-tiers distinction — two orthogonal axes */
+            .axes-note {
+                border: 1px solid var(--gray-6);
+                border-radius: 10px;
+                overflow: hidden;
+            }
+            .axes-note__head {
+                background: #eef6f7;
+                padding: 14px 22px;
+                font-size: 16px;
+                line-height: 1.5;
+                color: #234;
+            }
+            .axes-note__head strong {
+                color: var(--wrmp-ada-teal);
+            }
+            .axes-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+            .axis-col {
+                padding: 20px 24px 22px;
+            }
+            .axis-col + .axis-col {
+                border-left: 1px solid var(--gray-5);
+            }
+            .axis-col h3 {
+                font-family: var(--font-heading);
+                font-size: 16px;
+                font-weight: 600;
+                margin: 0 0 3px;
+                color: var(--color-text);
+            }
+            .axis-col .axis-sub {
+                font-size: 14px;
+                color: var(--color-text-subtle);
+                margin: 0 0 14px;
+            }
+            .axis-steps {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+            .axis-step {
+                display: flex;
+                align-items: baseline;
+                gap: 10px;
+                font-size: 15px;
+                line-height: 1.4;
+            }
+            .axis-step .axis-key {
+                flex: 0 0 auto;
+                font-weight: 600;
+                color: var(--wrmp-ada-teal);
+                min-width: 118px;
+            }
+            .axis-step .axis-val {
+                color: #444;
+            }
+            @media (max-width: 720px) {
+                .axes-grid {
+                    grid-template-columns: 1fr;
+                }
+                .axis-col + .axis-col {
+                    border-left: none;
+                    border-top: 1px solid var(--gray-5);
+                }
+            }
+
+            /* ── Section shell ────────────────────────────────── */
+            .ds-section {
+                scroll-margin-top: 24px;
+            }
+            .ds-section > h2 {
+                font-family: var(--font-heading);
+                font-size: var(--step-3);
+                font-weight: 600;
+                color: var(--wrmp-ada-teal);
+                margin: 0 0 4px;
+            }
+            .section-desc {
+                font-size: 16px;
+                color: var(--color-text-subtle);
+                margin: 0 0 24px;
+                padding-bottom: 16px;
+                border-bottom: 1px solid #ddd;
+                max-width: 84ch;
+            }
+            .subsection-title {
+                font-family: var(--font-heading);
+                font-size: var(--step-1);
+                font-weight: 600;
+                color: var(--color-text);
+                margin: 40px 0 6px;
+            }
+            .subsection-desc {
+                font-size: 15.5px;
+                color: var(--color-text-subtle);
+                margin: 0 0 20px;
+                max-width: 82ch;
+            }
+            .group-label {
+                font-family: var(--font-heading);
+                font-size: 15px;
+                font-weight: 600;
+                color: var(--color-text-subtle);
+                margin: 0 0 12px;
+            }
+
+            /* ══════════════════════════════════════════════════════
+               Section 1 — three data scales
+               A 3-column matrix: read down a column for one scale,
+               read across a row to compare one artifact type across
+               grains. All three columns share the same map / chart /
+               table language.
+               ══════════════════════════════════════════════════════ */
+            .scale-matrix {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 20px;
+            }
+            @media (max-width: 980px) {
+                .scale-matrix {
+                    grid-template-columns: 1fr;
+                }
+            }
+            .scale-col {
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+            }
+            .scale-col__head {
+                background: #fff;
+                border: 1px solid var(--card-hairline);
+                border-radius: 10px;
+                padding: 16px 18px;
+            }
+            .scale-col__grain {
+                display: inline-flex;
+                align-items: center;
+                gap: 7px;
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--color-text-subtle);
+                margin-bottom: 6px;
+            }
+            .grain-dots {
+                display: inline-flex;
+                gap: 3px;
+            }
+            .grain-dots i {
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: var(--gray-7);
+            }
+            .grain-dots i.on {
+                background: var(--wrmp-teal);
+            }
+            .scale-col__head h3 {
+                font-family: var(--font-heading);
+                font-size: 19px;
+                font-weight: 600;
+                color: var(--wrmp-ada-teal);
+                margin: 0 0 5px;
+            }
+            .scale-col__head p {
+                font-size: 14.5px;
+                line-height: 1.45;
+                color: #555;
+                margin: 0;
+            }
+
+            /* Shared viz card frame — one look for map, chart, table */
+            .viz-card {
+                background: #fff;
+                border: 1px solid var(--card-hairline);
+                border-radius: 10px;
+                padding: 16px 16px 18px;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+            .viz-card__head {
+                display: flex;
+                align-items: baseline;
+                justify-content: space-between;
+                gap: 10px;
+            }
+            .viz-card__title {
+                font-family: var(--font-heading);
+                font-size: 16px;
+                font-weight: 600;
+                color: var(--color-text);
+                margin: 0;
+            }
+            .viz-card__type {
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--wrmp-teal);
+            }
+            .viz-card__caption {
+                font-size: 13.5px;
+                line-height: 1.45;
+                color: var(--color-text-subtle);
+                margin: 0;
+            }
+            .viz-sample {
+                font-size: 12px;
+                color: var(--gray-10);
+                font-style: italic;
+            }
+
+            /* Map artifact */
+            .viz-map {
+                width: 100%;
+                border-radius: 8px;
+                overflow: hidden;
+                background: #eaf2f4;
+                display: block;
+            }
+            .viz-legend {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px 14px;
+            }
+            .viz-legend__item {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 13px;
+                color: var(--color-text);
+            }
+            .viz-legend__swatch {
+                width: 12px;
+                height: 12px;
+                border-radius: 3px;
+                flex-shrink: 0;
+                border: 1px solid rgba(0, 0, 0, 0.08);
+            }
+
+            /* Chart artifact */
+            .viz-chart {
+                width: 100%;
+                height: auto;
+                display: block;
+            }
+            .viz-chart text {
+                font-family: var(--font-body);
+            }
+
+            /* Gauges (condition scale) */
+            .gauge-row {
+                display: flex;
+                justify-content: space-around;
+                gap: 8px;
+            }
+            .gauge {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 6px;
+                text-align: center;
+            }
+            .gauge svg {
+                display: block;
+            }
+            .gauge-cap {
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--color-text);
+            }
+
+            /* Table artifact */
+            .viz-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 14px;
+            }
+            .viz-table caption {
+                text-align: left;
+                font-size: 13.5px;
+                color: var(--color-text-subtle);
+                margin-bottom: 8px;
+            }
+            .viz-table th {
+                text-align: left;
+                font-weight: 600;
+                color: var(--color-text-subtle);
+                font-size: 13px;
+                padding: 6px 10px;
+                border-bottom: 2px solid var(--gray-6);
+            }
+            .viz-table td {
+                padding: 7px 10px;
+                border-bottom: 1px solid var(--gray-4);
+                color: var(--color-text);
+            }
+            .viz-table th.num,
+            .viz-table td.num {
+                text-align: right;
+                font-variant-numeric: tabular-nums;
+            }
+            .viz-table tr:last-child td {
+                border-bottom: none;
+            }
+            .cell-dot {
+                display: inline-block;
+                width: 9px;
+                height: 9px;
+                border-radius: 50%;
+                margin-right: 7px;
+                vertical-align: baseline;
+            }
+            .status-pill {
+                display: inline-block;
+                font-size: 12px;
+                font-weight: 600;
+                padding: 1px 9px;
+                border-radius: 999px;
+            }
+            /* Native / invasive tags reuse the exhibit palette */
+            .tag-native {
+                background: color-mix(in srgb, var(--series-native) 16%, #fff);
+                color: #0d5560;
+                border: 1px solid color-mix(in srgb, var(--series-native) 34%, transparent);
+            }
+            .tag-invasive {
+                background: color-mix(in srgb, var(--series-invasive) 20%, #fff);
+                color: #8a5108;
+                border: 1px solid color-mix(in srgb, var(--series-invasive) 40%, transparent);
+            }
+
+            /* ══════════════════════════════════════════════════════
+               Section 2 — Results & Resources
+               ══════════════════════════════════════════════════════ */
+
+            /* Resource card */
+            .resource-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 16px;
+            }
+            .resource-card {
+                background: #fff;
+                border: 1px solid var(--card-hairline);
+                border-radius: 10px;
+                padding: 18px 18px 16px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                text-decoration: none;
+                color: inherit;
+                transition: box-shadow 0.14s ease, border-color 0.14s ease;
+            }
+            a.resource-card:hover {
+                border-color: var(--gray-7);
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+            }
+            .resource-card__top {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+            }
+            .resource-card__title {
+                font-family: var(--font-heading);
+                font-size: 17px;
+                font-weight: 600;
+                line-height: 1.25;
+                color: var(--color-text);
+                margin: 0;
+            }
+            .resource-card__desc {
+                font-size: 14.5px;
+                line-height: 1.5;
+                color: #555;
+                margin: 0;
+            }
+            .resource-card__meta {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                flex-wrap: wrap;
+                margin-top: 2px;
+                font-size: 13px;
+                color: var(--color-text-subtle);
+            }
+
+            /* Type badge — icon + label, accent by resource family */
+            .rt-badge {
+                --rt-accent: var(--wrmp-teal);
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 12.5px;
+                font-weight: 600;
+                line-height: 1.2;
+                padding: 3px 9px 3px 7px;
+                border-radius: var(--radius-sm);
+                background: color-mix(in srgb, var(--rt-accent) 12%, #fff);
+                color: color-mix(in srgb, var(--rt-accent) 78%, #1a1a1a);
+                border: 1px solid color-mix(in srgb, var(--rt-accent) 30%, transparent);
+                white-space: nowrap;
+            }
+            .rt-badge svg {
+                width: 13px;
+                height: 13px;
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 2;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+                flex-shrink: 0;
+            }
+            /* Accent families — interactive/data (teal), spatial (green),
+               media/live (orange), reference (earth). Grouped so nine
+               types read as one system, not a rainbow. */
+            .rt-badge[data-rtype="tool"],
+            .rt-badge[data-rtype="ecoatlas"],
+            .rt-badge[data-rtype="dataset"] {
+                --rt-accent: #1f7c8c;
+            }
+            .rt-badge[data-rtype="map"],
+            .rt-badge[data-rtype="storymap"] {
+                --rt-accent: #2f7d46;
+            }
+            .rt-badge[data-rtype="video"],
+            .rt-badge[data-rtype="webinar"],
+            .rt-badge[data-rtype="event"] {
+                --rt-accent: #c07019;
+            }
+            .rt-badge[data-rtype="document"] {
+                --rt-accent: #6f5836;
+            }
+            /* Tier chip on a resource — quiet neutral, tier number leads */
+            .tier-chip {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                font-size: 12.5px;
+                font-weight: 600;
+                padding: 2px 9px;
+                border-radius: 999px;
+                background: var(--gray-3);
+                color: var(--gray-11);
+                border: 1px solid var(--gray-6);
+            }
+            .tier-chip b {
+                color: var(--wrmp-ada-teal);
+            }
+
+            /* Results Highlight box — the pulled-up "orange box" finding */
+            .result-highlight {
+                background: linear-gradient(135deg, #fdf3e6 0%, #fbe9d5 100%);
+                border: 1px solid #f0cfa2;
+                border-radius: 12px;
+                padding: 26px 30px;
+                display: grid;
+                grid-template-columns: minmax(140px, 200px) 1fr;
+                gap: 28px;
+                align-items: center;
+            }
+            @media (max-width: 640px) {
+                .result-highlight {
+                    grid-template-columns: 1fr;
+                    gap: 16px;
+                }
+            }
+            .result-highlight__figure {
+                text-align: center;
+            }
+            .result-highlight__stat {
+                font-family: var(--font-heading);
+                font-size: clamp(2.4rem, 5vw, 3.2rem);
+                font-weight: 700;
+                line-height: 1;
+                color: #a85a0d;
+            }
+            .result-highlight__unit {
+                font-size: 15px;
+                font-weight: 600;
+                color: #8a5108;
+                margin-top: 4px;
+            }
+            .result-highlight__label {
+                font-size: 14px;
+                font-weight: 600;
+                color: #8a5108;
+                margin: 0 0 6px;
+            }
+            .result-highlight__finding {
+                font-family: var(--font-heading);
+                font-size: var(--step-1);
+                font-weight: 600;
+                line-height: 1.35;
+                color: #3d2c10;
+                margin: 0 0 10px;
+            }
+            .result-highlight__source {
+                font-size: 13.5px;
+                color: #7a5c2b;
+                margin: 0;
+            }
+            .result-highlight__source a {
+                color: #8a4b0a;
+            }
+            /* Teal variant — for a synthesis finding rather than a headline stat */
+            .result-highlight.is-teal {
+                background: linear-gradient(135deg, #eef6f7 0%, #e2eff1 100%);
+                border-color: #bcd9dd;
+            }
+            .result-highlight.is-teal .result-highlight__stat,
+            .result-highlight.is-teal .result-highlight__unit,
+            .result-highlight.is-teal .result-highlight__label {
+                color: var(--wrmp-ada-teal);
+            }
+            .result-highlight.is-teal .result-highlight__finding {
+                color: #123;
+            }
+            .result-highlight.is-teal .result-highlight__source {
+                color: #4a6a70;
+            }
+            .result-highlight.is-teal .result-highlight__source a {
+                color: var(--wrmp-ada-teal);
+            }
+
+            /* Named content boxes — "Looking for Local Data" & "Science Framework" */
+            .content-box {
+                border-radius: 12px;
+                padding: 22px 24px;
+                border: 1px solid var(--gray-6);
+                background: #fff;
+                display: flex;
+                gap: 16px;
+                align-items: flex-start;
+            }
+            .content-box__icon {
+                flex: 0 0 auto;
+                width: 44px;
+                height: 44px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: color-mix(in srgb, var(--cb-accent, var(--wrmp-teal)) 14%, #fff);
+                color: var(--cb-accent, var(--wrmp-teal));
+            }
+            .content-box__icon svg {
+                width: 22px;
+                height: 22px;
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 2;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
+            .content-box__body {
+                flex: 1;
+                min-width: 0;
+            }
+            .content-box__title {
+                font-family: var(--font-heading);
+                font-size: 18px;
+                font-weight: 600;
+                color: var(--color-text);
+                margin: 0 0 5px;
+            }
+            .content-box__text {
+                font-size: 15px;
+                line-height: 1.5;
+                color: #555;
+                margin: 0 0 12px;
+            }
+            .content-box__actions {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .cb-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 14px;
+                font-weight: 600;
+                text-decoration: none;
+                padding: 7px 14px;
+                border-radius: 8px;
+                border: 1px solid var(--cb-accent, var(--wrmp-teal));
+                color: var(--cb-accent, var(--wrmp-teal));
+                background: #fff;
+            }
+            .cb-btn.is-solid {
+                background: var(--cb-accent, var(--wrmp-teal));
+                color: #fff;
+            }
+            .cb-btn svg {
+                width: 15px;
+                height: 15px;
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 2;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
+            .content-box--data {
+                --cb-accent: #1f7c8c;
+                background: color-mix(in srgb, #1f7c8c 5%, #fff);
+                border-color: color-mix(in srgb, #1f7c8c 28%, transparent);
+            }
+            .content-box--framework {
+                --cb-accent: #40611c;
+                background: color-mix(in srgb, #40611c 5%, #fff);
+                border-color: color-mix(in srgb, #40611c 26%, transparent);
+            }
+            /* GQ colour identity row on the Science-Framework box */
+            .gq-swatches {
+                display: inline-flex;
+                gap: 4px;
+                margin-left: 2px;
+                vertical-align: middle;
+            }
+            .gq-swatches span {
+                width: 12px;
+                height: 12px;
+                border-radius: 3px;
+                display: inline-block;
+            }
+
+            /* ── Filter bar + filterable resource wall ────────── */
+            .filter-bar {
+                background: #fff;
+                border: 1px solid var(--card-hairline);
+                border-radius: 12px;
+                padding: 20px 22px;
+                display: flex;
+                flex-direction: column;
+                gap: 18px;
+                margin-bottom: 22px;
+            }
+            .filter-group {
+                display: flex;
+                flex-direction: column;
+                gap: 9px;
+            }
+            .filter-group__label {
+                font-family: var(--font-heading);
+                font-size: 15px;
+                font-weight: 600;
+                color: var(--color-text);
+            }
+            .filter-group__label span {
+                font-weight: 400;
+                color: var(--color-text-subtle);
+            }
+            .chip-row {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .fchip {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                font-family: var(--font-body);
+                font-size: 14px;
+                font-weight: 600;
+                padding: 5px 13px;
+                border-radius: 999px;
+                border: 1px solid var(--gray-7);
+                background: #fff;
+                color: var(--gray-12);
+                cursor: pointer;
+                transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+            }
+            .fchip:hover {
+                border-color: var(--wrmp-teal);
+            }
+            .fchip[aria-pressed="true"] {
+                background: var(--wrmp-ada-teal);
+                border-color: var(--wrmp-ada-teal);
+                color: #fff;
+            }
+            /* Management-question chips inherit the guiding-question hue */
+            .fchip.mq[aria-pressed="true"][data-gq="1"] { background: var(--gq1-ink); border-color: var(--gq1-ink); }
+            .fchip.mq[aria-pressed="true"][data-gq="2"] { background: var(--gq2-ink); border-color: var(--gq2-ink); }
+            .fchip.mq[aria-pressed="true"][data-gq="3"] { background: var(--gq3-ink); border-color: var(--gq3-ink); }
+            .fchip.mq[aria-pressed="true"][data-gq="4"] { background: var(--gq4-ink); border-color: var(--gq4-ink); }
+            .fchip.mq[aria-pressed="true"][data-gq="5"] { background: var(--gq5-ink); border-color: var(--gq5-ink); }
+            .fchip .gq-dot {
+                width: 9px;
+                height: 9px;
+                border-radius: 50%;
+                flex-shrink: 0;
+            }
+            .fchip[data-gq="1"] .gq-dot { background: var(--gq1-ink); }
+            .fchip[data-gq="2"] .gq-dot { background: var(--gq2-ink); }
+            .fchip[data-gq="3"] .gq-dot { background: var(--gq3-ink); }
+            .fchip[data-gq="4"] .gq-dot { background: var(--gq4-ink); }
+            .fchip[data-gq="5"] .gq-dot { background: var(--gq5-ink); }
+            .fchip[aria-pressed="true"] .gq-dot { background: #fff; }
+
+            .filter-status {
+                font-size: 14px;
+                color: var(--color-text-subtle);
+                margin: 0 0 14px;
+            }
+            .filter-status b {
+                color: var(--color-text);
+            }
+            .resource-card.is-hidden {
+                display: none;
+            }
+            .resource-card__facets {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 5px;
+                margin-top: 2px;
+            }
+            .facet-chip {
+                font-size: 11.5px;
+                font-weight: 600;
+                padding: 2px 8px;
+                border-radius: 999px;
+                background: var(--gray-3);
+                color: var(--gray-11);
+                border: 1px solid var(--gray-5);
+            }
+
+            .ds-note {
+                font-size: 14px;
+                color: var(--color-text-subtle);
+                line-height: 1.5;
+                margin: 14px 0 0;
+                max-width: 84ch;
+            }
+            .ds-note code {
+                font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+                font-size: 13px;
+                color: var(--wrmp-ada-teal);
+            }
+        </style>
+    </head>
+    <body>
+        <!-- ═══ Sidebar ═══ -->
+        <aside class="ds-sidebar">
+            <div class="ds-sidebar-brand">
+                <div class="ds-sidebar-brand-text">WRMP Design System</div>
+                <div class="ds-sidebar-brand-sub">Scales &amp; Results</div>
+            </div>
+            <nav class="ds-nav">
+                <div class="ds-nav-group">
+                    <div class="ds-nav-group-label">Overview</div>
+                    <a href="#overview">Two new jobs</a>
+                    <a href="#overview">Scales vs. tiers</a>
+                </div>
+                <div class="ds-nav-group">
+                    <div class="ds-nav-group-label">Job A · Data scales</div>
+                    <a href="#scales">Three-scale templates</a>
+                    <a href="#scales">Regional · Condition · Site</a>
+                </div>
+                <div class="ds-nav-group">
+                    <div class="ds-nav-group-label">Job B · Results &amp; resources</div>
+                    <a href="#resource-cards">Resource cards</a>
+                    <a href="#results-highlight">Results highlight</a>
+                    <a href="#content-boxes">Named content boxes</a>
+                    <a href="#filter-system">Filter system</a>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="ds-main">
+            <div class="ds-content">
+                <!-- ═══════════════ Intro / wayfinding ═══════════════ -->
+                <section class="ds-intro" id="overview">
+                    <h1>Scales &amp; Results</h1>
+                    <p class="ds-intro-lead">
+                        Two additions to the design system. Until now the system
+                        has dressed the exhibit experience — panels, covers, map
+                        chrome. These two jobs extend it to the WRMP topic pages:
+                        a visualization language that holds across three grains of
+                        data, and a family of components for surfacing results and
+                        resources.
+                    </p>
+
+                    <div class="ds-jobs">
+                        <div class="ds-job">
+                            <h2>Job A — Visualization templates across three data scales</h2>
+                            <p>
+                                One map / chart / table language, shown flexing
+                                from region-wide overviews down to a single
+                                monitoring site. A reviewer should see the same
+                                design system stretch across grains, not three
+                                unrelated treatments.
+                            </p>
+                        </div>
+                        <div class="ds-job">
+                            <h2>Job B — Results &amp; Resources components</h2>
+                            <p>
+                                Resource cards, a Results Highlight block, two named
+                                content boxes, and a facet filter. Delivering
+                                results highlighting <em>as reusable components</em>
+                                is the natural job of a design system — no separate
+                                memo needed.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="axes-note">
+                        <div class="axes-note__head">
+                            Two <strong>threes</strong> live on this page, and they
+                            are different axes. Data <strong>scales</strong> are
+                            about the grain of the data; audience <strong>tiers</strong>
+                            are about how deeply it is processed for the reader.
+                            They are orthogonal — any scale can be published at any
+                            tier.
+                        </div>
+                        <div class="axes-grid">
+                            <div class="axis-col">
+                                <h3>Data scales <span style="font-weight:400;color:var(--color-text-subtle)">(Job A)</span></h3>
+                                <p class="axis-sub">How coarse or fine is the data?</p>
+                                <div class="axis-steps">
+                                    <div class="axis-step"><span class="axis-key">Regional</span><span class="axis-val">Region-wide datasets — habitat maps, shoreline access, demographics.</span></div>
+                                    <div class="axis-step"><span class="axis-key">Condition</span><span class="axis-val">Scores summarized across sites — CRAM, vegetation condition.</span></div>
+                                    <div class="axis-step"><span class="axis-key">Site-specific</span><span class="axis-val">Detailed data at one site — fish &amp; fish habitat.</span></div>
+                                </div>
+                            </div>
+                            <div class="axis-col">
+                                <h3>Audience tiers <span style="font-weight:400;color:var(--color-text-subtle)">(Job B facet)</span></h3>
+                                <p class="axis-sub">How deeply is it processed for the reader?</p>
+                                <div class="axis-steps">
+                                    <div class="axis-step"><span class="axis-key">Tier 1</span><span class="axis-val">Summarized information — the plain-language takeaway.</span></div>
+                                    <div class="axis-step"><span class="axis-key">Tier 2</span><span class="axis-val">Synthesized results — charts, comparisons, interpretation.</span></div>
+                                    <div class="axis-step"><span class="axis-key">Tier 3</span><span class="axis-val">Downloadable raw data — the underlying files.</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ═══════════════ Section 1 — Data scales ═══════════════ -->
+                <section class="ds-section" id="scales">
+                    <h2>Job A · Visualization templates across three data scales</h2>
+                    <p class="section-desc">
+                        Read down a column for one scale; read across a row to see
+                        the same artifact type — map, chart, or summary table —
+                        change grain. Colours, axes, legends and table chrome are
+                        shared, so the three scales read as one system. Charts use
+                        clearly-labelled representative sample data where the real
+                        dataset is not yet in-repo; the station map draws on the
+                        real <code>data/stations.json</code>.
+                    </p>
+
+                    <div class="scale-matrix">
+                        <!-- ── Column 1 · Regional Focus ── -->
+                        <div class="scale-col">
+                            <div class="scale-col__head">
+                                <span class="scale-col__grain">
+                                    Broadest grain
+                                    <span class="grain-dots"><i class="on"></i><i></i><i></i></span>
+                                </span>
+                                <h3>Regional Focus</h3>
+                                <p>Region-wide datasets across the whole estuary — three regions at a glance.</p>
+                            </div>
+
+                            <!-- Map -->
+                            <div class="viz-card">
+                                <div class="viz-card__head">
+                                    <p class="viz-card__title">Habitat &amp; access map</p>
+                                    <span class="viz-card__type">Map</span>
+                                </div>
+                                <svg class="viz-map" viewBox="0 0 240 170" role="img" aria-label="Schematic of the three estuary regions with public-access points">
+                                    <rect width="240" height="170" fill="#eaf2f4" />
+                                    <!-- Suisun (north-east, fresh) -->
+                                    <path d="M150 20 Q200 18 214 46 Q220 70 196 82 Q170 88 158 66 Q150 44 150 20 Z" fill="var(--region-suisun)" fill-opacity="0.5" stroke="var(--region-suisun)" stroke-width="1.5" />
+                                    <!-- North Bay (brackish) -->
+                                    <path d="M96 30 Q140 26 158 66 Q150 96 118 104 Q92 100 86 72 Q84 46 96 30 Z" fill="var(--region-north)" fill-opacity="0.45" stroke="var(--region-north)" stroke-width="1.5" />
+                                    <!-- South Bay (saline) -->
+                                    <path d="M86 100 Q118 100 122 128 Q118 158 92 160 Q66 156 66 128 Q68 106 86 100 Z" fill="var(--region-south)" fill-opacity="0.42" stroke="var(--region-south)" stroke-width="1.5" />
+                                    <!-- Public-access points -->
+                                    <g fill="#fff" stroke="#333" stroke-width="1">
+                                        <circle cx="180" cy="52" r="3.4" />
+                                        <circle cx="122" cy="60" r="3.4" />
+                                        <circle cx="98" cy="132" r="3.4" />
+                                        <circle cx="104" cy="86" r="3.4" />
+                                    </g>
+                                </svg>
+                                <div class="viz-legend">
+                                    <span class="viz-legend__item"><span class="viz-legend__swatch" style="background:var(--region-south)"></span>South Bay</span>
+                                    <span class="viz-legend__item"><span class="viz-legend__swatch" style="background:var(--region-north)"></span>North Bay</span>
+                                    <span class="viz-legend__item"><span class="viz-legend__swatch" style="background:var(--region-suisun)"></span>Suisun</span>
+                                    <span class="viz-legend__item"><span class="viz-legend__swatch" style="background:#fff;border-color:#333"></span>Access point</span>
+                                </div>
+                            </div>
+
+                            <!-- Chart -->
+                            <div class="viz-card">
+                                <div class="viz-card__head">
+                                    <p class="viz-card__title">Baylands by habitat</p>
+                                    <span class="viz-card__type">Chart</span>
+                                </div>
+                                <p class="viz-card__caption">Share of mapped baylands per region. <span class="viz-sample">Sample data.</span></p>
+                                <svg class="viz-chart" viewBox="0 0 300 150" role="img" aria-label="Stacked bars of habitat composition by region">
+                                    <!-- rows: South, North, Suisun -->
+                                    <g font-size="11" fill="var(--axis-text)">
+                                        <text x="0" y="34">South</text>
+                                        <text x="0" y="78">North</text>
+                                        <text x="0" y="122">Suisun</text>
+                                    </g>
+                                    <!-- South Bay -->
+                                    <g transform="translate(52,22)">
+                                        <rect x="0" y="0" width="120" height="18" fill="var(--hab-marsh)" />
+                                        <rect x="120" y="0" width="60" height="18" fill="var(--hab-pond)" />
+                                        <rect x="180" y="0" width="42" height="18" fill="var(--hab-mudflat)" />
+                                        <rect x="222" y="0" width="26" height="18" fill="var(--hab-water)" />
+                                    </g>
+                                    <!-- North Bay -->
+                                    <g transform="translate(52,66)">
+                                        <rect x="0" y="0" width="150" height="18" fill="var(--hab-marsh)" />
+                                        <rect x="150" y="0" width="30" height="18" fill="var(--hab-pond)" />
+                                        <rect x="180" y="0" width="40" height="18" fill="var(--hab-mudflat)" />
+                                        <rect x="220" y="0" width="28" height="18" fill="var(--hab-water)" />
+                                    </g>
+                                    <!-- Suisun -->
+                                    <g transform="translate(52,110)">
+                                        <rect x="0" y="0" width="176" height="18" fill="var(--hab-marsh)" />
+                                        <rect x="176" y="0" width="20" height="18" fill="var(--hab-pond)" />
+                                        <rect x="196" y="0" width="30" height="18" fill="var(--hab-mudflat)" />
+                                        <rect x="226" y="0" width="22" height="18" fill="var(--hab-water)" />
+                                    </g>
+                                </svg>
+                                <div class="viz-legend">
+                                    <span class="viz-legend__item"><span class="viz-legend__swatch" style="background:var(--hab-marsh)"></span>Tidal marsh</span>
+                                    <span class="viz-legend__item"><span class="viz-legend__swatch" style="background:var(--hab-pond)"></span>Managed pond</span>
+                                    <span class="viz-legend__item"><span class="viz-legend__swatch" style="background:var(--hab-mudflat)"></span>Mudflat</span>
+                                    <span class="viz-legend__item"><span class="viz-legend__swatch" style="background:var(--hab-water)"></span>Open water</span>
+                                </div>
+                            </div>
+
+                            <!-- Table -->
+                            <div class="viz-card">
+                                <div class="viz-card__head">
+                                    <p class="viz-card__title">Regional summary</p>
+                                    <span class="viz-card__type">Table</span>
+                                </div>
+                                <table class="viz-table">
+                                    <caption>Marsh area, public access and stations. <span class="viz-sample">Sample data.</span></caption>
+                                    <thead>
+                                        <tr><th>Region</th><th class="num">Marsh (ac)</th><th class="num">Access</th><th class="num">Stations</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td><span class="cell-dot" style="background:var(--region-south)"></span>South Bay</td><td class="num">18,400</td><td class="num">22</td><td class="num">61</td></tr>
+                                        <tr><td><span class="cell-dot" style="background:var(--region-north)"></span>North Bay</td><td class="num">12,900</td><td class="num">17</td><td class="num">38</td></tr>
+                                        <tr><td><span class="cell-dot" style="background:var(--region-suisun)"></span>Suisun</td><td class="num">9,600</td><td class="num">11</td><td class="num">20</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- ── Column 2 · Condition Assessment ── -->
+                        <div class="scale-col">
+                            <div class="scale-col__head">
+                                <span class="scale-col__grain">
+                                    Mid grain
+                                    <span class="grain-dots"><i class="on"></i><i class="on"></i><i></i></span>
+                                </span>
+                                <h3>Condition Assessment</h3>
+                                <p>Scores summarized across sites — CRAM and vegetation condition, rolled up.</p>
+                            </div>
+
+                            <!-- Map -->
+                            <div class="viz-card">
+                                <div class="viz-card__head">
+                                    <p class="viz-card__title">Sites by CRAM band</p>
+                                    <span class="viz-card__type">Map</span>
+                                </div>
+                                <svg class="viz-map" viewBox="0 0 240 170" role="img" aria-label="Marsh outline with sites coloured by CRAM condition band">
+                                    <rect width="240" height="170" fill="#eaf2f4" />
+                                    <path d="M40 60 Q90 30 150 44 Q205 58 200 100 Q190 140 130 138 Q70 136 46 108 Q30 84 40 60 Z" fill="#dfeee2" stroke="#b9d4c0" stroke-width="1.5" />
+                                    <g stroke="#fff" stroke-width="1.2">
+                                        <circle cx="78" cy="70" r="5" fill="var(--cram-high)" />
+                                        <circle cx="110" cy="60" r="5" fill="var(--cram-high)" />
+                                        <circle cx="140" cy="72" r="5" fill="var(--cram-good)" />
+                                        <circle cx="96" cy="96" r="5" fill="var(--cram-good)" />
+                                        <circle cx="128" cy="102" r="5" fill="var(--cram-fair)" />
+                                        <circle cx="160" cy="94" r="5" fill="var(--cram-fair)" />
+                                        <circle cx="112" cy="120" r="5" fill="var(--cram-low)" />
+                                        <circle cx="74" cy="94" r="5" fill="var(--cram-good)" />
+                                    </g>
+                                </svg>
+                                <div class="viz-legend">
+                                    <span class="viz-legend__item"><span class="viz-legend__swatch" style="background:var(--cram-high)"></span>80–100</span>
+                                    <span class="viz-legend__item"><span class="viz-legend__swatch" style="background:var(--cram-good)"></span>70–79</span>
+                                    <span class="viz-legend__item"><span class="viz-legend__swatch" style="background:var(--cram-fair)"></span>60–69</span>
+                                    <span class="viz-legend__item"><span class="viz-legend__swatch" style="background:var(--cram-low)"></span>&lt;60</span>
+                                </div>
+                            </div>
+
+                            <!-- Chart (gauges) -->
+                            <div class="viz-card">
+                                <div class="viz-card__head">
+                                    <p class="viz-card__title">Condition attributes</p>
+                                    <span class="viz-card__type">Chart</span>
+                                </div>
+                                <p class="viz-card__caption">Mean CRAM attribute score across sites. <span class="viz-sample">Sample data.</span></p>
+                                <div class="gauge-row">
+                                    <div class="gauge">
+                                        <svg width="82" height="82" viewBox="0 0 82 82" role="img" aria-label="Buffer and landscape 84">
+                                            <circle cx="41" cy="41" r="34" fill="none" stroke="var(--gray-4)" stroke-width="9" />
+                                            <circle cx="41" cy="41" r="34" fill="none" stroke="var(--cram-high)" stroke-width="9" stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="34.2" transform="rotate(-90 41 41)" />
+                                            <text x="41" y="46" text-anchor="middle" font-size="20" font-weight="700" fill="var(--wrmp-ada-teal)">84</text>
+                                        </svg>
+                                        <span class="gauge-cap">Buffer</span>
+                                    </div>
+                                    <div class="gauge">
+                                        <svg width="82" height="82" viewBox="0 0 82 82" role="img" aria-label="Hydrology 72">
+                                            <circle cx="41" cy="41" r="34" fill="none" stroke="var(--gray-4)" stroke-width="9" />
+                                            <circle cx="41" cy="41" r="34" fill="none" stroke="var(--cram-good)" stroke-width="9" stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="59.8" transform="rotate(-90 41 41)" />
+                                            <text x="41" y="46" text-anchor="middle" font-size="20" font-weight="700" fill="var(--wrmp-ada-teal)">72</text>
+                                        </svg>
+                                        <span class="gauge-cap">Hydrology</span>
+                                    </div>
+                                    <div class="gauge">
+                                        <svg width="82" height="82" viewBox="0 0 82 82" role="img" aria-label="Biotic structure 63">
+                                            <circle cx="41" cy="41" r="34" fill="none" stroke="var(--gray-4)" stroke-width="9" />
+                                            <circle cx="41" cy="41" r="34" fill="none" stroke="var(--cram-fair)" stroke-width="9" stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="79.0" transform="rotate(-90 41 41)" />
+                                            <text x="41" y="46" text-anchor="middle" font-size="20" font-weight="700" fill="var(--wrmp-ada-teal)">63</text>
+                                        </svg>
+                                        <span class="gauge-cap">Biotic</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Table -->
+                            <div class="viz-card">
+                                <div class="viz-card__head">
+                                    <p class="viz-card__title">Scorecard</p>
+                                    <span class="viz-card__type">Table</span>
+                                </div>
+                                <table class="viz-table">
+                                    <caption>Attribute scores and status. <span class="viz-sample">Sample data.</span></caption>
+                                    <thead>
+                                        <tr><th>Attribute</th><th class="num">Score</th><th>Status</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td>Buffer &amp; landscape</td><td class="num">84</td><td><span class="status-pill" style="background:color-mix(in srgb,var(--cram-high) 16%,#fff);color:#1f5e34">Good</span></td></tr>
+                                        <tr><td>Hydrology</td><td class="num">72</td><td><span class="status-pill" style="background:color-mix(in srgb,var(--cram-good) 22%,#fff);color:#4a6316">Fair</span></td></tr>
+                                        <tr><td>Physical structure</td><td class="num">68</td><td><span class="status-pill" style="background:color-mix(in srgb,var(--cram-fair) 22%,#fff);color:#8a5108">Watch</span></td></tr>
+                                        <tr><td>Biotic structure</td><td class="num">63</td><td><span class="status-pill" style="background:color-mix(in srgb,var(--cram-fair) 22%,#fff);color:#8a5108">Watch</span></td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- ── Column 3 · Site-Specific Monitoring ── -->
+                        <div class="scale-col">
+                            <div class="scale-col__head">
+                                <span class="scale-col__grain">
+                                    Finest grain
+                                    <span class="grain-dots"><i class="on"></i><i class="on"></i><i class="on"></i></span>
+                                </span>
+                                <h3>Site-Specific Monitoring</h3>
+                                <p>Detailed fish &amp; fish habitat data at one site — where all seven exhibits live.</p>
+                            </div>
+
+                            <!-- Map -->
+                            <div class="viz-card">
+                                <div class="viz-card__head">
+                                    <p class="viz-card__title">Stations by site type</p>
+                                    <span class="viz-card__type">Map</span>
+                                </div>
+                                <svg class="viz-map" viewBox="0 0 240 170" role="img" aria-label="Alviso pond stations coloured by site type">
+                                    <rect width="240" height="170" fill="#eaf2f4" />
+                                    <!-- pond grid -->
+                                    <g fill="#dfeef0" stroke="#bcd9dd" stroke-width="1.2">
+                                        <rect x="30" y="30" width="52" height="42" rx="4" />
+                                        <rect x="92" y="30" width="52" height="42" rx="4" />
+                                        <rect x="154" y="30" width="56" height="42" rx="4" />
+                                        <rect x="30" y="82" width="52" height="42" rx="4" />
+                                        <rect x="92" y="82" width="52" height="42" rx="4" />
+                                        <rect x="154" y="82" width="56" height="42" rx="4" />
+                                    </g>
+                                    <g stroke="#fff" stroke-width="1.2">
+                                        <circle cx="56" cy="51" r="6" fill="var(--site-project)" />
+                                        <circle cx="118" cy="51" r="6" fill="var(--site-project)" />
+                                        <circle cx="182" cy="51" r="6" fill="var(--site-reference)" />
+                                        <circle cx="56" cy="103" r="6" fill="var(--site-benchmark)" />
+                                        <circle cx="118" cy="103" r="6" fill="var(--site-project)" />
+                                        <circle cx="182" cy="103" r="6" fill="var(--site-reference)" />
+                                    </g>
+                                </svg>
+                                <div class="viz-legend">
+                                    <span class="viz-legend__item"><span class="viz-legend__swatch" style="background:var(--site-benchmark)"></span>Benchmark</span>
+                                    <span class="viz-legend__item"><span class="viz-legend__swatch" style="background:var(--site-reference)"></span>Reference</span>
+                                    <span class="viz-legend__item"><span class="viz-legend__swatch" style="background:var(--site-project)"></span>Project</span>
+                                </div>
+                            </div>
+
+                            <!-- Chart (time series) -->
+                            <div class="viz-card">
+                                <div class="viz-card__head">
+                                    <p class="viz-card__title">Catch per unit effort</p>
+                                    <span class="viz-card__type">Chart</span>
+                                </div>
+                                <p class="viz-card__caption">Native vs. non-native CPUE, one site, 2010–2024. <span class="viz-sample">Sample data.</span></p>
+                                <svg class="viz-chart" viewBox="0 0 300 160" role="img" aria-label="Line chart of native and non-native catch per unit effort over time with a drought band">
+                                    <!-- drought band -->
+                                    <rect x="150" y="14" width="42" height="112" fill="#e09337" fill-opacity="0.12" />
+                                    <text x="171" y="26" text-anchor="middle" font-size="9" fill="#a85a0d">2014–15</text>
+                                    <!-- axes -->
+                                    <line x1="34" y1="126" x2="288" y2="126" stroke="var(--axis-line)" stroke-width="1" />
+                                    <line x1="34" y1="14" x2="34" y2="126" stroke="var(--axis-line)" stroke-width="1" />
+                                    <!-- gridlines -->
+                                    <g stroke="var(--grid-line)" stroke-width="1">
+                                        <line x1="34" y1="98" x2="288" y2="98" />
+                                        <line x1="34" y1="70" x2="288" y2="70" />
+                                        <line x1="34" y1="42" x2="288" y2="42" />
+                                    </g>
+                                    <!-- y labels -->
+                                    <g font-size="9" fill="var(--axis-text)" text-anchor="end">
+                                        <text x="29" y="129">0</text>
+                                        <text x="29" y="101">20</text>
+                                        <text x="29" y="73">40</text>
+                                        <text x="29" y="45">60</text>
+                                    </g>
+                                    <!-- x labels -->
+                                    <g font-size="9" fill="var(--axis-text)" text-anchor="middle">
+                                        <text x="42" y="139">'10</text>
+                                        <text x="129" y="139">'14</text>
+                                        <text x="216" y="139">'19</text>
+                                        <text x="281" y="139">'24</text>
+                                    </g>
+                                    <!-- native series (falls after drought) -->
+                                    <polyline fill="none" stroke="var(--series-native)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"
+                                        points="42,52 63,46 85,50 107,44 129,48 150,64 171,84 192,92 214,96 236,100 258,98 281,102" />
+                                    <!-- invasive series (rises after drought) -->
+                                    <polyline fill="none" stroke="var(--series-invasive)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"
+                                        points="42,110 63,106 85,108 107,104 129,102 150,88 171,72 192,60 214,56 236,52 258,54 281,48" />
+                                </svg>
+                                <div class="viz-legend">
+                                    <span class="viz-legend__item"><span class="viz-legend__swatch" style="background:var(--series-native)"></span>Native</span>
+                                    <span class="viz-legend__item"><span class="viz-legend__swatch" style="background:var(--series-invasive)"></span>Non-native</span>
+                                </div>
+                            </div>
+
+                            <!-- Table -->
+                            <div class="viz-card">
+                                <div class="viz-card__head">
+                                    <p class="viz-card__title">Catch by species</p>
+                                    <span class="viz-card__type">Table</span>
+                                </div>
+                                <table class="viz-table">
+                                    <caption>One station, 2024 season. <span class="viz-sample">Sample data.</span></caption>
+                                    <thead>
+                                        <tr><th>Species</th><th>Status</th><th class="num">CPUE</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td>Northern anchovy</td><td><span class="status-pill tag-native">Native</span></td><td class="num">31.4</td></tr>
+                                        <tr><td>Longfin smelt</td><td><span class="status-pill tag-native">Native</span></td><td class="num">8.7</td></tr>
+                                        <tr><td>Mississippi silverside</td><td><span class="status-pill tag-invasive">Non-native</span></td><td class="num">22.9</td></tr>
+                                        <tr><td>Yellowfin goby</td><td><span class="status-pill tag-invasive">Non-native</span></td><td class="num">14.2</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="ds-note">
+                        The matrix is the point: one map style, one chart style, one
+                        table style, holding from the regional overview down to a
+                        single station. Each artifact type is a template — swap the
+                        sample data for real data and the treatment carries. The
+                        Condition column builds on the CRAM / gauge treatment already
+                        shipping in <code>bay-keeping-up</code>; the Site column echoes
+                        the CPUE regime-shift story in <code>alviso-decade</code>.
+                    </p>
+                </section>
+
+                <!-- ═══════════════ Section 2 — Results & Resources ═══════════════ -->
+                <section class="ds-section" id="resource-cards">
+                    <h2>Job B · Results &amp; Resources components</h2>
+                    <p class="section-desc">
+                        The component family a WRMP topic page assembles from:
+                        resource cards keyed by type, a Results Highlight block that
+                        pulls a finding up the hierarchy, the two named content boxes
+                        the scope calls out, and a facet filter. Every colour, radius
+                        and type size resolves from <code>tokens.css</code>; the
+                        management-question badge reuses the shipped
+                        <code>exhibit-tags.css</code>.
+                    </p>
+
+                    <h3 class="subsection-title">Resource card &amp; type badges</h3>
+                    <p class="subsection-desc">
+                        One card shape, one badge per resource type in the client's
+                        taxonomy. Nine types, grouped into four accent families —
+                        interactive data (teal), spatial (green), media &amp; live
+                        (orange), reference (earth) — so the set reads as one system
+                        rather than a nine-colour rainbow. The type badge sits
+                        top-left; an audience-tier chip sits top-right.
+                    </p>
+
+                    <div class="group-label">The nine type badges</div>
+                    <div class="chip-row" style="margin-bottom: 28px; gap: 10px;">
+                        <span class="rt-badge" data-rtype="tool"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>Tool</span>
+                        <span class="rt-badge" data-rtype="ecoatlas"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>EcoAtlas</span>
+                        <span class="rt-badge" data-rtype="dataset"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>Dataset</span>
+                        <span class="rt-badge" data-rtype="map"><svg viewBox="0 0 24 24"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/></svg>Map</span>
+                        <span class="rt-badge" data-rtype="storymap"><svg viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg>StoryMap</span>
+                        <span class="rt-badge" data-rtype="video"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m10 8 6 4-6 4V8z"/></svg>Video</span>
+                        <span class="rt-badge" data-rtype="webinar"><svg viewBox="0 0 24 24"><path d="M2 3h20v14H2z"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>Webinar</span>
+                        <span class="rt-badge" data-rtype="event"><svg viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 2v4"/><path d="M16 2v4"/></svg>Event</span>
+                        <span class="rt-badge" data-rtype="document"><svg viewBox="0 0 24 24"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8l6 6v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 13h6"/><path d="M10 17h6"/></svg>Document</span>
+                    </div>
+
+                    <div class="group-label">Cards in context</div>
+                    <div class="resource-grid">
+                        <a class="resource-card" href="#">
+                            <div class="resource-card__top">
+                                <span class="rt-badge" data-rtype="ecoatlas"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>EcoAtlas</span>
+                                <span class="tier-chip"><b>Tier 3</b> Raw</span>
+                            </div>
+                            <p class="resource-card__title">SF Estuary Wetlands Profile</p>
+                            <p class="resource-card__desc">Interactive restoration dashboard tracking tidal wetland acres gained across the Bay.</p>
+                            <div class="resource-card__meta">Bay-wide · SFEI</div>
+                        </a>
+
+                        <a class="resource-card" href="#">
+                            <div class="resource-card__top">
+                                <span class="rt-badge" data-rtype="dataset"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>Dataset</span>
+                                <span class="tier-chip"><b>Tier 3</b> Raw</span>
+                            </div>
+                            <p class="resource-card__title">SBOTS catch data, 2010–2024</p>
+                            <p class="resource-card__desc">A decade of South Bay Otter Trawl catches — every haul, species and count, as CSV.</p>
+                            <div class="resource-card__meta">14 yrs · ~20 stations</div>
+                        </a>
+
+                        <a class="resource-card" href="#">
+                            <div class="resource-card__top">
+                                <span class="rt-badge" data-rtype="document"><svg viewBox="0 0 24 24"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8l6 6v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 13h6"/><path d="M10 17h6"/></svg>Document</span>
+                                <span class="tier-chip"><b>Tier 2</b> Synthesis</span>
+                            </div>
+                            <p class="resource-card__title">SBOTS 14-Year Report</p>
+                            <p class="resource-card__desc">The Alviso Marsh monitoring synthesis — community change through the drought regime shift.</p>
+                            <div class="resource-card__meta">2025 · UC Davis</div>
+                        </a>
+
+                        <a class="resource-card" href="#">
+                            <div class="resource-card__top">
+                                <span class="rt-badge" data-rtype="storymap"><svg viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg>StoryMap</span>
+                                <span class="tier-chip"><b>Tier 1</b> Summary</span>
+                            </div>
+                            <p class="resource-card__title">A Decade in Alviso Marsh</p>
+                            <p class="resource-card__desc">Museum-style exhibit walking through fourteen years of monitoring in five steps.</p>
+                            <div class="resource-card__meta">Exhibit · WRMP</div>
+                        </a>
+
+                        <a class="resource-card" href="#">
+                            <div class="resource-card__top">
+                                <span class="rt-badge" data-rtype="video"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m10 8 6 4-6 4V8z"/></svg>Video</span>
+                                <span class="tier-chip"><b>Tier 1</b> Summary</span>
+                            </div>
+                            <p class="resource-card__title">Otter trawl in 90 seconds</p>
+                            <p class="resource-card__desc">Field footage of a standard trawl set — how the catch data actually gets collected.</p>
+                            <div class="resource-card__meta">1:32 · WRMP</div>
+                        </a>
+
+                        <a class="resource-card" href="#">
+                            <div class="resource-card__top">
+                                <span class="rt-badge" data-rtype="event"><svg viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 2v4"/><path d="M16 2v4"/></svg>Event</span>
+                                <span class="tier-chip"><b>Tier 1</b> Summary</span>
+                            </div>
+                            <p class="resource-card__title">TAC quarterly meeting</p>
+                            <p class="resource-card__desc">Technical Advisory Committee review of the 2026 monitoring season and data highlights.</p>
+                            <div class="resource-card__meta">Sep 2026 · Open</div>
+                        </a>
+                    </div>
+                </section>
+
+                <!-- Results Highlight -->
+                <section class="ds-section" id="results-highlight">
+                    <h3 class="subsection-title">Results Highlight box</h3>
+                    <p class="subsection-desc">
+                        This is Task 1.2 as a component: pull a finding up the visual
+                        hierarchy so a topic page leads with the result, not the
+                        method. It is the client's "orange box," redrawn — a warm
+                        highlight surface (no coloured left border), a big figure, the
+                        finding in a heading, and a source line. A teal variant carries
+                        a synthesis finding where there is no single headline number.
+                    </p>
+
+                    <div style="display:flex; flex-direction:column; gap:16px;">
+                        <div class="result-highlight">
+                            <div class="result-highlight__figure">
+                                <div class="result-highlight__stat">3×</div>
+                                <div class="result-highlight__unit">more non-native fish</div>
+                            </div>
+                            <div>
+                                <p class="result-highlight__label">Result</p>
+                                <p class="result-highlight__finding">
+                                    After the 2014–2015 drought, non-native fish went
+                                    from a third of the catch to the majority — and the
+                                    community never fully changed back.
+                                </p>
+                                <p class="result-highlight__source">
+                                    Source: SBOTS 14-Year Report, 2025 · <a href="#">See the data</a>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="result-highlight is-teal">
+                            <div class="result-highlight__figure">
+                                <div class="result-highlight__stat">15,000</div>
+                                <div class="result-highlight__unit">acres in restoration</div>
+                            </div>
+                            <div>
+                                <p class="result-highlight__label">Result</p>
+                                <p class="result-highlight__finding">
+                                    Restored tidal ponds at Alviso now support fish
+                                    communities on par with natural sloughs — evidence
+                                    the largest restoration on the West Coast is working.
+                                </p>
+                                <p class="result-highlight__source">
+                                    Source: South Bay Salt Pond Restoration Project · <a href="#">Explore the sites</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Named content boxes -->
+                <section class="ds-section" id="content-boxes">
+                    <h3 class="subsection-title">Named content boxes</h3>
+                    <p class="subsection-desc">
+                        The two boxes the scope names by hand — today plain "little
+                        orange boxes" on topic pages. Redrawn as a shared content-box
+                        pattern: an icon tile, a heading, one sentence, and action
+                        buttons. Each takes a distinct identity — data-teal for the
+                        finder, framework-green for the Science Framework, whose GQ
+                        colour system rides along as five swatches.
+                    </p>
+
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); gap:16px;">
+                        <div class="content-box content-box--data">
+                            <div class="content-box__icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></div>
+                            <div class="content-box__body">
+                                <h4 class="content-box__title">Looking for local data?</h4>
+                                <p class="content-box__text">
+                                    Jump straight to the station-level datasets and the
+                                    interactive map for this region — download the raw
+                                    files or explore them online.
+                                </p>
+                                <div class="content-box__actions">
+                                    <a class="cb-btn is-solid" href="#"><svg viewBox="0 0 24 24"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>Download data</a>
+                                    <a class="cb-btn" href="#"><svg viewBox="0 0 24 24"><path d="M14.1 5.6a2 2 0 0 0 1.8 0l3.7-1.8A1 1 0 0 1 21 4.6v12.8a1 1 0 0 1-.6.9l-4.5 2.3a2 2 0 0 1-1.8 0l-4.2-2.1a2 2 0 0 0-1.8 0l-3.7 1.8A1 1 0 0 1 3 19.4V6.6a1 1 0 0 1 .6-.9l4.5-2.3a2 2 0 0 1 1.8 0z"/><path d="M15 5.8v15"/><path d="M9 3.2v15"/></svg>Open EcoAtlas</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="content-box content-box--framework">
+                            <div class="content-box__icon"><svg viewBox="0 0 24 24"><path d="M14 2v6a2 2 0 0 0 .2 1l5.5 10A2 2 0 0 1 18 22H6a2 2 0 0 1-1.7-3l5.5-10a2 2 0 0 0 .2-1V2"/><path d="M6.5 15h11"/><path d="M8.5 2h7"/></svg></div>
+                            <div class="content-box__body">
+                                <h4 class="content-box__title">
+                                    Science Framework
+                                    <span class="gq-swatches" aria-hidden="true">
+                                        <span style="background:var(--gq1-ink)"></span>
+                                        <span style="background:var(--gq2-ink)"></span>
+                                        <span style="background:var(--gq3-ink)"></span>
+                                        <span style="background:var(--gq4-ink)"></span>
+                                        <span style="background:var(--gq5-ink)"></span>
+                                    </span>
+                                </h4>
+                                <p class="content-box__text">
+                                    See how this topic maps to the region's guiding and
+                                    management questions — the monitoring design behind
+                                    every exhibit and dataset.
+                                </p>
+                                <div class="content-box__actions">
+                                    <a class="cb-btn is-solid" href="#"><svg viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>Open the Framework</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Filter system -->
+                <section class="ds-section" id="filter-system">
+                    <h3 class="subsection-title">Tag &amp; filter system</h3>
+                    <p class="subsection-desc">
+                        The three real facets over a wall of resource cards: the seven
+                        monitoring topics, the management questions (colour inherited
+                        from the Science-Framework ramp), and the three audience tiers.
+                        Within a group the chips are OR; across groups they are AND.
+                        "All" resets a group. Toggle the chips — the card wall filters
+                        live.
+                    </p>
+
+                    <div class="filter-bar">
+                        <div class="filter-group">
+                            <span class="filter-group__label">Monitoring topic <span>· 7 site topics</span></span>
+                            <div class="chip-row" data-facet="topic">
+                                <button class="fchip" type="button" data-value="all" aria-pressed="true">All</button>
+                                <button class="fchip" type="button" data-value="baylands-geography" aria-pressed="false">Baylands Geography</button>
+                                <button class="fchip" type="button" data-value="wetland-condition" aria-pressed="false">Wetland Condition</button>
+                                <button class="fchip" type="button" data-value="fish-wildlife" aria-pressed="false">Fish &amp; Wildlife</button>
+                                <button class="fchip" type="button" data-value="plant-communities" aria-pressed="false">Plant Communities</button>
+                                <button class="fchip" type="button" data-value="wetlands-sea-level-rise" aria-pressed="false">Wetlands &amp; Sea Level Rise</button>
+                                <button class="fchip" type="button" data-value="water-quality" aria-pressed="false">Water Quality</button>
+                                <button class="fchip" type="button" data-value="people-wetlands" aria-pressed="false">People &amp; Wetlands</button>
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <span class="filter-group__label">Management question <span>· colour = guiding question</span></span>
+                            <div class="chip-row" data-facet="mq">
+                                <button class="fchip" type="button" data-value="all" aria-pressed="true">All</button>
+                                <button class="fchip mq" type="button" data-value="1" data-gq="1" aria-pressed="false"><span class="gq-dot"></span>Q1 · Extent &amp; condition</button>
+                                <button class="fchip mq" type="button" data-value="2" data-gq="2" aria-pressed="false"><span class="gq-dot"></span>Q2 · External drivers</button>
+                                <button class="fchip mq" type="button" data-value="3" data-gq="3" aria-pressed="false"><span class="gq-dot"></span>Q3 · Restoration lessons</button>
+                                <button class="fchip mq" type="button" data-value="4" data-gq="4" aria-pressed="false"><span class="gq-dot"></span>Q4 · Plants &amp; animals</button>
+                                <button class="fchip mq" type="button" data-value="5" data-gq="5" aria-pressed="false"><span class="gq-dot"></span>Q5 · Public health</button>
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <span class="filter-group__label">Audience tier <span>· summarized → raw</span></span>
+                            <div class="chip-row" data-facet="tier">
+                                <button class="fchip" type="button" data-value="all" aria-pressed="true">All</button>
+                                <button class="fchip" type="button" data-value="1" aria-pressed="false">Tier 1 · Summarized</button>
+                                <button class="fchip" type="button" data-value="2" aria-pressed="false">Tier 2 · Synthesized</button>
+                                <button class="fchip" type="button" data-value="3" aria-pressed="false">Tier 3 · Raw data</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="filter-status" id="filter-status"><b id="filter-count">8</b> resources shown</p>
+
+                    <div class="resource-grid" id="filter-results">
+                        <a class="resource-card" href="#" data-topic="fish-wildlife" data-mq="4" data-tier="1">
+                            <div class="resource-card__top">
+                                <span class="rt-badge" data-rtype="storymap"><svg viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg>StoryMap</span>
+                                <span class="tier-chip"><b>Tier 1</b></span>
+                            </div>
+                            <p class="resource-card__title">Delta Smelt: The Smallest Giant</p>
+                            <p class="resource-card__desc">A tiny endangered native that reshaped California water policy.</p>
+                            <div class="resource-card__facets">
+                                <span class="facet-chip">Fish &amp; Wildlife</span>
+                                <span class="exhibit-tag" data-gq="4" title="4B — key resident species of fish and wildlife">4B</span>
+                            </div>
+                        </a>
+
+                        <a class="resource-card" href="#" data-topic="baylands-geography" data-mq="1" data-tier="1">
+                            <div class="resource-card__top">
+                                <span class="rt-badge" data-rtype="storymap"><svg viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg>StoryMap</span>
+                                <span class="tier-chip"><b>Tier 1</b></span>
+                            </div>
+                            <p class="resource-card__title">The Bay: Where We're Watching</p>
+                            <p class="resource-card__desc">The monitoring network across the estuary — where we watch, and why.</p>
+                            <div class="resource-card__facets">
+                                <span class="facet-chip">Baylands Geography</span>
+                                <span class="exhibit-tag" data-gq="1" title="1A — distribution, abundance and condition">1A</span>
+                            </div>
+                        </a>
+
+                        <a class="resource-card" href="#" data-topic="wetland-condition" data-mq="2" data-tier="2">
+                            <div class="resource-card__top">
+                                <span class="rt-badge" data-rtype="dataset"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>Dataset</span>
+                                <span class="tier-chip"><b>Tier 2</b></span>
+                            </div>
+                            <p class="resource-card__title">CRAM condition scores</p>
+                            <p class="resource-card__desc">Rapid-assessment vegetation and hydrology scores summarized across sites.</p>
+                            <div class="resource-card__facets">
+                                <span class="facet-chip">Wetland Condition</span>
+                                <span class="exhibit-tag" data-gq="2" title="2A — marsh elevation and extent over time">2A</span>
+                            </div>
+                        </a>
+
+                        <a class="resource-card" href="#" data-topic="wetlands-sea-level-rise" data-mq="2" data-tier="1">
+                            <div class="resource-card__top">
+                                <span class="rt-badge" data-rtype="storymap"><svg viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg>StoryMap</span>
+                                <span class="tier-chip"><b>Tier 1</b></span>
+                            </div>
+                            <p class="resource-card__title">Is the Bay Keeping Up?</p>
+                            <p class="resource-card__desc">Whether restored marshes can rise as fast as the sea.</p>
+                            <div class="resource-card__facets">
+                                <span class="facet-chip">Wetlands &amp; Sea Level Rise</span>
+                                <span class="exhibit-tag" data-gq="2" title="2A — marsh elevation and extent over time">2A</span>
+                            </div>
+                        </a>
+
+                        <a class="resource-card" href="#" data-topic="fish-wildlife" data-mq="4" data-tier="3">
+                            <div class="resource-card__top">
+                                <span class="rt-badge" data-rtype="dataset"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>Dataset</span>
+                                <span class="tier-chip"><b>Tier 3</b></span>
+                            </div>
+                            <p class="resource-card__title">SBOTS catch data, 2010–2024</p>
+                            <p class="resource-card__desc">A decade of otter-trawl catches — every haul, species and count, as CSV.</p>
+                            <div class="resource-card__facets">
+                                <span class="facet-chip">Fish &amp; Wildlife</span>
+                                <span class="exhibit-tag" data-gq="4" title="4A — change in fish and wildlife habitats">4A</span>
+                            </div>
+                        </a>
+
+                        <a class="resource-card" href="#" data-topic="people-wetlands" data-mq="5" data-tier="1">
+                            <div class="resource-card__top">
+                                <span class="rt-badge" data-rtype="video"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m10 8 6 4-6 4V8z"/></svg>Video</span>
+                                <span class="tier-chip"><b>Tier 1</b></span>
+                            </div>
+                            <p class="resource-card__title">Wetlands &amp; the community</p>
+                            <p class="resource-card__desc">How public access, flood protection and recreation share the restored shoreline.</p>
+                            <div class="resource-card__facets">
+                                <span class="facet-chip">People &amp; Wetlands</span>
+                                <span class="exhibit-tag" data-gq="5" title="5C — regional distribution of wetland benefits">5C</span>
+                            </div>
+                        </a>
+
+                        <a class="resource-card" href="#" data-topic="water-quality" data-mq="1" data-tier="3">
+                            <div class="resource-card__top">
+                                <span class="rt-badge" data-rtype="dataset"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>Dataset</span>
+                                <span class="tier-chip"><b>Tier 3</b></span>
+                            </div>
+                            <p class="resource-card__title">Water quality by station</p>
+                            <p class="resource-card__desc">Temperature, salinity and dissolved oxygen readings by station and date.</p>
+                            <div class="resource-card__facets">
+                                <span class="facet-chip">Water Quality</span>
+                                <span class="exhibit-tag" data-gq="1" title="1B — marsh change effects on water quality">1B</span>
+                            </div>
+                        </a>
+
+                        <a class="resource-card" href="#" data-topic="plant-communities" data-mq="4" data-tier="2">
+                            <div class="resource-card__top">
+                                <span class="rt-badge" data-rtype="document"><svg viewBox="0 0 24 24"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8l6 6v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 13h6"/><path d="M10 17h6"/></svg>Document</span>
+                                <span class="tier-chip"><b>Tier 2</b></span>
+                            </div>
+                            <p class="resource-card__title">Marsh vegetation synthesis</p>
+                            <p class="resource-card__desc">Plant-community composition and change across restored and reference marshes.</p>
+                            <div class="resource-card__facets">
+                                <span class="facet-chip">Plant Communities</span>
+                                <span class="exhibit-tag" data-gq="4" title="4A — change in fish and wildlife habitats">4A</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <p class="ds-note">
+                        Filtering is real (a small script toggles <code>aria-pressed</code>
+                        and matches each card's <code>data-topic</code> /
+                        <code>data-mq</code> / <code>data-tier</code>) so the interaction
+                        is legible in review, but the logic is illustrative — the live
+                        WordPress build would drive it from the same
+                        <code>exhibits.json</code> taxonomy.
+                    </p>
+                </section>
+            </div>
+        </main>
+
+        <script>
+            // ── Facet filter — OR within a group, AND across groups ──
+            (function () {
+                var groups = document.querySelectorAll(".filter-bar .chip-row[data-facet]");
+                var cards = Array.prototype.slice.call(
+                    document.querySelectorAll("#filter-results .resource-card")
+                );
+                var countEl = document.getElementById("filter-count");
+
+                function activeValues(row) {
+                    var pressed = row.querySelectorAll('.fchip[aria-pressed="true"]');
+                    var vals = [];
+                    pressed.forEach(function (b) {
+                        if (b.dataset.value !== "all") vals.push(b.dataset.value);
+                    });
+                    return vals; // empty ⇒ no constraint (All)
+                }
+
+                function apply() {
+                    var facets = {};
+                    groups.forEach(function (row) {
+                        facets[row.dataset.facet] = activeValues(row);
+                    });
+                    var shown = 0;
+                    cards.forEach(function (card) {
+                        var ok = Object.keys(facets).every(function (facet) {
+                            var vals = facets[facet];
+                            if (!vals.length) return true;
+                            return vals.indexOf(card.dataset[facet]) !== -1;
+                        });
+                        card.classList.toggle("is-hidden", !ok);
+                        if (ok) shown++;
+                    });
+                    countEl.textContent = shown;
+                }
+
+                groups.forEach(function (row) {
+                    row.addEventListener("click", function (e) {
+                        var chip = e.target.closest(".fchip");
+                        if (!chip) return;
+                        var isAll = chip.dataset.value === "all";
+                        if (isAll) {
+                            row.querySelectorAll(".fchip").forEach(function (b) {
+                                b.setAttribute("aria-pressed", b === chip ? "true" : "false");
+                            });
+                        } else {
+                            var next = chip.getAttribute("aria-pressed") !== "true";
+                            chip.setAttribute("aria-pressed", next ? "true" : "false");
+                            // turn off "All" once a specific chip is on
+                            var allChip = row.querySelector('.fchip[data-value="all"]');
+                            var anySpecific = row.querySelector(
+                                '.fchip[aria-pressed="true"]:not([data-value="all"])'
+                            );
+                            allChip.setAttribute("aria-pressed", anySpecific ? "false" : "true");
+                        }
+                        apply();
+                    });
+                });
+
+                apply();
+            })();
+        </script>
+    </body>
+</html>

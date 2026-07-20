@@ -1,0 +1,871 @@
+/* ══════════════════════════════════════════════════
+   WRMP Round 4 — Mobile-first vertical exhibit player.
+   Media-forward vertical cards, scroll-snap swipe, and
+   opt-in interaction. Paired with shared/js/exhibit-r4.js.
+   Load AFTER the shared stage CSS (exhibit-frame etc.) so
+   the few global rules (body) resolve mobile-first here.
+   See exhibits/round-4-2026-07/MOBILE-PATTERN.md.
+   ══════════════════════════════════════════════════ */
+
+:root {
+  --player-max: 460px;
+  --card-pad: clamp(20px, 5.5vw, 32px);
+  --kicker-ink: #9fe4ec;
+  --ease-sheet: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ink: #060a0c;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+/* Mobile-first: the vertical player owns the viewport. Overrides the
+   shared exhibit-frame.css body (which is written for the stage). */
+body {
+  font-family: var(--font-body);
+  margin: 0;
+  padding: 0;
+  background: #0b1013;
+  color: #fff;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow: hidden;
+  display: block;
+  min-height: auto;
+}
+/* Desktop: restore the shared stage's centered light frame. */
+body.is-desktop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--space-md);
+  background: #f4f4f4;
+  color: var(--wrmp-text);
+  overflow: auto;
+}
+#root-desktop {
+  width: 100%;
+  max-width: 1200px;
+}
+
+.lc {
+  width: 1em;
+  height: 1em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  vertical-align: -0.125em;
+}
+
+/* ── Player shell ────────────────────────────────── */
+.player {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: #000;
+}
+
+/* ── Scroll-snap deck ──────────────────────────── */
+.deck {
+  height: 100%;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+.deck::-webkit-scrollbar {
+  display: none;
+}
+.deck.locked {
+  overflow: hidden;
+}
+
+/* ── Card ──────────────────────────────────────── */
+.card {
+  position: relative;
+  height: 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.card-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: #0e1416;
+}
+.card-media video,
+.card-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.card-photo {
+  background-size: cover;
+  background-position: center;
+}
+.card-map {
+  position: absolute;
+  inset: 0;
+  background: #dfe6ea;
+}
+/* Gradient media — a simple tinted field behind the caption. */
+.card-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #12313a 0%, #0e2129 100%);
+}
+
+/* ── Figure card (custom content: charts, scorecards) ──
+   Chart-forward steps can't hide behind a scrim — the figure
+   sits on a solid panel up top, the caption reads below it. */
+.card--figure {
+  background: #0e1416;
+  justify-content: flex-start;
+}
+.card--figure .card-figure {
+  flex: 0 0 46%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(env(safe-area-inset-top, 0px) + 16px) 16px 8px;
+  overflow: hidden;
+}
+.card--figure .card-figure canvas {
+  max-width: 100%;
+}
+.card--figure .card-caption {
+  flex: 1 1 auto;
+  max-height: none;
+}
+/* On a figure card the scrim is unnecessary (bg is already dark). */
+.card--figure .card-scrim {
+  display: none;
+}
+
+/* Bottom scrim carries the caption over any media. */
+.card-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    rgba(6, 10, 12, 0.93) 0%,
+    rgba(6, 10, 12, 0.8) 24%,
+    rgba(6, 10, 12, 0.34) 50%,
+    rgba(6, 10, 12, 0.04) 72%,
+    rgba(6, 10, 12, 0) 100%
+  );
+}
+/* Maps are light — add a top vignette so tiles don't glare. */
+.card[data-media="map"] .card-scrim {
+  background: linear-gradient(
+    to top,
+    rgba(6, 10, 12, 0.95) 0%,
+    rgba(6, 10, 12, 0.82) 28%,
+    rgba(6, 10, 12, 0.32) 54%,
+    rgba(6, 10, 12, 0.08) 76%,
+    rgba(6, 10, 12, 0.26) 100%
+  );
+}
+
+.card-credit {
+  position: absolute;
+  z-index: 2;
+  right: 10px;
+  top: calc(env(safe-area-inset-top, 0px) + 12px);
+  font-size: 11px;
+  line-height: 1.3;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(0, 0, 0, 0.3);
+  padding: 3px 8px;
+  border-radius: 6px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  max-width: 55%;
+  text-align: right;
+}
+
+/* ── Caption (the story, over the media) ───────── */
+.card-caption {
+  position: relative;
+  z-index: 2;
+  padding: var(--card-pad);
+  padding-bottom: calc(
+    var(--card-pad) + env(safe-area-inset-bottom, 0px) + 4px
+  );
+  max-height: 70%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.card-caption::-webkit-scrollbar {
+  display: none;
+}
+
+.card-kicker {
+  font-size: var(--step-0);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--kicker-ink);
+  margin-bottom: 8px;
+}
+.card-title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.9rem, 6.8vw, 2.5rem);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  color: #fff;
+  margin-bottom: 14px;
+  text-wrap: balance;
+}
+.card-body p {
+  font-size: clamp(16px, 4.3vw, 18px);
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 12px;
+}
+.card-body p:last-child {
+  margin-bottom: 0;
+}
+.card-body em {
+  font-style: italic;
+  color: #fff;
+}
+.card-body strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Stat row — hairline-divided, glanceable. */
+.card-stats {
+  display: flex;
+  margin: 20px 0 2px;
+}
+.card-stat {
+  flex: 1;
+  padding: 0 14px;
+  border-left: 1px solid rgba(255, 255, 255, 0.18);
+}
+.card-stat:first-child {
+  padding-left: 0;
+  border-left: none;
+}
+.card-stat .num {
+  font-size: clamp(1.3rem, 5.6vw, 1.7rem);
+  font-weight: 700;
+  line-height: 1.1;
+  color: #fff;
+}
+.card-stat .lbl {
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.62);
+  margin-top: 5px;
+}
+
+.card-callout {
+  margin: 18px 0 2px;
+  padding: 13px 15px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: clamp(16px, 4.3vw, 18px);
+  font-weight: 500;
+  line-height: 1.38;
+  color: #fff;
+}
+
+/* Static region key on filterable map cards. */
+.card-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 16px;
+}
+.card-key .k {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--step--1);
+  color: rgba(255, 255, 255, 0.82);
+}
+.card-key .k i {
+  width: 11px;
+  height: 11px;
+  border-radius: 999px;
+  display: inline-block;
+  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.5);
+}
+
+/* Explore-the-map pill — the opt-in to interaction. */
+.map-explore {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 16px;
+  padding: 11px 18px;
+  min-height: 46px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #12313a;
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.32);
+}
+.map-explore .lc {
+  font-size: 1.15em;
+}
+.map-explore:active {
+  transform: translateY(1px);
+}
+
+/* ── Cover card ────────────────────────────────── */
+.card--cover .card-caption {
+  max-height: 82%;
+}
+.cover-tags {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.cover-tag {
+  font-size: var(--step--1);
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--gray-4);
+  color: var(--gray-12);
+  text-decoration: none;
+}
+/* Guiding-question tag colors, keyed by data-gq (1–5). */
+.cover-tag[data-gq="1"] { background: var(--gq1-sat); color: var(--gq1-ink); }
+.cover-tag[data-gq="2"] { background: var(--gq2-sat); color: var(--gq2-ink); }
+.cover-tag[data-gq="3"] { background: var(--gq3-sat); color: var(--gq3-ink); }
+.cover-tag[data-gq="4"] { background: var(--gq4-sat); color: var(--gq4-ink); }
+.cover-tag[data-gq="5"] { background: var(--gq5-sat); color: var(--gq5-ink); }
+.cover-topic {
+  font-size: var(--step--1);
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  text-decoration: none;
+}
+.cover-kicker {
+  font-size: var(--step-0);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--kicker-ink);
+  margin-bottom: 10px;
+}
+.cover-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2.3rem, 9vw, 3.1rem);
+  font-weight: 600;
+  line-height: 1.03;
+  letter-spacing: -0.015em;
+  color: #fff;
+  margin-bottom: 16px;
+  text-wrap: balance;
+}
+.cover-lede {
+  font-size: clamp(16px, 4.6vw, 19px);
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.88);
+  margin-bottom: 8px;
+}
+.cover-updated {
+  font-size: var(--step--1);
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 14px;
+}
+.swipe-cue {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-top: 22px;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.swipe-cue .lc {
+  font-size: 1.5em;
+  animation: nudge 1.8s ease-in-out infinite;
+}
+@keyframes nudge {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(6px);
+    opacity: 1;
+  }
+}
+
+/* ── End card ──────────────────────────────────── */
+.card--end .card-media {
+  background: #0e1416;
+}
+.card--end .card-photo {
+  filter: brightness(0.4) saturate(1.05);
+}
+.card--end .card-scrim {
+  background: linear-gradient(
+    to top,
+    rgba(6, 10, 12, 0.9) 0%,
+    rgba(6, 10, 12, 0.7) 60%,
+    rgba(6, 10, 12, 0.55) 100%
+  );
+}
+.card--end .card-caption {
+  max-height: 100%;
+  justify-content: flex-start;
+  padding-top: calc(env(safe-area-inset-top, 0px) + 68px);
+}
+.end-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 22px;
+}
+.end-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 50px;
+  padding: 13px 20px;
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+.end-btn--primary {
+  background: #fff;
+  color: #12313a;
+  border: none;
+}
+.end-btn--secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.24);
+}
+
+/* ── Progress rail ─────────────────────────────── */
+.rail {
+  position: absolute;
+  z-index: 6;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  padding: 8px 4px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.rail-tick {
+  all: unset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 15px;
+  cursor: pointer;
+}
+.rail-tick::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.5);
+  transition:
+    height 0.3s ease,
+    background 0.3s ease;
+}
+.rail-tick.active::before {
+  height: 20px;
+  background: #fff;
+}
+
+/* ── Data & tools trigger (top-left) ───────────── */
+.sheet-trigger {
+  position: absolute;
+  z-index: 6;
+  left: 12px;
+  top: calc(env(safe-area-inset-top, 0px) + 12px);
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #fff;
+  cursor: pointer;
+}
+.sheet-trigger .lc {
+  font-size: 1.35em;
+}
+
+/* ── Bottom sheet ──────────────────────────────── */
+.sheet-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.sheet-scrim.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.sheet {
+  position: absolute;
+  z-index: 41;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transform: translateY(100%);
+  visibility: hidden;
+  max-height: 86%;
+  background: #14191b;
+  color: #fff;
+  border-radius: 20px 20px 0 0;
+  transition:
+    transform 0.34s var(--ease-sheet),
+    visibility 0s linear 0.34s;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 -12px 44px rgba(0, 0, 0, 0.55);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.sheet.open {
+  transform: translateY(0);
+  visibility: visible;
+  transition: transform 0.34s var(--ease-sheet);
+}
+.sheet-grip {
+  width: 42px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.28);
+  margin: 11px auto 2px;
+  flex-shrink: 0;
+}
+.sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 18px 12px;
+  flex-shrink: 0;
+}
+.sheet-title {
+  font-size: var(--step-1);
+  font-weight: 600;
+}
+.sheet-close {
+  all: unset;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  cursor: pointer;
+}
+.sheet-body {
+  overflow-y: auto;
+  padding: 0 16px 20px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Resource list — rendered in the sheet AND the end card from one source.
+   Category accents — Data (teal), Tools (green), Context (amber);
+   matches the desktop level3 category language. */
+[data-cat="data"] {
+  --cat-accent: #6fd3e3;
+  --cat-soft: rgba(111, 211, 227, 0.16);
+}
+[data-cat="tools"] {
+  --cat-accent: #7fce8c;
+  --cat-soft: rgba(127, 206, 140, 0.16);
+}
+[data-cat="science"] {
+  --cat-accent: #f0b454;
+  --cat-soft: rgba(240, 180, 84, 0.16);
+}
+
+.res-group + .res-group {
+  margin-top: 18px;
+}
+.res-grouphead {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 10px;
+}
+.res-cat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--cat-soft, rgba(255, 255, 255, 0.1));
+  color: var(--cat-accent, #fff);
+  flex-shrink: 0;
+}
+.res-grouphead .gh-name {
+  font-size: var(--step-0);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--cat-accent, rgba(255, 255, 255, 0.72));
+}
+.res-grouphead .gh-count {
+  font-size: var(--step--1);
+  color: rgba(255, 255, 255, 0.45);
+}
+.res-row {
+  display: flex;
+  gap: 12px;
+  padding: 13px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  text-decoration: none;
+  color: #fff;
+  align-items: flex-start;
+}
+.res-row + .res-row {
+  margin-top: 8px;
+}
+.res-row:active {
+  background: rgba(255, 255, 255, 0.09);
+}
+.res-row .lc.rw-lead {
+  font-size: 1.3em;
+  color: var(--cat-accent, rgba(255, 255, 255, 0.8));
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.rw-body {
+  min-width: 0;
+  flex: 1;
+}
+.rw-top {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.rw-name {
+  font-size: clamp(16px, 4.2vw, 17px);
+  font-weight: 600;
+}
+.rw-chip {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.85);
+}
+.rw-go {
+  margin-left: auto;
+  color: rgba(255, 255, 255, 0.55);
+}
+.rw-desc {
+  font-size: var(--step-0);
+  line-height: 1.42;
+  color: rgba(255, 255, 255, 0.66);
+  margin-top: 4px;
+}
+
+/* ── Fullscreen map modal ──────────────────────── */
+.mapmodal {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  background: #0e1416;
+  transform: translateY(100%);
+  transition: transform 0.34s var(--ease-sheet);
+  visibility: hidden;
+}
+.mapmodal.open {
+  transform: translateY(0);
+  visibility: visible;
+}
+.mapmodal-map {
+  position: absolute;
+  inset: 0;
+  z-index: 0; /* own stacking context so Leaflet panes stay below the chrome */
+}
+.mapmodal-bar {
+  position: absolute;
+  z-index: 2;
+  top: calc(env(safe-area-inset-top, 0px) + 10px);
+  left: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  pointer-events: none;
+}
+.mapmodal-title {
+  pointer-events: auto;
+  background: rgba(0, 0, 0, 0.52);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 9px 15px;
+  border-radius: 999px;
+  font-size: var(--step-0);
+  font-weight: 600;
+  color: #fff;
+}
+.mapmodal-close {
+  pointer-events: auto;
+  all: unset;
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.52);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.mapmodal-close .lc {
+  font-size: 1.3em;
+}
+.mapmodal-legend {
+  position: absolute;
+  z-index: 2;
+  left: 12px;
+  right: 12px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+.mm-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 15px;
+  min-height: 42px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.93);
+  color: #12313a;
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.32);
+  transition: opacity 0.15s ease;
+}
+.mm-chip.dimmed {
+  opacity: 0.45;
+}
+.mm-chip .dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.7);
+}
+
+/* Leaflet marker popups inside the modal sit on a dark base. */
+.mapmodal .leaflet-popup-content-wrapper {
+  border-radius: 12px;
+}
+
+/* ── Desktop figure stage (custom steps) ───────────
+   Right of the story panel — where the live map would sit on
+   a map step, a chart/scorecard sits on a custom step. */
+#d-figure {
+  position: absolute;
+  left: 44%;
+  right: 3%;
+  top: 5%;
+  bottom: 5%;
+  z-index: 1;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+#d-figure.active {
+  display: flex;
+}
+#d-figure canvas {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deck {
+    scroll-behavior: auto;
+  }
+  .swipe-cue .lc {
+    animation: none;
+  }
+  .sheet,
+  .mapmodal {
+    transition: none;
+  }
+}

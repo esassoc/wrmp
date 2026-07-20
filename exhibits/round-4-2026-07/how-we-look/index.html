@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>How We Monitor — WRMP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://unpkg.com" />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="../../../shared/css/tokens.css" />
+    <!-- Shared stage CSS (desktop shell) -->
+    <link rel="stylesheet" href="../../../shared/css/leaflet-overrides.css?v=2" />
+    <link rel="stylesheet" href="../../../shared/css/marker-popup.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-frame.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-cover.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-tags.css" />
+    <link rel="stylesheet" href="../../../shared/css/level3.css?v=6" />
+    <!-- Mobile player CSS — loads last so it wins the shared global rules -->
+    <link rel="stylesheet" href="../../../shared/css/exhibit-mobile.css" />
+  </head>
+  <body>
+    <div id="root-mobile"></div>
+    <div id="root-desktop"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script src="../../../shared/js/data-loader.js"></script>
+    <script src="../../../shared/js/marker-popup.js"></script>
+    <script src="../../../shared/js/exhibit-r4.js"></script>
+    <script>
+      // ══════════════════════════════════════════════════
+      // How We Monitor — content only. The dual-shell engine
+      // (shared/js/exhibit-r4.js) renders both shells from this.
+      //
+      // Step 1 is chart-forward: media:{type:'custom'} draws a
+      // Chart.js species-by-group bar (ported from the R3 species
+      // treemap). Step 5 is the habitat map. Both read loaded data.
+      // ══════════════════════════════════════════════════
+
+      // Marker colors by habitat (R3 brand hexes for the map).
+      var HABITAT_COLORS = {
+        "Slough": "#228B9C",
+        "Open Bay": "#005E6A",
+        "Tidal Pond Slough": "#379352",
+        "Tidal Pond": "#92BB4D",
+      };
+
+      // Species-group fill colors, ported from the R3 treemap palette.
+      var GROUP_COLORS = {
+        Fish: "#228B9C",
+        Crab: "#005E6A",
+        "Cancer Crab": "#00475A",
+        "Majid Crab": "#006878",
+        "Swimming Crab": "#004050",
+        "Bay Shrimp": "#379352",
+        Shrimp: "#2D7A44",
+        "Palaemonid Shrimp": "#4BA366",
+        "Broken-back Shrimp": "#3A8C55",
+        "Mud Shrimp": "#2B7040",
+        Clam: "#92BB4D",
+        Mussel: "#7FA843",
+        Oyster: "#A8CC5A",
+        Jelly: "#E09337",
+        Mysid: "#6BB5C2",
+        Gastropod: "#D4A96A",
+        Other: "#8CAAB5",
+      };
+
+      // Chart.js shared defaults (font, animation, tooltip chrome).
+      // Per-chart tick / grid colors come from ctx.mode below.
+      if (window.Chart) {
+        Chart.defaults.font.family =
+          "'Source Sans 3', 'Source Sans Pro', Helvetica, Arial, sans-serif";
+        Chart.defaults.font.size = 13;
+        Chart.defaults.animation.duration = 900;
+        Chart.defaults.animation.easing = "easeOutCubic";
+        Chart.defaults.plugins.legend.display = false;
+        Chart.defaults.plugins.tooltip.backgroundColor = "rgba(20,22,25,0.92)";
+        Chart.defaults.plugins.tooltip.titleColor = "#fff";
+        Chart.defaults.plugins.tooltip.bodyColor = "#fff";
+        Chart.defaults.plugins.tooltip.titleFont = { size: 14, weight: "600" };
+        Chart.defaults.plugins.tooltip.bodyFont = { size: 14 };
+        Chart.defaults.plugins.tooltip.padding = 10;
+        Chart.defaults.plugins.tooltip.displayColors = false;
+        Chart.defaults.plugins.tooltip.cornerRadius = 6;
+      }
+
+      // Mobile figure cards are dark; desktop figure stage is light.
+      function figColors(ctx) {
+        var mobile = ctx.mode === "mobile";
+        return {
+          text: mobile ? "#e8eef2" : "#1d2427",
+          grid: mobile ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.1)",
+        };
+      }
+      // Dispose any prior chart, then mount a fresh full-size canvas.
+      // The engine re-invokes render on data load, so this runs > once.
+      function mountCanvas(container) {
+        if (container._chart) {
+          container._chart.destroy();
+          container._chart = null;
+        }
+        container.innerHTML = "";
+        var wrap = document.createElement("div");
+        wrap.style.cssText = "position:relative;width:100%;height:100%";
+        var canvas = document.createElement("canvas");
+        wrap.appendChild(canvas);
+        container.appendChild(wrap);
+        return canvas;
+      }
+
+      // ── Step 1: species-by-group horizontal bar ──────
+      // Substitutes the R3 hand-drawn treemap: same "species by
+      // group" counts (top 10 groups + Other), same fill palette.
+      function renderSpeciesByGroup(container, ctx) {
+        var col = figColors(ctx);
+        var canvas = mountCanvas(container);
+        var species = (ctx.data && ctx.data.species) || [];
+
+        var counts = {};
+        species.forEach(function (s) {
+          var g = s.group || "Unknown";
+          counts[g] = (counts[g] || 0) + 1;
+        });
+        var sorted = Object.keys(counts)
+          .map(function (k) { return { group: k, count: counts[k] }; })
+          .sort(function (a, b) { return b.count - a.count; });
+        var TOP_N = 10;
+        var top = sorted.slice(0, TOP_N);
+        var otherCount = sorted.slice(TOP_N).reduce(function (sum, d) {
+          return sum + d.count;
+        }, 0);
+        if (otherCount > 0) top.push({ group: "Other", count: otherCount });
+
+        var labels = top.map(function (d) { return d.group; });
+        var values = top.map(function (d) { return d.count; });
+        var colors = top.map(function (d) {
+          return GROUP_COLORS[d.group] || GROUP_COLORS.Other;
+        });
+
+        container._chart = new Chart(canvas, {
+          type: "bar",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                data: values,
+                backgroundColor: colors,
+                borderRadius: 4,
+                borderSkipped: false,
+              },
+            ],
+          },
+          options: {
+            indexAxis: "y",
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: { padding: { left: 0, right: 12, top: 2, bottom: 2 } },
+            scales: {
+              x: {
+                beginAtZero: true,
+                grid: { color: col.grid, drawBorder: false },
+                ticks: { color: col.text, font: { size: 12 }, precision: 0 },
+              },
+              y: {
+                grid: { display: false, drawBorder: false },
+                ticks: { color: col.text, font: { size: 12 } },
+              },
+            },
+            plugins: {
+              title: {
+                display: true,
+                text: "Documented species by group",
+                color: col.text,
+                font: { size: 13, weight: "600" },
+                padding: { bottom: 8 },
+              },
+              tooltip: {
+                callbacks: {
+                  label: function (c) { return c.parsed.x + " species"; },
+                },
+              },
+            },
+          },
+        });
+      }
+
+      WRMP.createR4Exhibit({
+        data: { stations: true, species: true },
+
+        cover: {
+          image: "cover.jpg",
+          tag: "4A",
+          tagGq: 4,
+          tagHref: "../../../website-integration/science-framework-round2.html#mq-4A",
+          topic: "Fish & Wildlife",
+          topicHref: "../../../website-integration/topic-page.html",
+          kicker: "WRMP Exhibit · Field Methods",
+          title: "How We Monitor",
+          lede: "From otter trawls to beach seines to gill nets — how WRMP samples the estuary's fish, and what each gear reveals about the ecosystem below.",
+          updated: "Last updated May 28, 2026",
+        },
+
+        steps: [
+          {
+            kicker: "Monitoring Methods",
+            title: "No Single Net Catches Everything",
+            media: { type: "custom", render: renderSpeciesByGroup },
+            body: [
+              "The San Francisco Estuary holds 237 species across every habitat — open water, channel bottoms, marsh edges. Each requires a different approach to sample.",
+              "These surveys require certified boat operators, trained fisheries scientists, and familiarity with working in tidal wetlands. The tools change — but the question stays the same: <strong>what lives here?</strong>",
+            ],
+            stats: [
+              { num: "237", lbl: "Species" },
+              { num: "9", lbl: "Gear Types" },
+              { num: "119", lbl: "Stations" },
+            ],
+          },
+          {
+            kicker: "The Workhorse",
+            title: "Otter Trawls: Sweeping the Channels",
+            media: { type: "photo", src: "otter-trawl.jpg", position: "center", credit: "AI-generated reference image" },
+            body: [
+              "A net towed behind a boat for 5 to 10 minutes, sweeping fish and invertebrates from slough channels. The otter trawl is the program's workhorse — four sizes for different waterways.",
+              "The largest (OT14) has a 14-foot opening for wide channels. The smallest (OT4) fits narrow marsh creeks. A fine-mesh variant (OTL) catches larvae and tiny invertebrates that slip through standard nets.",
+            ],
+            stats: [
+              { num: "4", lbl: "Trawl Sizes" },
+              { num: "77", lbl: "Slough Stations" },
+            ],
+            callout: "Trawls catch the broadest diversity — benthic species on the bottom and pelagic species in the water column. A single quarter produced 244 trawl samples across the Bay.",
+          },
+          {
+            kicker: "Walking the Shallows",
+            title: "Beach Seines: The Shallow Edge",
+            media: { type: "photo", src: "beach-seine.jpg", position: "center", credit: "AI-generated reference image" },
+            body: [
+              "For shallow marsh edges and mudflats where boats can't go. Two people drag a net through the shallows — a method unchanged for centuries.",
+              "Two sizes: 20 feet for tight spots, 50 feet for open shoreline. The fine mesh catches small species and juveniles that slip past larger gear.",
+              "Timing matters. Seines work best at low tide when water is shallow and fish concentrate along the margins.",
+            ],
+            stats: [
+              { num: "20 ft", lbl: "Tight marsh edges" },
+              { num: "50 ft", lbl: "Open shoreline" },
+            ],
+            callout: "Beach seines catch littoral species — the creatures that live along the edges. These shallow-water habitats are critical nursery grounds for juvenile fish.",
+          },
+          {
+            kicker: "The Specialists",
+            title: "Gill Nets & Fyke Traps",
+            media: { type: "photo", src: "gill-net.jpg", position: "center", credit: "AI-generated reference image" },
+            body: [
+              "Gill nets are 150 feet of mesh stretched across the current, with six panel sizes from 2 inches to 8 inches. They catch larger fish that swim through — Leopard Sharks, sturgeon, Striped Bass.",
+              "Fyke traps take a different approach: passive capture. A 3-by-6-foot frame with two 50-foot lead nets funnels fish into a holding chamber. Set and wait.",
+            ],
+            stats: [
+              { num: "150 ft", lbl: "Gill net length" },
+              { num: "6", lbl: "Mesh panels" },
+              { num: "100 ft", lbl: "Fyke lead nets" },
+            ],
+            callout: "These specialist tools fill gaps the trawls and seines miss — the large, powerful swimmers and the species that avoid active nets.",
+          },
+          {
+            kicker: "The Complete Picture",
+            title: "Matching Tools to Questions",
+            media: { type: "map", view: "habitat" },
+            body: [
+              "Each station's habitat determines which gear gets deployed. The monitoring design matches methods to places to build a complete picture of the estuary.",
+              "<strong style=\"color: var(--cyan-11)\">Sloughs</strong> get otter trawls — the channels are deep enough for boats and nets. <strong style=\"color: var(--cyan-11)\">Open Bay</strong> stations combine trawls with gill nets for open-water species.",
+              "<strong style=\"color: var(--grass-11)\">Tidal pond sloughs</strong> use smaller trawls suited to restored channels. <strong style=\"color: var(--lime-11)\">Tidal ponds</strong> get seines for their shallow, enclosed waters.",
+            ],
+            callout: "No single gear catches everything — but together, nine types across 119 stations give scientists a comprehensive view of what lives in the estuary.",
+          },
+        ],
+
+        end: {
+          kicker: "Thanks for exploring",
+          title: "The data runs deeper",
+          lede: "This exhibit is one layer. WRMP's monitoring lives inside a larger data ecosystem — from the Bay-wide EcoAtlas toolset to the raw datasets scientists work with every day.",
+        },
+
+        resources: [
+          {
+            cat: "Data",
+            icon: "i-database",
+            items: [
+              { name: "Species catalog", chip: "JSON", icon: "i-download", desc: "Every fish and invertebrate taxon documented across the estuary, native and invasive.", href: "../../../data/species.json" },
+              { name: "Station network", chip: "JSON", icon: "i-download", desc: "All 119 monitoring stations with coordinates, region and network — where each catch was recorded.", href: "../../../data/stations.json" },
+            ],
+          },
+          {
+            cat: "Tools",
+            icon: "i-compass",
+            items: [
+              { name: "EcoAtlas", chip: "Web tool", icon: "i-map", desc: "Interactive geospatial maps of every wetland, restoration project and station in the estuary.", href: "https://www.ecoatlas.org/regions/ecoregion/bay-delta", ext: true },
+            ],
+          },
+          {
+            cat: "Context",
+            icon: "i-book",
+            items: [
+              { name: "WRMP Science Framework", chip: "Web report", icon: "i-file", desc: "The monitoring design — management questions, indicators and how the station network answers them.", href: "https://www.wrmp.org/science-framework/", ext: true },
+              { name: "State of Our Estuary", chip: "Web report", icon: "i-file", desc: "Regional status reporting on the estuary's health, habitats and long-term species trends.", href: "https://www.stateofourestuary.org/", ext: true },
+            ],
+          },
+        ],
+
+        map: {
+          popupFields: [
+            ["Region", "region"],
+            ["Network", "WRMP_Network"],
+            ["Habitat", "habitat"],
+            ["Site Type", "WRMP_Site_Type"],
+          ],
+          views: {
+            habitat: {
+              bounds: [[37.4, -122.55], [38.28, -121.85]],
+              radius: 7,
+              colorFor: function (s) { return HABITAT_COLORS[(s.habitat || "").trim()] || "#999"; },
+              filter: {
+                field: "habitat",
+                options: [
+                  { label: "Slough", value: "Slough", color: "#228B9C" },
+                  { label: "Open Bay", value: "Open Bay", color: "#005E6A" },
+                  { label: "Tidal Pond Slough", short: "Tidal Slough", value: "Tidal Pond Slough", color: "#379352" },
+                  { label: "Tidal Pond", value: "Tidal Pond", color: "#92BB4D" },
+                ],
+              },
+            },
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

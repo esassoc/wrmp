@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Delta Smelt: The Smallest Giant — WRMP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://unpkg.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="../../../shared/css/tokens.css" />
+    <!-- Shared stage CSS (desktop shell) -->
+    <link rel="stylesheet" href="../../../shared/css/leaflet-overrides.css?v=2" />
+    <link rel="stylesheet" href="../../../shared/css/marker-popup.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-frame.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-cover.css" />
+    <link rel="stylesheet" href="../../../shared/css/exhibit-tags.css" />
+    <link rel="stylesheet" href="../../../shared/css/level3.css?v=6" />
+    <!-- Mobile player CSS — loads last so it wins the shared global rules -->
+    <link rel="stylesheet" href="../../../shared/css/exhibit-mobile.css" />
+  </head>
+  <body>
+    <div id="root-mobile"></div>
+    <div id="root-desktop"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="../../../shared/js/data-loader.js"></script>
+    <script src="../../../shared/js/marker-popup.js"></script>
+    <script src="../../../shared/js/exhibit-r4.js"></script>
+    <script>
+      // ══════════════════════════════════════════════════
+      // Delta Smelt — content only. The dual-shell engine
+      // (shared/js/exhibit-r4.js) renders both shells from this.
+      // ══════════════════════════════════════════════════
+      var REGION = {
+        "South Bay": "#005E6A",
+        "North Bay": "#379352",
+        "Suisun Bay": "#E09337",
+      };
+
+      WRMP.createR4Exhibit({
+        frameTint: "#e8eef2",
+        data: { stations: true, species: true },
+
+        cover: {
+          image: "cover.jpg",
+          tag: "4B",
+          tagGq: 4,
+          tagHref: "../../../website-integration/science-framework-round2.html#mq-4B",
+          topic: "Fish & Wildlife",
+          topicHref: "../../../website-integration/topic-page.html",
+          kicker: "WRMP Exhibit · Featured Species",
+          title: "Delta Smelt: The Smallest Giant",
+          lede: "Meet the tiny endangered native that reshaped California water policy. See where it lives, why it matters, and what's at stake.",
+          updated: "Last updated May 28, 2026",
+        },
+
+        steps: [
+          {
+            kicker: "Delta Smelt",
+            title: "Meet the Smallest Giant",
+            media: { type: "video", src: "delta-smelt.mp4", poster: "poster.webp", credit: "Video: Doug Bertran / UC Davis FCCL" },
+            body: [
+              "<em>Hypomesus transpacificus.</em> A native pelagic fish in the family Osmeridae — the smelts. About the length of your finger, nearly translucent, with a faint cucumber smell when fresh from the water.",
+              "It lives for just one year, exists nowhere else on Earth except the Sacramento–San Joaquin estuary, and has become one of the most closely watched species in California.",
+            ],
+            stats: [
+              { num: "2–3\"", lbl: "Adult length" },
+              { num: "1 yr", lbl: "Lifespan" },
+              { num: "Native", lbl: "Status" },
+            ],
+          },
+          {
+            kicker: "Habitat",
+            title: "This Is Its World",
+            media: { type: "map", view: "suisun" },
+            body: [
+              "Delta Smelt live in the narrow band where fresh river water meets saltwater from the Bay — the low-salinity mixing zone of Suisun Bay and the western Delta.",
+              "This brackish water shifts with the seasons and with how much water flows from upstream. In wet years the zone pushes seaward; in drought it contracts inland. The fish follow the water.",
+            ],
+            callout: "27 monitoring stations track conditions in Delta Smelt's core habitat — salinity, temperature, turbidity, and the communities that share this water.",
+          },
+          {
+            kicker: "Community",
+            title: "Who Shares This Water",
+            media: { type: "map", view: "suisun" },
+            body: [
+              "Delta Smelt is one species in a complex web. The estuary supports hundreds of documented species — fish, invertebrates, and crustaceans — competing for the same water and food.",
+              "Key native co-habitants include Longfin Smelt, Threespine Stickleback, and Sacramento Splittail. But the estuary has changed — invasive species now make up a significant portion of the community.",
+            ],
+            stats: [
+              { dataKey: "nativeFish", lbl: "Native fish" },
+              { dataKey: "invasiveFish", lbl: "Invasive fish" },
+              { dataKey: "totalSpecies", lbl: "Total species" },
+            ],
+            callout: "WRMP monitoring has documented dozens of invasive species across the estuary — competitors that reshape the food web Delta Smelt depends on.",
+          },
+          {
+            kicker: "Threats",
+            title: "A Species Under Pressure",
+            media: { type: "photo", src: "https://archive.estuarynews.org/wp-content/uploads/2022/02/1-5-Release-alt-51750348162_a07457ba6c_k-1024x683.jpg", position: "center 40%", credit: "USFWS / Public Domain" },
+            body: [
+              "No single cause explains the Delta Smelt's decline. Habitat loss, altered water flows, warming temperatures, and invasive competitors all converge in this estuary.",
+              "The 2014–2015 drought was a turning point — monitoring showed native fish communities losing ground to non-natives, a regime shift that reshaped which species dominate.",
+              "Long-term monitoring makes these shifts visible. Without consistent data across the network, the pressures on species like Delta Smelt would stay invisible until it was too late.",
+            ],
+          },
+          {
+            kicker: "Infrastructure",
+            title: "The Network That Watches",
+            media: { type: "map", view: "bay" },
+            body: [
+              "WRMP coordinates monitoring across the full estuary — from South Bay's restored salt ponds to the brackish channels of Suisun Marsh. Nine sampling networks, three regions, one connected picture.",
+              "Each station collects data on fish communities, water quality, and habitat conditions — together, the infrastructure that makes it possible to detect change.",
+            ],
+            stats: [
+              { num: "119", lbl: "Stations" },
+              { num: "9", lbl: "Networks" },
+              { dataKey: "speciesDocumented", lbl: "Species" },
+            ],
+          },
+          {
+            kicker: "Why It Matters",
+            title: "You Can't Save What You Can't See",
+            media: { type: "map", view: "bay" },
+            body: [
+              "Every station on this map is a question being asked: <strong>what's here, and is it changing?</strong>",
+              "For Delta Smelt, monitoring is the conservation tool. Without stations in the water, declines go unnoticed, recoveries go uncounted, and management decisions fly blind.",
+              "WRMP's role is to keep asking — season after season, station after station — so the estuary's story is told with data, not guesswork.",
+            ],
+            callout: "Monitoring doesn't just document decline. It measures the conditions needed for recovery — and tells us whether our efforts are working.",
+          },
+        ],
+
+        end: {
+          kicker: "The data runs deeper",
+          title: "Take the data further",
+          lede: "This exhibit is one layer. The Delta Smelt's story sits inside a larger data ecosystem — from the Bay-wide EcoAtlas toolset to the raw datasets scientists work with every day.",
+        },
+
+        resources: [
+          {
+            cat: "Data",
+            icon: "i-database",
+            items: [
+              { name: "Species catalog", chip: "JSON", icon: "i-download", desc: "Every fish and invertebrate taxon documented across the estuary, native and invasive.", href: "../../../data/species.json" },
+              { name: "Station network", chip: "JSON", icon: "i-download", desc: "All 119 monitoring stations with coordinates, region and network — including the 27 in Delta Smelt habitat.", href: "../../../data/stations.json" },
+            ],
+          },
+          {
+            cat: "Tools",
+            icon: "i-compass",
+            items: [
+              { name: "EcoAtlas", chip: "Web tool", icon: "i-map", desc: "Interactive geospatial maps of every wetland, restoration project and station in the estuary.", href: "https://www.ecoatlas.org/", ext: true },
+            ],
+          },
+          {
+            cat: "Context",
+            icon: "i-book",
+            items: [
+              { name: "WRMP Science Framework", chip: "Web report", icon: "i-file", desc: "The monitoring design — management questions, indicators and how the station network answers them.", href: "https://www.wrmp.org/science-framework/", ext: true },
+              { name: "State of Our Estuary", chip: "Web report", icon: "i-file", desc: "Regional status reporting on the estuary's health, habitats and long-term species trends.", href: "https://www.stateofourestuary.org/", ext: true },
+            ],
+          },
+        ],
+
+        map: {
+          popupFields: [
+            ["Region", "region"],
+            ["Network", "WRMP_Network"],
+            ["Habitat", "habitat"],
+          ],
+          views: {
+            suisun: {
+              bounds: [[38.03, -122.18], [38.27, -121.8]],
+              radius: 7,
+              select: function (stations) {
+                return stations.filter(function (s) { return s.region === "Suisun Bay"; });
+              },
+              colorFor: function () { return "#E09337"; },
+              legend: [{ label: "Suisun Bay stations", color: "#E09337" }],
+            },
+            bay: {
+              bounds: [[37.4, -122.55], [38.28, -121.85]],
+              radius: 6,
+              colorFor: function (s) { return REGION[s.region] || "#999"; },
+              filter: {
+                field: "region",
+                options: [
+                  { label: "Suisun Bay", short: "Suisun", value: "Suisun Bay", color: "#E09337" },
+                  { label: "North Bay", short: "North", value: "North Bay", color: "#379352" },
+                  { label: "South Bay", short: "South", value: "South Bay", color: "#005E6A" },
+                ],
+              },
+            },
+          },
+        },
+
+        computeStats: function (data) {
+          var species = data.species || [];
+          var fish = species.filter(function (s) { return s.group === "Fish"; });
+          return {
+            nativeFish: fish.filter(function (s) { return s.natinv === "Native"; }).length,
+            invasiveFish: fish.filter(function (s) { return s.natinv === "Invasive"; }).length,
+            totalSpecies: species.length,
+            speciesDocumented: species.length,
+          };
+        },
+      });
+    </script>
+  </body>
+</html>
