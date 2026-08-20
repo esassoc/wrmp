@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="../shared/css/tokens.css" />
     <link rel="stylesheet" href="assets/site.css" />
     <link rel="stylesheet" href="assets/exhibits.css" />
+    <link rel="stylesheet" href="../shared/css/exhibit-tags.css" />
+    <link rel="stylesheet" href="assets/exhibits-gallery.css" />
     <link rel="stylesheet" href="../shared/css/level3.css" />
     <style>
       /* ─ Metric tile — the simple preview card ─
@@ -231,6 +233,32 @@
       }
       .metric-dialog .l3-hub {
         margin: 0;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        align-items: stretch;
+      }
+      .metric-dialog .l3-hub-panel {
+        max-width: none;
+        min-width: 0;
+      }
+      /* A category with nothing linked keeps its column: dashed outline,
+         no tinted wash, one muted line. */
+      .metric-dialog .l3-hub-panel--empty {
+        background: none;
+        border-style: dashed;
+        border-color: var(--l3-border);
+      }
+      .metric-dialog .l3-hub-empty {
+        font-size: 14px;
+        color: var(--l3-text-subtle);
+        margin: 12px 0 0;
+      }
+      /* Topic chips on the dark dialog surface — the frosted on-cover
+         treatment from exhibit-tags.css. */
+      .metric-dialog__info .exhibit-topic {
+        background: rgba(255, 255, 255, 0.9);
+        border-color: rgba(255, 255, 255, 0.55);
+        color: var(--gray-12);
       }
       body.is-dialog-open {
         overflow: hidden;
@@ -372,7 +400,7 @@
               <span class="metric-tile__expand" aria-hidden="true"><svg><use href="#l3-icon-expand" /></svg></span>
             </span>
             <span class="metric-tile__caption">
-              <span class="chip-row"><span class="chip">Baylands Geography</span></span>
+              <span class="exhibit-topics"><span class="exhibit-topic">Baylands Geography</span></span>
               <span class="metric-tile__title">Accurate tracking of wetland restoration progress</span>
               <span class="metric-tile__subtitle">New method provides insight into restoration goals</span>
             </span>
@@ -385,7 +413,7 @@
               <span class="metric-tile__expand" aria-hidden="true"><svg><use href="#l3-icon-expand" /></svg></span>
             </span>
             <span class="metric-tile__caption">
-              <span class="chip-row"><span class="chip">Baylands Geography</span></span>
+              <span class="exhibit-topics"><span class="exhibit-topic">Baylands Geography</span></span>
               <span class="metric-tile__title">Tidal Wetland Extent</span>
               <span class="metric-tile__subtitle">Quantifying change in Bay-wide tidal wetland extent</span>
             </span>
@@ -398,7 +426,7 @@
               <span class="metric-tile__expand" aria-hidden="true"><svg><use href="#l3-icon-expand" /></svg></span>
             </span>
             <span class="metric-tile__caption">
-              <span class="chip-row"><span class="chip">Wetland Condition</span><span class="chip">Vegetation</span></span>
+              <span class="exhibit-topics"><span class="exhibit-topic">Wetland Condition</span><span class="exhibit-topic">Vegetation</span></span>
               <span class="metric-tile__title">Measuring wetland condition with the CRAM Estuarine Habitat Development Curve</span>
               <span class="metric-tile__subtitle">Expected condition of restoration sites over time</span>
             </span>
@@ -411,7 +439,7 @@
               <span class="metric-tile__expand" aria-hidden="true"><svg><use href="#l3-icon-expand" /></svg></span>
             </span>
             <span class="metric-tile__caption">
-              <span class="chip-row"><span class="chip">Wetlands and Sea Level Rise</span></span>
+              <span class="exhibit-topics"><span class="exhibit-topic">Wetlands and Sea Level Rise</span></span>
               <span class="metric-tile__title">Surface Elevation Tables – Marker Horizons</span>
               <span class="metric-tile__subtitle">Are marsh surfaces keeping pace with sea-level rise?</span>
             </span>
@@ -434,7 +462,7 @@
             <img src="assets/img/metrics/tidal-wetland-extent.png" alt="Bar chart: change in Bay-wide tidal wetland extent, 1998–2020" />
           </div>
           <div class="metric-dialog__info">
-            <span class="chip-row"><span class="chip">Baylands Geography</span></span>
+            <span class="exhibit-topics"><span class="exhibit-topic">Baylands Geography</span></span>
             <h2 class="metric-dialog__title" id="dlg-extent-title">Tidal Wetland Extent</h2>
             <p class="metric-dialog__desc">
               Existing, restored, and evolving tidal wetland acreage across
@@ -442,7 +470,6 @@
               regional goal.
             </p>
             <div class="metric-dialog__meta">
-              <span>Data source: <a href="#">Baylands Habitat Map 2020</a></span>
               <span>Last updated Aug 12, 2025</span>
               <span>Download figure: <a href="#">PNG</a> · <a href="#">PDF</a></span>
             </div>
@@ -465,7 +492,6 @@
                   <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-arrow-up-right" /></svg></span>
                 </div>
                 <p class="hf-desc">Habitat type and extent across the San Francisco Bay baylands, mapped for the WRMP.</p>
-                <p class="l3-scope">SFEI Data Catalog <span class="l3-dot">·</span> BHM 2020 v1.3</p>
               </div>
             </a>
           </div>
@@ -484,7 +510,6 @@
                   <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-arrow-up-right" /></svg></span>
                 </div>
                 <p class="hf-desc">Explore wetland habitat and restoration projects on the live regional map.</p>
-                <p class="l3-scope">Bay-wide <span class="l3-dot">·</span> Updated continuously</p>
               </div>
             </a>
           </div>
@@ -503,7 +528,6 @@
                   <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-arrow-up-right" /></svg></span>
                 </div>
                 <p class="hf-desc">Mapping approach and habitat definitions behind the 1998–2020 comparison.</p>
-                <p class="l3-scope">WRMP <span class="l3-dot">·</span> Technical memo</p>
               </div>
             </a>
           </div>
@@ -521,7 +545,7 @@
             <img src="assets/img/metrics/restoration-progress.png" alt="Chart: cumulative restored tidal wetland acreage by year of initial restoration" />
           </div>
           <div class="metric-dialog__info">
-            <span class="chip-row"><span class="chip">Baylands Geography</span></span>
+            <span class="exhibit-topics"><span class="exhibit-topic">Baylands Geography</span></span>
             <h2 class="metric-dialog__title" id="dlg-restoration-title">Accurate tracking of wetland restoration progress</h2>
             <p class="metric-dialog__desc">
               Cumulative acreage of restored and evolving tidal wetland by
@@ -529,7 +553,6 @@
               progress toward regional restoration goals.
             </p>
             <div class="metric-dialog__meta">
-              <span>Data source: <a href="#">EcoAtlas</a></span>
               <span>Last updated Aug 12, 2025</span>
               <span>Download figure: <a href="#">PNG</a> · <a href="#">PDF</a></span>
             </div>
@@ -552,7 +575,6 @@
                   <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-arrow-up-right" /></svg></span>
                 </div>
                 <p class="hf-desc">Every Bay tidal restoration project with breach date, acreage, and site state.</p>
-                <p class="l3-scope">Bay-wide <span class="l3-dot">·</span> 1940–present</p>
               </div>
             </a>
           </div>
@@ -571,9 +593,16 @@
                   <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-arrow-up-right" /></svg></span>
                 </div>
                 <p class="hf-desc">Browse the restoration projects behind this curve on the regional map.</p>
-                <p class="l3-scope">Bay-wide <span class="l3-dot">·</span> Updated continuously</p>
               </div>
             </a>
+          </div>
+          <div class="l3-hub-panel l3-hub-panel--empty" data-cat="science">
+            <div class="l3-hub-panel-head">
+              <span class="cat-icon"><svg class="lc"><use href="#l3-icon-flask-conical" /></svg></span>
+              <span class="cat-name">Science</span>
+              <span class="cat-count">0</span>
+            </div>
+            <p class="l3-hub-empty">Nothing linked yet</p>
           </div>
         </div>
       </div>
@@ -589,7 +618,7 @@
             <img src="assets/img/metrics/cram-hdc.png" alt="Scatter plot: CRAM index scores of restoration sites against wetland age, with habitat development curve" />
           </div>
           <div class="metric-dialog__info">
-            <span class="chip-row"><span class="chip">Wetland Condition</span><span class="chip">Vegetation</span></span>
+            <span class="exhibit-topics"><span class="exhibit-topic">Wetland Condition</span><span class="exhibit-topic">Vegetation</span></span>
             <h2 class="metric-dialog__title" id="dlg-cram-title">Measuring wetland condition with the CRAM Estuarine Habitat Development Curve</h2>
             <p class="metric-dialog__desc">
               CRAM index scores of restoration sites plotted against wetland
@@ -597,7 +626,6 @@
               reach over time.
             </p>
             <div class="metric-dialog__meta">
-              <span>Data source: <a href="#">CRAM</a></span>
               <span>Last updated Aug 12, 2025</span>
               <span>Download figure: <a href="#">PNG</a> · <a href="#">PDF</a></span>
             </div>
@@ -620,9 +648,16 @@
                   <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-arrow-up-right" /></svg></span>
                 </div>
                 <p class="hf-desc">Site-level condition scores for estuarine wetlands across California.</p>
-                <p class="l3-scope">cramwetlands.org <span class="l3-dot">·</span> Statewide</p>
               </div>
             </a>
+          </div>
+          <div class="l3-hub-panel l3-hub-panel--empty" data-cat="tools">
+            <div class="l3-hub-panel-head">
+              <span class="cat-icon"><svg class="lc"><use href="#l3-icon-compass" /></svg></span>
+              <span class="cat-name">Tools</span>
+              <span class="cat-count">0</span>
+            </div>
+            <p class="l3-hub-empty">Nothing linked yet</p>
           </div>
           <div class="l3-hub-panel" data-cat="science">
             <div class="l3-hub-panel-head">
@@ -639,7 +674,6 @@
                   <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-arrow-up-right" /></svg></span>
                 </div>
                 <p class="hf-desc">How reference-site CRAM scores define the expected trajectory for restoring marshes.</p>
-                <p class="l3-scope">WRMP <span class="l3-dot">·</span> 2024 update</p>
               </div>
             </a>
           </div>
@@ -657,14 +691,13 @@
             <img src="assets/img/metrics/set-marker-horizons.png" alt="Bar chart: rates of surface elevation change at Petaluma marsh stations against sea-level rise" />
           </div>
           <div class="metric-dialog__info">
-            <span class="chip-row"><span class="chip">Wetlands and Sea Level Rise</span></span>
+            <span class="exhibit-topics"><span class="exhibit-topic">Wetlands and Sea Level Rise</span></span>
             <h2 class="metric-dialog__title" id="dlg-set-title">Surface Elevation Tables – Marker Horizons</h2>
             <p class="metric-dialog__desc">
               Rates of marsh surface elevation change measured at Petaluma
               stations, compared against the local rate of sea-level rise.
             </p>
             <div class="metric-dialog__meta">
-              <span>Data source: <a href="#">WRMP SET-MH network</a></span>
               <span>Last updated Aug 12, 2025</span>
               <span>Download figure: <a href="#">PNG</a> · <a href="#">PDF</a></span>
             </div>
@@ -687,9 +720,16 @@
                   <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-download" /></svg></span>
                 </div>
                 <p class="hf-desc">Elevation change and accretion readings from the program's SET stations.</p>
-                <p class="l3-scope">Petaluma <span class="l3-dot">·</span> 2019–2025</p>
               </div>
             </a>
+          </div>
+          <div class="l3-hub-panel l3-hub-panel--empty" data-cat="tools">
+            <div class="l3-hub-panel-head">
+              <span class="cat-icon"><svg class="lc"><use href="#l3-icon-compass" /></svg></span>
+              <span class="cat-name">Tools</span>
+              <span class="cat-count">0</span>
+            </div>
+            <p class="l3-hub-empty">Nothing linked yet</p>
           </div>
           <div class="l3-hub-panel" data-cat="science">
             <div class="l3-hub-panel-head">
@@ -706,7 +746,6 @@
                   <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-arrow-up-right" /></svg></span>
                 </div>
                 <p class="hf-desc">How surface elevation tables and marker horizons measure whether marshes keep pace.</p>
-                <p class="l3-scope">WRMP <span class="l3-dot">·</span> Standard operating procedure</p>
               </div>
             </a>
           </div>
