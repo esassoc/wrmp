@@ -165,3 +165,13 @@
     observer.observe(section);
   });
 })();
+
+/* ════════════════════════════════════════════════════════════
+   Science-Framework tag popovers — moved to shared/js/sf-popover.js
+   ────────────────────────────────────────────────────────────
+   The old tooltip IIFE here anchored its bubble inside the tag and
+   was clipped by overflow:hidden on poster cards. The replacement
+   is a shared, body-appended position:fixed popover used by the
+   website pages AND the round-4 exhibits. Pages load
+   ../shared/css/sf-popover.css + ../shared/js/sf-popover.js.
+   ════════════════════════════════════════════════════════════ */

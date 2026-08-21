@@ -1,0 +1,115 @@
+/* ════════════════════════════════════════════════════════════
+   WRMP — Science-Framework question popover
+   ────────────────────────────────────────────────────────────
+   The hover/focus card that shows a management question's FULL
+   text when mousing over an .exhibit-tag badge. Replaces the old
+   .exhibit-tag-tip bubble (which anchored INSIDE the tag and was
+   clipped by overflow:hidden on poster cards).
+
+   One shared node, appended to <body> by shared/js/sf-popover.js
+   and positioned with position:fixed from the badge's viewport
+   rect — no ancestor overflow, border-radius, or stacking context
+   can clip it.
+
+   Load order: tokens.css → exhibit-tags.css (the popover reuses
+   .exhibit-tag for its MQ id chip) → this file. Requires the
+   companion script; without it this CSS is inert.
+   ════════════════════════════════════════════════════════════ */
+
+.sf-popover {
+  --sf-arrow-x: 24px; /* set per-show by sf-popover.js */
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 4000; /* above exhibit chrome, below nothing it needs to yield to */
+  width: max-content;
+  max-width: 300px;
+  padding: 13px 15px 14px;
+  background: #fff;
+  border: 1px solid var(--gray-6);
+  border-radius: var(--radius-lg, 8px);
+  box-shadow: var(--shadow-card, 0 8px 24px rgba(0, 0, 0, 0.12));
+  font-family: var(--font-body);
+  text-align: left;
+
+  /* Text-only tooltip — never a mouse target, so it can't flicker
+     or trap hover between itself and the badge. */
+  pointer-events: none;
+
+  /* Enter: fade + rise. Exit keeps visibility until the fade ends. */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(7px);
+  transition: opacity 0.18s cubic-bezier(0.2, 0.7, 0.3, 1),
+    transform 0.18s cubic-bezier(0.2, 0.7, 0.3, 1),
+    visibility 0s linear 0.18s;
+}
+
+.sf-popover.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition: opacity 0.18s cubic-bezier(0.2, 0.7, 0.3, 1),
+    transform 0.18s cubic-bezier(0.2, 0.7, 0.3, 1), visibility 0s;
+}
+
+/* ─ Arrow ─
+   Rotated square notched into the edge facing the badge; the two
+   exposed sides carry the card border so the notch reads as part
+   of the outline. Horizontal position tracks the badge center
+   through any viewport clamp via --sf-arrow-x. */
+.sf-popover__arrow {
+  position: absolute;
+  left: var(--sf-arrow-x);
+  bottom: -6px;
+  width: 11px;
+  height: 11px;
+  background: #fff;
+  border-right: 1px solid var(--gray-6);
+  border-bottom: 1px solid var(--gray-6);
+  transform: translateX(-50%) rotate(45deg);
+}
+/* Flipped below the badge → arrow on the top edge. */
+.sf-popover.is-below .sf-popover__arrow {
+  bottom: auto;
+  top: -6px;
+  border-right: none;
+  border-bottom: none;
+  border-left: 1px solid var(--gray-6);
+  border-top: 1px solid var(--gray-6);
+}
+
+/* ─ Head row — orange MQ id chip + label ─
+   The chip is a real .exhibit-tag (markup set by the script), so it
+   matches the badge being hovered exactly and tracks any future
+   badge restyle for free. */
+.sf-popover__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.sf-popover__kicker {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--gray-11);
+}
+
+/* ─ Question text ─ */
+.sf-popover__text {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--gray-12);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sf-popover,
+  .sf-popover.is-visible {
+    transition: none;
+    transform: none;
+  }
+}

@@ -9,7 +9,10 @@
          --wrmp-ada-teal, --font-body. -->
     <link rel="stylesheet" href="../shared/css/tokens.css" />
     <link rel="stylesheet" href="../shared/css/exhibit-tags.css" />
+    <link rel="stylesheet" href="../shared/css/sf-popover.css" />
     <link rel="stylesheet" href="assets/site.css" />
+    <link rel="stylesheet" href="../shared/css/level3.css" />
+    <link rel="stylesheet" href="assets/metrics.css" />
     <!-- ── Exhibit carousel (topic-page only; scoped to .exhibit-carousel) ── -->
     <style>
       .exhibit-carousel {
@@ -127,6 +130,40 @@
     </style>
   </head>
   <body>
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true" focusable="false">
+      <defs>
+        <symbol id="l3-icon-database" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <ellipse cx="12" cy="5" rx="9" ry="3" />
+          <path d="M3 5V19A9 3 0 0 0 21 19V5" />
+          <path d="M3 12A9 3 0 0 0 21 12" />
+        </symbol>
+        <symbol id="l3-icon-compass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z" />
+        </symbol>
+        <symbol id="l3-icon-flask-conical" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2" />
+          <path d="M6.453 15h11.094" />
+          <path d="M8.5 2h7" />
+        </symbol>
+        <symbol id="l3-icon-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 15V3" />
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <path d="m7 10 5 5 5-5" />
+        </symbol>
+        <symbol id="l3-icon-arrow-up-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M7 7h10v10" />
+          <path d="M7 17 17 7" />
+        </symbol>
+        <symbol id="l3-icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6 6 18" />
+          <path d="m6 6 12 12" />
+        </symbol>
+        <symbol id="l3-icon-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3" />
+        </symbol>
+      </defs>
+    </svg>
     <!-- ═══════════════════ Header ═══════════════════ -->
     <header class="site-header">
       <div class="site-container site-header__inner">
@@ -267,7 +304,7 @@
                     </span>
                   </button>
                   <div class="exhibit-tags exhibit-tags--on-poster">
-                    <a class="exhibit-tag" data-gq="1" href="science-framework.html#mq-1A" title="1A — What is the distribution, abundance and condition of tidal marsh ecosystems, and how are they changing over time?">1A</a>
+                    <a class="exhibit-tag" data-gq="1" href="science-framework.html#mq-1A" title="What is the distribution, abundance and condition of tidal marsh ecosystems, and how are they changing over time?">1A</a>
                   </div>
                   <span class="exhibit-marker" aria-hidden="true">
                     <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
@@ -309,8 +346,8 @@
                     </span>
                   </button>
                   <div class="exhibit-tags exhibit-tags--on-poster">
-                    <a class="exhibit-tag" data-gq="3" href="science-framework.html#mq-3A" title="3A — What new information do we need to better understand regional lessons from tidal marsh restoration projects, advance tidal marsh science, and ensure the continued success of restoration projects?">3A</a>
-                    <a class="exhibit-tag" data-gq="1" href="science-framework.html#mq-1A" title="1A — What is the distribution, abundance and condition of tidal marsh ecosystems, and how are they changing over time?">1A</a>
+                    <a class="exhibit-tag" data-gq="3" href="science-framework.html#mq-3A" title="What new information do we need to better understand regional lessons from tidal marsh restoration projects, advance tidal marsh science, and ensure the continued success of restoration projects?">3A</a>
+                    <a class="exhibit-tag" data-gq="1" href="science-framework.html#mq-1A" title="What is the distribution, abundance and condition of tidal marsh ecosystems, and how are they changing over time?">1A</a>
                   </div>
                   <span class="exhibit-marker" aria-hidden="true">
                     <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
@@ -351,8 +388,8 @@
                     </span>
                   </button>
                   <div class="exhibit-tags exhibit-tags--on-poster">
-                    <a class="exhibit-tag" data-gq="4" href="science-framework.html#mq-4A" title="4A — How are habitats for assemblages of resident species of fish and wildlife in tidal marsh ecosystems changing over time?">4A</a>
-                    <a class="exhibit-tag" data-gq="1" href="science-framework.html#mq-1A" title="1A — What is the distribution, abundance and condition of tidal marsh ecosystems, and how are they changing over time?">1A</a>
+                    <a class="exhibit-tag" data-gq="4" href="science-framework.html#mq-4A" title="How are habitats for assemblages of resident species of fish and wildlife in tidal marsh ecosystems changing over time?">4A</a>
+                    <a class="exhibit-tag" data-gq="1" href="science-framework.html#mq-1A" title="What is the distribution, abundance and condition of tidal marsh ecosystems, and how are they changing over time?">1A</a>
                   </div>
                   <span class="exhibit-marker" aria-hidden="true">
                     <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
@@ -393,8 +430,8 @@
                     </span>
                   </button>
                   <div class="exhibit-tags exhibit-tags--on-poster">
-                    <a class="exhibit-tag" data-gq="2" href="science-framework.html#mq-2A" title="2A — How are tidal marshes and tidal flats, including restoration projects, changing in elevation and extent relative to local tidal datums?">2A</a>
-                    <a class="exhibit-tag" data-gq="3" href="science-framework.html#mq-3B" title="3B — Where and when can interventions, such as placement of dredged sediment, reconnection of restoration projects to watersheds, and construction of living shorelines, help to sustain or increase the quantity and quality of tidal marsh ecosystems?">3B</a>
+                    <a class="exhibit-tag" data-gq="2" href="science-framework.html#mq-2A" title="How are tidal marshes and tidal flats, including restoration projects, changing in elevation and extent relative to local tidal datums?">2A</a>
+                    <a class="exhibit-tag" data-gq="3" href="science-framework.html#mq-3B" title="Where and when can interventions, such as placement of dredged sediment, reconnection of restoration projects to watersheds, and construction of living shorelines, help to sustain or increase the quantity and quality of tidal marsh ecosystems?">3B</a>
                   </div>
                   <span class="exhibit-marker" aria-hidden="true">
                     <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
@@ -514,191 +551,42 @@
             </p>
           </div>
 
-          <div class="columns cols-3" style="row-gap: 32px">
-            <!-- 6 metric cards -->
-            <article class="metric-card">
-              <div class="metric-card__media">
-                <img src="assets/img/metric-1.png" alt="" loading="lazy" decoding="async" />
-                <span class="metric-card__overlay"></span>
-                <img class="metric-card__watermark" src="assets/img/card-watermark-logo.png" alt="" loading="lazy" decoding="async" />
-              </div>
-              <div class="metric-card__caption">
-                <div class="chip-row">
-                  <span class="chip">Landscape features</span>
-                </div>
-                <div class="metric-card__details">
-                  <div class="metric-card__details-text">
-                    <h3 class="metric-card__title">Restoration progress</h3>
-                    <p class="metric-card__subtitle">
-                      Lorem ipsum dolor sit amet consectetur
-                    </p>
-                  </div>
-                  <a class="text-link metric-card__enlarge" href="#">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3" /></svg>
-                    Enlarge
-                  </a>
-                </div>
-                <div class="metric-card__meta">
-                  <span class="metric-card__meta-item"><span class="metric-card__meta-label">Download:</span> <a href="#">PNG</a> | <a href="#">PDF</a></span>
-                  <span class="metric-card__meta-item"><span class="metric-card__meta-label">Data Source:</span> <a href="#">EcoAtlas</a></span>
-                  <span class="metric-card__meta-item metric-card__meta-date"><span class="metric-card__meta-label">Last Updated:</span> 2/1/2024</span>
-                </div>
-              </div>
-            </article>
+          <div class="metric-grid">
+            <button class="metric-tile" data-dialog="dlg-restoration">
+              <span class="metric-tile__media">
+                <img src="assets/img/metrics/restoration-progress.png" alt="Chart: cumulative restored tidal wetland acreage by year of initial restoration" />
+                <span class="metric-tile__expand" aria-hidden="true"><svg><use href="#l3-icon-expand" /></svg></span>
+              </span>
+              <span class="metric-tile__caption">
+                <span class="exhibit-topics"><span class="exhibit-topic">Baylands Geography</span></span>
+                <span class="metric-tile__title">Accurate tracking of wetland restoration progress</span>
+                <span class="metric-tile__subtitle">New method provides insight into restoration goals</span>
+              </span>
+            </button>
 
-            <article class="metric-card">
-              <div class="metric-card__media">
-                <img src="assets/img/metric-2.png" alt="" loading="lazy" decoding="async" />
-                <span class="metric-card__overlay"></span>
-                <img class="metric-card__watermark" src="assets/img/card-watermark-logo.png" alt="" loading="lazy" decoding="async" />
-              </div>
-              <div class="metric-card__caption">
-                <div class="chip-row">
-                  <span class="chip">Landscape features</span>
-                  <span class="chip">Marsh resilience</span>
-                </div>
-                <div class="metric-card__details">
-                  <div class="metric-card__details-text">
-                    <h3 class="metric-card__title">Area of complete marshes</h3>
-                    <p class="metric-card__subtitle">
-                      Lorem ipsum dolor sit amet consectetur
-                    </p>
-                  </div>
-                  <a class="text-link metric-card__enlarge" href="#">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3" /></svg>
-                    Enlarge
-                  </a>
-                </div>
-                <div class="metric-card__meta">
-                  <span class="metric-card__meta-item"><span class="metric-card__meta-label">Download:</span> <a href="#">PNG</a> | <a href="#">PDF</a></span>
-                  <span class="metric-card__meta-item"><span class="metric-card__meta-label">Data Source:</span> <a href="#">EcoAtlas</a></span>
-                  <span class="metric-card__meta-item metric-card__meta-date"><span class="metric-card__meta-label">Last Updated:</span> 2/1/2024</span>
-                </div>
-              </div>
-            </article>
+            <button class="metric-tile" data-dialog="dlg-extent">
+              <span class="metric-tile__media">
+                <img src="assets/img/metrics/tidal-wetland-extent.png" alt="Bar chart: change in Bay-wide tidal wetland extent, 1998–2020" />
+                <span class="metric-tile__expand" aria-hidden="true"><svg><use href="#l3-icon-expand" /></svg></span>
+              </span>
+              <span class="metric-tile__caption">
+                <span class="exhibit-topics"><span class="exhibit-topic">Baylands Geography</span></span>
+                <span class="metric-tile__title">Tidal Wetland Extent</span>
+                <span class="metric-tile__subtitle">Quantifying change in Bay-wide tidal wetland extent</span>
+              </span>
+            </button>
 
-            <article class="metric-card">
-              <div class="metric-card__media">
-                <img src="assets/img/metric-3.png" alt="" loading="lazy" decoding="async" />
-                <span class="metric-card__overlay"></span>
-                <img class="metric-card__watermark" src="assets/img/card-watermark-logo.png" alt="" loading="lazy" decoding="async" />
-              </div>
-              <div class="metric-card__caption">
-                <div class="chip-row">
-                  <span class="chip">Landscape features</span>
-                  <span class="chip">Channels</span>
-                </div>
-                <div class="metric-card__details">
-                  <div class="metric-card__details-text">
-                    <h3 class="metric-card__title">Drainage network length</h3>
-                    <p class="metric-card__subtitle">
-                      Lorem ipsum dolor sit amet consectetur
-                    </p>
-                  </div>
-                  <a class="text-link metric-card__enlarge" href="#">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3" /></svg>
-                    Enlarge
-                  </a>
-                </div>
-                <div class="metric-card__meta">
-                  <span class="metric-card__meta-item"><span class="metric-card__meta-label">Download:</span> <a href="#">PNG</a> | <a href="#">PDF</a></span>
-                  <span class="metric-card__meta-item"><span class="metric-card__meta-label">Data Source:</span> <a href="#">EcoAtlas</a></span>
-                  <span class="metric-card__meta-item metric-card__meta-date"><span class="metric-card__meta-label">Last Updated:</span> 2/1/2024</span>
-                </div>
-              </div>
-            </article>
-
-            <article class="metric-card">
-              <div class="metric-card__media">
-                <img src="assets/img/metric-4.png" alt="" loading="lazy" decoding="async" />
-                <span class="metric-card__overlay"></span>
-                <img class="metric-card__watermark" src="assets/img/card-watermark-logo.png" alt="" loading="lazy" decoding="async" />
-              </div>
-              <div class="metric-card__caption">
-                <div class="chip-row">
-                  <span class="chip">Landscape features</span>
-                  <span class="chip">Shoreline change</span>
-                </div>
-                <div class="metric-card__details">
-                  <div class="metric-card__details-text">
-                    <h3 class="metric-card__title">Shoreline location</h3>
-                    <p class="metric-card__subtitle">
-                      Lorem ipsum dolor sit amet consectetur
-                    </p>
-                  </div>
-                  <a class="text-link metric-card__enlarge" href="#">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3" /></svg>
-                    Enlarge
-                  </a>
-                </div>
-                <div class="metric-card__meta">
-                  <span class="metric-card__meta-item"><span class="metric-card__meta-label">Download:</span> <a href="#">PNG</a> | <a href="#">PDF</a></span>
-                  <span class="metric-card__meta-item"><span class="metric-card__meta-label">Data Source:</span> <a href="#">EcoAtlas</a></span>
-                  <span class="metric-card__meta-item metric-card__meta-date"><span class="metric-card__meta-label">Last Updated:</span> 2/1/2024</span>
-                </div>
-              </div>
-            </article>
-
-            <article class="metric-card">
-              <div class="metric-card__media">
-                <img src="assets/img/metric-5.png" alt="" loading="lazy" decoding="async" />
-                <span class="metric-card__overlay"></span>
-                <img class="metric-card__watermark" src="assets/img/card-watermark-logo.png" alt="" loading="lazy" decoding="async" />
-              </div>
-              <div class="metric-card__caption">
-                <div class="chip-row">
-                  <span class="chip">Inundation</span>
-                </div>
-                <div class="metric-card__details">
-                  <div class="metric-card__details-text">
-                    <h3 class="metric-card__title">Tidal inundation regime</h3>
-                    <p class="metric-card__subtitle">
-                      Lorem ipsum dolor sit amet consectetur
-                    </p>
-                  </div>
-                  <a class="text-link metric-card__enlarge" href="#">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3" /></svg>
-                    Enlarge
-                  </a>
-                </div>
-                <div class="metric-card__meta">
-                  <span class="metric-card__meta-item"><span class="metric-card__meta-label">Download:</span> <a href="#">PNG</a> | <a href="#">PDF</a></span>
-                  <span class="metric-card__meta-item"><span class="metric-card__meta-label">Data Source:</span> <a href="#">EcoAtlas</a></span>
-                  <span class="metric-card__meta-item metric-card__meta-date"><span class="metric-card__meta-label">Last Updated:</span> 2/1/2024</span>
-                </div>
-              </div>
-            </article>
-
-            <article class="metric-card">
-              <div class="metric-card__media">
-                <img src="assets/img/metric-6.png" alt="" loading="lazy" decoding="async" />
-                <span class="metric-card__overlay"></span>
-                <img class="metric-card__watermark" src="assets/img/card-watermark-logo.png" alt="" loading="lazy" decoding="async" />
-              </div>
-              <div class="metric-card__caption">
-                <div class="chip-row">
-                  <span class="chip">Landscape features</span>
-                  <span class="chip">Wildlife</span>
-                </div>
-                <div class="metric-card__details">
-                  <div class="metric-card__details-text">
-                    <h3 class="metric-card__title">Habitat types supporting special-status wildlife species</h3>
-                    <p class="metric-card__subtitle">
-                      Lorem ipsum dolor sit amet consectetur
-                    </p>
-                  </div>
-                  <a class="text-link metric-card__enlarge" href="#">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3" /></svg>
-                    Enlarge
-                  </a>
-                </div>
-                <div class="metric-card__meta">
-                  <span class="metric-card__meta-item"><span class="metric-card__meta-label">Download:</span> <a href="#">PNG</a> | <a href="#">PDF</a></span>
-                  <span class="metric-card__meta-item"><span class="metric-card__meta-label">Data Source:</span> <a href="#">EcoAtlas</a></span>
-                  <span class="metric-card__meta-item metric-card__meta-date"><span class="metric-card__meta-label">Last Updated:</span> 2/1/2024</span>
-                </div>
-              </div>
-            </article>
+            <button class="metric-tile" data-dialog="dlg-set">
+              <span class="metric-tile__media">
+                <img src="assets/img/metrics/set-marker-horizons.png" alt="Bar chart: rates of surface elevation change at Petaluma marsh stations against sea-level rise" />
+                <span class="metric-tile__expand" aria-hidden="true"><svg><use href="#l3-icon-expand" /></svg></span>
+              </span>
+              <span class="metric-tile__caption">
+                <span class="exhibit-topics"><span class="exhibit-topic">Wetlands and Sea Level Rise</span></span>
+                <span class="metric-tile__title">Surface Elevation Tables – Marker Horizons</span>
+                <span class="metric-tile__subtitle">Are marsh surfaces keeping pace with sea-level rise?</span>
+              </span>
+            </button>
           </div>
 
           <div class="cta-box" style="margin-top: 48px">
@@ -707,11 +595,10 @@
               Looking for local data and information?
             </p>
             <p class="cta-box__body">
-              Purus sem feugiat quis sagittis. Convallis et vestibulum lectus
-              est nulla quis egestas. Cursus nisl vitae velus vivamus
-              condimentum phasellus iaculis maecenas nisi.
+              Browse the full gallery of WRMP metrics. Data sources for each
+              metric are linked from its card.
             </p>
-            <a class="btn btn--sky" href="#">Explore site specific data</a>
+            <a class="btn btn--sky" href="#">Explore all WRMP Metrics</a>
           </div>
         </div>
       </section>
@@ -1044,6 +931,231 @@
       </section>
     </main>
 
+    <dialog class="metric-dialog" id="dlg-restoration" aria-labelledby="dlg-restoration-title">
+      <div class="metric-dialog__inner">
+        <button class="metric-dialog__close" data-close aria-label="Close">
+          <svg><use href="#l3-icon-x" /></svg>
+        </button>
+        <div class="metric-dialog__lead">
+          <div class="metric-dialog__figure">
+            <img src="assets/img/metrics/restoration-progress.png" alt="Chart: cumulative restored tidal wetland acreage by year of initial restoration" />
+          </div>
+          <div class="metric-dialog__info">
+            <span class="exhibit-topics"><span class="exhibit-topic">Baylands Geography</span></span>
+            <h2 class="metric-dialog__title" id="dlg-restoration-title">Accurate tracking of wetland restoration progress</h2>
+            <p class="metric-dialog__desc">
+              Cumulative acreage of restored and evolving tidal wetland by
+              year of initial restoration — a new method for tracking
+              progress toward regional restoration goals.
+            </p>
+            <div class="metric-dialog__meta">
+              <span>Last updated Aug 12, 2025</span>
+              <span>Download figure: <a href="#">PNG</a> · <a href="#">PDF</a></span>
+            </div>
+          </div>
+        </div>
+        <div class="l3-hub">
+          <div class="l3-hub-panel" data-cat="data">
+            <div class="l3-hub-panel-head">
+              <span class="cat-icon"><svg class="lc"><use href="#l3-icon-database" /></svg></span>
+              <span class="cat-name">Data</span>
+              <span class="cat-count">1</span>
+            </div>
+            <a class="l3-hub-item" href="#">
+              <span class="hf-icon"><svg class="lc lc-sm"><use href="#l3-icon-download" /></svg></span>
+              <div class="hf-body">
+                <div class="hf-top">
+                  <p class="hf-name">Restoration project tracker</p>
+                  <span class="l3-chip">DATA CATALOG</span>
+                  <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-arrow-up-right" /></svg></span>
+                </div>
+                <p class="hf-desc">Every Bay tidal restoration project with breach date, acreage, and site state.</p>
+              </div>
+            </a>
+          </div>
+          <div class="l3-hub-panel" data-cat="tools">
+            <div class="l3-hub-panel-head">
+              <span class="cat-icon"><svg class="lc"><use href="#l3-icon-compass" /></svg></span>
+              <span class="cat-name">Tools</span>
+              <span class="cat-count">1</span>
+            </div>
+            <a class="l3-hub-item" href="#">
+              <span class="hf-icon"><svg class="lc lc-sm"><use href="#l3-icon-compass" /></svg></span>
+              <div class="hf-body">
+                <div class="hf-top">
+                  <p class="hf-name">EcoAtlas</p>
+                  <span class="l3-chip">WEB TOOL</span>
+                  <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-arrow-up-right" /></svg></span>
+                </div>
+                <p class="hf-desc">Browse the restoration projects behind this curve on the regional map.</p>
+              </div>
+            </a>
+          </div>
+          <div class="l3-hub-panel l3-hub-panel--empty" data-cat="science">
+            <div class="l3-hub-panel-head">
+              <span class="cat-icon"><svg class="lc"><use href="#l3-icon-flask-conical" /></svg></span>
+              <span class="cat-name">Science</span>
+              <span class="cat-count">0</span>
+            </div>
+            <p class="l3-hub-empty">Nothing linked yet</p>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog class="metric-dialog" id="dlg-extent" aria-labelledby="dlg-extent-title">
+      <div class="metric-dialog__inner">
+        <button class="metric-dialog__close" data-close aria-label="Close">
+          <svg><use href="#l3-icon-x" /></svg>
+        </button>
+        <div class="metric-dialog__lead">
+          <div class="metric-dialog__figure">
+            <img src="assets/img/metrics/tidal-wetland-extent.png" alt="Bar chart: change in Bay-wide tidal wetland extent, 1998–2020" />
+          </div>
+          <div class="metric-dialog__info">
+            <span class="exhibit-topics"><span class="exhibit-topic">Baylands Geography</span></span>
+            <h2 class="metric-dialog__title" id="dlg-extent-title">Tidal Wetland Extent</h2>
+            <p class="metric-dialog__desc">
+              Existing, restored, and evolving tidal wetland acreage across
+              the Bay in 1998, 2009, and 2020, tracked against the 100,000-acre
+              regional goal.
+            </p>
+            <div class="metric-dialog__meta">
+              <span>Last updated Aug 12, 2025</span>
+              <span>Download figure: <a href="#">PNG</a> · <a href="#">PDF</a></span>
+            </div>
+          </div>
+        </div>
+        <div class="l3-hub">
+          <div class="l3-hub-panel" data-cat="data">
+            <div class="l3-hub-panel-head">
+              <span class="cat-icon"><svg class="lc"><use href="#l3-icon-database" /></svg></span>
+              <span class="cat-name">Data</span>
+              <span class="cat-count">1</span>
+            </div>
+            <a class="l3-hub-item" href="#">
+              <span class="hf-icon"><svg class="lc lc-sm"><use href="#l3-icon-download" /></svg></span>
+              <div class="hf-body">
+                <div class="hf-top">
+                  <p class="hf-name">Baylands Habitat Map 2020</p>
+                  <span class="l3-chip">GIS DATA</span>
+                  <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-arrow-up-right" /></svg></span>
+                </div>
+                <p class="hf-desc">Habitat type and extent across the San Francisco Bay baylands, mapped for the WRMP.</p>
+              </div>
+            </a>
+          </div>
+          <div class="l3-hub-panel" data-cat="tools">
+            <div class="l3-hub-panel-head">
+              <span class="cat-icon"><svg class="lc"><use href="#l3-icon-compass" /></svg></span>
+              <span class="cat-name">Tools</span>
+              <span class="cat-count">1</span>
+            </div>
+            <a class="l3-hub-item" href="#">
+              <span class="hf-icon"><svg class="lc lc-sm"><use href="#l3-icon-compass" /></svg></span>
+              <div class="hf-body">
+                <div class="hf-top">
+                  <p class="hf-name">EcoAtlas</p>
+                  <span class="l3-chip">WEB TOOL</span>
+                  <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-arrow-up-right" /></svg></span>
+                </div>
+                <p class="hf-desc">Explore wetland habitat and restoration projects on the live regional map.</p>
+              </div>
+            </a>
+          </div>
+          <div class="l3-hub-panel" data-cat="science">
+            <div class="l3-hub-panel-head">
+              <span class="cat-icon"><svg class="lc"><use href="#l3-icon-flask-conical" /></svg></span>
+              <span class="cat-name">Science</span>
+              <span class="cat-count">1</span>
+            </div>
+            <a class="l3-hub-item" href="#">
+              <span class="hf-icon"><svg class="lc lc-sm"><use href="#l3-icon-flask-conical" /></svg></span>
+              <div class="hf-body">
+                <div class="hf-top">
+                  <p class="hf-name">How the extent change was measured</p>
+                  <span class="l3-chip">METHODS</span>
+                  <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-arrow-up-right" /></svg></span>
+                </div>
+                <p class="hf-desc">Mapping approach and habitat definitions behind the 1998–2020 comparison.</p>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog class="metric-dialog" id="dlg-set" aria-labelledby="dlg-set-title">
+      <div class="metric-dialog__inner">
+        <button class="metric-dialog__close" data-close aria-label="Close">
+          <svg><use href="#l3-icon-x" /></svg>
+        </button>
+        <div class="metric-dialog__lead">
+          <div class="metric-dialog__figure">
+            <img src="assets/img/metrics/set-marker-horizons.png" alt="Bar chart: rates of surface elevation change at Petaluma marsh stations against sea-level rise" />
+          </div>
+          <div class="metric-dialog__info">
+            <span class="exhibit-topics"><span class="exhibit-topic">Wetlands and Sea Level Rise</span></span>
+            <h2 class="metric-dialog__title" id="dlg-set-title">Surface Elevation Tables – Marker Horizons</h2>
+            <p class="metric-dialog__desc">
+              Rates of marsh surface elevation change measured at Petaluma
+              stations, compared against the local rate of sea-level rise.
+            </p>
+            <div class="metric-dialog__meta">
+              <span>Last updated Aug 12, 2025</span>
+              <span>Download figure: <a href="#">PNG</a> · <a href="#">PDF</a></span>
+            </div>
+          </div>
+        </div>
+        <div class="l3-hub">
+          <div class="l3-hub-panel" data-cat="data">
+            <div class="l3-hub-panel-head">
+              <span class="cat-icon"><svg class="lc"><use href="#l3-icon-database" /></svg></span>
+              <span class="cat-name">Data</span>
+              <span class="cat-count">1</span>
+            </div>
+            <a class="l3-hub-item" href="#">
+              <span class="hf-icon"><svg class="lc lc-sm"><use href="#l3-icon-download" /></svg></span>
+              <div class="hf-body">
+                <div class="hf-top">
+                  <p class="hf-name">SET-MH measurements</p>
+                  <span class="l3-chip">CSV</span>
+                  <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-download" /></svg></span>
+                </div>
+                <p class="hf-desc">Elevation change and accretion readings from the program's SET stations.</p>
+              </div>
+            </a>
+          </div>
+          <div class="l3-hub-panel l3-hub-panel--empty" data-cat="tools">
+            <div class="l3-hub-panel-head">
+              <span class="cat-icon"><svg class="lc"><use href="#l3-icon-compass" /></svg></span>
+              <span class="cat-name">Tools</span>
+              <span class="cat-count">0</span>
+            </div>
+            <p class="l3-hub-empty">Nothing linked yet</p>
+          </div>
+          <div class="l3-hub-panel" data-cat="science">
+            <div class="l3-hub-panel-head">
+              <span class="cat-icon"><svg class="lc"><use href="#l3-icon-flask-conical" /></svg></span>
+              <span class="cat-name">Science</span>
+              <span class="cat-count">1</span>
+            </div>
+            <a class="l3-hub-item" href="#">
+              <span class="hf-icon"><svg class="lc lc-sm"><use href="#l3-icon-flask-conical" /></svg></span>
+              <div class="hf-body">
+                <div class="hf-top">
+                  <p class="hf-name">SET-MH monitoring protocol</p>
+                  <span class="l3-chip">PDF</span>
+                  <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-arrow-up-right" /></svg></span>
+                </div>
+                <p class="hf-desc">How surface elevation tables and marker horizons measure whether marshes keep pace.</p>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
     <!-- ═══════════════════ Footer ═══════════════════ -->
     <footer class="site-footer">
       <div class="site-container site-footer__inner">
@@ -1194,5 +1306,7 @@
         show(0);
       })();
     </script>
+    <script src="assets/metrics.js"></script>
+      <script src="../shared/js/sf-popover.js"></script>
   </body>
 </html>

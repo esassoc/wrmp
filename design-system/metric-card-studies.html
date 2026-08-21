@@ -1,0 +1,1197 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WRMP Design System — Metric Card Data-Link Studies</title>
+
+    <!-- Real shared stylesheet — the same source of truth the exhibits load.
+         Brings self-hosted Source Sans (../shared/fonts/), the Radix color
+         scales, and the WRMP tokens (--wrmp-*, --step-*, --space-*,
+         --radius-*, --shadow-card). level3.css is NOT loaded on purpose:
+         its l3-hub rules are tuned for the dark "go deeper" surface and
+         would fight the light-card retune below. This page re-expresses the
+         same l3-hub family (format chips, scope metadata, tinted category
+         panels, icon+name+desc+scope rows) at card scale on a light surface,
+         with its own class names so nothing collides. -->
+    <link rel="stylesheet" href="../shared/css/tokens.css" />
+
+    <style>
+      /* ══════════════════════════════════════════════════════
+         Page tokens — light retune of the exhibit's Level 3
+         Data / Tools / Context spine. Each category resolves one
+         accent set from data-cat; children inherit it. Values map
+         WRMP brand → Radix scales already imported by tokens.css.
+         ══════════════════════════════════════════════════════ */
+      :root {
+        --page-ground: #f2f4f5;
+        --card-bg: #ffffff;
+        --card-hairline: var(--gray-6);
+        --card-hairline-soft: var(--gray-4);
+
+        /* Dark "data doorway" surface — the exhibit's l3-inline-card
+           identity (a dark card designed to nest inside a light context).
+           Study C reuses these literal values from level3.css. */
+        --dd-bg: #122026;
+        --dd-bg-hover: #1b2e35;
+        --dd-text: #f3f6f6;
+        --dd-subtle: #aec3c7;
+        --dd-accent: #6fd3e3;
+        --dd-soft: rgba(111, 211, 227, 0.16);
+      }
+
+      /* Category accent sets — light surface. Data→teal, Tools→green,
+         Context→amber (the exhibit's own spine), Pending→neutral gray. */
+      [data-cat="data"] {
+        --cat-tint: var(--cyan-3);
+        --cat-tint-top: var(--cyan-4);
+        --cat-border: var(--cyan-6);
+        --cat-ink: var(--cyan-11);
+        --cat-strong: var(--wrmp-ada-teal);
+      }
+      [data-cat="tools"] {
+        --cat-tint: var(--grass-3);
+        --cat-tint-top: var(--grass-4);
+        --cat-border: var(--grass-6);
+        --cat-ink: var(--grass-11);
+        --cat-strong: var(--grass-11);
+      }
+      [data-cat="context"] {
+        --cat-tint: var(--amber-3);
+        --cat-tint-top: var(--amber-4);
+        --cat-border: var(--amber-7);
+        --cat-ink: var(--amber-11);
+        --cat-strong: var(--amber-11);
+      }
+      [data-cat="pending"] {
+        --cat-tint: var(--gray-3);
+        --cat-tint-top: var(--gray-4);
+        --cat-border: var(--gray-6);
+        --cat-ink: var(--gray-11);
+        --cat-strong: var(--gray-11);
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        font-family: var(--font-body);
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--color-text);
+        background: var(--page-ground);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* ── Icon sizing (self-contained; no level3.css) ────────── */
+      .lc {
+        width: 18px;
+        height: 18px;
+        stroke-width: 2;
+        flex-shrink: 0;
+      }
+      .lc-sm {
+        width: 15px;
+        height: 15px;
+      }
+
+      /* ══════════════════════════════════════════════════════
+         Page shell
+         ══════════════════════════════════════════════════════ */
+      .studies {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 48px 48px 96px;
+        display: flex;
+        flex-direction: column;
+        gap: 56px;
+      }
+
+      .page-head h1 {
+        font-family: var(--font-heading);
+        font-size: var(--step-4);
+        font-weight: 600;
+        line-height: 1.1;
+        color: var(--wrmp-ada-teal);
+        margin: 0 0 14px;
+      }
+      .page-head p {
+        max-width: 74ch;
+        font-size: 17px;
+        line-height: 1.6;
+        color: var(--color-text);
+        margin: 0 0 28px;
+      }
+
+      /* The three axes each study probes — readable words, real color. */
+      .axes {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+      }
+      .axis {
+        background: var(--card-bg);
+        border: 1px solid var(--card-hairline);
+        border-radius: var(--radius-lg);
+        padding: 20px 22px;
+      }
+      .axis h2 {
+        font-family: var(--font-heading);
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--wrmp-ada-teal);
+        margin: 0 0 6px;
+      }
+      .axis p {
+        font-size: 16px;
+        line-height: 1.5;
+        color: var(--color-text-subtle);
+        margin: 0;
+      }
+      @media (max-width: 900px) {
+        .axes {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* ── Section shell ──────────────────────────────────────── */
+      .section > h2 {
+        font-family: var(--font-heading);
+        font-size: var(--step-3);
+        font-weight: 600;
+        color: var(--wrmp-ada-teal);
+        margin: 0 0 4px;
+      }
+      .section-desc {
+        font-size: 16px;
+        color: var(--color-text-subtle);
+        margin: 0 0 28px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--card-hairline);
+        max-width: 84ch;
+      }
+
+      .study-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 28px;
+        align-items: start;
+      }
+      @media (max-width: 980px) {
+        .study-grid {
+          grid-template-columns: 1fr;
+          max-width: 460px;
+        }
+      }
+
+      /* Per-column caption — study name + what it tests. Not an ornamental
+         micro-label: real words, ≥15px, primary/secondary text color. */
+      .study-caption {
+        margin-bottom: 14px;
+      }
+      .study-caption .study-name {
+        font-family: var(--font-heading);
+        font-size: 17px;
+        font-weight: 600;
+        color: var(--color-text);
+        margin: 0 0 4px;
+      }
+      .study-caption .study-tests {
+        font-size: 16px;
+        line-height: 1.45;
+        color: var(--color-text-subtle);
+        margin: 0;
+      }
+
+      /* ══════════════════════════════════════════════════════
+         Metric card baseline — rebuilt from topic-page .metric-card
+         on tokens.css tokens (site.css is not loaded here). Media +
+         chip-row + title + description scaffold is preserved; the
+         data-link treatment below replaces the old flat meta row.
+         ══════════════════════════════════════════════════════ */
+      .mc {
+        display: flex;
+        flex-direction: column;
+        background: var(--card-bg);
+        border: 1px solid var(--card-hairline);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        box-shadow: var(--shadow-card);
+      }
+
+      /* Figure media — painted placeholder (no external image, so the
+         specimen's asset paths always resolve). A faint chart motif +
+         WRMP teal overlay stands in for the real metric figure. */
+      .mc-media {
+        position: relative;
+        height: 188px;
+        background:
+          linear-gradient(180deg, #2f9aab 0%, #1c7a8a 55%, #155f6d 100%);
+        overflow: hidden;
+      }
+      .mc-media__figure {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      .mc-media__overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(34, 139, 156, 0.34);
+      }
+      .mc-media__watermark {
+        position: absolute;
+        left: var(--space-md);
+        bottom: var(--space-md);
+        width: 40px;
+        height: 40px;
+        color: #fff;
+        opacity: 0.72;
+      }
+      /* Study C strips the watermark + heavy tint (leaner chrome). */
+      .mc--lean .mc-media__overlay {
+        background: rgba(21, 95, 109, 0.18);
+      }
+
+      .mc-body {
+        padding: var(--space-md);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        border-top: 2px solid var(--color-south-bay);
+      }
+      .mc--lean .mc-body {
+        border-top: none;
+      }
+
+      /* Topic category chips (the metric's own tags) — filled, neutral,
+         readable. Kept distinct from the colored format chips below so the
+         two chip systems never read as one noisy row. */
+      .mc-chiprow {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .mc-topicchip {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 9px;
+        border-radius: var(--radius-sm);
+        font-size: 12.5px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        background: var(--gray-3);
+        color: var(--gray-11);
+        border: 1px solid var(--gray-5);
+      }
+
+      .mc-title {
+        font-family: var(--font-heading);
+        font-size: 19px;
+        font-weight: 600;
+        line-height: 1.25;
+        color: var(--gray-12);
+        margin: 0;
+      }
+      .mc-desc {
+        font-size: 16px;
+        line-height: 1.5;
+        color: var(--color-text-subtle);
+        margin: 0;
+      }
+
+      /* Figure action — "Enlarge" text link. Secondary by default. */
+      .mc-figlink {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        align-self: flex-start;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--wrmp-ada-teal);
+        text-decoration: none;
+      }
+      .mc-figlink:hover {
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      .mc-figlink:focus-visible {
+        outline: 2px solid var(--wrmp-ada-teal);
+        outline-offset: 2px;
+      }
+
+      /* ── Shared link-treatment primitives (light retune of l3-*) ──── */
+
+      /* Format chip — the "sign on the door": JSON · WEB TOOL · DASHBOARD
+         · PDF REPORT · DATA STORY. A real filled control, white ground so
+         it reads on any category tint. Dense data-UI, exhibit chip sizing. */
+      .mc-chip {
+        display: inline-flex;
+        align-items: center;
+        flex-shrink: 0;
+        height: 19px;
+        padding: 0 8px;
+        border-radius: var(--radius-sm);
+        background: var(--card-bg);
+        color: var(--cat-ink);
+        border: 1px solid var(--cat-border);
+        font-size: 12.5px;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        line-height: 1;
+        white-space: nowrap;
+      }
+      /* Scope line — one compact meta-figure line (extent · vintage).
+         Genuine meta, exhibit l3-scope sizing (not blanket-bumped). */
+      .mc-scope {
+        font-size: 12px;
+        line-height: 1.4;
+        color: var(--gray-11);
+        margin: 6px 0 0;
+        font-variant-numeric: tabular-nums;
+      }
+      .mc-dot {
+        color: color-mix(in srgb, var(--cat-strong) 55%, transparent);
+        padding: 0 3px;
+      }
+
+      /* Hub item — icon + (name + format chip + go) + description + scope,
+         inside a category-tinted panel. The card-scale l3-hub-item. */
+      .mc-hubitem {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 13px 14px;
+        border-radius: var(--radius-md);
+        background: linear-gradient(180deg, var(--cat-tint-top), var(--cat-tint));
+        border: 1px solid var(--cat-border);
+        text-decoration: none;
+        color: inherit;
+      }
+      a.mc-hubitem:hover .mc-hf-name,
+      a.mc-hubitem:focus-visible .mc-hf-name {
+        color: var(--cat-strong);
+      }
+      a.mc-hubitem:focus-visible {
+        outline: 2px solid var(--cat-strong);
+        outline-offset: 2px;
+      }
+      .mc-hf-icon {
+        flex-shrink: 0;
+        color: var(--cat-strong);
+        display: flex;
+        align-items: center;
+        height: calc(16px * 1.5);
+      }
+      .mc-hf-body {
+        flex: 1;
+        min-width: 0;
+      }
+      .mc-hf-top {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .mc-hf-name {
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 1.3;
+        color: var(--gray-12);
+        flex: 1;
+        min-width: 0;
+      }
+      .mc-hf-go {
+        flex-shrink: 0;
+        color: var(--cat-strong);
+        display: flex;
+        align-self: center;
+      }
+      .mc-hf-desc {
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--color-text-subtle);
+        margin: 4px 0 0;
+      }
+
+      /* Pending (not-yet-available) item — non-interactive, muted, neutral.
+         No colored status border: a neutral tinted panel + a plain PENDING
+         format chip carry the state. */
+      .mc-hubitem--pending {
+        cursor: default;
+      }
+      .mc-hubitem--pending .mc-hf-name {
+        color: var(--gray-11);
+      }
+      .mc-hubitem--pending .mc-hf-icon {
+        color: var(--gray-9);
+      }
+
+      /* Demoted figure-download line (Study A) — quiet secondary meta. */
+      .mc-download {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 13px;
+        color: var(--gray-11);
+      }
+      .mc-download .lc-sm {
+        color: var(--gray-9);
+      }
+      .mc-download a {
+        color: var(--wrmp-ada-teal);
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .mc-download a:hover {
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      .mc-download .mc-dot {
+        color: var(--gray-7);
+      }
+
+      /* ── Study B — mini categorized hub (card-scale l3-hub) ──────── */
+      .mc-hub {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .mc-hub-panel {
+        border-radius: var(--radius-md);
+        background: linear-gradient(180deg, var(--cat-tint-top), transparent 82%);
+        border: 1px solid var(--cat-border);
+        padding: 11px 13px 12px;
+      }
+      .mc-cat-head {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding-bottom: 8px;
+        margin-bottom: 8px;
+        border-bottom: 1px solid var(--cat-border);
+      }
+      .mc-cat-icon {
+        flex-shrink: 0;
+        width: 26px;
+        height: 26px;
+        border-radius: var(--radius-sm);
+        background: var(--card-bg);
+        border: 1px solid var(--cat-border);
+        color: var(--cat-strong);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .mc-cat-name {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--gray-12);
+      }
+      .mc-cat-count {
+        margin-left: auto;
+        font-size: 12.5px;
+        font-weight: 700;
+        color: var(--cat-ink);
+        background: var(--card-bg);
+        border: 1px solid var(--cat-border);
+        border-radius: 999px;
+        padding: 1px 9px;
+        line-height: 1.4;
+      }
+      /* Inside a panel the items are borderless rows (the panel is the
+         tinted surface), divided by hairlines. */
+      .mc-hub-panel .mc-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 9px;
+        padding: 9px 0;
+        text-decoration: none;
+        color: inherit;
+        border-top: 1px solid var(--cat-border);
+      }
+      .mc-hub-panel .mc-row:first-of-type {
+        border-top: none;
+        padding-top: 2px;
+      }
+      .mc-hub-panel .mc-row:last-child {
+        padding-bottom: 0;
+      }
+      a.mc-row:hover .mc-hf-name,
+      a.mc-row:focus-visible .mc-hf-name {
+        color: var(--cat-strong);
+      }
+      a.mc-row:focus-visible {
+        outline: 2px solid var(--cat-strong);
+        outline-offset: 2px;
+      }
+
+      /* ── Study C — dark "data doorway" primary action ───────────── */
+      .mc-doorway {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px 15px;
+        border-radius: var(--radius-lg);
+        background: var(--dd-bg);
+        color: var(--dd-text);
+        text-decoration: none;
+      }
+      .mc-doorway:hover {
+        background: var(--dd-bg-hover);
+      }
+      .mc-doorway:focus-visible {
+        outline: 2px solid var(--dd-accent);
+        outline-offset: 2px;
+      }
+      .mc-doorway .mc-dd-lead {
+        flex-shrink: 0;
+        color: var(--dd-accent);
+        display: flex;
+        align-items: center;
+        height: calc(16px * 1.5);
+      }
+      .mc-doorway .mc-dd-body {
+        flex: 1;
+        min-width: 0;
+      }
+      .mc-doorway .mc-dd-kicker {
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        color: var(--dd-accent);
+        margin: 0 0 3px;
+      }
+      .mc-doorway .mc-dd-top {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .mc-doorway .mc-dd-name {
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 1.3;
+        color: #fff;
+        flex: 1;
+        min-width: 0;
+      }
+      .mc-doorway:hover .mc-dd-name {
+        color: var(--dd-accent);
+      }
+      .mc-doorway .mc-dd-chip {
+        display: inline-flex;
+        align-items: center;
+        flex-shrink: 0;
+        height: 19px;
+        padding: 0 8px;
+        border-radius: var(--radius-sm);
+        background: var(--dd-soft);
+        color: var(--dd-accent);
+        border: 1px solid color-mix(in srgb, var(--dd-accent) 34%, transparent);
+        font-size: 12.5px;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        line-height: 1;
+        white-space: nowrap;
+      }
+      .mc-doorway .mc-dd-go {
+        flex-shrink: 0;
+        color: var(--dd-accent);
+        display: flex;
+        align-self: center;
+      }
+      .mc-doorway .mc-dd-desc {
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--dd-subtle);
+        margin: 4px 0 0;
+      }
+      .mc-doorway .mc-dd-scope {
+        font-size: 12px;
+        line-height: 1.4;
+        color: var(--dd-subtle);
+        margin: 6px 0 0;
+        font-variant-numeric: tabular-nums;
+      }
+      .mc-doorway .mc-dd-scope .mc-dot {
+        color: color-mix(in srgb, var(--dd-accent) 60%, transparent);
+      }
+
+      /* Edge-case grid */
+      .edge-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 28px;
+        align-items: start;
+      }
+      @media (max-width: 980px) {
+        .edge-grid {
+          grid-template-columns: 1fr;
+          max-width: 460px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- ═══════════════════════════════════════════════════════════
+         Icon sprite — inlined <symbol> set, referenced with
+         <svg class="lc"><use href="#l3-icon-…"/></svg>. Mirrors the
+         native-vs-invasive exhibit sprite (database, compass, map,
+         file-text, download, arrow-up-right, arrow-down, book-open,
+         folder-open) plus maximize + clock for this page.
+         ═══════════════════════════════════════════════════════════ -->
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true" focusable="false">
+      <defs>
+        <symbol id="l3-icon-database" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <ellipse cx="12" cy="5" rx="9" ry="3" />
+          <path d="M3 5V19A9 3 0 0 0 21 19V5" />
+          <path d="M3 12A9 3 0 0 0 21 12" />
+        </symbol>
+        <symbol id="l3-icon-compass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z" />
+        </symbol>
+        <symbol id="l3-icon-map" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z" />
+          <path d="M15 5.764v15" />
+          <path d="M9 3.236v15" />
+        </symbol>
+        <symbol id="l3-icon-file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" />
+          <path d="M14 2v5a1 1 0 0 0 1 1h5" />
+          <path d="M10 9H8" />
+          <path d="M16 13H8" />
+          <path d="M16 17H8" />
+        </symbol>
+        <symbol id="l3-icon-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 15V3" />
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <path d="m7 10 5 5 5-5" />
+        </symbol>
+        <symbol id="l3-icon-arrow-up-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M7 7h10v10" />
+          <path d="M7 17 17 7" />
+        </symbol>
+        <symbol id="l3-icon-arrow-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 5v14" />
+          <path d="m19 12-7 7-7-7" />
+        </symbol>
+        <symbol id="l3-icon-book-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 7v14" />
+          <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
+        </symbol>
+        <symbol id="l3-icon-bar-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 3v16a2 2 0 0 0 2 2h16" />
+          <path d="M18 17V9" />
+          <path d="M13 17V5" />
+          <path d="M8 17v-3" />
+        </symbol>
+        <symbol id="l3-icon-maximize" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3" />
+        </symbol>
+        <symbol id="l3-icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 7v5l3 2" />
+        </symbol>
+        <!-- WRMP watermark mark — simple estuary wave glyph -->
+        <symbol id="wrmp-wave" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 8c2.5-2 4.5-2 7 0s4.5 2 7 0 4.5-2 6-1" />
+          <path d="M2 13c2.5-2 4.5-2 7 0s4.5 2 7 0 4.5-2 6-1" />
+          <path d="M2 18c2.5-2 4.5-2 7 0s4.5 2 7 0 4.5-2 6-1" />
+        </symbol>
+      </defs>
+    </svg>
+
+    <main class="studies">
+      <!-- ═══════════════ Intro ═══════════════ -->
+      <header class="page-head">
+        <h1>Metric card — data-link studies</h1>
+        <p>
+          Three treatments of the topic-page metric card, each joining the
+          round-3 exhibit family — the same format chips, scope metadata, and
+          Data / Tools / Context vocabulary as the exhibit end-card hub, brought
+          down to card scale. Every treatment is dataset-forward: it links to a
+          specific data-catalog dataset, not to tools broadly. The three explore
+          how much of the exhibit's data-hub to carry, and how prominent the
+          dataset link should be.
+        </p>
+        <div class="axes">
+          <div class="axis">
+            <h2>How the dataset surfaces</h2>
+            <p>
+              One compact dataset row, a small categorized hub, or a single
+              dataset action leading the card.
+            </p>
+          </div>
+          <div class="axis">
+            <h2>Category-chip density</h2>
+            <p>
+              A single Data item, or the full Data / Tools / Context grouping
+              with counts, carried down from the exhibit hub.
+            </p>
+          </div>
+          <div class="axis">
+            <h2>Primary affordance</h2>
+            <p>
+              Whether the card leads with viewing the figure or with getting the
+              data — and how far the figure chrome recedes.
+            </p>
+          </div>
+        </div>
+      </header>
+
+      <!-- ═══════════════ Three treatments · one metric ═══════════════ -->
+      <section class="section">
+        <h2>Three treatments · one metric</h2>
+        <p class="section-desc">
+          The same metric — Native vs. invasive fish composition — rendered three
+          ways, so the axes compare directly. It carries a dataset (Species
+          catalog), a tool (EcoAtlas), and a data story (the Native vs. Invasive
+          exhibit).
+        </p>
+
+        <div class="study-grid">
+          <!-- ── Study A — inline dataset link ─────────────────────── -->
+          <div>
+            <div class="study-caption">
+              <p class="study-name">Study A — Inline dataset link</p>
+              <p class="study-tests">
+                Minimal change: one compact hub-item at the foot of the card,
+                pointing at the specific dataset. Figure downloads demote to a
+                quiet line. Tests whether a single row carries the family
+                without a full panel.
+              </p>
+            </div>
+            <article class="mc">
+              <div class="mc-media">
+                <svg class="mc-media__figure" viewBox="0 0 320 188" preserveAspectRatio="none" aria-hidden="true">
+                  <polyline points="0,150 40,140 80,120 120,128 160,96 200,104 240,70 280,60 320,44" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="2.5" />
+                  <polyline points="0,120 40,128 80,132 120,118 160,124 200,110 240,118 280,108 320,116" fill="none" stroke="rgba(255,255,255,0.32)" stroke-width="2" stroke-dasharray="5 5" />
+                </svg>
+                <span class="mc-media__overlay"></span>
+                <svg class="mc-media__watermark" aria-hidden="true"><use href="#wrmp-wave" /></svg>
+              </div>
+              <div class="mc-body">
+                <div class="mc-chiprow">
+                  <span class="mc-topicchip">Fish &amp; Wildlife</span>
+                  <span class="mc-topicchip">Species trends</span>
+                </div>
+                <h3 class="mc-title">Native vs. invasive fish composition</h3>
+                <p class="mc-desc">
+                  Fourteen years of otter-trawl catch data tracking the shifting
+                  balance between native and non-native fishes across the estuary.
+                </p>
+                <a class="mc-figlink" href="#">
+                  <svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-maximize" /></svg>
+                  Enlarge the figure
+                </a>
+
+                <a class="mc-hubitem" data-cat="data" href="../data/species.json" target="_blank" rel="noopener noreferrer">
+                  <span class="mc-hf-icon"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-download" /></svg></span>
+                  <div class="mc-hf-body">
+                    <div class="mc-hf-top">
+                      <p class="mc-hf-name">Species catalog</p>
+                      <span class="mc-chip">JSON</span>
+                      <span class="mc-hf-go"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-arrow-down" /></svg></span>
+                    </div>
+                    <p class="mc-hf-desc">
+                      Every fish and invertebrate taxon documented across the
+                      estuary, with native and invasive status.
+                    </p>
+                    <p class="mc-scope">All taxa <span class="mc-dot">·</span> Updated Mar 14, 2026</p>
+                  </div>
+                </a>
+
+                <p class="mc-download">
+                  <svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-download" /></svg>
+                  Download figure: <a href="#">PNG</a> <span class="mc-dot">·</span> <a href="#">PDF</a>
+                </p>
+              </div>
+            </article>
+          </div>
+
+          <!-- ── Study B — mini categorized hub ────────────────────── -->
+          <div>
+            <div class="study-caption">
+              <p class="study-name">Study B — Mini categorized hub</p>
+              <p class="study-tests">
+                The exhibit's Data / Tools / Context grouping carried to the card
+                — category headers with counts and per-category links. Tests how
+                much of the hub's richness survives at card density. (Also the
+                all-three-links case.)
+              </p>
+            </div>
+            <article class="mc">
+              <div class="mc-media">
+                <svg class="mc-media__figure" viewBox="0 0 320 188" preserveAspectRatio="none" aria-hidden="true">
+                  <polyline points="0,150 40,140 80,120 120,128 160,96 200,104 240,70 280,60 320,44" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="2.5" />
+                  <polyline points="0,120 40,128 80,132 120,118 160,124 200,110 240,118 280,108 320,116" fill="none" stroke="rgba(255,255,255,0.32)" stroke-width="2" stroke-dasharray="5 5" />
+                </svg>
+                <span class="mc-media__overlay"></span>
+                <svg class="mc-media__watermark" aria-hidden="true"><use href="#wrmp-wave" /></svg>
+              </div>
+              <div class="mc-body">
+                <div class="mc-chiprow">
+                  <span class="mc-topicchip">Fish &amp; Wildlife</span>
+                  <span class="mc-topicchip">Species trends</span>
+                </div>
+                <h3 class="mc-title">Native vs. invasive fish composition</h3>
+                <p class="mc-desc">
+                  Fourteen years of otter-trawl catch data tracking the shifting
+                  balance between native and non-native fishes across the estuary.
+                </p>
+                <a class="mc-figlink" href="#">
+                  <svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-maximize" /></svg>
+                  Enlarge the figure
+                </a>
+
+                <div class="mc-hub">
+                  <!-- Data -->
+                  <div class="mc-hub-panel" data-cat="data">
+                    <div class="mc-cat-head">
+                      <span class="mc-cat-icon"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-database" /></svg></span>
+                      <span class="mc-cat-name">Data</span>
+                      <span class="mc-cat-count">1</span>
+                    </div>
+                    <a class="mc-row" href="../data/species.json" target="_blank" rel="noopener noreferrer">
+                      <span class="mc-hf-icon"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-download" /></svg></span>
+                      <div class="mc-hf-body">
+                        <div class="mc-hf-top">
+                          <p class="mc-hf-name">Species catalog</p>
+                          <span class="mc-chip">JSON</span>
+                          <span class="mc-hf-go"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-arrow-down" /></svg></span>
+                        </div>
+                        <p class="mc-scope">All taxa <span class="mc-dot">·</span> Updated Mar 14, 2026</p>
+                      </div>
+                    </a>
+                  </div>
+                  <!-- Tools -->
+                  <div class="mc-hub-panel" data-cat="tools">
+                    <div class="mc-cat-head">
+                      <span class="mc-cat-icon"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-compass" /></svg></span>
+                      <span class="mc-cat-name">Tools</span>
+                      <span class="mc-cat-count">1</span>
+                    </div>
+                    <a class="mc-row" href="https://www.ecoatlas.org/regions/ecoregion/bay-delta" target="_blank" rel="noopener noreferrer">
+                      <span class="mc-hf-icon"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-map" /></svg></span>
+                      <div class="mc-hf-body">
+                        <div class="mc-hf-top">
+                          <p class="mc-hf-name">EcoAtlas</p>
+                          <span class="mc-chip">WEB TOOL</span>
+                          <span class="mc-hf-go"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-arrow-up-right" /></svg></span>
+                        </div>
+                        <p class="mc-scope">Bay-wide <span class="mc-dot">·</span> Updated Apr 9, 2026</p>
+                      </div>
+                    </a>
+                  </div>
+                  <!-- Context -->
+                  <div class="mc-hub-panel" data-cat="context">
+                    <div class="mc-cat-head">
+                      <span class="mc-cat-icon"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-book-open" /></svg></span>
+                      <span class="mc-cat-name">Context</span>
+                      <span class="mc-cat-count">1</span>
+                    </div>
+                    <a class="mc-row" href="../exhibits/round-3-2026-06/native-vs-invasive/" target="_blank" rel="noopener noreferrer">
+                      <span class="mc-hf-icon"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-file-text" /></svg></span>
+                      <div class="mc-hf-body">
+                        <div class="mc-hf-top">
+                          <p class="mc-hf-name">Native vs. Invasive</p>
+                          <span class="mc-chip">DATA STORY</span>
+                          <span class="mc-hf-go"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-arrow-up-right" /></svg></span>
+                        </div>
+                        <p class="mc-scope">WRMP Exhibit <span class="mc-dot">·</span> Updated May 28, 2026</p>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <!-- ── Study C — dataset-forward, lean ───────────────────── -->
+          <div>
+            <div class="study-caption">
+              <p class="study-name">Study C — Dataset-forward, lean</p>
+              <p class="study-tests">
+                Watermark chrome stripped, meta tightened, and the dataset made
+                the card's primary action — the exhibit's dark "go deeper"
+                doorway leads, viewing the figure becomes secondary. Tests
+                whether the card's lead should be view-the-figure or get-the-data.
+              </p>
+            </div>
+            <article class="mc mc--lean">
+              <div class="mc-media">
+                <svg class="mc-media__figure" viewBox="0 0 320 188" preserveAspectRatio="none" aria-hidden="true">
+                  <polyline points="0,150 40,140 80,120 120,128 160,96 200,104 240,70 280,60 320,44" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2.5" />
+                  <polyline points="0,120 40,128 80,132 120,118 160,124 200,110 240,118 280,108 320,116" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-dasharray="5 5" />
+                </svg>
+                <span class="mc-media__overlay"></span>
+              </div>
+              <div class="mc-body">
+                <div class="mc-chiprow">
+                  <span class="mc-topicchip">Fish &amp; Wildlife</span>
+                  <span class="mc-topicchip">Species trends</span>
+                </div>
+                <h3 class="mc-title">Native vs. invasive fish composition</h3>
+                <p class="mc-desc">
+                  Fourteen years of otter-trawl catch data tracking the shifting
+                  balance between native and non-native fishes across the estuary.
+                </p>
+
+                <a class="mc-doorway" data-cat="data" href="../data/species.json" target="_blank" rel="noopener noreferrer">
+                  <span class="mc-dd-lead"><svg class="lc" aria-hidden="true"><use href="#l3-icon-database" /></svg></span>
+                  <div class="mc-dd-body">
+                    <p class="mc-dd-kicker">Get the data</p>
+                    <div class="mc-dd-top">
+                      <p class="mc-dd-name">Species catalog</p>
+                      <span class="mc-dd-chip">JSON</span>
+                      <span class="mc-dd-go"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-arrow-down" /></svg></span>
+                    </div>
+                    <p class="mc-dd-desc">
+                      Every fish and invertebrate taxon documented across the
+                      estuary, with native and invasive status.
+                    </p>
+                    <p class="mc-dd-scope">All taxa <span class="mc-dot">·</span> Updated Mar 14, 2026</p>
+                  </div>
+                </a>
+
+                <a class="mc-figlink" href="#">
+                  <svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-maximize" /></svg>
+                  View the figure
+                </a>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════ Edge cases ═══════════════ -->
+      <section class="section">
+        <h2>Edge cases</h2>
+        <p class="section-desc">
+          The link shapes the treatments must survive. The all-three-links case
+          is Study B above; these cover a dataset-only metric, a dataset that is
+          not yet published, and a metric with a long title and a long dataset
+          name.
+        </p>
+
+        <div class="edge-grid">
+          <!-- ── Dataset-only (Study A treatment) ──────────────────── -->
+          <div>
+            <div class="study-caption">
+              <p class="study-name">Dataset only</p>
+              <p class="study-tests">
+                A metric that links to one dataset and nothing else. Study A's
+                single inline link is the natural fit.
+              </p>
+            </div>
+            <article class="mc">
+              <div class="mc-media">
+                <svg class="mc-media__figure" viewBox="0 0 320 188" preserveAspectRatio="none" aria-hidden="true">
+                  <g stroke="rgba(255,255,255,0.42)" stroke-width="1.5">
+                    <line x1="40" y1="30" x2="40" y2="158" /><line x1="110" y1="30" x2="110" y2="158" />
+                    <line x1="180" y1="30" x2="180" y2="158" /><line x1="250" y1="30" x2="250" y2="158" />
+                  </g>
+                  <g fill="rgba(255,255,255,0.7)">
+                    <circle cx="60" cy="120" r="3" /><circle cx="95" cy="96" r="3" /><circle cx="140" cy="108" r="3" />
+                    <circle cx="185" cy="72" r="3" /><circle cx="220" cy="88" r="3" /><circle cx="265" cy="58" r="3" />
+                  </g>
+                </svg>
+                <span class="mc-media__overlay"></span>
+                <svg class="mc-media__watermark" aria-hidden="true"><use href="#wrmp-wave" /></svg>
+              </div>
+              <div class="mc-body">
+                <div class="mc-chiprow">
+                  <span class="mc-topicchip">Monitoring design</span>
+                </div>
+                <h3 class="mc-title">Monitoring station network</h3>
+                <p class="mc-desc">
+                  Where every catch is recorded — the coordinates, regions and
+                  networks behind the estuary's monitoring effort.
+                </p>
+                <a class="mc-figlink" href="#">
+                  <svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-maximize" /></svg>
+                  Enlarge the figure
+                </a>
+
+                <a class="mc-hubitem" data-cat="data" href="../data/stations.json" target="_blank" rel="noopener noreferrer">
+                  <span class="mc-hf-icon"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-download" /></svg></span>
+                  <div class="mc-hf-body">
+                    <div class="mc-hf-top">
+                      <p class="mc-hf-name">Station network</p>
+                      <span class="mc-chip">JSON</span>
+                      <span class="mc-hf-go"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-arrow-down" /></svg></span>
+                    </div>
+                    <p class="mc-hf-desc">
+                      All 119 monitoring stations with coordinates, region and
+                      network — where each catch was recorded.
+                    </p>
+                    <p class="mc-scope">119 stations <span class="mc-dot">·</span> Updated Feb 20, 2026</p>
+                  </div>
+                </a>
+              </div>
+            </article>
+          </div>
+
+          <!-- ── Pending dataset (Study A treatment) ───────────────── -->
+          <div>
+            <div class="study-caption">
+              <p class="study-name">Pending dataset</p>
+              <p class="study-tests">
+                The dataset is not yet published. A neutral, non-interactive
+                panel with a plain PENDING chip carries the state — no colored
+                status border.
+              </p>
+            </div>
+            <article class="mc">
+              <div class="mc-media">
+                <svg class="mc-media__figure" viewBox="0 0 320 188" preserveAspectRatio="none" aria-hidden="true">
+                  <polyline points="0,140 60,118 120,124 180,92 240,100 320,66" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2.5" />
+                </svg>
+                <span class="mc-media__overlay"></span>
+                <svg class="mc-media__watermark" aria-hidden="true"><use href="#wrmp-wave" /></svg>
+              </div>
+              <div class="mc-body">
+                <div class="mc-chiprow">
+                  <span class="mc-topicchip">Sediment &amp; elevation</span>
+                </div>
+                <h3 class="mc-title">Marsh sediment accretion</h3>
+                <p class="mc-desc">
+                  How fast marsh surfaces are gaining elevation — the sediment
+                  supply that decides whether marshes keep pace with the tide.
+                </p>
+                <a class="mc-figlink" href="#">
+                  <svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-maximize" /></svg>
+                  Enlarge the figure
+                </a>
+
+                <div class="mc-hubitem mc-hubitem--pending" data-cat="pending" aria-disabled="true">
+                  <span class="mc-hf-icon"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-clock" /></svg></span>
+                  <div class="mc-hf-body">
+                    <div class="mc-hf-top">
+                      <p class="mc-hf-name">Sediment accretion series</p>
+                      <span class="mc-chip">PENDING</span>
+                    </div>
+                    <p class="mc-hf-desc">
+                      Feldspar-marker and SET measurements are still in QA; the
+                      dataset will publish to the data catalog next.
+                    </p>
+                    <p class="mc-scope">Expected Q3 2026</p>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <!-- ── Long title + long dataset name (Study B treatment) ── -->
+          <div>
+            <div class="study-caption">
+              <p class="study-name">Long title &amp; long dataset name</p>
+              <p class="study-tests">
+                A wordy metric title and a wordy dataset name in the mini hub —
+                names wrap onto two lines and the chip and go-arrow hold their
+                place. Also exercises the DASHBOARD and PDF REPORT chips.
+              </p>
+            </div>
+            <article class="mc">
+              <div class="mc-media">
+                <svg class="mc-media__figure" viewBox="0 0 320 188" preserveAspectRatio="none" aria-hidden="true">
+                  <g fill="rgba(255,255,255,0.55)">
+                    <rect x="34" y="96" width="26" height="62" /><rect x="86" y="74" width="26" height="84" />
+                    <rect x="138" y="108" width="26" height="50" /><rect x="190" y="60" width="26" height="98" />
+                    <rect x="242" y="84" width="26" height="74" />
+                  </g>
+                </svg>
+                <span class="mc-media__overlay"></span>
+                <svg class="mc-media__watermark" aria-hidden="true"><use href="#wrmp-wave" /></svg>
+              </div>
+              <div class="mc-body">
+                <div class="mc-chiprow">
+                  <span class="mc-topicchip">Fish &amp; Wildlife</span>
+                  <span class="mc-topicchip">Marsh resilience</span>
+                </div>
+                <h3 class="mc-title">
+                  Distribution and abundance of key resident tidal-marsh fish and
+                  wildlife species
+                </h3>
+                <p class="mc-desc">
+                  How the estuary's marsh-dependent residents are shifting in
+                  range and number as habitats change.
+                </p>
+                <a class="mc-figlink" href="#">
+                  <svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-maximize" /></svg>
+                  Enlarge the figure
+                </a>
+
+                <div class="mc-hub">
+                  <div class="mc-hub-panel" data-cat="data">
+                    <div class="mc-cat-head">
+                      <span class="mc-cat-icon"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-database" /></svg></span>
+                      <span class="mc-cat-name">Data</span>
+                      <span class="mc-cat-count">1</span>
+                    </div>
+                    <a class="mc-row" href="../data/stations.json" target="_blank" rel="noopener noreferrer">
+                      <span class="mc-hf-icon"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-download" /></svg></span>
+                      <div class="mc-hf-body">
+                        <div class="mc-hf-top">
+                          <p class="mc-hf-name">Tidal-marsh resident species distribution and abundance monitoring catalog</p>
+                          <span class="mc-chip">JSON</span>
+                          <span class="mc-hf-go"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-arrow-down" /></svg></span>
+                        </div>
+                        <p class="mc-scope">All resident taxa <span class="mc-dot">·</span> Updated Mar 14, 2026</p>
+                      </div>
+                    </a>
+                  </div>
+                  <div class="mc-hub-panel" data-cat="tools">
+                    <div class="mc-cat-head">
+                      <span class="mc-cat-icon"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-compass" /></svg></span>
+                      <span class="mc-cat-name">Tools</span>
+                      <span class="mc-cat-count">1</span>
+                    </div>
+                    <a class="mc-row" href="https://www.ecoatlas.org/regions/ecoregion/bay-delta" target="_blank" rel="noopener noreferrer">
+                      <span class="mc-hf-icon"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-bar-chart" /></svg></span>
+                      <div class="mc-hf-body">
+                        <div class="mc-hf-top">
+                          <p class="mc-hf-name">SF Estuary Wetlands Profile</p>
+                          <span class="mc-chip">DASHBOARD</span>
+                          <span class="mc-hf-go"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-arrow-up-right" /></svg></span>
+                        </div>
+                        <p class="mc-scope">Bay-wide <span class="mc-dot">·</span> Updated Apr 9, 2026</p>
+                      </div>
+                    </a>
+                  </div>
+                  <div class="mc-hub-panel" data-cat="context">
+                    <div class="mc-cat-head">
+                      <span class="mc-cat-icon"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-book-open" /></svg></span>
+                      <span class="mc-cat-name">Context</span>
+                      <span class="mc-cat-count">1</span>
+                    </div>
+                    <a class="mc-row" href="https://www.stateofourestuary.org/" target="_blank" rel="noopener noreferrer">
+                      <span class="mc-hf-icon"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-file-text" /></svg></span>
+                      <div class="mc-hf-body">
+                        <div class="mc-hf-top">
+                          <p class="mc-hf-name">State of Our Estuary report</p>
+                          <span class="mc-chip">PDF REPORT</span>
+                          <span class="mc-hf-go"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-arrow-up-right" /></svg></span>
+                        </div>
+                        <p class="mc-scope">SF Estuary Partnership <span class="mc-dot">·</span> Updated Sep 15, 2022</p>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

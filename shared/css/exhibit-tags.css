@@ -31,8 +31,8 @@
 
          <!-- management-question badge(s), top-left -->
          <div class="exhibit-tags exhibit-tags--on-poster">
-           <span class="exhibit-tag" data-gq="2" title="2A — full question text">2A</span>
-           <span class="exhibit-tag" data-gq="3" title="3B — full question text">3B</span>
+           <span class="exhibit-tag" data-gq="2" title="full question text">2A</span>
+           <span class="exhibit-tag" data-gq="3" title="full question text">3B</span>
          </div>
 
          <!-- recognition marker, top-right (icon comes from CSS;
@@ -52,8 +52,8 @@
    (b) MQ badge in a plain row beneath a card (no positioning):
 
        <div class="exhibit-tags">
-         <span class="exhibit-tag" data-gq="4" title="4A — …">4A</span>
-         <span class="exhibit-tag" data-gq="4" title="4B — …">4B</span>
+         <span class="exhibit-tag" data-gq="4" title="…">4A</span>
+         <span class="exhibit-tag" data-gq="4" title="…">4B</span>
        </div>
 
    (c) Topic chip(s) in a meta row beneath a card (no positioning):
@@ -124,7 +124,9 @@ a.exhibit-topic {
 }
 a.exhibit-tag:hover { filter: brightness(0.97); }
 a.exhibit-topic:hover { filter: brightness(0.97); }
-a.exhibit-tag:focus-visible,
+/* Focus ring covers link badges AND span badges made focusable by the
+   popover enhancement (sf-popover.js gives every .exhibit-tag tabindex). */
+.exhibit-tag:focus-visible,
 a.exhibit-topic:focus-visible {
   outline: 2px solid var(--wrmp-ada-teal, #005e6a);
   outline-offset: 2px;
@@ -285,3 +287,11 @@ a.exhibit-topic:focus-visible {
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
 }
+
+/* ─ Guiding-question popover ─
+   The full-question hover/focus card moved OUT of this file: the old
+   .exhibit-tag-tip anchored inside the tag and was clipped by
+   overflow:hidden on poster cards. It now lives in sf-popover.css +
+   shared/js/sf-popover.js — one body-appended, position:fixed node
+   that no container can clip. Pages load those two files alongside
+   this one; badge markup is unchanged. */
