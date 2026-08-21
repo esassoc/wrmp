@@ -11,6 +11,7 @@
             rel="stylesheet"
         />
         <link rel="stylesheet" href="../shared/css/tokens.css" />
+        <link rel="stylesheet" href="../shared/css/sf-popover.css" />
         <style>
             /* ═══ Specimen tokens ═══
                The full badge ramp (--gq1-tint … --gq5-sat) comes from
@@ -253,89 +254,13 @@
                 box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
             }
 
-            /* ═══ Guiding-question tooltip ═══
-               Progressive enhancement — the script at the foot of this
-               page upgrades every .exhibit-tag[title] into a keyboard-
-               reachable tooltip trigger and injects the .exhibit-tag-tip
-               bubble carrying the tag's full guiding-question text.
-               Neutral dark surface, never tinted by GQ color; the badge
-               label stays compact, the bubble is 16px reading prose. */
+            /* ═══ Guiding-question popover ═══
+               Full question on hover/focus comes from the shared
+               sf-popover.css + sf-popover.js (body-appended, fixed;
+               never clipped by the poster cards). */
             .exhibit-tag:focus-visible {
                 outline: 2px solid var(--wrmp-ada-teal, #005e6a);
                 outline-offset: 2px;
-            }
-            .exhibit-tag[data-tooltip-ready] {
-                position: relative;
-            }
-            .exhibit-tag-tip {
-                --_tip-bg: var(--wrmp-dark-brand, #4e4e50);
-                --_tip-ink: #ffffff;
-                --_tip-gap: 9px;
-                --arrow-x: 16px;
-                position: absolute;
-                top: calc(100% + var(--_tip-gap));
-                left: 0;
-                z-index: 20;
-                width: max-content;
-                max-width: 300px;
-                padding: 9px 12px;
-                border-radius: var(--radius-sm, 4px);
-                background: var(--_tip-bg);
-                color: var(--_tip-ink);
-                font-family: var(--font-body);
-                font-size: 16px;
-                font-weight: 400;
-                line-height: 1.4;
-                letter-spacing: normal;
-                text-transform: none;
-                text-align: left;
-                white-space: normal;
-                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
-                pointer-events: none;
-                opacity: 0;
-                visibility: hidden;
-                transform: translateY(-2px);
-                transition: opacity 0.14s ease, transform 0.14s ease,
-                    visibility 0s linear 0.14s;
-            }
-            .exhibit-tag-tip.is-visible {
-                opacity: 1;
-                visibility: visible;
-                transform: translateY(0);
-                transition: opacity 0.14s ease, transform 0.14s ease,
-                    visibility 0s;
-            }
-            .exhibit-tag-tip::before {
-                content: "";
-                position: absolute;
-                left: var(--arrow-x);
-                width: 9px;
-                height: 9px;
-                background: var(--_tip-bg);
-                transform: translateX(-50%) rotate(45deg);
-            }
-            .exhibit-tag-tip:not(.is-above)::before {
-                top: -4px;
-            }
-            .exhibit-tag-tip.is-above {
-                top: auto;
-                bottom: calc(100% + var(--_tip-gap));
-                transform: translateY(2px);
-            }
-            .exhibit-tag-tip.is-above.is-visible {
-                transform: translateY(0);
-            }
-            .exhibit-tag-tip.is-above::before {
-                bottom: -4px;
-            }
-            @media (prefers-reduced-motion: reduce) {
-                .exhibit-tag-tip,
-                .exhibit-tag-tip.is-visible,
-                .exhibit-tag-tip.is-above,
-                .exhibit-tag-tip.is-above.is-visible {
-                    transition: none;
-                    transform: none;
-                }
             }
 
             /* ═══ Poster card ═══ */
@@ -855,8 +780,8 @@
             <h2 class="section-title">Science Framework question colors</h2>
             <p class="section-intro">
                 Every guiding question shares one WRMP-orange family, stepped
-                light-to-dark across the three hierarchy levels — guiding
-                question, management question, priority recommended action —
+                light-to-dark across the three hierarchy levels (guiding
+                question, management question, priority recommended action)
                 plus the exhibit badge, which draws from the same ramp. Every
                 tier meets WCAG AA contrast.
             </p>
@@ -875,13 +800,13 @@
             <h3 class="option-title">Proposed mapping &amp; ramp</h3>
             <p class="option-caption">
                 Guiding question and management question are both solid with
-                white text — guiding deepest, management a clear step lighter —
-                and priority recommended action is the pale wash. The same
-                four tiers apply to all five questions.
+                white text: guiding deepest, management a clear step lighter.
+                Priority recommended action is the pale wash. The same four
+                tiers apply to all five questions.
             </p>
             <div class="ramps">
                 <div class="ramp-row q4">
-                    <div class="ramp-name">All questions · Orange<small>#E09337</small></div>
+                    <div class="ramp-name">All questions<small>Base hue #E09337</small></div>
                     <div class="ramp-chips">
                         <div class="tier"><span class="tier-cap">Guiding question</span><span class="tier-pill is-gq">Guiding Question</span></div>
                         <div class="tier"><span class="tier-cap">Management question</span><span class="tier-pill is-mq">Management 4A</span></div>
@@ -895,7 +820,7 @@
             <h3 class="option-title" style="margin-top: 36px">In context</h3>
             <p class="option-caption">
                 Consecutive questions in the Science Framework layout, all in
-                the shared orange family — hierarchy is carried by the tier
+                the shared orange family. Hierarchy is carried by the tier
                 steps, not by hue.
             </p>
             <div class="sf-mock">
@@ -923,9 +848,9 @@
                             <span class="q-badge">3B</span>
                         </div>
                         <p class="mock-mq__text">
-                            Where and when can interventions — dredged-sediment
-                            placement, watershed reconnection, living shorelines
-                            — help sustain tidal marsh ecosystems?
+                            Where and when can interventions, such as dredged-sediment
+                            placement, watershed reconnection, and living
+                            shorelines, help sustain tidal marsh ecosystems?
                         </p>
                     </div>
                     <div class="mock-pra">
@@ -1000,9 +925,9 @@
                             <span class="q-badge">5C</span>
                         </div>
                         <p class="mock-mq__text">
-                            How are the benefits of wetlands — flood-risk
-                            reduction, water quality, public access — distributed
-                            regionally?
+                            How are the benefits of wetlands, such as flood-risk
+                            reduction, water quality, and public access,
+                            distributed regionally?
                         </p>
                     </div>
                     <div class="mock-pra">
@@ -1023,36 +948,26 @@
         <section class="section">
             <h2 class="section-title">A. Management-question badge</h2>
             <p class="section-intro">
-                One badge, on the poster only — smaller than before, with the
-                guiding-question color carrying clearly. Color encodes the
-                guiding question (leading digit); the label is the
-                management-question code. Each option is shown at the reduced
-                size with a single-tag card and a multi-tag card (3A + 1A).
+                One badge, on the poster only: smaller than before, with the
+                label carrying the management-question code. Every badge shares
+                the orange family. Each option is shown at the reduced size
+                with a single-tag card and a multi-tag card (3A + 1A).
             </p>
-
-            <div class="gq-legend">
-                <span class="gq-legend__lead">Badge color = guiding question</span>
-                <span class="gq-legend__item"><span class="gq-swatch gq-1"></span>Q1 · Extent &amp; condition</span>
-                <span class="gq-legend__item"><span class="gq-swatch gq-2"></span>Q2 · External drivers</span>
-                <span class="gq-legend__item"><span class="gq-swatch gq-3"></span>Q3 · Restoration lessons</span>
-                <span class="gq-legend__item"><span class="gq-swatch gq-4"></span>Q4 · Plants &amp; animals</span>
-                <span class="gq-legend__item"><span class="gq-swatch gq-5"></span>Q5 · Public health</span>
-            </div>
 
             <!-- A1 — Pale tint -->
             <div class="option opt-pale">
-                <h3 class="option-title">A1 — Pale tint</h3>
+                <h3 class="option-title">Option A1: Pale tint</h3>
                 <p class="option-caption">
                     The near-white fill, kept here for comparison.
                     <span class="tradeoff">Tradeoff:</span> quietest, but the
-                    color barely registers — which is why A2 was adopted.
+                    color barely registers; that is why A2 was adopted.
                 </p>
                 <div class="specimen-row">
                     <a class="exhibit-card" href="#" aria-label="Delta Smelt, tagged 4B">
                         <div class="exhibit-card-image" style="background-image: url('../exhibits/round-3-2026-06/delta-smelt/cover.jpg');"></div>
                         <div class="exhibit-card-gradient"></div>
                         <div class="exhibit-tags exhibit-tags--on-poster">
-                            <span class="exhibit-tag" data-gq="4" title="4B — How are the distribution and abundance of key resident species of fish and wildlife of tidal marsh ecosystems changing over time?">4B</span>
+                            <span class="exhibit-tag" data-gq="4" title="How are the distribution and abundance of key resident species of fish and wildlife of tidal marsh ecosystems changing over time?">4B</span>
                         </div>
                         <div class="exhibit-card-content">
                             <span class="exhibit-card-kicker">Featured species</span>
@@ -1063,8 +978,8 @@
                         <div class="exhibit-card-image" style="background-image: url('../exhibits/round-3-2026-06/restoration-network/cover.jpg');"></div>
                         <div class="exhibit-card-gradient"></div>
                         <div class="exhibit-tags exhibit-tags--on-poster">
-                            <span class="exhibit-tag" data-gq="3" title="3A — What new information do we need to better understand regional lessons from tidal marsh restoration projects?">3A</span>
-                            <span class="exhibit-tag" data-gq="1" title="1A — What is the distribution, abundance and condition of tidal marsh ecosystems, and how are they changing over time?">1A</span>
+                            <span class="exhibit-tag" data-gq="3" title="What new information do we need to better understand regional lessons from tidal marsh restoration projects?">3A</span>
+                            <span class="exhibit-tag" data-gq="1" title="What is the distribution, abundance and condition of tidal marsh ecosystems, and how are they changing over time?">1A</span>
                         </div>
                         <div class="exhibit-card-content">
                             <span class="exhibit-card-kicker">Restoration design</span>
@@ -1076,14 +991,14 @@
 
             <!-- A2 — Saturated tint (adopted) -->
             <div class="option opt-sat">
-                <h3 class="option-title">A2 — Saturated tint (adopted)</h3>
+                <h3 class="option-title">Option A2: Saturated tint (adopted)</h3>
                 <p class="option-caption">
-                    A clearly-colored but still-light fill with dark text —
-                    now the live treatment on the exhibit posters, with the
-                    leading clipboard icon dropped there to keep the small chip
+                    A clearly-colored but still-light fill with dark text,
+                    now the live treatment on the exhibit posters. The leading
+                    clipboard icon is dropped there to keep the small chip
                     clean over a cover.
                     <span class="tradeoff">Tradeoff:</span> color reads at a
-                    glance and the label stays dark and legible — a measured
+                    glance and the label stays dark and legible, a measured
                     middle ground.
                 </p>
                 <div class="specimen-row">
@@ -1091,7 +1006,7 @@
                         <div class="exhibit-card-image" style="background-image: url('../exhibits/round-3-2026-06/delta-smelt/cover.jpg');"></div>
                         <div class="exhibit-card-gradient"></div>
                         <div class="exhibit-tags exhibit-tags--on-poster">
-                            <span class="exhibit-tag" data-gq="4" title="4B — key resident species of fish and wildlife">4B</span>
+                            <span class="exhibit-tag" data-gq="4" title="Key resident species of fish and wildlife">4B</span>
                         </div>
                         <div class="exhibit-card-content">
                             <span class="exhibit-card-kicker">Featured species</span>
@@ -1102,8 +1017,8 @@
                         <div class="exhibit-card-image" style="background-image: url('../exhibits/round-3-2026-06/restoration-network/cover.jpg');"></div>
                         <div class="exhibit-card-gradient"></div>
                         <div class="exhibit-tags exhibit-tags--on-poster">
-                            <span class="exhibit-tag" data-gq="3" title="3A — regional lessons from restoration projects">3A</span>
-                            <span class="exhibit-tag" data-gq="1" title="1A — distribution, abundance and condition over time">1A</span>
+                            <span class="exhibit-tag" data-gq="3" title="Regional lessons from restoration projects">3A</span>
+                            <span class="exhibit-tag" data-gq="1" title="Distribution, abundance and condition over time">1A</span>
                         </div>
                         <div class="exhibit-card-content">
                             <span class="exhibit-card-kicker">Restoration design</span>
@@ -1115,10 +1030,10 @@
 
             <!-- A3 — Solid fill -->
             <div class="option opt-solid">
-                <h3 class="option-title">A3 — Solid fill</h3>
+                <h3 class="option-title">Option A3: Solid fill</h3>
                 <p class="option-caption">
-                    Filled with the guiding-question color and white text — the
-                    same treatment as the active filter chip.
+                    Filled with the solid orange and white text, the same
+                    treatment as the active filter chip.
                     <span class="tradeoff">Tradeoff:</span> boldest and
                     unmistakably colored (ADA-safe 6–9:1), but heaviest on the
                     image.
@@ -1128,7 +1043,7 @@
                         <div class="exhibit-card-image" style="background-image: url('../exhibits/round-3-2026-06/delta-smelt/cover.jpg');"></div>
                         <div class="exhibit-card-gradient"></div>
                         <div class="exhibit-tags exhibit-tags--on-poster">
-                            <span class="exhibit-tag" data-gq="4" title="4B — key resident species of fish and wildlife">4B</span>
+                            <span class="exhibit-tag" data-gq="4" title="Key resident species of fish and wildlife">4B</span>
                         </div>
                         <div class="exhibit-card-content">
                             <span class="exhibit-card-kicker">Featured species</span>
@@ -1139,8 +1054,8 @@
                         <div class="exhibit-card-image" style="background-image: url('../exhibits/round-3-2026-06/restoration-network/cover.jpg');"></div>
                         <div class="exhibit-card-gradient"></div>
                         <div class="exhibit-tags exhibit-tags--on-poster">
-                            <span class="exhibit-tag" data-gq="3" title="3A — regional lessons from restoration projects">3A</span>
-                            <span class="exhibit-tag" data-gq="1" title="1A — distribution, abundance and condition over time">1A</span>
+                            <span class="exhibit-tag" data-gq="3" title="Regional lessons from restoration projects">3A</span>
+                            <span class="exhibit-tag" data-gq="1" title="Distribution, abundance and condition over time">1A</span>
                         </div>
                         <div class="exhibit-card-content">
                             <span class="exhibit-card-kicker">Restoration design</span>
@@ -1150,7 +1065,7 @@
                 </div>
             </div>
 
-            <p class="rec">Adopted: A2 — the saturated tint, now live on the exhibit posters (gallery, Science Framework, topic pages), with the leading clipboard icon dropped on the poster. Q1 and Q4 are both teals, so they read as similar hues.</p>
+            <p class="rec">Adopted: A2, the saturated tint, now live on the exhibit posters (gallery, Science Framework, topic pages), with the leading clipboard icon dropped on the poster.</p>
         </section>
 
         <!-- ═══════════════════════════════════════════════════════
@@ -1159,10 +1074,10 @@
         <section class="section">
             <h2 class="section-title">B. Exhibit recognition marker</h2>
             <p class="section-intro">
-                The corner marker should signal "step inside / explore," not
-                playback. The current play glyph reads as video, so here it sits
-                beside Lucide alternatives — same frosted top-right circle, each
-                labeled with its icon name.
+                The corner marker should signal stepping inside to explore,
+                not playback. The play glyph reads as video, so here it sits
+                beside Lucide alternatives in the same frosted top-right
+                circle, each labeled with its icon name.
             </p>
             <div class="marker-grid">
                 <!-- Current play (reference) -->
@@ -1175,7 +1090,7 @@
                         </span>
                         <div class="exhibit-card-content"><h3 class="exhibit-card-title">How We Monitor</h3></div>
                     </a>
-                    <p class="demo-label"><code>play</code> <span class="demo-note">— current (reads as video)</span></p>
+                    <p class="demo-label"><code>play</code> <span class="demo-note">Original marker. Reads as video.</span></p>
                 </div>
 
                 <!-- telescope -->
@@ -1196,7 +1111,7 @@
                         </span>
                         <div class="exhibit-card-content"><h3 class="exhibit-card-title">The Bay: Where We're Watching</h3></div>
                     </a>
-                    <p class="demo-label"><code>telescope</code> <span class="demo-note">— on-theme for a monitoring program</span></p>
+                    <p class="demo-label"><code>telescope</code> <span class="demo-note">On-theme for a monitoring program.</span></p>
                 </div>
 
                 <!-- compass -->
@@ -1212,7 +1127,7 @@
                         </span>
                         <div class="exhibit-card-content"><h3 class="exhibit-card-title">Designing the Experiment</h3></div>
                     </a>
-                    <p class="demo-label"><code>compass</code> <span class="demo-note">— explore / navigate</span></p>
+                    <p class="demo-label"><code>compass</code> <span class="demo-note">Explore and navigate.</span></p>
                 </div>
 
                 <!-- layers -->
@@ -1229,7 +1144,7 @@
                         </span>
                         <div class="exhibit-card-content"><h3 class="exhibit-card-title">A Decade in Alviso Marsh</h3></div>
                     </a>
-                    <p class="demo-label"><code>layers</code> <span class="demo-note">— a stepped, layered exhibit</span></p>
+                    <p class="demo-label"><code>layers</code> <span class="demo-note">A stepped, layered exhibit.</span></p>
                 </div>
 
                 <!-- maximize-2 -->
@@ -1247,7 +1162,7 @@
                         </span>
                         <div class="exhibit-card-content"><h3 class="exhibit-card-title">Native vs. Invasive</h3></div>
                     </a>
-                    <p class="demo-label"><code>maximize-2</code> <span class="demo-note">— open / enter full screen</span></p>
+                    <p class="demo-label"><code>maximize-2</code> <span class="demo-note">Open into full screen.</span></p>
                 </div>
 
                 <!-- scan-eye -->
@@ -1267,10 +1182,10 @@
                         </span>
                         <div class="exhibit-card-content"><h3 class="exhibit-card-title">Is the Bay Keeping Up?</h3></div>
                     </a>
-                    <p class="demo-label"><code>scan-eye</code> <span class="demo-note">— look closer / interactive</span></p>
+                    <p class="demo-label"><code>scan-eye</code> <span class="demo-note">Look closer, interactive.</span></p>
                 </div>
             </div>
-            <p class="rec">Recommendation: telescope — it ties to the monitoring mission and is unmistakably not a play button. Compass is the safe runner-up.</p>
+            <p class="rec">Recommendation: telescope. It ties to the monitoring mission and is unmistakably not a play button. Compass is the safe runner-up.</p>
         </section>
 
         <!-- ═══════════════════════════════════════════════════════
@@ -1280,18 +1195,18 @@
             <h2 class="section-title">C. Topic indicator on the cover</h2>
             <p class="section-intro">
                 Exhibits also belong to site topics (Fish &amp; Wildlife,
-                Baylands Geography, …). The topic is a quieter, neutral signal —
-                deliberately not guiding-question-colored — so the two systems
-                never get confused. The colored management-question badge stays
-                the bright overlay; topic reads as gray metadata.
+                Baylands Geography, and five more). The topic is a quieter,
+                neutral signal, deliberately not badge-colored, so the two
+                systems never get confused. The orange management-question
+                badge stays the bright overlay; topic reads as gray metadata.
             </p>
 
             <!-- C1 — Neutral chip on the cover -->
             <div class="option">
-                <h3 class="option-title">C1 — Neutral topic chip on the cover</h3>
+                <h3 class="option-title">Option C1: Neutral topic chip on the cover</h3>
                 <p class="option-caption">
                     A small neutral chip with a leading map icon, set just above
-                    the title — clear of the top-left badge and top-right marker.
+                    the title, clear of the top-left badge and top-right marker.
                     <span class="tradeoff">Tradeoff:</span> topic is visible on
                     the poster itself, at the cost of one more element on the
                     image.
@@ -1361,7 +1276,7 @@
 
             <!-- C2 — Topic in the kicker line beneath -->
             <div class="option">
-                <h3 class="option-title">C2 — Topic in the kicker line</h3>
+                <h3 class="option-title">Option C2: Topic in the kicker line</h3>
                 <p class="option-caption">
                     The cover carries only the colored badge and marker; the
                     topic sits in the metadata line beneath, with the title.
@@ -1436,8 +1351,8 @@
         <section class="section">
             <h2 class="section-title">D. Gallery filter bar</h2>
             <p class="section-intro">
-                The filter row reads as a defined component — a light-gray
-                container with a border and comfortable padding — and gains a
+                The filter row reads as a defined component: a light-gray
+                container with a border and comfortable padding. It gains a
                 topic filter alongside the management-question chips.
             </p>
             <div class="filter-bar">
@@ -1470,111 +1385,8 @@
             <p class="rec">The active management-question chip uses the solid guiding-question color (here 4B); the topic dropdown lists the seven site topics with an "All topics" default.</p>
         </section>
 
-        <!-- Guiding-question tag tooltips — mirrors the shared site.js
-             enhancement: upgrades every .exhibit-tag[title] to a styled,
-             keyboard-reachable, ARIA-described tooltip (WAI-ARIA APG). -->
-        <script>
-            (function () {
-                "use strict";
-
-                var SEL = ".exhibit-tag[title]";
-                if (!document.querySelector(SEL)) return;
-
-                var uid = 0;
-                var activeTag = null;
-
-                function hide(tag) {
-                    if (!tag || !tag._tip) return;
-                    tag._tip.classList.remove("is-visible");
-                    if (activeTag === tag) activeTag = null;
-                }
-
-                function position(tag, tip) {
-                    var card = tag.closest(".exhibit-card");
-                    var pad = 6;
-                    var bound = card
-                        ? card.getBoundingClientRect()
-                        : {
-                              left: 8,
-                              top: 8,
-                              right: window.innerWidth - 8,
-                              bottom: window.innerHeight - 8,
-                          };
-
-                    tip.classList.remove("is-above");
-                    tip.style.left = "0px";
-
-                    var tagRect = tag.getBoundingClientRect();
-                    var tipRect = tip.getBoundingClientRect();
-
-                    var left = 0;
-                    var overRight =
-                        tagRect.left + tipRect.width - (bound.right - pad);
-                    if (overRight > 0) left -= overRight;
-                    if (tagRect.left + left < bound.left + pad) {
-                        left = bound.left + pad - tagRect.left;
-                    }
-                    tip.style.left = left + "px";
-
-                    var arrowX = tagRect.width / 2 - left;
-                    arrowX = Math.max(12, Math.min(arrowX, tipRect.width - 12));
-                    tip.style.setProperty("--arrow-x", arrowX + "px");
-
-                    var belowSpill =
-                        tagRect.bottom + 9 + tipRect.height > bound.bottom - pad;
-                    var roomAbove = tagRect.top - bound.top;
-                    var roomBelow = bound.bottom - tagRect.bottom;
-                    if (belowSpill && roomAbove > roomBelow)
-                        tip.classList.add("is-above");
-                }
-
-                function show(tag) {
-                    if (!tag._tip) return;
-                    if (activeTag && activeTag !== tag) hide(activeTag);
-                    activeTag = tag;
-                    position(tag, tag._tip);
-                    tag._tip.classList.add("is-visible");
-                }
-
-                function upgrade(tag) {
-                    if (tag._tip) return;
-                    var text = tag.getAttribute("title");
-                    if (!text) return;
-                    tag.removeAttribute("title");
-                    tag.setAttribute("data-tooltip-ready", "");
-                    if (!tag.hasAttribute("tabindex"))
-                        tag.setAttribute("tabindex", "0");
-
-                    var tip = document.createElement("span");
-                    tip.className = "exhibit-tag-tip";
-                    tip.setAttribute("role", "tooltip");
-                    tip.id = "exhibit-tag-tip-" + ++uid;
-                    tip.textContent = text;
-                    tag.appendChild(tip);
-                    tag.setAttribute("aria-describedby", tip.id);
-                    tag._tip = tip;
-
-                    tag.addEventListener("mouseenter", function () {
-                        show(tag);
-                    });
-                    tag.addEventListener("mouseleave", function () {
-                        hide(tag);
-                    });
-                    tag.addEventListener("focus", function () {
-                        show(tag);
-                    });
-                    tag.addEventListener("blur", function () {
-                        hide(tag);
-                    });
-                }
-
-                document.querySelectorAll(SEL).forEach(upgrade);
-
-                document.addEventListener("keydown", function (e) {
-                    if ((e.key === "Escape" || e.key === "Esc") && activeTag)
-                        hide(activeTag);
-                });
-            })();
-        </script>
+        <!-- Full-question popover on every badge: shared enhancement,
+             body-appended so no card overflow can clip it. -->
+        <script src="../shared/js/sf-popover.js"></script>
     </body>
 </html>

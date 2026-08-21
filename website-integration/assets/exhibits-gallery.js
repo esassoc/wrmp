@@ -45,7 +45,8 @@
     return code.charAt(0); // leading digit drives the color tier
   }
   function badgeTitle(code) {
-    return code + " — " + (mqText[code] || "");
+    // Plain question text: the sf-popover shows the code as its own chip.
+    return mqText[code] || code;
   }
   function dotColor(code) {
     // Mid-tone (--qN-mq) reads as the question's hue at dot size; the

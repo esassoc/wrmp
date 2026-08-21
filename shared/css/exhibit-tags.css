@@ -31,8 +31,8 @@
 
          <!-- management-question badge(s), top-left -->
          <div class="exhibit-tags exhibit-tags--on-poster">
-           <span class="exhibit-tag" data-gq="2" title="2A — full question text">2A</span>
-           <span class="exhibit-tag" data-gq="3" title="3B — full question text">3B</span>
+           <span class="exhibit-tag" data-gq="2" title="full question text">2A</span>
+           <span class="exhibit-tag" data-gq="3" title="full question text">3B</span>
          </div>
 
          <!-- recognition marker, top-right (icon comes from CSS;
@@ -52,8 +52,8 @@
    (b) MQ badge in a plain row beneath a card (no positioning):
 
        <div class="exhibit-tags">
-         <span class="exhibit-tag" data-gq="4" title="4A — …">4A</span>
-         <span class="exhibit-tag" data-gq="4" title="4B — …">4B</span>
+         <span class="exhibit-tag" data-gq="4" title="…">4A</span>
+         <span class="exhibit-tag" data-gq="4" title="…">4B</span>
        </div>
 
    (c) Topic chip(s) in a meta row beneath a card (no positioning):
