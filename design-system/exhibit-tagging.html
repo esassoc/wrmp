@@ -46,20 +46,16 @@
                 --pal-grass: #92bb4d;
                 --pal-orange: #e09337;
 
-                /* ── Per-question ramps ─────────────────────────
-                     Crisp dark → medium → pale staircase:
-                     gq = deepest solid, WHITE text · mq = medium solid,
-                     WHITE text (a clear step lighter) · pra = pale wash,
-                     ink text · badge-bg = light tint, ink text · ink =
-                     deep hue for pra/badge text. A natural landscape ramp:
-                     Sky Blue, Grass, Sand, Orange, Earth. The warm trio
-                     (sand/orange/earth) separates by lightness — light
-                     gold, burnt orange, deep brown. All ≥4.5:1.  */
-                --q1-gq: #005575;  --q1-mq: #007eac; --q1-pra: #d9f3fc; --q1-badge-bg: #99def7; --q1-ink: #005575; /* Sky Blue (#00ACEC) */
-                --q2-gq: #40611c;  --q2-mq: #5c7d2b; --q2-pra: #eef4e0; --q2-badge-bg: #cfe3ab; --q2-ink: #40611c; /* Grass (#92BB4D) */
-                --q3-gq: #575000;  --q3-mq: #807500; --q3-pra: #f6f3d9; --q3-badge-bg: #e7e099; --q3-ink: #575000; /* Sand → olive-gold (#F2CE87) */
+                /* ── Question ramp ──────────────────────────────
+                     One orange family for every question (SFEI decision
+                     2026-08-14): gq deepest solid, mq mid solid, pra pale
+                     wash, badge light tint, ink deep text. Values match
+                     the shared tokens.css. */
+                --q1-gq: #8a4b0a;  --q1-mq: #a85a0d; --q1-pra: #fbe9d5; --q1-badge-bg: #f4cfa2; --q1-ink: #6f3c07; /* Orange (#E09337) */
+                --q2-gq: #8a4b0a;  --q2-mq: #a85a0d; --q2-pra: #fbe9d5; --q2-badge-bg: #f4cfa2; --q2-ink: #6f3c07; /* Orange (#E09337) */
+                --q3-gq: #8a4b0a;  --q3-mq: #a85a0d; --q3-pra: #fbe9d5; --q3-badge-bg: #f4cfa2; --q3-ink: #6f3c07; /* Orange (#E09337) */
                 --q4-gq: #8a4b0a;  --q4-mq: #a85a0d; --q4-pra: #fbe9d5; --q4-badge-bg: #f4cfa2; --q4-ink: #6f3c07; /* Orange (#E09337) */
-                --q5-gq: #57411c;  --q5-mq: #7a5c2b; --q5-pra: #ece5d8; --q5-badge-bg: #cbb998; --q5-ink: #57411c; /* Earth (#664D26) */
+                --q5-gq: #8a4b0a;  --q5-mq: #a85a0d; --q5-pra: #fbe9d5; --q5-badge-bg: #f4cfa2; --q5-ink: #6f3c07; /* Orange (#E09337) */
             }
 
             /* ═══ Reset + base ═══ */
@@ -878,9 +874,9 @@
             <h1>Tagging &amp; recognizing exhibits</h1>
             <p class="lede">
                 The Science Framework's question color system, and the
-                exhibit-poster decisions that build on it — the poster badges
-                inherit the same per-question hues. Approve the color system,
-                then one option in each poster section.
+                exhibit-poster decisions that build on it. Per the SFEI
+                decision of Aug 14, 2026, every question shares a single
+                orange family; the poster badges inherit it.
             </p>
         </header>
 
@@ -890,93 +886,39 @@
         <section class="section">
             <h2 class="section-title">Science Framework question colors</h2>
             <p class="section-intro">
-                Each guiding question gets a WRMP-brand hue with a light-to-dark
-                ramp across the three hierarchy levels — guiding question,
-                management question, priority recommended action — plus the
-                exhibit badge, which draws from the same ramp. The five hues
-                run cool-to-warm as a natural landscape ramp — sky blue, grass,
-                sand, orange, earth. Every tier meets WCAG AA contrast.
+                Every guiding question shares one WRMP-orange family, stepped
+                light-to-dark across the three hierarchy levels — guiding
+                question, management question, priority recommended action —
+                plus the exhibit badge, which draws from the same ramp. Every
+                tier meets WCAG AA contrast.
             </p>
 
             <!-- Palette -->
             <h3 class="option-title">Palette</h3>
             <p class="option-caption">
-                Usable brand colors. The mapping below is a proposal — any
-                question can take a different color from this set.
+                The brand orange is the source hue; the solid tiers are
+                deepened so white text holds AA contrast.
             </p>
             <div class="palette-strip">
-                <div class="swatch"><div class="swatch-chip sw-sky"></div><span class="swatch-name">Sky Blue</span><span class="swatch-hex">#00ACEC</span></div>
-                <div class="swatch"><div class="swatch-chip sw-grass"></div><span class="swatch-name">Grass</span><span class="swatch-hex">#92BB4D</span></div>
-                <div class="swatch"><div class="swatch-chip sw-sand"></div><span class="swatch-name">Sand</span><span class="swatch-hex">#F2CE87</span></div>
                 <div class="swatch"><div class="swatch-chip sw-orange"></div><span class="swatch-name">Orange</span><span class="swatch-hex">#E09337</span></div>
-                <div class="swatch"><div class="swatch-chip sw-earth"></div><span class="swatch-name">Earth</span><span class="swatch-hex">#664D26</span></div>
             </div>
-            <div class="palette-strip">
-                <div class="swatch"><div class="swatch-chip sw-teal"></div><span class="swatch-name">Teal (alt)</span><span class="swatch-hex">#228B9C</span></div>
-                <div class="swatch"><div class="swatch-chip sw-clay"></div><span class="swatch-name">Clay (alt)</span><span class="swatch-hex">#986631</span></div>
-                <div class="swatch"><div class="swatch-chip sw-brown"></div><span class="swatch-name">Brown (alt)</span><span class="swatch-hex">#968575</span></div>
-                <div class="swatch"><div class="swatch-chip sw-gray"></div><span class="swatch-name">Gray (alt)</span><span class="swatch-hex">#4E4E50</span></div>
-            </div>
-            <p class="palette-note">
-                The five run cool-to-warm — sky, grass, sand, orange, earth.
-                The three warm hues (sand, orange, earth) are the ones to watch:
-                sand stays a light gold, orange a burnt mid-orange, earth a deep
-                brown, so lightness carries them apart where the hue crowds.
-            </p>
 
             <!-- Proposed mapping + ramps -->
             <h3 class="option-title">Proposed mapping &amp; ramp</h3>
             <p class="option-caption">
                 Guiding question and management question are both solid with
                 white text — guiding deepest, management a clear step lighter —
-                and priority recommended action is the pale wash. The warm trio
-                (sand, orange, earth) separates mostly by lightness: light gold
-                → burnt orange → deep brown.
+                and priority recommended action is the pale wash. The same
+                four tiers apply to all five questions.
             </p>
             <div class="ramps">
-                <div class="ramp-row q1">
-                    <div class="ramp-name">Q1 · Sky Blue<small>#00ACEC</small></div>
-                    <div class="ramp-chips">
-                        <div class="tier"><span class="tier-cap">Guiding question</span><span class="tier-pill is-gq">Guiding Question 1</span></div>
-                        <div class="tier"><span class="tier-cap">Management question</span><span class="tier-pill is-mq">Management 1A</span></div>
-                        <div class="tier"><span class="tier-cap">Priority action</span><span class="tier-pill is-pra">Priority Action</span></div>
-                        <div class="tier"><span class="tier-cap">Badge</span><span class="q-badge">1A</span></div>
-                    </div>
-                </div>
-                <div class="ramp-row q2">
-                    <div class="ramp-name">Q2 · Grass<small>#92BB4D</small></div>
-                    <div class="ramp-chips">
-                        <div class="tier"><span class="tier-cap">Guiding question</span><span class="tier-pill is-gq">Guiding Question 2</span></div>
-                        <div class="tier"><span class="tier-cap">Management question</span><span class="tier-pill is-mq">Management 2A</span></div>
-                        <div class="tier"><span class="tier-cap">Priority action</span><span class="tier-pill is-pra">Priority Action</span></div>
-                        <div class="tier"><span class="tier-cap">Badge</span><span class="q-badge">2A</span></div>
-                    </div>
-                </div>
-                <div class="ramp-row q3">
-                    <div class="ramp-name">Q3 · Sand<small>olive-gold ramp</small></div>
-                    <div class="ramp-chips">
-                        <div class="tier"><span class="tier-cap">Guiding question</span><span class="tier-pill is-gq">Guiding Question 3</span></div>
-                        <div class="tier"><span class="tier-cap">Management question</span><span class="tier-pill is-mq">Management 3A</span></div>
-                        <div class="tier"><span class="tier-cap">Priority action</span><span class="tier-pill is-pra">Priority Action</span></div>
-                        <div class="tier"><span class="tier-cap">Badge</span><span class="q-badge">3A</span></div>
-                    </div>
-                </div>
                 <div class="ramp-row q4">
-                    <div class="ramp-name">Q4 · Orange<small>#E09337</small></div>
+                    <div class="ramp-name">All questions · Orange<small>#E09337</small></div>
                     <div class="ramp-chips">
-                        <div class="tier"><span class="tier-cap">Guiding question</span><span class="tier-pill is-gq">Guiding Question 4</span></div>
+                        <div class="tier"><span class="tier-cap">Guiding question</span><span class="tier-pill is-gq">Guiding Question</span></div>
                         <div class="tier"><span class="tier-cap">Management question</span><span class="tier-pill is-mq">Management 4A</span></div>
                         <div class="tier"><span class="tier-cap">Priority action</span><span class="tier-pill is-pra">Priority Action</span></div>
                         <div class="tier"><span class="tier-cap">Badge</span><span class="q-badge">4A</span></div>
-                    </div>
-                </div>
-                <div class="ramp-row q5">
-                    <div class="ramp-name">Q5 · Earth<small>#664D26</small></div>
-                    <div class="ramp-chips">
-                        <div class="tier"><span class="tier-cap">Guiding question</span><span class="tier-pill is-gq">Guiding Question 5</span></div>
-                        <div class="tier"><span class="tier-cap">Management question</span><span class="tier-pill is-mq">Management 5A</span></div>
-                        <div class="tier"><span class="tier-cap">Priority action</span><span class="tier-pill is-pra">Priority Action</span></div>
-                        <div class="tier"><span class="tier-cap">Badge</span><span class="q-badge">5A</span></div>
                     </div>
                 </div>
             </div>
@@ -984,9 +926,9 @@
             <!-- SF layout mock -->
             <h3 class="option-title" style="margin-top: 36px">In context</h3>
             <p class="option-caption">
-                The three warm hues — Sand, Orange, Earth — consecutive in the
-                Science Framework layout, so light-gold vs burnt-orange vs
-                deep-brown reads in real content.
+                Consecutive questions in the Science Framework layout, all in
+                the shared orange family — hierarchy is carried by the tier
+                steps, not by hue.
             </p>
             <div class="sf-mock">
                 <div class="sf-mock-block q3">
