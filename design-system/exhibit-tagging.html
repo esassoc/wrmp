@@ -276,6 +276,91 @@
                 box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
             }
 
+            /* ═══ Guiding-question tooltip ═══
+               Progressive enhancement — the script at the foot of this
+               page upgrades every .exhibit-tag[title] into a keyboard-
+               reachable tooltip trigger and injects the .exhibit-tag-tip
+               bubble carrying the tag's full guiding-question text.
+               Neutral dark surface, never tinted by GQ color; the badge
+               label stays compact, the bubble is 16px reading prose. */
+            .exhibit-tag:focus-visible {
+                outline: 2px solid var(--wrmp-ada-teal, #005e6a);
+                outline-offset: 2px;
+            }
+            .exhibit-tag[data-tooltip-ready] {
+                position: relative;
+            }
+            .exhibit-tag-tip {
+                --_tip-bg: var(--wrmp-dark-brand, #4e4e50);
+                --_tip-ink: #ffffff;
+                --_tip-gap: 9px;
+                --arrow-x: 16px;
+                position: absolute;
+                top: calc(100% + var(--_tip-gap));
+                left: 0;
+                z-index: 20;
+                width: max-content;
+                max-width: 300px;
+                padding: 9px 12px;
+                border-radius: var(--radius-sm, 4px);
+                background: var(--_tip-bg);
+                color: var(--_tip-ink);
+                font-family: var(--font-body);
+                font-size: 16px;
+                font-weight: 400;
+                line-height: 1.4;
+                letter-spacing: normal;
+                text-transform: none;
+                text-align: left;
+                white-space: normal;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
+                pointer-events: none;
+                opacity: 0;
+                visibility: hidden;
+                transform: translateY(-2px);
+                transition: opacity 0.14s ease, transform 0.14s ease,
+                    visibility 0s linear 0.14s;
+            }
+            .exhibit-tag-tip.is-visible {
+                opacity: 1;
+                visibility: visible;
+                transform: translateY(0);
+                transition: opacity 0.14s ease, transform 0.14s ease,
+                    visibility 0s;
+            }
+            .exhibit-tag-tip::before {
+                content: "";
+                position: absolute;
+                left: var(--arrow-x);
+                width: 9px;
+                height: 9px;
+                background: var(--_tip-bg);
+                transform: translateX(-50%) rotate(45deg);
+            }
+            .exhibit-tag-tip:not(.is-above)::before {
+                top: -4px;
+            }
+            .exhibit-tag-tip.is-above {
+                top: auto;
+                bottom: calc(100% + var(--_tip-gap));
+                transform: translateY(2px);
+            }
+            .exhibit-tag-tip.is-above.is-visible {
+                transform: translateY(0);
+            }
+            .exhibit-tag-tip.is-above::before {
+                bottom: -4px;
+            }
+            @media (prefers-reduced-motion: reduce) {
+                .exhibit-tag-tip,
+                .exhibit-tag-tip.is-visible,
+                .exhibit-tag-tip.is-above,
+                .exhibit-tag-tip.is-above.is-visible {
+                    transition: none;
+                    transform: none;
+                }
+            }
+
             /* ═══ Poster card ═══ */
             .exhibit-card {
                 position: relative;
@@ -1474,5 +1559,112 @@
             </div>
             <p class="rec">The active management-question chip uses the solid guiding-question color (here 4B); the topic dropdown lists the seven site topics with an "All topics" default.</p>
         </section>
+
+        <!-- Guiding-question tag tooltips — mirrors the shared site.js
+             enhancement: upgrades every .exhibit-tag[title] to a styled,
+             keyboard-reachable, ARIA-described tooltip (WAI-ARIA APG). -->
+        <script>
+            (function () {
+                "use strict";
+
+                var SEL = ".exhibit-tag[title]";
+                if (!document.querySelector(SEL)) return;
+
+                var uid = 0;
+                var activeTag = null;
+
+                function hide(tag) {
+                    if (!tag || !tag._tip) return;
+                    tag._tip.classList.remove("is-visible");
+                    if (activeTag === tag) activeTag = null;
+                }
+
+                function position(tag, tip) {
+                    var card = tag.closest(".exhibit-card");
+                    var pad = 6;
+                    var bound = card
+                        ? card.getBoundingClientRect()
+                        : {
+                              left: 8,
+                              top: 8,
+                              right: window.innerWidth - 8,
+                              bottom: window.innerHeight - 8,
+                          };
+
+                    tip.classList.remove("is-above");
+                    tip.style.left = "0px";
+
+                    var tagRect = tag.getBoundingClientRect();
+                    var tipRect = tip.getBoundingClientRect();
+
+                    var left = 0;
+                    var overRight =
+                        tagRect.left + tipRect.width - (bound.right - pad);
+                    if (overRight > 0) left -= overRight;
+                    if (tagRect.left + left < bound.left + pad) {
+                        left = bound.left + pad - tagRect.left;
+                    }
+                    tip.style.left = left + "px";
+
+                    var arrowX = tagRect.width / 2 - left;
+                    arrowX = Math.max(12, Math.min(arrowX, tipRect.width - 12));
+                    tip.style.setProperty("--arrow-x", arrowX + "px");
+
+                    var belowSpill =
+                        tagRect.bottom + 9 + tipRect.height > bound.bottom - pad;
+                    var roomAbove = tagRect.top - bound.top;
+                    var roomBelow = bound.bottom - tagRect.bottom;
+                    if (belowSpill && roomAbove > roomBelow)
+                        tip.classList.add("is-above");
+                }
+
+                function show(tag) {
+                    if (!tag._tip) return;
+                    if (activeTag && activeTag !== tag) hide(activeTag);
+                    activeTag = tag;
+                    position(tag, tag._tip);
+                    tag._tip.classList.add("is-visible");
+                }
+
+                function upgrade(tag) {
+                    if (tag._tip) return;
+                    var text = tag.getAttribute("title");
+                    if (!text) return;
+                    tag.removeAttribute("title");
+                    tag.setAttribute("data-tooltip-ready", "");
+                    if (!tag.hasAttribute("tabindex"))
+                        tag.setAttribute("tabindex", "0");
+
+                    var tip = document.createElement("span");
+                    tip.className = "exhibit-tag-tip";
+                    tip.setAttribute("role", "tooltip");
+                    tip.id = "exhibit-tag-tip-" + ++uid;
+                    tip.textContent = text;
+                    tag.appendChild(tip);
+                    tag.setAttribute("aria-describedby", tip.id);
+                    tag._tip = tip;
+
+                    tag.addEventListener("mouseenter", function () {
+                        show(tag);
+                    });
+                    tag.addEventListener("mouseleave", function () {
+                        hide(tag);
+                    });
+                    tag.addEventListener("focus", function () {
+                        show(tag);
+                    });
+                    tag.addEventListener("blur", function () {
+                        hide(tag);
+                    });
+                }
+
+                document.querySelectorAll(SEL).forEach(upgrade);
+
+                document.addEventListener("keydown", function (e) {
+                    if ((e.key === "Escape" || e.key === "Esc") && activeTag)
+                        hide(activeTag);
+                });
+            })();
+        </script>
     </body>
 </html>

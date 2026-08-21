@@ -188,30 +188,38 @@
   --color-suisun: var(--amber-9);
 
   /* ── Science Framework question ramp — SOURCE OF TRUTH ──
-       Natural landscape ramp, keyed to guiding question 1–5:
-       Q1 Sky · Q2 Grass · Q3 Sand · Q4 Orange · Q5 Earth.
-       Per question: gq (deepest solid, white text) → mq (mid
-       solid, white text) → pra (pale wash, ink text); badge =
-       light tint (ink text); ink = deep hue for text on the
-       pale/badge tiers. Every tier clears WCAG AA. Sky, Grass,
-       Sand and Orange are deepened from their raw brand hex so
-       the solid tiers hold white text.                      */
-  --q1-gq: #005575; --q1-mq: #007eac; --q1-pra: #d9f3fc; --q1-badge: #99def7; --q1-ink: #005575; /* Sky Blue #00ACEC */
-  --q2-gq: #40611c; --q2-mq: #5c7d2b; --q2-pra: #eef4e0; --q2-badge: #cfe3ab; --q2-ink: #40611c; /* Grass    #92BB4D */
-  --q3-gq: #575000; --q3-mq: #807500; --q3-pra: #f6f3d9; --q3-badge: #e7e099; --q3-ink: #575000; /* Sand     #F2CE87 */
-  --q4-gq: #8a4b0a; --q4-mq: #a85a0d; --q4-pra: #fbe9d5; --q4-badge: #f4cfa2; --q4-ink: #6f3c07; /* Orange   #E09337 */
-  --q5-gq: #57411c; --q5-mq: #7a5c2b; --q5-pra: #ece5d8; --q5-badge: #cbb998; --q5-ink: #57411c; /* Earth    #664D26 */
+       Single orange family for the whole framework (SFEI decision
+       2026-08-14: tags all orange; page blocks shades of orange).
+       Tiers keep the shipped structure — gq (deepest solid, white
+       text) → mq (mid solid, white text) → pra (pale wash, ink
+       text); badge = light tint (ink text); ink = deep hue for
+       text on the pale/badge tiers. Values are the AA-validated
+       Orange column from the retired landscape ramp (brand
+       #E09337, deepened so the solid tiers hold white text).
+       Per-question hooks are kept so a future re-differentiation
+       (e.g. the 2029 framework revision) is a token edit only. */
+  --sf-gq-solid: #8a4b0a;
+  --sf-mq-solid: #a85a0d;
+  --sf-pra-wash: #fbe9d5;
+  --sf-badge-tint: #f4cfa2;
+  --sf-deep-ink: #6f3c07;
+  --sf-mid-border: #e0a666;
+  --q1-gq: var(--sf-gq-solid); --q1-mq: var(--sf-mq-solid); --q1-pra: var(--sf-pra-wash); --q1-badge: var(--sf-badge-tint); --q1-ink: var(--sf-deep-ink);
+  --q2-gq: var(--sf-gq-solid); --q2-mq: var(--sf-mq-solid); --q2-pra: var(--sf-pra-wash); --q2-badge: var(--sf-badge-tint); --q2-ink: var(--sf-deep-ink);
+  --q3-gq: var(--sf-gq-solid); --q3-mq: var(--sf-mq-solid); --q3-pra: var(--sf-pra-wash); --q3-badge: var(--sf-badge-tint); --q3-ink: var(--sf-deep-ink);
+  --q4-gq: var(--sf-gq-solid); --q4-mq: var(--sf-mq-solid); --q4-pra: var(--sf-pra-wash); --q4-badge: var(--sf-badge-tint); --q4-ink: var(--sf-deep-ink);
+  --q5-gq: var(--sf-gq-solid); --q5-mq: var(--sf-mq-solid); --q5-pra: var(--sf-pra-wash); --q5-badge: var(--sf-badge-tint); --q5-ink: var(--sf-deep-ink);
 
   /* Legacy --gqN-* names re-pointed at the ramp above, so the badge
      (exhibit-tags.css) and the gallery filter chips recolor with no
      edits to their CSS: -sat = badge fill · -ink = deep text and the
      active-chip solid fill · -tint = pale wash · -border = a mid edge
      one step darker than the fill. */
-  --gq1-tint: var(--q1-pra); --gq1-border: #66c4ea; --gq1-ink: var(--q1-ink); --gq1-sat: var(--q1-badge);
-  --gq2-tint: var(--q2-pra); --gq2-border: #a9cd82; --gq2-ink: var(--q2-ink); --gq2-sat: var(--q2-badge);
-  --gq3-tint: var(--q3-pra); --gq3-border: #cdc25f; --gq3-ink: var(--q3-ink); --gq3-sat: var(--q3-badge);
-  --gq4-tint: var(--q4-pra); --gq4-border: #e0a666; --gq4-ink: var(--q4-ink); --gq4-sat: var(--q4-badge);
-  --gq5-tint: var(--q5-pra); --gq5-border: #b3a07a; --gq5-ink: var(--q5-ink); --gq5-sat: var(--q5-badge);
+  --gq1-tint: var(--q1-pra); --gq1-border: var(--sf-mid-border); --gq1-ink: var(--q1-ink); --gq1-sat: var(--q1-badge);
+  --gq2-tint: var(--q2-pra); --gq2-border: var(--sf-mid-border); --gq2-ink: var(--q2-ink); --gq2-sat: var(--q2-badge);
+  --gq3-tint: var(--q3-pra); --gq3-border: var(--sf-mid-border); --gq3-ink: var(--q3-ink); --gq3-sat: var(--q3-badge);
+  --gq4-tint: var(--q4-pra); --gq4-border: var(--sf-mid-border); --gq4-ink: var(--q4-ink); --gq4-sat: var(--q4-badge);
+  --gq5-tint: var(--q5-pra); --gq5-border: var(--sf-mid-border); --gq5-ink: var(--q5-ink); --gq5-sat: var(--q5-badge);
 
   /* ── Topic chip ─────────────────────────────────
        Neutral chip for the exhibit topic indicator
