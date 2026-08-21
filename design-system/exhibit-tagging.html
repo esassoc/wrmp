@@ -13,37 +13,18 @@
         <link rel="stylesheet" href="../shared/css/tokens.css" />
         <style>
             /* ═══ Specimen tokens ═══
-               Tint / border / ink per guiding question already live in
-               tokens.css (--gq1-tint … --gq5-ink). Added here only for
-               this specimen: a saturated mid-tone per tier (option A2)
-               and a neutral topic-chip set (section C). */
+               The full badge ramp (--gq1-tint … --gq5-sat) comes from
+               tokens.css — all orange since the SFEI 2026-08-14 decision.
+               Local additions are only the neutral topic-chip set
+               (section C) and this page's own ramp-table vars below. */
             :root {
-                --gq1-sat: #b8dde2; /* Q1 · ada-teal     */
-                --gq2-sat: #bfe3c9; /* Q2 · green        */
-                --gq3-sat: #f6d9a8; /* Q3 · orange       */
-                --gq4-sat: #b3dfe6; /* Q4 · teal         */
-                --gq5-sat: #d9e8b3; /* Q5 · light-green  */
-
                 --topic-ink: var(--gray-12);
                 --topic-ink-muted: var(--gray-11);
                 --topic-border: var(--gray-6);
                 --topic-surface: var(--gray-2);
 
-                /* ── Science Framework palette (usable brand colors;
-                     teal + orange set aside) + alternates ─────── */
-                --pal-teal: #228b9c;
-                --pal-green: #379352;
-                --pal-red: #b22e33;
-                --pal-indigo: #3c5191;
-                --pal-sky: #00acec;
-                --pal-clay: #986631;
-                --pal-sand: #f2ce87;
-                --pal-sand-gold: #c2b200; /* Sand pushed to high-chroma olive-gold */
-                --pal-brown: #968575;
-                --pal-earth: #664d26;
-                --pal-gray: #4e4e50;
-                --pal-liteblue: #9bc0e7;
-                --pal-grass: #92bb4d;
+                /* ── Science Framework palette — one hue since the SFEI
+                     2026-08-14 decision ─────────────────────────── */
                 --pal-orange: #e09337;
 
                 /* ── Question ramp ──────────────────────────────
@@ -671,19 +652,6 @@
                 color: var(--color-text-subtle);
                 font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
             }
-            .sw-teal { background: var(--pal-teal); }
-            .sw-green { background: var(--pal-green); }
-            .sw-red { background: var(--pal-red); }
-            .sw-indigo { background: var(--pal-indigo); }
-            .sw-sky { background: var(--pal-sky); }
-            .sw-clay { background: var(--pal-clay); }
-            .sw-sand { background: var(--pal-sand); }
-            .sw-sandgold { background: var(--pal-sand-gold); }
-            .sw-brown { background: var(--pal-brown); }
-            .sw-earth { background: var(--pal-earth); }
-            .sw-gray { background: var(--pal-gray); }
-            .sw-liteblue { background: var(--pal-liteblue); }
-            .sw-grass { background: var(--pal-grass); }
             .sw-orange { background: var(--pal-orange); }
             .palette-note {
                 font-size: 15px;
