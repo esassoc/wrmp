@@ -103,7 +103,7 @@
 
       .metric-grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: var(--space-32);
         margin-top: var(--space-32);
         padding-bottom: var(--space-64);
@@ -168,7 +168,7 @@
       }
       .metric-dialog__lead {
         display: grid;
-        grid-template-columns: minmax(0, 1.5fr) minmax(260px, 1fr);
+        grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
         gap: 24px;
         align-items: start;
       }
@@ -222,14 +222,6 @@
       .metric-dialog__meta a {
         color: var(--l3-accent);
         text-underline-offset: 2px;
-      }
-      .metric-dialog__hub-label {
-        font-size: var(--step--1);
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.07em;
-        color: var(--l3-text-subtle);
-        margin: 0;
       }
       .metric-dialog .l3-hub {
         margin: 0;
@@ -475,7 +467,6 @@
             </div>
           </div>
         </div>
-        <p class="metric-dialog__hub-label">Take the data further</p>
         <div class="l3-hub">
           <div class="l3-hub-panel" data-cat="data">
             <div class="l3-hub-panel-head">
@@ -558,7 +549,6 @@
             </div>
           </div>
         </div>
-        <p class="metric-dialog__hub-label">Take the data further</p>
         <div class="l3-hub">
           <div class="l3-hub-panel" data-cat="data">
             <div class="l3-hub-panel-head">
@@ -631,7 +621,6 @@
             </div>
           </div>
         </div>
-        <p class="metric-dialog__hub-label">Take the data further</p>
         <div class="l3-hub">
           <div class="l3-hub-panel" data-cat="data">
             <div class="l3-hub-panel-head">
@@ -703,7 +692,6 @@
             </div>
           </div>
         </div>
-        <p class="metric-dialog__hub-label">Take the data further</p>
         <div class="l3-hub">
           <div class="l3-hub-panel" data-cat="data">
             <div class="l3-hub-panel-head">
