@@ -182,36 +182,159 @@
           </span>
         </a>
         <nav class="site-nav" aria-label="Primary">
-          <a class="site-nav__item" href="#">
+          <button class="site-nav__item" type="button" data-mega="mega-monitoring-results">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 5-6 4 4 6-8" /><path d="M16 7h3v3" /></svg>
             Monitoring Results
             <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
-          </a>
-          <a class="site-nav__item" href="#">
+          </button>
+          <button class="site-nav__item" type="button" data-mega="mega-science-framework">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="3" width="8" height="4" rx="1" /><path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" /></svg>
             Science Framework
             <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
-          </a>
-          <a class="site-nav__item" href="#">
+          </button>
+          <button class="site-nav__item" type="button" data-mega="mega-about">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" /></svg>
             About
             <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
-          </a>
-          <a class="site-nav__item" href="#">
+          </button>
+          <button class="site-nav__item" type="button" data-mega="mega-engage">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
             Engage
             <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
-          </a>
-          <a class="site-nav__item" href="#">
+          </button>
+          <button class="site-nav__item" type="button" data-mega="mega-resources">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" /></svg>
             Resources
             <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
-          </a>
+          </button>
           <a class="site-nav__item" href="#">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
             Search
           </a>
         </nav>
+      </div>
+
+      <!-- ── Megamenu panels ─────────────────────────────────
+           Each panel mirrors the live wrmp.org dropdown. The
+           Resources panel is the one that changes: a Tools group
+           joins WRMP Resources and External Resources, and the
+           three groups are separately headed so the WRMP / external
+           split reads at a glance. -->
+      <div class="site-mega" id="mega-monitoring-results">
+        <div class="site-container site-mega__inner">
+          <div class="mega-group mega-group--wide">
+            <h2 class="mega-group__heading">Topics</h2>
+            <ul class="mega-links mega-links--split">
+              <li><a href="topic-page.html">Baylands Geography</a></li>
+              <li><a href="#">Wetlands &amp; Sea Level Rise</a></li>
+              <li><a href="#">Wetland Condition</a></li>
+              <li><a href="#">Water Quality</a></li>
+              <li><a href="#">Fish &amp; Wildlife</a></li>
+              <li><a href="#">Plant Communities</a></li>
+              <li><a href="#">People &amp; Wetlands</a></li>
+            </ul>
+          </div>
+          <div class="mega-group">
+            <h2 class="mega-group__heading">Metrics, Data, and Documents</h2>
+            <ul class="mega-links">
+              <li><a href="metrics.html">Metrics Overview</a></li>
+              <li><a href="#">Data</a></li>
+              <li><a href="#">Technical Documents and Report Summaries</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="site-mega" id="mega-science-framework">
+        <div class="site-container site-mega__inner">
+          <div class="mega-group">
+            <h2 class="mega-group__heading">Science Framework</h2>
+            <ul class="mega-links">
+              <li><a href="science-framework-round3.html">Science Framework</a></li>
+              <li><a href="#">Monitoring Site Network</a></li>
+              <li><a href="#">Indicator Alignment</a></li>
+              <li><a href="#">Science Framework Documents</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="site-mega" id="mega-about">
+        <div class="site-container site-mega__inner">
+          <div class="mega-group mega-group--wide">
+            <h2 class="mega-group__heading">About the WRMP</h2>
+            <ul class="mega-links mega-links--split">
+              <li><a href="#">History of the WRMP</a></li>
+              <li><a href="#">Leadership &amp; Governance</a></li>
+              <li><a href="#">Steering Committee</a></li>
+              <li><a href="#">Technical Advisory Committee</a></li>
+              <li><a href="#">Workgroups</a></li>
+              <li><a href="#">Staff</a></li>
+              <li><a href="#">Indigenous Peoples&rsquo; Acknowledgment</a></li>
+              <li><a href="#">Our Funders &amp; Partners</a></li>
+              <li><a href="#">Program Documents</a></li>
+              <li><a href="#">Frequently Asked Questions</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="site-mega" id="mega-engage">
+        <div class="site-container site-mega__inner">
+          <div class="mega-group">
+            <h2 class="mega-group__heading">Engage with the WRMP</h2>
+            <ul class="mega-links">
+              <li><a href="#">Recent News</a></li>
+              <li><a href="#">Events</a></li>
+              <li><a href="#">Newsletter</a></li>
+              <li><a href="#">Volunteer Locally</a></li>
+              <li><a href="#">Request Letter of Support</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="site-mega" id="mega-resources">
+        <div class="site-container site-mega__inner">
+          <div class="mega-group mega-group--tools">
+            <h2 class="mega-group__heading"><span class="mega-mark" aria-hidden="true"></span>Tools</h2>
+            <ul class="mega-links">
+              <li><a class="mega-links__lead" href="tools.html">Monitoring Site Network Map</a></li>
+              <li><a href="tools.html#more-tools">Surface Elevation and Water Level Station Map</a></li>
+              <li><a href="tools.html#more-tools">WRMP Data Catalog</a></li>
+              <li><a href="tools.html">All tools</a></li>
+            </ul>
+          </div>
+          <div class="mega-group">
+            <h2 class="mega-group__heading">WRMP Resources</h2>
+            <ul class="mega-links">
+              <li><a href="#">Technical Documents and Report Summaries</a></li>
+              <li><a href="#">Data Visualizations</a></li>
+              <li><a href="#">Webinars &amp; Videos</a></li>
+              <li><a href="#">External Data &amp; Tools</a></li>
+            </ul>
+          </div>
+          <div class="mega-group mega-group--external">
+            <h2 class="mega-group__heading">External Resources</h2>
+            <ul class="mega-links">
+              <li>
+                <a href="#">Tidal Wetlands 101
+                  <svg class="mega-links__external" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10" /><path d="M7 17 17 7" /></svg>
+                </a>
+              </li>
+              <li>
+                <a href="#">Other California Wetland Monitoring Programs
+                  <svg class="mega-links__external" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10" /><path d="M7 17 17 7" /></svg>
+                </a>
+              </li>
+              <li>
+                <a href="#">Regional Partner Organizations
+                  <svg class="mega-links__external" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10" /><path d="M7 17 17 7" /></svg>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -610,9 +733,9 @@
             <span class="kicker">Bayland Geography</span>
             <h2 class="section-head__title">How We Monitor</h2>
             <p class="section-head__intro">
-              Lorem ipsum dolor sit amet consectetur. Suspendisse magna gravida
-              vel bibendum arcu mattis sociis. Quis sed erat nec at velit platea
-              donec eget volutpat.
+              The WRMP developed the Baylands Habitat Map (BHM), using automated
+              mapping technology to enhance accurate assessment of wetland acreage
+              over time in a consistent and repeatable way.
             </p>
           </div>
 
@@ -628,45 +751,75 @@
             <article class="step-card">
               <div class="step-card__media">
                 <span class="step-card__num">1</span>
+                <img
+                  src="assets/img/topic-step-goals.jpg"
+                  alt="Salt evaporation ponds and tidal wetland on San Francisco Bay"
+                  loading="lazy"
+                  decoding="async"
+                />
               </div>
               <h3 class="step-card__title">Goals &amp; Objectives</h3>
               <ul class="step-card__list">
-                <li>Lorem ipsum dolor sit amet consectetur. Id nunc consectetur aliquam</li>
-                <li>Est sit et tincidunt pulvinar posuere. Vitae interdum posuere dictumst gravida ornare laoreet vitae</li>
-                <li>Lobortis lacinia ac at aenean ultrices.</li>
+                <li>Understand changes in tidal wetland acreage and habitat types over time.</li>
+                <li>Measure growth of vital wetland habitats due to tidal restoration.</li>
+                <li>Map shoreline change in the Estuary.</li>
               </ul>
             </article>
             <article class="step-card">
               <div class="step-card__media">
                 <span class="step-card__num">2</span>
+                <img
+                  src="assets/img/topic-step-data.jpg"
+                  alt="Object Based Image Analysis applied to aerial imagery of the baylands"
+                  loading="lazy"
+                  decoding="async"
+                />
               </div>
               <h3 class="step-card__title">What Data We Collect</h3>
               <ul class="step-card__list">
-                <li>Lorem ipsum dolor sit amet consectetur. Id nunc consectetur aliquam</li>
-                <li>Est sit et tincidunt pulvinar posuere. Vitae interdum posuere dictumst gravida ornare laoreet vitae</li>
-                <li>Lobortis lacinia ac at aenean ultrices.</li>
+                <li>Estuary-wide low tide elevation data using LiDAR to develop a regional Digital Elevation Model.</li>
+                <li>Publicly available imagery and other inputs, to enable classifying habitats using Object Based Image Analysis.</li>
+                <li>Tidal data across the Estuary to inform habitat classifications.</li>
               </ul>
             </article>
             <article class="step-card">
+              <!-- The map picture stays inert. The badge is the only
+                   target in this box, so the doorway is explicit and
+                   the neighbouring pictures gain no affordance. -->
               <div class="step-card__media">
                 <span class="step-card__num">3</span>
+                <img
+                  src="assets/img/topic-where-we-collect.jpg"
+                  alt="Baylands Habitat Map 2020 drawn over a dark basemap of San Francisco Bay"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <a class="map-badge" href="tools.html?topic=baylands-geography#map">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /><circle cx="12" cy="10" r="3" /></svg>
+                  Open the interactive map
+                </a>
               </div>
               <h3 class="step-card__title">Where We Collect It</h3>
               <ul class="step-card__list">
-                <li>Lorem ipsum dolor sit amet consectetur. Id nunc consectetur aliquam</li>
-                <li>Est sit et tincidunt pulvinar posuere. Vitae interdum posuere dictumst gravida ornare laoreet vitae</li>
-                <li>Lobortis lacinia ac at aenean ultrices.</li>
+                <li>Intertidal areas within the Estuary from the Golden Gate Bridge to the City of Pittsburg.</li>
+                <li>Areas that were formerly tidal to identify areas that could be restored.</li>
               </ul>
             </article>
             <article class="step-card">
               <div class="step-card__media">
                 <span class="step-card__num">4</span>
+                <img
+                  src="assets/img/topic-step-insights.jpg"
+                  alt="Managed wetland at Don Edwards National Wildlife Refuge in the South Bay"
+                  loading="lazy"
+                  decoding="async"
+                />
               </div>
               <h3 class="step-card__title">What Insights We Expect</h3>
               <ul class="step-card__list">
-                <li>Lorem ipsum dolor sit amet consectetur. Id nunc consectetur aliquam</li>
-                <li>Est sit et tincidunt pulvinar posuere. Vitae interdum posuere dictumst gravida ornare laoreet vitae</li>
-                <li>Lobortis lacinia ac at aenean ultrices.</li>
+                <li>How tidal wetland extent is changing over time.</li>
+                <li>How restoration sites are evolving and whether changes vary by region.</li>
+                <li>Where the shorelines are eroding or growing.</li>
               </ul>
             </article>
           </div>

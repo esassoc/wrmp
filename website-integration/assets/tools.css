@@ -1,0 +1,407 @@
+/* ════════════════════════════════════════════════════════════
+   WRMP.org — Tools landing page
+   ────────────────────────────────────────────────────────────
+   Loads after tokens.css (Radix scales + --tools-* ramp) and
+   site.css (site chrome, layout primitives, .tab-row, .kicker).
+   Only the tools category chrome lives here.
+
+   Parti: the map IS the page. Hierarchy wins over completeness —
+   the map tool takes the first screen at full width, the topic
+   doorways are a compact list rather than seven poster cards, and
+   the related tools are one row. Green is a mark and an edge, not
+   a field: the page ground stays the site's white and gray.
+   ════════════════════════════════════════════════════════════ */
+
+/* ═══ Page head ═══ */
+.tools-head {
+  padding-block: var(--space-48) var(--space-32);
+}
+.tools-head__title {
+  font-size: 52px;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--color-heading);
+}
+
+/* ═══ The map tool ═══ */
+.tool-map {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+.tool-map__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-24);
+  flex-wrap: wrap;
+  padding: var(--space-24) var(--space-32);
+  border-bottom: 1px solid var(--color-border);
+}
+.tool-map__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--color-heading);
+}
+.tool-map__title .mega-mark {
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-xs);
+}
+
+/* A labeled figure — the label is the field name, the number is
+   the value. Never glued into one string. */
+.tool-figure {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: right;
+}
+.tool-figure__value {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--tools-ink);
+  font-variant-numeric: tabular-nums;
+}
+.tool-figure__label {
+  font-size: 16px;
+  color: var(--color-text-muted);
+}
+
+.tool-map__tabs {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  flex-wrap: wrap;
+  padding: var(--space-16) var(--space-32);
+  background: var(--gray-050);
+  border-bottom: 1px solid var(--color-border);
+}
+.tool-map__tabs-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+/* The site's tab chip sits at 15px; on this surface it comes up to
+   the 16px floor without disturbing the shared rule. */
+.tool-map .tab {
+  font-size: 16px;
+}
+
+.tool-map__body {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  min-height: 560px;
+}
+.tool-map__rail {
+  border-right: 1px solid var(--color-border);
+  padding: var(--space-24);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  overflow-y: auto;
+  max-height: 560px;
+}
+.tool-map__rail-head {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+.tool-map__canvas {
+  min-height: 560px;
+  background: var(--gray-050);
+}
+
+/* — Layer toggles — */
+.layer-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.layer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  width: 100%;
+  padding: var(--space-8);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: none;
+  font-size: 16px;
+  line-height: 1.3;
+  text-align: left;
+  color: var(--color-text);
+}
+.layer:hover {
+  background: var(--gray-050);
+}
+.layer:focus-visible {
+  outline: 2px solid var(--tools-solid);
+  outline-offset: 2px;
+}
+.layer[aria-pressed="false"] {
+  color: var(--gray-500);
+}
+.layer[aria-pressed="false"] .layer__swatch {
+  background: var(--gray-200) !important;
+}
+.layer__swatch {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid var(--color-white);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.18);
+}
+.layer__name {
+  flex: 1;
+  min-width: 0;
+}
+.layer__count {
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+.layer-reset {
+  align-self: flex-start;
+  padding: var(--space-8) var(--space-12);
+  border: 1px solid var(--tools-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--tools-ink);
+}
+.layer-reset:hover {
+  background: var(--tools-tint);
+}
+.layer-reset:focus-visible {
+  outline: 2px solid var(--tools-solid);
+  outline-offset: 2px;
+}
+
+/* — Site-type definitions under the map — */
+.site-type-defs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-32);
+  margin-top: var(--space-32);
+}
+.site-type-def__name {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-teal-ada);
+  margin-bottom: var(--space-4);
+}
+.site-type-def__body {
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--color-text);
+}
+
+/* ═══ Topic doorways ═══ */
+.topic-doors {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--color-border);
+}
+.topic-door {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(0, 2fr) 132px;
+  align-items: center;
+  gap: var(--space-24);
+  padding: var(--space-16) var(--space-8);
+  border-bottom: 1px solid var(--color-border);
+}
+.topic-door--open:hover {
+  background: var(--gray-050);
+}
+.topic-door__name {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-link);
+  text-decoration: none;
+}
+.topic-door--open .topic-door__name:hover {
+  color: var(--tools-ink);
+  text-decoration: underline;
+}
+.topic-door__name:focus-visible {
+  outline: 2px solid var(--tools-solid);
+  outline-offset: 3px;
+  border-radius: var(--radius-xs);
+}
+.topic-door--planned .topic-door__name {
+  color: var(--color-text);
+}
+.topic-door__layers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}
+.layer-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding: 3px var(--space-8);
+  border: 1px solid var(--tools-border);
+  border-radius: var(--radius-sm);
+  background: var(--tools-tint);
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--tools-ink);
+}
+.topic-door--planned .layer-chip {
+  border-color: var(--color-border);
+  background: var(--gray-050);
+  color: var(--gray-600);
+}
+.topic-door__state {
+  justify-self: end;
+  font-size: 16px;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.topic-door--open .topic-door__state {
+  color: var(--tools-ink);
+  font-weight: 600;
+}
+
+/* ═══ Related tools ═══ */
+.tool-hosts {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-48);
+}
+.tool-host__heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text);
+  padding-bottom: var(--space-8);
+  margin-bottom: var(--space-16);
+  border-bottom: 1px solid var(--color-border);
+}
+.tool-host--wrmp .tool-host__heading {
+  color: var(--tools-ink);
+  border-bottom-color: var(--tools-border);
+}
+.tool-cards {
+  display: grid;
+  gap: var(--space-16);
+}
+.tool-card {
+  display: block;
+  padding: var(--space-16);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+  text-decoration: none;
+}
+.tool-card:hover {
+  border-color: var(--tools-border);
+  box-shadow: var(--shadow-card);
+}
+.tool-card:focus-visible {
+  outline: 2px solid var(--tools-solid);
+  outline-offset: 2px;
+}
+.tool-card__name {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-link);
+  margin-bottom: var(--space-4);
+}
+.tool-card__name svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  fill: none;
+  stroke: var(--gray-500);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.tool-card__body {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--color-text);
+}
+
+/* ═══ Responsive ═══ */
+@media (max-width: 1024px) {
+  .tool-map__body {
+    grid-template-columns: 1fr;
+  }
+  .tool-map__rail {
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+    max-height: none;
+  }
+  .site-type-defs {
+    grid-template-columns: 1fr;
+    gap: var(--space-24);
+  }
+  /* Name and state hold the first row; the layer chips wrap
+     underneath rather than being auto-placed into a stray cell. */
+  .topic-door {
+    grid-template-columns: 1fr auto;
+    gap: var(--space-8) var(--space-16);
+  }
+  .topic-door__name {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .topic-door__state {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .topic-door__layers {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .tool-hosts {
+    grid-template-columns: 1fr;
+    gap: var(--space-32);
+  }
+}
+@media (max-width: 720px) {
+  .tools-head__title {
+    font-size: 36px;
+  }
+  .tool-map__head,
+  .tool-map__tabs {
+    padding-inline: var(--space-16);
+  }
+  .tool-map__rail {
+    padding: var(--space-16);
+  }
+  .tool-map__body,
+  .tool-map__canvas {
+    min-height: 380px;
+  }
+  .tool-figure {
+    text-align: left;
+  }
+  .tool-map__title {
+    font-size: 24px;
+  }
+}

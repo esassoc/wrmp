@@ -175,3 +175,70 @@
    website pages AND the round-4 exhibits. Pages load
    ../shared/css/sf-popover.css + ../shared/js/sf-popover.js.
    ════════════════════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════════════════════
+   Megamenu — click to toggle, Esc / outside-click to close
+   ────────────────────────────────────────────────────────────
+   Additive and self-disabling: a page whose header still uses
+   plain <a class="site-nav__item"> links has no [data-mega]
+   triggers, so this no-ops. Click (not hover) is authoritative
+   so the open state survives a screenshot and a keyboard user
+   gets the same affordance as a pointer user.
+   ════════════════════════════════════════════════════════════ */
+(function () {
+  "use strict";
+
+  var triggers = Array.prototype.slice.call(
+    document.querySelectorAll("[data-mega]")
+  );
+  if (!triggers.length) return;
+
+  var header = document.querySelector(".site-header");
+  var openTrigger = null;
+
+  function panelFor(trigger) {
+    return document.getElementById(trigger.getAttribute("data-mega"));
+  }
+
+  function close() {
+    if (!openTrigger) return;
+    var panel = panelFor(openTrigger);
+    if (panel) panel.classList.remove("is-open");
+    openTrigger.setAttribute("aria-expanded", "false");
+    openTrigger = null;
+  }
+
+  function open(trigger) {
+    if (openTrigger === trigger) {
+      close();
+      return;
+    }
+    close();
+    var panel = panelFor(trigger);
+    if (!panel) return;
+    panel.classList.add("is-open");
+    trigger.setAttribute("aria-expanded", "true");
+    openTrigger = trigger;
+  }
+
+  triggers.forEach(function (trigger) {
+    trigger.setAttribute("aria-expanded", "false");
+    trigger.addEventListener("click", function (e) {
+      e.preventDefault();
+      open(trigger);
+    });
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape" || !openTrigger) return;
+    var focused = openTrigger;
+    close();
+    focused.focus();
+  });
+
+  document.addEventListener("click", function (e) {
+    if (!openTrigger) return;
+    if (header && header.contains(e.target)) return;
+    close();
+  });
+})();

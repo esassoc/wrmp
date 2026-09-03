@@ -187,6 +187,20 @@
   --color-north-bay: var(--grass-9);
   --color-suisun: var(--amber-9);
 
+  /* ── Tools category ramp — SOURCE OF TRUTH ──
+       Green is the site's third category color: science framework
+       orange, data blue, tools green. Anchored on the Radix grass
+       scale imported above, so it sits in the same system as the
+       rest of the palette. The WRMP brand green (#379352) measures
+       3.85:1 on white — it cannot carry white text or small ink —
+       so the solid tier takes grass-11, the nearest rung that can.
+       Tier shape mirrors the --sf-* ramp: solid (white text on it)
+       → ink (green text on light) → tint (chip fill) → border. */
+  --tools-solid: var(--grass-11);
+  --tools-ink: var(--grass-12);
+  --tools-tint: var(--grass-3);
+  --tools-border: var(--grass-6);
+
   /* ── Science Framework question ramp — SOURCE OF TRUTH ──
        Single orange family for the whole framework (SFEI decision
        2026-08-14: tags all orange; page blocks shades of orange).

@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tools — WRMP</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- tokens.css first: it carries the Radix scales and the
+         --tools-* green ramp that site.css and tools.css read. -->
+    <link rel="stylesheet" href="../shared/css/tokens.css" />
+    <link rel="stylesheet" href="../shared/css/leaflet-overrides.css" />
+    <link rel="stylesheet" href="../shared/css/marker-popup.css" />
+    <link rel="stylesheet" href="assets/site.css" />
+    <link rel="stylesheet" href="assets/tools.css" />
+  </head>
+  <body>
+    <!-- ═══════════════════ Header ═══════════════════ -->
+    <header class="site-header">
+      <div class="site-container site-header__inner">
+        <a class="site-brand" href="#">
+          <img
+            class="site-brand__mark"
+            src="../shared/img/wrmp-logo-2in-mark-crop.png"
+            alt="WRMP logo"
+          />
+          <span class="site-brand__text">
+            <span class="site-brand__eyebrow">SF Estuary</span>
+            <span class="site-brand__wordmark">Wetlands</span>
+            <span class="site-brand__wordmark">Regional</span>
+            <span class="site-brand__wordmark">Monitoring</span>
+            <span class="site-brand__wordmark">Program</span>
+          </span>
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+          <button class="site-nav__item" type="button" data-mega="mega-monitoring-results">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 5-6 4 4 6-8" /><path d="M16 7h3v3" /></svg>
+            Monitoring Results
+            <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+          </button>
+          <button class="site-nav__item" type="button" data-mega="mega-science-framework">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="3" width="8" height="4" rx="1" /><path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" /></svg>
+            Science Framework
+            <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+          </button>
+          <button class="site-nav__item" type="button" data-mega="mega-about">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" /></svg>
+            About
+            <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+          </button>
+          <button class="site-nav__item" type="button" data-mega="mega-engage">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+            Engage
+            <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+          </button>
+          <button class="site-nav__item" type="button" data-mega="mega-resources">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" /></svg>
+            Resources
+            <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+          </button>
+          <a class="site-nav__item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+            Search
+          </a>
+        </nav>
+      </div>
+
+      <!-- ── Megamenu panels ─────────────────────────────────
+           Each panel mirrors the live wrmp.org dropdown. The
+           Resources panel is the one that changes: a Tools group
+           joins WRMP Resources and External Resources, and the
+           three groups are separately headed so the WRMP / external
+           split reads at a glance. -->
+      <div class="site-mega" id="mega-monitoring-results">
+        <div class="site-container site-mega__inner">
+          <div class="mega-group mega-group--wide">
+            <h2 class="mega-group__heading">Topics</h2>
+            <ul class="mega-links mega-links--split">
+              <li><a href="topic-page.html">Baylands Geography</a></li>
+              <li><a href="#">Wetlands &amp; Sea Level Rise</a></li>
+              <li><a href="#">Wetland Condition</a></li>
+              <li><a href="#">Water Quality</a></li>
+              <li><a href="#">Fish &amp; Wildlife</a></li>
+              <li><a href="#">Plant Communities</a></li>
+              <li><a href="#">People &amp; Wetlands</a></li>
+            </ul>
+          </div>
+          <div class="mega-group">
+            <h2 class="mega-group__heading">Metrics, Data, and Documents</h2>
+            <ul class="mega-links">
+              <li><a href="metrics.html">Metrics Overview</a></li>
+              <li><a href="#">Data</a></li>
+              <li><a href="#">Technical Documents and Report Summaries</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="site-mega" id="mega-science-framework">
+        <div class="site-container site-mega__inner">
+          <div class="mega-group">
+            <h2 class="mega-group__heading">Science Framework</h2>
+            <ul class="mega-links">
+              <li><a href="science-framework-round3.html">Science Framework</a></li>
+              <li><a href="#">Monitoring Site Network</a></li>
+              <li><a href="#">Indicator Alignment</a></li>
+              <li><a href="#">Science Framework Documents</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="site-mega" id="mega-about">
+        <div class="site-container site-mega__inner">
+          <div class="mega-group mega-group--wide">
+            <h2 class="mega-group__heading">About the WRMP</h2>
+            <ul class="mega-links mega-links--split">
+              <li><a href="#">History of the WRMP</a></li>
+              <li><a href="#">Leadership &amp; Governance</a></li>
+              <li><a href="#">Steering Committee</a></li>
+              <li><a href="#">Technical Advisory Committee</a></li>
+              <li><a href="#">Workgroups</a></li>
+              <li><a href="#">Staff</a></li>
+              <li><a href="#">Indigenous Peoples&rsquo; Acknowledgment</a></li>
+              <li><a href="#">Our Funders &amp; Partners</a></li>
+              <li><a href="#">Program Documents</a></li>
+              <li><a href="#">Frequently Asked Questions</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="site-mega" id="mega-engage">
+        <div class="site-container site-mega__inner">
+          <div class="mega-group">
+            <h2 class="mega-group__heading">Engage with the WRMP</h2>
+            <ul class="mega-links">
+              <li><a href="#">Recent News</a></li>
+              <li><a href="#">Events</a></li>
+              <li><a href="#">Newsletter</a></li>
+              <li><a href="#">Volunteer Locally</a></li>
+              <li><a href="#">Request Letter of Support</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="site-mega" id="mega-resources">
+        <div class="site-container site-mega__inner">
+          <div class="mega-group mega-group--tools">
+            <h2 class="mega-group__heading"><span class="mega-mark" aria-hidden="true"></span>Tools</h2>
+            <ul class="mega-links">
+              <li><a class="mega-links__lead" href="tools.html">Monitoring Site Network Map</a></li>
+              <li><a href="tools.html#more-tools">Surface Elevation and Water Level Station Map</a></li>
+              <li><a href="tools.html#more-tools">WRMP Data Catalog</a></li>
+              <li><a href="tools.html">All tools</a></li>
+            </ul>
+          </div>
+          <div class="mega-group">
+            <h2 class="mega-group__heading">WRMP Resources</h2>
+            <ul class="mega-links">
+              <li><a href="#">Technical Documents and Report Summaries</a></li>
+              <li><a href="#">Data Visualizations</a></li>
+              <li><a href="#">Webinars &amp; Videos</a></li>
+              <li><a href="#">External Data &amp; Tools</a></li>
+            </ul>
+          </div>
+          <div class="mega-group mega-group--external">
+            <h2 class="mega-group__heading">External Resources</h2>
+            <ul class="mega-links">
+              <li>
+                <a href="#">Tidal Wetlands 101
+                  <svg class="mega-links__external" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10" /><path d="M7 17 17 7" /></svg>
+                </a>
+              </li>
+              <li>
+                <a href="#">Other California Wetland Monitoring Programs
+                  <svg class="mega-links__external" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10" /><path d="M7 17 17 7" /></svg>
+                </a>
+              </li>
+              <li>
+                <a href="#">Regional Partner Organizations
+                  <svg class="mega-links__external" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10" /><path d="M7 17 17 7" /></svg>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- ═══════════════════ Page head ═══════════════════ -->
+      <section class="site-container tools-head">
+        <span class="kicker">Resources</span>
+        <h1 class="tools-head__title">Tools</h1>
+      </section>
+
+      <!-- ═══════════════════ Monitoring Site Network Map ═══════════════════ -->
+      <section class="site-container section--tight" id="map">
+        <div class="tool-map">
+          <div class="tool-map__head">
+            <h2 class="tool-map__title">
+              <span class="mega-mark" aria-hidden="true"></span>
+              Monitoring Site Network Map
+            </h2>
+            <p class="tool-figure">
+              <span class="tool-figure__value" id="map-count">119</span>
+              <span class="tool-figure__label">Monitoring sites shown</span>
+            </p>
+          </div>
+
+          <div class="tool-map__tabs">
+            <span class="tool-map__tabs-label" id="grouping-label">Group sites by</span>
+            <div class="tab-row" role="tablist" aria-labelledby="grouping-label" id="grouping-tabs">
+              <button class="tab" role="tab" type="button" data-grouping="siteType" aria-selected="true">Site type</button>
+              <button class="tab" role="tab" type="button" data-grouping="zone" aria-selected="false">Monitoring zone</button>
+              <button class="tab" role="tab" type="button" data-grouping="survey" aria-selected="false">Survey</button>
+            </div>
+          </div>
+
+          <div class="tool-map__body">
+            <div class="tool-map__rail">
+              <h3 class="tool-map__rail-head" id="layers-head">Layers</h3>
+              <ul class="layer-list" id="layer-list" aria-labelledby="layers-head"></ul>
+              <button class="layer-reset" type="button" id="layer-reset">Show all layers</button>
+            </div>
+            <div class="tool-map__canvas" id="tools-map" role="application" aria-label="Map of WRMP monitoring sites"></div>
+          </div>
+        </div>
+
+        <div class="site-type-defs">
+          <div class="site-type-def">
+            <h3 class="site-type-def__name">
+              <span class="layer__swatch" style="background: var(--wrmp-light-green)" aria-hidden="true"></span>
+              Benchmark sites
+            </h3>
+            <p class="site-type-def__body">
+              Historic, minimally modified mature tidal wetlands that represent
+              pre-colonial ecosystems.
+            </p>
+          </div>
+          <div class="site-type-def">
+            <h3 class="site-type-def__name">
+              <span class="layer__swatch" style="background: var(--wrmp-ada-teal)" aria-hidden="true"></span>
+              Reference sites
+            </h3>
+            <p class="site-type-def__body">
+              Century-old fringing wetlands, well-established restoration projects,
+              and other mature marshes that represent reasonable habitat development
+              endpoint projections for newer restoration projects.
+            </p>
+          </div>
+          <div class="site-type-def">
+            <h3 class="site-type-def__name">
+              <span class="layer__swatch" style="background: var(--wrmp-green)" aria-hidden="true"></span>
+              Project sites
+            </h3>
+            <p class="site-type-def__body">
+              Recently restored tidal wetlands that represent a variety of design
+              and management approaches.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════ Topic doorways ═══════════════════ -->
+      <section class="section" id="by-topic">
+        <div class="site-container">
+          <div class="section-head section-head--wide">
+            <span class="kicker">Monitoring Results</span>
+            <h2 class="section-head__title">Open the map by topic</h2>
+          </div>
+
+          <ul class="topic-doors">
+            <li class="topic-door topic-door--open">
+              <a class="topic-door__name" href="tools.html?topic=baylands-geography#map">Baylands Geography</a>
+              <span class="topic-door__layers">
+                <span class="layer-chip">Benchmark, Reference and Project sites</span>
+                <span class="layer-chip">Planned restoration</span>
+              </span>
+              <span class="topic-door__state">119 sites</span>
+            </li>
+            <li class="topic-door topic-door--open">
+              <a class="topic-door__name" href="tools.html?topic=fish-wildlife#map">Fish &amp; Wildlife</a>
+              <span class="topic-door__layers">
+                <span class="layer-chip">South Bay Otter Trawl Survey</span>
+                <span class="layer-chip">North Bay Otter Trawl Survey</span>
+                <span class="layer-chip">Suisun Marsh Fish Study</span>
+              </span>
+              <span class="topic-door__state">39 sites</span>
+            </li>
+            <li class="topic-door topic-door--planned">
+              <span class="topic-door__name">Wetland Condition</span>
+              <span class="topic-door__layers">
+                <span class="layer-chip">CRAM assessment sites</span>
+              </span>
+              <span class="topic-door__state">Layer planned</span>
+            </li>
+            <li class="topic-door topic-door--planned">
+              <span class="topic-door__name">Wetlands &amp; Sea Level Rise</span>
+              <span class="topic-door__layers">
+                <span class="layer-chip">Surface elevation tables</span>
+                <span class="layer-chip">Elevation transects</span>
+              </span>
+              <span class="topic-door__state">Layer planned</span>
+            </li>
+            <li class="topic-door topic-door--planned">
+              <span class="topic-door__name">Water Quality</span>
+              <span class="topic-door__layers">
+                <span class="layer-chip">Continuous water quality sondes</span>
+              </span>
+              <span class="topic-door__state">Layer planned</span>
+            </li>
+            <li class="topic-door topic-door--planned">
+              <span class="topic-door__name">Plant Communities</span>
+              <span class="topic-door__layers">
+                <span class="layer-chip">Vegetation transects</span>
+              </span>
+              <span class="topic-door__state">Layer planned</span>
+            </li>
+            <li class="topic-door topic-door--planned">
+              <span class="topic-door__name">People &amp; Wetlands</span>
+              <span class="topic-door__layers">
+                <span class="layer-chip">Public access points</span>
+              </span>
+              <span class="topic-door__state">Layer planned</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ═══════════════════ Related tools ═══════════════════ -->
+      <section class="section section--tight" id="more-tools">
+        <div class="site-container">
+          <div class="section-head section-head--wide">
+            <span class="kicker">Resources</span>
+            <h2 class="section-head__title">Related tools</h2>
+          </div>
+
+          <div class="tool-hosts">
+            <div class="tool-host tool-host--wrmp">
+              <h3 class="tool-host__heading">
+                <span class="mega-mark" aria-hidden="true"></span>
+                On wrmp.org
+              </h3>
+              <div class="tool-cards">
+                <a class="tool-card" href="#">
+                  <span class="tool-card__name">WRMP Data Catalog</span>
+                  <span class="tool-card__body">
+                    Find data by subregion, topic, source, WRMP indicator, or location.
+                  </span>
+                </a>
+                <a class="tool-card" href="#">
+                  <span class="tool-card__name">Interactive Surface Elevation Table and Water Level Station Map</span>
+                  <span class="tool-card__body">
+                    Surface elevation table and water level stations across the Estuary.
+                  </span>
+                </a>
+              </div>
+            </div>
+
+            <div class="tool-host tool-host--external">
+              <h3 class="tool-host__heading">On ecoatlas.org</h3>
+              <div class="tool-cards">
+                <a class="tool-card" href="https://www.ecoatlas.org/" rel="noopener">
+                  <span class="tool-card__name">
+                    EcoAtlas WRMP Profile tool
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10" /><path d="M7 17 17 7" /></svg>
+                  </span>
+                  <span class="tool-card__body">
+                    Customized summaries by user-defined geographic areas of WRMP metrics
+                    about tidal wetlands such as tidal wetland extent, restoration status,
+                    unvegetated to vegetated ratio, and elevation capital.
+                  </span>
+                </a>
+                <a class="tool-card" href="https://www.ecoatlas.org/" rel="noopener">
+                  <span class="tool-card__name">
+                    EcoAtlas SFBRA Dashboard
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10" /><path d="M7 17 17 7" /></svg>
+                  </span>
+                  <span class="tool-card__body">
+                    Summarized metrics that track tidal wetland restoration trajectories in
+                    projects funded by the San Francisco Bay Restoration Authority and other
+                    restoration sites.
+                  </span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ═══════════════════ Footer ═══════════════════ -->
+    <footer class="site-footer">
+      <div class="site-container site-footer__inner">
+        <div>
+          <img
+            class="site-footer__logo"
+            src="../shared/img/WRMP_Logo_RGB_ADA_Trans_DarkMode_Website_1850.png"
+            alt="WRMP logo"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <div class="footer-col footer-col--nav">
+          <h2 class="footer-col__heading">Navigation</h2>
+          <ul class="footer-nav">
+            <li><a href="#">Monitoring Results</a></li>
+            <li><a href="#">Science Framework</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Engage</a></li>
+            <li><a href="#">Resources</a></li>
+          </ul>
+        </div>
+        <div class="footer-col footer-col--subscribe">
+          <h2 class="footer-col__heading">Subscribe to our newsletter</h2>
+          <p class="footer-newsletter__copy">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m2 7 10 6 10-6" /></svg>
+            Signup for news about the Wetlands Regional Monitoring Program
+          </p>
+          <form class="footer-newsletter__form" onsubmit="return false">
+            <input
+              class="footer-newsletter__input"
+              type="email"
+              placeholder="Email Address"
+              aria-label="Email Address"
+            />
+            <button class="footer-newsletter__submit" type="submit">
+              Subscribe
+            </button>
+          </form>
+        </div>
+        <div class="footer-col footer-col--partners">
+          <h2 class="footer-col__heading">Staffed by</h2>
+          <div class="footer-staffed">
+            <img
+              class="footer-partner-logo"
+              src="assets/img/sfei-logo.png"
+              width="102"
+              height="32"
+              alt="San Francisco Estuary Institute"
+              loading="lazy"
+              decoding="async"
+            />
+            <img
+              class="footer-partner-logo"
+              src="assets/img/sfep-logo.png"
+              width="120"
+              height="32"
+              alt="San Francisco Estuary Partnership"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="../shared/js/data-loader.js"></script>
+    <script src="../shared/js/map-init.js"></script>
+    <script src="../shared/js/marker-popup.js"></script>
+    <script src="assets/site.js"></script>
+    <script src="assets/tools.js"></script>
+  </body>
+</html>
