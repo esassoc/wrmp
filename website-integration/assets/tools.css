@@ -49,6 +49,11 @@
   border-collapse: collapse;
   table-layout: fixed;
 }
+/* The 860px block below re-declares .tool-index's display, which
+   outranks the UA [hidden] rule — restate it at equal specificity. */
+.tool-index[hidden] {
+  display: none;
+}
 .tool-index thead th {
   position: sticky;
   top: 0;
@@ -219,3 +224,30 @@
   }
 }
 
+/* ═══ Filter bar on a phone ═══
+   The shared controls carry desktop min-widths (300px on the
+   management-question trigger, 260 and 220 on the other two) that a
+   390px viewport cannot hold three of. Page-local so the Metrics and
+   Exhibits bars keep their sizing: below 720 each control gives up
+   its floor and fills the row, and the listbox stops at the trigger's
+   width instead of its 420px cap. The value text already ellipsizes. */
+@media (max-width: 720px) {
+  .filter-group--keyword,
+  .filter-group--topic,
+  .filter-group--mq {
+    flex: 1 1 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+  .filter-group--keyword .keyword-input,
+  .filter-group--topic .topic-select,
+  .filter-group--mq .mq-select,
+  .filter-group--mq .mq-select__trigger {
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+  }
+  .filter-group--mq .mq-select__list {
+    max-width: 100%;
+  }
+}

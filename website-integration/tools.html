@@ -213,11 +213,24 @@
            vocabulary the records are tagged with. -->
       <div class="site-container section--after-hero">
         <div class="filter-bar">
+          <div class="filter-group filter-group--keyword">
+            <label class="filter-label" for="keyword-input">Keyword</label>
+            <input
+              class="keyword-input"
+              type="search"
+              id="keyword-input"
+              autocomplete="off"
+            />
+          </div>
           <div class="filter-group filter-group--topic">
             <label class="filter-label" for="topic-select">Topic</label>
             <select class="topic-select" id="topic-select">
               <option value="">All topics</option>
             </select>
+          </div>
+          <div class="filter-group filter-group--mq">
+            <span class="filter-label" id="mq-label">Management question</span>
+            <div class="mq-filter" id="mq-filter"></div>
           </div>
         </div>
 
@@ -231,6 +244,10 @@
             </tr>
           </thead>
         </table>
+
+        <p class="gallery-empty" id="index-empty" role="status" hidden>
+          No tools match these filters yet.
+        </p>
       </div>
     </main>
 
