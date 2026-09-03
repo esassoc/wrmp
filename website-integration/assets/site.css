@@ -1557,25 +1557,6 @@ button.site-nav__item[aria-expanded="true"] .site-nav__caret {
   stroke: var(--color-teal-ada);
 }
 
-/* — The tools group carries the category green — */
-.mega-group--tools .mega-group__heading {
-  color: var(--tools-ink);
-  border-bottom-color: var(--tools-border);
-}
-.mega-group--tools .mega-links a:hover {
-  color: var(--tools-ink);
-}
-.mega-mark {
-  width: 14px;
-  height: 14px;
-  flex-shrink: 0;
-  border-radius: 3px;
-  background: var(--tools-solid);
-}
-.mega-links__lead {
-  font-weight: 600;
-}
-
 /* The panel column that separates WRMP-owned from external gets a
    rule rather than a color, so only tools carry the new hue. */
 .mega-group--external {

@@ -65,11 +65,9 @@
       </div>
 
       <!-- ── Megamenu panels ─────────────────────────────────
-           Each panel mirrors the live wrmp.org dropdown. The
-           Resources panel is the one that changes: a Tools group
-           joins WRMP Resources and External Resources, and the
-           three groups are separately headed so the WRMP / external
-           split reads at a glance. -->
+           Each panel mirrors the live wrmp.org dropdown. Resources
+           keeps its two existing groups; Tools joins WRMP Resources
+           as one more link. -->
       <div class="site-mega" id="mega-monitoring-results">
         <div class="site-container site-mega__inner">
           <div class="mega-group mega-group--wide">
@@ -146,18 +144,10 @@
 
       <div class="site-mega" id="mega-resources">
         <div class="site-container site-mega__inner">
-          <div class="mega-group mega-group--tools">
-            <h2 class="mega-group__heading"><span class="mega-mark" aria-hidden="true"></span>Tools</h2>
-            <ul class="mega-links">
-              <li><a class="mega-links__lead" href="tools.html">Monitoring Site Network Map</a></li>
-              <li><a href="tools.html#more-tools">Surface Elevation and Water Level Station Map</a></li>
-              <li><a href="tools.html#more-tools">WRMP Data Catalog</a></li>
-              <li><a href="tools.html">All tools</a></li>
-            </ul>
-          </div>
           <div class="mega-group">
             <h2 class="mega-group__heading">WRMP Resources</h2>
             <ul class="mega-links">
+              <li><a href="tools.html">Tools</a></li>
               <li><a href="#">Technical Documents and Report Summaries</a></li>
               <li><a href="#">Data Visualizations</a></li>
               <li><a href="#">Webinars &amp; Videos</a></li>
@@ -195,198 +185,90 @@
         <h1 class="tools-head__title">Tools</h1>
       </section>
 
-      <!-- ═══════════════════ Monitoring Site Network Map ═══════════════════ -->
-      <section class="site-container section--tight" id="map">
-        <div class="tool-map">
-          <div class="tool-map__head">
-            <h2 class="tool-map__title">
-              <span class="mega-mark" aria-hidden="true"></span>
+      <!-- ═══════════════════ Featured tool ═══════════════════
+           One record out of the same TOOLS array that builds the
+           index below, rendered with its map live. Keeps the #map
+           anchor and the ?topic= parameter the topic-page badge
+           links to. -->
+      <section class="site-container tools-feature-wrap" id="map">
+        <article class="tool-feature">
+          <div class="tool-feature__head">
+            <h2 class="tool-feature__name">
+              <span class="tool-mark" aria-hidden="true"></span>
               Monitoring Site Network Map
             </h2>
+            <p class="tool-feature__desc">
+              Every WRMP monitoring site in the estuary, grouped by site type,
+              monitoring zone, or survey.
+            </p>
+            <dl class="tool-fields">
+              <div class="tool-fields__pair">
+                <dt>Type</dt>
+                <dd><span class="type-chip">Web map</span></dd>
+              </div>
+              <div class="tool-fields__pair">
+                <dt>Topics</dt>
+                <dd>Baylands Geography, Fish &amp; Wildlife</dd>
+              </div>
+              <div class="tool-fields__pair">
+                <dt>Where</dt>
+                <dd>wrmp.org</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div class="tool-feature__controls">
+            <div class="tool-feature__grouping">
+              <span class="tool-feature__grouping-label" id="grouping-label">Group sites by</span>
+              <div class="tab-row" role="tablist" aria-labelledby="grouping-label" id="grouping-tabs">
+                <button class="tab" role="tab" type="button" data-grouping="siteType" aria-selected="true">Site type</button>
+                <button class="tab" role="tab" type="button" data-grouping="zone" aria-selected="false">Monitoring zone</button>
+                <button class="tab" role="tab" type="button" data-grouping="survey" aria-selected="false">Survey</button>
+              </div>
+            </div>
             <p class="tool-figure">
               <span class="tool-figure__value" id="map-count">119</span>
-              <span class="tool-figure__label">Monitoring sites shown</span>
+              <span class="tool-figure__label">Sites shown</span>
             </p>
           </div>
 
-          <div class="tool-map__tabs">
-            <span class="tool-map__tabs-label" id="grouping-label">Group sites by</span>
-            <div class="tab-row" role="tablist" aria-labelledby="grouping-label" id="grouping-tabs">
-              <button class="tab" role="tab" type="button" data-grouping="siteType" aria-selected="true">Site type</button>
-              <button class="tab" role="tab" type="button" data-grouping="zone" aria-selected="false">Monitoring zone</button>
-              <button class="tab" role="tab" type="button" data-grouping="survey" aria-selected="false">Survey</button>
-            </div>
-          </div>
-
-          <div class="tool-map__body">
-            <div class="tool-map__rail">
-              <h3 class="tool-map__rail-head" id="layers-head">Layers</h3>
+          <div class="tool-feature__body">
+            <div class="tool-feature__rail">
+              <h3 class="tool-feature__rail-head" id="layers-head">Layers</h3>
               <ul class="layer-list" id="layer-list" aria-labelledby="layers-head"></ul>
               <button class="layer-reset" type="button" id="layer-reset">Show all layers</button>
             </div>
-            <div class="tool-map__canvas" id="tools-map" role="application" aria-label="Map of WRMP monitoring sites"></div>
+            <div class="tool-feature__canvas" id="tools-map" role="application" aria-label="Map of WRMP monitoring sites"></div>
           </div>
-        </div>
-
-        <div class="site-type-defs">
-          <div class="site-type-def">
-            <h3 class="site-type-def__name">
-              <span class="layer__swatch" style="background: var(--wrmp-light-green)" aria-hidden="true"></span>
-              Benchmark sites
-            </h3>
-            <p class="site-type-def__body">
-              Historic, minimally modified mature tidal wetlands that represent
-              pre-colonial ecosystems.
-            </p>
-          </div>
-          <div class="site-type-def">
-            <h3 class="site-type-def__name">
-              <span class="layer__swatch" style="background: var(--wrmp-ada-teal)" aria-hidden="true"></span>
-              Reference sites
-            </h3>
-            <p class="site-type-def__body">
-              Century-old fringing wetlands, well-established restoration projects,
-              and other mature marshes that represent reasonable habitat development
-              endpoint projections for newer restoration projects.
-            </p>
-          </div>
-          <div class="site-type-def">
-            <h3 class="site-type-def__name">
-              <span class="layer__swatch" style="background: var(--wrmp-green)" aria-hidden="true"></span>
-              Project sites
-            </h3>
-            <p class="site-type-def__body">
-              Recently restored tidal wetlands that represent a variety of design
-              and management approaches.
-            </p>
-          </div>
-        </div>
+        </article>
       </section>
 
-      <!-- ═══════════════════ Topic doorways ═══════════════════ -->
-      <section class="section" id="by-topic">
+      <!-- ═══════════════════ The index ═══════════════════
+           Built by tools.js from the TOOLS array — one record per
+           row, grouped by content type, filterable by topic. -->
+      <section class="section" id="index">
         <div class="site-container">
-          <div class="section-head section-head--wide">
-            <span class="kicker">Monitoring Results</span>
-            <h2 class="section-head__title">Open the map by topic</h2>
-          </div>
-
-          <ul class="topic-doors">
-            <li class="topic-door topic-door--open">
-              <a class="topic-door__name" href="tools.html?topic=baylands-geography#map">Baylands Geography</a>
-              <span class="topic-door__layers">
-                <span class="layer-chip">Benchmark, Reference and Project sites</span>
-                <span class="layer-chip">Planned restoration</span>
-              </span>
-              <span class="topic-door__state">119 sites</span>
-            </li>
-            <li class="topic-door topic-door--open">
-              <a class="topic-door__name" href="tools.html?topic=fish-wildlife#map">Fish &amp; Wildlife</a>
-              <span class="topic-door__layers">
-                <span class="layer-chip">South Bay Otter Trawl Survey</span>
-                <span class="layer-chip">North Bay Otter Trawl Survey</span>
-                <span class="layer-chip">Suisun Marsh Fish Study</span>
-              </span>
-              <span class="topic-door__state">39 sites</span>
-            </li>
-            <li class="topic-door topic-door--planned">
-              <span class="topic-door__name">Wetland Condition</span>
-              <span class="topic-door__layers">
-                <span class="layer-chip">CRAM assessment sites</span>
-              </span>
-              <span class="topic-door__state">Layer planned</span>
-            </li>
-            <li class="topic-door topic-door--planned">
-              <span class="topic-door__name">Wetlands &amp; Sea Level Rise</span>
-              <span class="topic-door__layers">
-                <span class="layer-chip">Surface elevation tables</span>
-                <span class="layer-chip">Elevation transects</span>
-              </span>
-              <span class="topic-door__state">Layer planned</span>
-            </li>
-            <li class="topic-door topic-door--planned">
-              <span class="topic-door__name">Water Quality</span>
-              <span class="topic-door__layers">
-                <span class="layer-chip">Continuous water quality sondes</span>
-              </span>
-              <span class="topic-door__state">Layer planned</span>
-            </li>
-            <li class="topic-door topic-door--planned">
-              <span class="topic-door__name">Plant Communities</span>
-              <span class="topic-door__layers">
-                <span class="layer-chip">Vegetation transects</span>
-              </span>
-              <span class="topic-door__state">Layer planned</span>
-            </li>
-            <li class="topic-door topic-door--planned">
-              <span class="topic-door__name">People &amp; Wetlands</span>
-              <span class="topic-door__layers">
-                <span class="layer-chip">Public access points</span>
-              </span>
-              <span class="topic-door__state">Layer planned</span>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <!-- ═══════════════════ Related tools ═══════════════════ -->
-      <section class="section section--tight" id="more-tools">
-        <div class="site-container">
-          <div class="section-head section-head--wide">
-            <span class="kicker">Resources</span>
-            <h2 class="section-head__title">Related tools</h2>
-          </div>
-
-          <div class="tool-hosts">
-            <div class="tool-host tool-host--wrmp">
-              <h3 class="tool-host__heading">
-                <span class="mega-mark" aria-hidden="true"></span>
-                On wrmp.org
-              </h3>
-              <div class="tool-cards">
-                <a class="tool-card" href="#">
-                  <span class="tool-card__name">WRMP Data Catalog</span>
-                  <span class="tool-card__body">
-                    Find data by subregion, topic, source, WRMP indicator, or location.
-                  </span>
-                </a>
-                <a class="tool-card" href="#">
-                  <span class="tool-card__name">Interactive Surface Elevation Table and Water Level Station Map</span>
-                  <span class="tool-card__body">
-                    Surface elevation table and water level stations across the Estuary.
-                  </span>
-                </a>
-              </div>
+          <div class="tool-filter">
+            <div class="tool-filter__topics">
+              <span class="tool-filter__label" id="topic-filter-label">Filter by topic</span>
+              <div class="topic-filter-chips" id="topic-filter" role="group" aria-labelledby="topic-filter-label"></div>
             </div>
-
-            <div class="tool-host tool-host--external">
-              <h3 class="tool-host__heading">On ecoatlas.org</h3>
-              <div class="tool-cards">
-                <a class="tool-card" href="https://www.ecoatlas.org/" rel="noopener">
-                  <span class="tool-card__name">
-                    EcoAtlas WRMP Profile tool
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10" /><path d="M7 17 17 7" /></svg>
-                  </span>
-                  <span class="tool-card__body">
-                    Customized summaries by user-defined geographic areas of WRMP metrics
-                    about tidal wetlands such as tidal wetland extent, restoration status,
-                    unvegetated to vegetated ratio, and elevation capital.
-                  </span>
-                </a>
-                <a class="tool-card" href="https://www.ecoatlas.org/" rel="noopener">
-                  <span class="tool-card__name">
-                    EcoAtlas SFBRA Dashboard
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10" /><path d="M7 17 17 7" /></svg>
-                  </span>
-                  <span class="tool-card__body">
-                    Summarized metrics that track tidal wetland restoration trajectories in
-                    projects funded by the San Francisco Bay Restoration Authority and other
-                    restoration sites.
-                  </span>
-                </a>
-              </div>
-            </div>
+            <p class="tool-figure tool-figure--count">
+              <span class="tool-figure__value" id="tool-count">0</span>
+              <span class="tool-figure__label">Tools listed</span>
+            </p>
           </div>
+
+          <table class="tool-index" id="tool-index">
+            <thead>
+              <tr>
+                <th scope="col">Tool</th>
+                <th scope="col">Type</th>
+                <th scope="col">Topics</th>
+                <th scope="col">Where</th>
+              </tr>
+            </thead>
+          </table>
         </div>
       </section>
     </main>

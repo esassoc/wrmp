@@ -1,15 +1,17 @@
 /* ════════════════════════════════════════════════════════════
-   WRMP.org — Tools landing page
+   WRMP.org — Tools index
    ────────────────────────────────────────────────────────────
    Loads after tokens.css (Radix scales + --tools-* ramp) and
    site.css (site chrome, layout primitives, .tab-row, .kicker).
    Only the tools category chrome lives here.
 
-   Parti: the map IS the page. Hierarchy wins over completeness —
-   the map tool takes the first screen at full width, the topic
-   doorways are a compact list rather than seven poster cards, and
-   the related tools are one row. Green is a mark and an edge, not
-   a field: the page ground stays the site's white and gray.
+   Parti: the page's one job is to let someone find a tool, so the
+   surface is a catalog, not a showcase. Density wins over first
+   glance — every record is a table row carrying its four fields,
+   not a card — and the sacrifice is drama: no posters, no imagery,
+   and the map that used to be the page is now one highlighted
+   record at the top. Green is a mark, a chip and an edge; the
+   ground stays the site's white and gray.
    ════════════════════════════════════════════════════════════ */
 
 /* ═══ Page head ═══ */
@@ -23,47 +25,132 @@
   color: var(--color-heading);
 }
 
-/* ═══ The map tool ═══ */
-.tool-map {
-  border: 1px solid var(--color-border);
+/* The tools category mark — a green square that sits beside a
+   heading. Page-local: the megamenu no longer carries one. */
+.tool-mark {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  border-radius: 3px;
+  background: var(--tools-solid);
+}
+
+/* ═══ Field pairs ═══
+   Both the featured record and the index name their fields, so a
+   value never sits next to another value with the relation left
+   to the reader. */
+.tool-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-12) var(--space-32);
+  margin-top: var(--space-16);
+}
+.tool-fields__pair {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-8);
+  min-width: 0;
+}
+.tool-fields dt {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+.tool-fields dd {
+  margin: 0; /* the UA sheet gives dd a 40px inline start */
+  font-size: 16px;
+  color: var(--color-text-muted);
+}
+
+/* The record's content type. Sentence case, not the hub's
+   uppercase chip: sixteen distinct type values read faster in
+   normal case, and several are two words long. */
+.type-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-8);
+  border: 1px solid var(--tools-border);
+  border-radius: var(--radius-sm);
+  background: var(--tools-tint);
+  font-size: 16px;
+  line-height: 1.4;
+  white-space: nowrap;
+  color: var(--tools-ink);
+}
+
+/* ═══ The featured tool ═══ */
+.tools-feature-wrap {
+  padding-bottom: var(--space-16);
+}
+.tool-feature {
+  border: 1px solid var(--tools-border);
   border-radius: var(--radius-lg);
   background: var(--color-white);
   box-shadow: var(--shadow-card);
   overflow: hidden;
 }
-.tool-map__head {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--space-24);
-  flex-wrap: wrap;
+.tool-feature__head {
   padding: var(--space-24) var(--space-32);
   border-bottom: 1px solid var(--color-border);
 }
-.tool-map__title {
+.tool-feature__name {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-12);
   font-size: 28px;
   font-weight: 600;
   color: var(--color-heading);
+  margin-bottom: var(--space-8);
 }
-.tool-map__title .mega-mark {
+.tool-feature__name .tool-mark {
   width: 18px;
   height: 18px;
+  margin-top: 0.32em; /* sits on the first line when the name wraps */
   border-radius: var(--radius-xs);
+}
+.tool-feature__desc {
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--color-text);
+  max-width: 68ch;
+}
+
+.tool-feature__controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-24);
+  flex-wrap: wrap;
+  padding: var(--space-16) var(--space-32);
+  background: var(--gray-050);
+  border-bottom: 1px solid var(--color-border);
+}
+.tool-feature__grouping {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  flex-wrap: wrap;
+}
+.tool-feature__grouping-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+/* The site's tab chip sits at 15px; on this surface it comes up to
+   the 16px floor without disturbing the shared rule. */
+.tool-feature .tab {
+  font-size: 16px;
 }
 
 /* A labeled figure — the label is the field name, the number is
    the value. Never glued into one string. */
 .tool-figure {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-  text-align: right;
+  align-items: baseline;
+  gap: var(--space-8);
 }
 .tool-figure__value {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 700;
   line-height: 1;
   color: var(--tools-ink);
@@ -74,47 +161,27 @@
   color: var(--color-text-muted);
 }
 
-.tool-map__tabs {
-  display: flex;
-  align-items: center;
-  gap: var(--space-16);
-  flex-wrap: wrap;
-  padding: var(--space-16) var(--space-32);
-  background: var(--gray-050);
-  border-bottom: 1px solid var(--color-border);
-}
-.tool-map__tabs-label {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--color-text);
-}
-/* The site's tab chip sits at 15px; on this surface it comes up to
-   the 16px floor without disturbing the shared rule. */
-.tool-map .tab {
-  font-size: 16px;
-}
-
-.tool-map__body {
+.tool-feature__body {
   display: grid;
-  grid-template-columns: 300px 1fr;
-  min-height: 560px;
+  grid-template-columns: 280px 1fr;
+  min-height: 480px;
 }
-.tool-map__rail {
+.tool-feature__rail {
   border-right: 1px solid var(--color-border);
   padding: var(--space-24);
   display: flex;
   flex-direction: column;
   gap: var(--space-16);
   overflow-y: auto;
-  max-height: 560px;
+  max-height: 480px;
 }
-.tool-map__rail-head {
+.tool-feature__rail-head {
   font-size: 16px;
   font-weight: 700;
   color: var(--color-text);
 }
-.tool-map__canvas {
-  min-height: 560px;
+.tool-feature__canvas {
+  min-height: 480px;
   background: var(--gray-050);
 }
 
@@ -189,219 +256,289 @@
   outline-offset: 2px;
 }
 
-/* — Site-type definitions under the map — */
-.site-type-defs {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-32);
-  margin-top: var(--space-32);
-}
-.site-type-def__name {
+/* ═══ Topic filter ═══ */
+.tool-filter {
   display: flex;
-  align-items: center;
-  gap: var(--space-8);
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--color-teal-ada);
-  margin-bottom: var(--space-4);
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-16) var(--space-24);
+  flex-wrap: wrap;
+  padding-bottom: var(--space-24);
 }
-.site-type-def__body {
+.tool-filter__topics {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-16);
+  flex-wrap: wrap;
+  flex: 1 1 640px;
+  min-width: 0;
+}
+.tool-filter__label {
   font-size: 16px;
-  line-height: 1.55;
+  font-weight: 700;
   color: var(--color-text);
 }
-
-/* ═══ Topic doorways ═══ */
-.topic-doors {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  border-top: 1px solid var(--color-border);
-}
-.topic-door {
-  display: grid;
-  grid-template-columns: minmax(220px, 1fr) minmax(0, 2fr) 132px;
-  align-items: center;
-  gap: var(--space-24);
-  padding: var(--space-16) var(--space-8);
-  border-bottom: 1px solid var(--color-border);
-}
-.topic-door--open:hover {
-  background: var(--gray-050);
-}
-.topic-door__name {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--color-link);
-  text-decoration: none;
-}
-.topic-door--open .topic-door__name:hover {
-  color: var(--tools-ink);
-  text-decoration: underline;
-}
-.topic-door__name:focus-visible {
-  outline: 2px solid var(--tools-solid);
-  outline-offset: 3px;
-  border-radius: var(--radius-xs);
-}
-.topic-door--planned .topic-door__name {
-  color: var(--color-text);
-}
-.topic-door__layers {
+/* Deliberately NOT site.css's .chip — that one is a 12px uppercase
+   orange tag, and a topic name is a readable word at the 16px
+   floor, not an ornamental label. */
+.topic-filter-chips {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-8);
 }
-.layer-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-8);
-  padding: 3px var(--space-8);
-  border: 1px solid var(--tools-border);
-  border-radius: var(--radius-sm);
-  background: var(--tools-tint);
-  font-size: 16px;
-  line-height: 1.4;
-  color: var(--tools-ink);
-}
-.topic-door--planned .layer-chip {
-  border-color: var(--color-border);
-  background: var(--gray-050);
-  color: var(--gray-600);
-}
-.topic-door__state {
-  justify-self: end;
-  font-size: 16px;
-  color: var(--color-text-muted);
-  font-variant-numeric: tabular-nums;
-}
-.topic-door--open .topic-door__state {
-  color: var(--tools-ink);
-  font-weight: 600;
-}
-
-/* ═══ Related tools ═══ */
-.tool-hosts {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-48);
-}
-.tool-host__heading {
-  display: flex;
-  align-items: center;
-  gap: var(--space-8);
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--color-text);
-  padding-bottom: var(--space-8);
-  margin-bottom: var(--space-16);
-  border-bottom: 1px solid var(--color-border);
-}
-.tool-host--wrmp .tool-host__heading {
-  color: var(--tools-ink);
-  border-bottom-color: var(--tools-border);
-}
-.tool-cards {
-  display: grid;
-  gap: var(--space-16);
-}
-.tool-card {
-  display: block;
-  padding: var(--space-16);
+.topic-filter-chip {
+  padding: var(--space-4) var(--space-12);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   background: var(--color-white);
-  text-decoration: none;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--color-text);
 }
-.tool-card:hover {
+.topic-filter-chip:hover {
   border-color: var(--tools-border);
-  box-shadow: var(--shadow-card);
+  background: var(--tools-tint);
+  color: var(--tools-ink);
 }
-.tool-card:focus-visible {
+.topic-filter-chip[aria-pressed="true"] {
+  border-color: var(--tools-solid);
+  background: var(--tools-solid);
+  color: var(--color-white);
+  font-weight: 600;
+}
+.topic-filter-chip:focus-visible {
   outline: 2px solid var(--tools-solid);
   outline-offset: 2px;
 }
-.tool-card__name {
-  display: flex;
-  align-items: center;
-  gap: var(--space-8);
+.tool-figure--count {
+  flex-shrink: 0;
+}
+
+/* ═══ The index ═══
+   A real table: the column headers are what label each record's
+   fields, so no value stands next to another unlabeled. */
+.tool-index {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.tool-index thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: var(--space-8) var(--space-12);
+  background: var(--color-white);
+  border-bottom: 2px solid var(--color-border);
+  font-size: 16px;
+  font-weight: 700;
+  text-align: left;
+  color: var(--color-text);
+}
+.tool-index thead th:nth-child(1) {
+  width: auto;
+}
+.tool-index thead th:nth-child(2) {
+  width: 170px;
+}
+.tool-index thead th:nth-child(3) {
+  width: 300px;
+}
+.tool-index thead th:nth-child(4) {
+  width: 180px;
+}
+
+/* — Section header row — */
+.tool-index__group th {
+  padding: var(--space-32) var(--space-12) var(--space-8);
+  border-bottom: 1px solid var(--tools-border);
+  text-align: left;
+  font-weight: 600;
+}
+.tool-index tbody:first-of-type .tool-index__group th {
+  padding-top: var(--space-16);
+}
+.tool-index__group th {
+  display: table-cell;
+}
+.tool-index__group .tool-mark {
+  display: inline-block;
+  margin-right: var(--space-8);
+  vertical-align: middle;
+}
+.tool-index__group-name {
+  font-size: 20px;
+  color: var(--tools-ink);
+  vertical-align: middle;
+}
+.tool-index__group-count {
+  margin-left: var(--space-8);
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+  vertical-align: middle;
+}
+
+/* — Record rows — */
+.tool-index tbody td {
+  padding: var(--space-12);
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: top;
+  font-size: 16px;
+  line-height: 1.45;
+}
+.tool-index tbody tr:hover td {
+  background: var(--gray-050);
+}
+.tool-index__name {
+  display: inline;
   font-size: 18px;
   font-weight: 600;
   color: var(--color-link);
-  margin-bottom: var(--space-4);
+  text-decoration: none;
 }
-.tool-card__name svg {
-  width: 15px;
-  height: 15px;
-  flex-shrink: 0;
+.tool-index__name:hover {
+  color: var(--tools-ink);
+  text-decoration: underline;
+}
+.tool-index__name:focus-visible {
+  outline: 2px solid var(--tools-solid);
+  outline-offset: 3px;
+  border-radius: var(--radius-xs);
+}
+.tool-index__external {
+  width: 14px;
+  height: 14px;
+  margin-left: var(--space-4);
+  vertical-align: baseline;
   fill: none;
   stroke: var(--gray-500);
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.tool-card__body {
-  font-size: 16px;
-  line-height: 1.5;
+.tool-index__name:hover .tool-index__external {
+  stroke: var(--tools-ink);
+}
+.tool-index__desc {
+  display: block;
+  margin-top: var(--space-4);
   color: var(--color-text);
+  max-width: 62ch;
+}
+.tool-index__topics,
+.tool-index__host {
+  color: var(--color-text-muted);
 }
 
 /* ═══ Responsive ═══ */
+@media (max-width: 1180px) {
+  .tool-index thead th:nth-child(2) {
+    width: 150px;
+  }
+  .tool-index thead th:nth-child(3) {
+    width: 230px;
+  }
+  .tool-index thead th:nth-child(4) {
+    width: 150px;
+  }
+}
+
 @media (max-width: 1024px) {
-  .tool-map__body {
+  .tool-feature__body {
     grid-template-columns: 1fr;
   }
-  .tool-map__rail {
+  .tool-feature__rail {
     border-right: none;
     border-bottom: 1px solid var(--color-border);
     max-height: none;
   }
-  .site-type-defs {
-    grid-template-columns: 1fr;
-    gap: var(--space-24);
+}
+
+/* Below this width the table stops being a table: each record
+   becomes a stacked block and every field carries the label its
+   column header was providing. */
+@media (max-width: 860px) {
+  .tool-index,
+  .tool-index tbody,
+  .tool-index tr,
+  .tool-index td {
+    display: block;
+    width: auto;
   }
-  /* Name and state hold the first row; the layer chips wrap
-     underneath rather than being auto-placed into a stray cell. */
-  .topic-door {
-    grid-template-columns: 1fr auto;
-    gap: var(--space-8) var(--space-16);
+  .tool-index thead {
+    display: none;
   }
-  .topic-door__name {
-    grid-column: 1;
-    grid-row: 1;
+  .tool-index__group th {
+    display: block;
+    padding: var(--space-32) 0 var(--space-8);
   }
-  .topic-door__state {
-    grid-column: 2;
-    grid-row: 1;
+  .tool-index tbody:first-of-type .tool-index__group th {
+    padding-top: 0;
   }
-  .topic-door__layers {
-    grid-column: 1 / -1;
-    grid-row: 2;
+  .tool-index tbody tr:not(.tool-index__group) {
+    padding: var(--space-16) 0;
+    border-bottom: 1px solid var(--color-border);
   }
-  .tool-hosts {
-    grid-template-columns: 1fr;
-    gap: var(--space-32);
+  .tool-index tbody td {
+    padding: 0;
+    border-bottom: none;
+  }
+  .tool-index tbody tr:hover td {
+    background: none;
+  }
+  .tool-index tbody td:not(.tool-index__tool) {
+    display: flex;
+    gap: var(--space-8);
+    margin-top: var(--space-8);
+  }
+  .tool-index tbody td:not(.tool-index__tool)::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    font-weight: 700;
+    color: var(--color-text);
+  }
+  .tool-index__desc {
+    max-width: none;
   }
 }
+
 @media (max-width: 720px) {
   .tools-head__title {
     font-size: 36px;
   }
-  .tool-map__head,
-  .tool-map__tabs {
+  .tool-feature__head,
+  .tool-feature__controls {
     padding-inline: var(--space-16);
   }
-  .tool-map__rail {
+  .tool-feature__rail {
     padding: var(--space-16);
   }
-  .tool-map__body,
-  .tool-map__canvas {
-    min-height: 380px;
+  .tool-feature__body,
+  .tool-feature__canvas {
+    min-height: 340px;
   }
-  .tool-figure {
-    text-align: left;
-  }
-  .tool-map__title {
+  .tool-feature__name {
     font-size: 24px;
+  }
+  .tool-feature__desc {
+    font-size: 16px;
+  }
+  .tool-filter,
+  .tool-filter__topics {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-12);
+  }
+  /* In a column container flex-basis is a HEIGHT — the desktop
+     `flex: 1 1 640px` would open a 640px hole above the count. */
+  .tool-filter__topics {
+    flex: 0 0 auto;
+  }
+  /* Three grouping tabs do not fit one phone line; let them wrap
+     rather than break each label across two lines. */
+  .tool-feature .tab-row {
+    display: flex;
+    flex-wrap: wrap;
   }
 }
