@@ -18,6 +18,10 @@
 @import url("https://cdn.jsdelivr.net/npm/@radix-ui/colors@3.0.0/cyan-dark.css");
 @import url("https://cdn.jsdelivr.net/npm/@radix-ui/colors@3.0.0/cyan-alpha.css");
 @import url("https://cdn.jsdelivr.net/npm/@radix-ui/colors@3.0.0/cyan-dark-alpha.css");
+@import url("https://cdn.jsdelivr.net/npm/@radix-ui/colors@3.0.0/blue.css");
+@import url("https://cdn.jsdelivr.net/npm/@radix-ui/colors@3.0.0/blue-dark.css");
+@import url("https://cdn.jsdelivr.net/npm/@radix-ui/colors@3.0.0/blue-alpha.css");
+@import url("https://cdn.jsdelivr.net/npm/@radix-ui/colors@3.0.0/blue-dark-alpha.css");
 @import url("https://cdn.jsdelivr.net/npm/@radix-ui/colors@3.0.0/amber.css");
 @import url("https://cdn.jsdelivr.net/npm/@radix-ui/colors@3.0.0/amber-dark.css");
 @import url("https://cdn.jsdelivr.net/npm/@radix-ui/colors@3.0.0/amber-alpha.css");
@@ -234,6 +238,71 @@
   --gq3-tint: var(--q3-pra); --gq3-border: var(--sf-mid-border); --gq3-ink: var(--q3-ink); --gq3-sat: var(--q3-badge);
   --gq4-tint: var(--q4-pra); --gq4-border: var(--sf-mid-border); --gq4-ink: var(--q4-ink); --gq4-sat: var(--q4-badge);
   --gq5-tint: var(--q5-pra); --gq5-border: var(--sf-mid-border); --gq5-ink: var(--q5-ink); --gq5-sat: var(--q5-badge);
+
+  /* ── Category spine — SOURCE OF TRUTH ───────────
+       Data / Tools / Science: the three kinds of deeper material,
+       carrying the same names and the same colors on every surface
+       that shows them — the exhibit end card, the mobile sheet, the
+       exhibit drawer, the metric dialog, and the Monitoring Results
+       hub. Consumers read them through level3.css, which maps a
+       category onto --cat-accent / --cat-soft / --cat-border from a
+       data-cat attribute. Nothing outside this block defines a
+       category color.
+
+       Two tiers, because the spine runs on two grounds. Each tier
+       takes the SAME rung across three Radix families, so the three
+       categories read as siblings rather than three separate
+       decisions:
+
+         dark   → step 11 of the dark scale, on the Level 3 slate
+         light  → step 11 of the light scale, on a white page
+
+       Tools resolves through the --tools-* ramp and Science through
+       --sf-* on the light tier, so a hub panel and the pages those
+       ramps already color stay one family.
+
+       Data is Radix blue, not the brand cyan. Cyan at these rungs is
+       the WRMP brand teal (#228B9C, hue 188 degrees) that already
+       carries headings, links, step dots and the exhibit marker
+       site-wide; a category accent sitting 3 degrees off it reads as
+       chrome, not as an encoding. Radix blue sits at hue 208 degrees,
+       far enough to name itself, and the brand's own sky blue
+       (#00ACEC, hue 196) is not — it lands between the two. */
+
+  /* Dark tier — the Level 3 slate (--l3-bg, #122026).
+     Radix publishes its dark scales under a .dark selector, which the
+     Level 3 card does not carry (it is a dark panel inside a light
+     page), so the dark rungs are written out. Values are verbatim
+     blue-dark-11 / grass-dark-11 / orange-dark-11 from the same
+     pinned @3.0.0 import above. All three measure 7.9:1 or better on
+     the slate and 5.7:1 or better on their own 16% tile. */
+  --cat-data-dark: #70b8ff;
+  --cat-data-dark-soft: rgba(112, 184, 255, 0.16);
+  --cat-data-dark-border: rgba(112, 184, 255, 0.24);
+  --cat-tools-dark: #71d083;
+  --cat-tools-dark-soft: rgba(113, 208, 131, 0.16);
+  --cat-tools-dark-border: rgba(113, 208, 131, 0.24);
+  --cat-science-dark: #ffa057;
+  --cat-science-dark-soft: rgba(255, 160, 87, 0.16);
+  --cat-science-dark-border: rgba(255, 160, 87, 0.24);
+
+  /* Light tier — a white page.
+     The three accents measure 4.77 / 5.07 / 5.08 on white. On their
+     own wash they fall to 4.25–4.79, which is why a light-surface
+     count pill and format chip sit on white rather than the wash.
+     Science takes Radix orange steps 2 and 5 for its wash and edge
+     rather than the --sf-* PRA wash and mid border: those were drawn
+     to carry blocks on the Science Framework page and at panel scale
+     read a full step heavier than the other two columns. */
+  --cat-data-light: var(--blue-11);
+  --cat-data-light-soft: var(--blue-3);
+  --cat-data-light-border: var(--blue-6);
+  --cat-tools-light: var(--tools-solid);
+  --cat-tools-light-soft: var(--tools-tint);
+  --cat-tools-light-border: var(--tools-border);
+  --cat-science-light: var(--sf-mq-solid);
+  --cat-science-light-soft: var(--orange-2);
+  --cat-science-light-border: var(--orange-5);
 
   /* ── Topic chip ─────────────────────────────────
        Neutral chip for the exhibit topic indicator

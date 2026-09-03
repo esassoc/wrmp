@@ -30,8 +30,24 @@ var WRMP = window.WRMP || {};
     }
     return WRMP.addBasemap(map, tile);
   }
-  var CAT_KEY = { Data: "data", Tools: "tools", Context: "science" };
-  var CAT_ICON = { Data: "i-database", Tools: "i-compass", Context: "i-book" };
+  // Category spine — Data / Tools / Science, the three names the whole
+  // site uses (exhibit end card, metric dialog, Monitoring Results).
+  // "Context" was the round-3 name for Science; it stays an accepted
+  // alias so an unconverted exhibit config keeps rendering, and it
+  // renders under the current name rather than its own.
+  var CAT_ALIAS = { Context: "Science" };
+  var CAT_KEY = { Data: "data", Tools: "tools", Science: "science" };
+  var CAT_ICON = { Data: "i-database", Tools: "i-compass", Science: "i-book" };
+
+  function catName(cat) {
+    return CAT_ALIAS[cat] || cat;
+  }
+  function catKey(cat) {
+    return CAT_KEY[catName(cat)] || "data";
+  }
+  function catIcon(group) {
+    return group.icon || CAT_ICON[catName(group.cat)] || "i-database";
+  }
 
   // Lucide glyphs, stroked. Rendered as <symbol>s; `.lc { fill:none;
   // stroke:currentColor }` in the CSS forces correct rendering through <use>.
@@ -166,15 +182,15 @@ var WRMP = window.WRMP || {};
       var wrap = el("div");
       RESOURCES.forEach(function (group) {
         var g = el("div", "res-group");
-        g.dataset.cat = CAT_KEY[group.cat] || "data";
+        g.dataset.cat = catKey(group.cat);
         g.appendChild(
           el(
             "div",
             "res-grouphead",
             '<span class="res-cat-icon">' +
-              svg(group.icon || CAT_ICON[group.cat] || "i-database") +
+              svg(catIcon(group)) +
               "</span>" +
-              '<span class="gh-name">' + group.cat + "</span>" +
+              '<span class="gh-name">' + catName(group.cat) + "</span>" +
               '<span class="gh-count">' + group.items.length + "</span>",
           ),
         );
@@ -570,11 +586,11 @@ var WRMP = window.WRMP || {};
       var hub = el("div", "l3-hub");
       RESOURCES.forEach(function (group) {
         var panel = el("div", "l3-hub-panel");
-        panel.dataset.cat = CAT_KEY[group.cat] || "data";
+        panel.dataset.cat = catKey(group.cat);
         panel.appendChild(
           el("div", "l3-hub-panel-head",
-            '<span class="cat-icon">' + svg(group.icon || CAT_ICON[group.cat]) + "</span>" +
-            '<span class="cat-name">' + group.cat + "</span>" +
+            '<span class="cat-icon">' + svg(catIcon(group)) + "</span>" +
+            '<span class="cat-name">' + catName(group.cat) + "</span>" +
             '<span class="cat-count">' + group.items.length + "</span>"),
         );
         group.items.forEach(function (it) {
@@ -598,11 +614,11 @@ var WRMP = window.WRMP || {};
       var body = el("div", "level3-drawer-body");
       RESOURCES.forEach(function (group) {
         var g = el("div", "drf-group");
-        g.dataset.cat = CAT_KEY[group.cat] || "data";
+        g.dataset.cat = catKey(group.cat);
         g.appendChild(
           el("div", "drf-grouphead",
-            '<span class="cat-icon cat-icon-sm">' + svg(group.icon || CAT_ICON[group.cat]) + "</span>" +
-            '<span class="gh-name">' + group.cat + "</span>" +
+            '<span class="cat-icon cat-icon-sm">' + svg(catIcon(group)) + "</span>" +
+            '<span class="gh-name">' + catName(group.cat) + "</span>" +
             '<span class="gh-count">' + group.items.length + "</span>"),
         );
         group.items.forEach(function (it) {

@@ -629,20 +629,11 @@ body.is-desktop {
 }
 
 /* Resource list — rendered in the sheet AND the end card from one source.
-   Category accents — Data (teal), Tools (green), Context (amber);
-   matches the desktop level3 category language. */
-[data-cat="data"] {
-  --cat-accent: #6fd3e3;
-  --cat-soft: rgba(111, 211, 227, 0.16);
-}
-[data-cat="tools"] {
-  --cat-accent: #7fce8c;
-  --cat-soft: rgba(127, 206, 140, 0.16);
-}
-[data-cat="science"] {
-  --cat-accent: #f0b454;
-  --cat-soft: rgba(240, 180, 84, 0.16);
-}
+   The Data / Tools / Science accents are NOT redefined here. level3.css
+   maps them from the category spine in tokens.css, and every exhibit
+   loads level3.css before this file — a copy at the same specificity
+   here would win on source order and silently pin the mobile sheet to
+   whatever hexes it happened to hold. */
 
 .res-group + .res-group {
   margin-top: 18px;

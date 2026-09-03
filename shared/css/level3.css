@@ -10,9 +10,15 @@
 
    Organizing taxonomy across all three: Data / Tools / Science.
    Each category carries one fixed accent + Lucide icon:
-     Data    → database      → teal
+     Data    → database      → blue
      Tools   → compass       → green
-     Science → flask-conical → amber
+     Science → flask-conical → orange
+
+   The accent VALUES live in tokens.css under "Category spine";
+   this file only maps them onto --cat-accent / --cat-soft /
+   --cat-border from a data-cat attribute. The spine defaults to
+   the dark tier; a container on a white page adds .l3-light and
+   the same three categories re-resolve to the light tier.
 
    Icons are inline <svg> via a <symbol> sprite per exhibit
    (no CDN dependency). Load AFTER exhibit-frame.css and
@@ -32,31 +38,52 @@
   --l3-border-strong: rgba(255, 255, 255, 0.26);
   --l3-text: #f3f6f6; /* primary text on dark (AA+)     */
   --l3-text-subtle: #aec3c7; /* secondary text on dark (AA)    */
-  --l3-accent: #6fd3e3; /* bright teal — links/icons      */
-  --l3-accent-soft: rgba(111, 211, 227, 0.16);
-
-  /* Category accents — the Data/Tools/Science spine */
-  --cat-data-accent: #6fd3e3; /* teal  — Data    */
-  --cat-data-soft: rgba(111, 211, 227, 0.16);
-  --cat-tools-accent: #7fce8c; /* green — Tools   */
-  --cat-tools-soft: rgba(127, 206, 140, 0.16);
-  --cat-science-accent: #f0b454; /* amber — Science */
-  --cat-science-soft: rgba(240, 180, 84, 0.16);
+  --l3-accent: #6fd3e3; /* bright teal — the surface's own    */
+  --l3-accent-soft: rgba(111, 211, 227, 0.16); /* chrome: links, focus */
 }
 
-/* A category-scoped element reads its accent from one variable.
-   Set data-cat on any wrapper and the children inherit it. */
+/* A category-scoped element reads its three tokens from one place.
+   Set data-cat on any wrapper and the children inherit them. The
+   values come from the category spine in tokens.css — this file
+   picks the tier, it never names a color. */
 [data-cat="data"] {
-  --cat-accent: var(--cat-data-accent);
-  --cat-soft: var(--cat-data-soft);
+  --cat-accent: var(--cat-data-dark);
+  --cat-soft: var(--cat-data-dark-soft);
+  --cat-border: var(--cat-data-dark-border);
 }
 [data-cat="tools"] {
-  --cat-accent: var(--cat-tools-accent);
-  --cat-soft: var(--cat-tools-soft);
+  --cat-accent: var(--cat-tools-dark);
+  --cat-soft: var(--cat-tools-dark-soft);
+  --cat-border: var(--cat-tools-dark-border);
 }
 [data-cat="science"] {
-  --cat-accent: var(--cat-science-accent);
-  --cat-soft: var(--cat-science-soft);
+  --cat-accent: var(--cat-science-dark);
+  --cat-soft: var(--cat-science-dark-soft);
+  --cat-border: var(--cat-science-dark-border);
+}
+
+/* ── Light-surface variant ──
+   The spine on a white page (the Monitoring Results hub). Same
+   three categories, same three tokens, one tier down. Secondary
+   copy inverts too: --l3-text-subtle is a pale ink drawn for the
+   dark card. */
+.l3-light {
+  --l3-text-subtle: var(--gray-11);
+}
+.l3-light [data-cat="data"] {
+  --cat-accent: var(--cat-data-light);
+  --cat-soft: var(--cat-data-light-soft);
+  --cat-border: var(--cat-data-light-border);
+}
+.l3-light [data-cat="tools"] {
+  --cat-accent: var(--cat-tools-light);
+  --cat-soft: var(--cat-tools-light-soft);
+  --cat-border: var(--cat-tools-light-border);
+}
+.l3-light [data-cat="science"] {
+  --cat-accent: var(--cat-science-light);
+  --cat-soft: var(--cat-science-light-soft);
+  --cat-border: var(--cat-science-light-border);
 }
 
 /* ════════════════════════════════════════════════════
@@ -286,7 +313,7 @@
   max-width: 420px;
   border-radius: var(--radius-lg);
   background: linear-gradient(180deg, var(--cat-soft), transparent 72%);
-  border: 1px solid color-mix(in srgb, var(--cat-accent) 24%, transparent);
+  border: 1px solid var(--cat-border);
   padding: 18px;
 }
 .l3-hub-panel-head {
@@ -295,7 +322,7 @@
   gap: 10px;
   padding-bottom: 12px;
   margin-bottom: 4px;
-  border-bottom: 1px solid color-mix(in srgb, var(--cat-accent) 22%, transparent);
+  border-bottom: 1px solid var(--cat-border);
 }
 .l3-hub-panel-head .cat-name {
   font-size: var(--step-1);
