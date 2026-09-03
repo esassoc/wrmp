@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════════════
    WRMP.org — Tools index
-   ────────────────────────────────────────────────────────────
+   ───────────────────────────────────────────────────────────
    Two things live here.
 
    1. TOOLS — the record set. One object per tool, shaped as the
@@ -10,13 +10,9 @@
       array, and nothing in the array is invented outside wrmp.org
       and the sites it links to.
 
-   2. The renderer — builds the grouped index table and the topic
-      filter from that array, and runs the one record flagged
-      `featured` as a live Leaflet map at the top of the page.
-
-   The map's three groupings and its ?topic= parameter are carried
-   over unchanged; the topic pages' map badges link to
-   tools.html?topic={slug}#map.
+   2. The renderer — builds the grouped index table from that array
+      and filters it from the Topic <select> in the filter bar (the
+      same control the Metrics page uses).
    ════════════════════════════════════════════════════════════ */
 
 /* ══════════════════════════════════════════════════════════════
@@ -42,8 +38,7 @@ var TOOLS = [
     topics: ["Baylands Geography", "Fish & Wildlife"],
     host: "wrmp.org",
     url: "https://www.wrmp.org/monitoring-site-network/",
-    desc: "Every WRMP monitoring site in the estuary, grouped by site type, monitoring zone, or survey.",
-    featured: true
+    desc: "Every WRMP monitoring site in the estuary, grouped by site type, monitoring zone, or survey."
   },
   {
     id: "set-water-level-station-map",
@@ -506,23 +501,19 @@ var TOPICS = [
   "People & Wetlands"
 ];
 
-/* ══════════════════════════════════════════════════════════════
+/* ═════════════════════════════════════════════════════════════
    2. The index
-   ══════════════════════════════════════════════════════════════ */
+   ═════════════════════════════════════════════════════════════ */
 (function () {
   "use strict";
 
   var table = document.getElementById("tool-index");
-  var filterEl = document.getElementById("topic-filter");
-  var countEl = document.getElementById("tool-count");
-  if (!table || !filterEl || !countEl) return;
+  var select = document.getElementById("topic-select");
+  if (!table || !select) return;
 
   var SVG_NS = "http://www.w3.org/2000/svg";
   var ARROW = ["M7 7h10v10", "M7 17 17 7"]; // leaves-the-site glyph
-  var FEATURED_COUNT = TOOLS.filter(function (t) {
-    return t.featured;
-  }).length;
-  var activeTopic = null; // null = every topic
+  var activeTopic = ""; // "" = every topic
 
   function externalGlyph() {
     var svg = document.createElementNS(SVG_NS, "svg");
@@ -617,12 +608,10 @@ var TOPICS = [
         tbody.remove();
       });
 
-    var total = 0;
     FAMILIES.forEach(function (family) {
       var rows = TOOLS.filter(function (tool) {
-        return tool.family === family.key && !tool.featured && matchesFilter(tool);
+        return tool.family === family.key && matchesFilter(tool);
       });
-      total += rows.length;
       if (!rows.length) return;
 
       var tbody = document.createElement("tbody");
@@ -632,310 +621,25 @@ var TOPICS = [
       });
       table.appendChild(tbody);
     });
-
-    // The featured record is drawn as the live map above rather
-    // than as a row, and it stays on the page under every filter,
-    // so it counts toward what this page is showing.
-    countEl.textContent = String(total + FEATURED_COUNT);
   }
 
-  function renderFilter() {
-    var options = [{ value: null, label: "All topics" }].concat(
-      TOPICS.map(function (t) {
-        return { value: t, label: t };
-      })
-    );
-    options.forEach(function (option) {
-      var btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "topic-filter-chip";
-      btn.textContent = option.label;
-      btn.setAttribute("aria-pressed", option.value === activeTopic ? "true" : "false");
-      btn.addEventListener("click", function () {
-        activeTopic = option.value;
-        Array.prototype.forEach.call(filterEl.children, function (other) {
-          other.setAttribute("aria-pressed", other === btn ? "true" : "false");
-        });
-        renderIndex();
-      });
-      filterEl.appendChild(btn);
+  // The seven topics come from the same vocabulary the records are
+  // tagged with, so the control can never offer a value no record
+  // carries. "All topics" is already in the markup.
+  function fillSelect() {
+    TOPICS.forEach(function (topic) {
+      var option = document.createElement("option");
+      option.value = topic;
+      option.textContent = topic;
+      select.appendChild(option);
     });
   }
 
-  renderFilter();
+  select.addEventListener("change", function () {
+    activeTopic = select.value;
+    renderIndex();
+  });
+
+  fillSelect();
   renderIndex();
-})();
-
-/* ══════════════════════════════════════════════════════════════
-   3. The featured tool — the Monitoring Site Network Map
-   ══════════════════════════════════════════════════════════════
-   One Leaflet map over data/stations.json (119 sites). Three
-   groupings — monitoring zone, site type, survey — each with its
-   own layer set, and a ?topic= parameter that lands the map with
-   one topic's layers already selected. That parameter is what a
-   topic page's map badge links to.
-
-   Colors, popup fields and the site-type palette are inherited
-   from exhibits/2026-04-03-station-map-stepper so the same data
-   reads the same way wherever it is drawn.
-   ══════════════════════════════════════════════════════════════ */
-(function () {
-  "use strict";
-
-  var canvas = document.getElementById("tools-map");
-  if (!canvas || typeof L === "undefined" || !window.WRMP) return;
-
-  // ── Palette ───────────────────────────────────────────────
-  function tokenColor(name, fallback) {
-    var v = getComputedStyle(document.documentElement)
-      .getPropertyValue(name)
-      .trim();
-    return v || fallback;
-  }
-  var C = {
-    ADA_TEAL: tokenColor("--wrmp-ada-teal", "#005E6A"),
-    TEAL: tokenColor("--wrmp-teal", "#228B9C"),
-    GREEN: tokenColor("--wrmp-green", "#379352"),
-    LIGHT_GREEN: tokenColor("--wrmp-light-green", "#92BB4D"),
-    ORANGE: tokenColor("--wrmp-orange", "#E09337"),
-    DARK_ORANGE: tokenColor("--wrmp-dark-orange", "#D66B2C"),
-    SKY_BLUE: tokenColor("--wrmp-sky-blue", "#00ACEC"),
-    EARTH: tokenColor("--wrmp-earth", "#664D26"),
-    GRAY: "#bbbbbb"
-  };
-
-  // ── Derived fields ────────────────────────────────────────
-  // The site's three monitoring zones (Primary, Secondary,
-  // Montezuma) are encoded in WRMP_Network, not stored on their
-  // own, so read them back out of the network name.
-  function zoneOf(station) {
-    var net = station.WRMP_Network || "";
-    if (net.indexOf("Montezuma") !== -1) return "Montezuma";
-    if (net.indexOf("Primary") !== -1) return "Primary";
-    return "Secondary";
-  }
-
-  var GROUPINGS = {
-    zone: {
-      field: zoneOf,
-      layers: [
-        { value: "Primary", label: "Primary Network", color: C.ADA_TEAL },
-        { value: "Secondary", label: "Secondary Network", color: C.TEAL },
-        { value: "Montezuma", label: "Montezuma", color: C.DARK_ORANGE }
-      ]
-    },
-    siteType: {
-      field: function (s) {
-        return s.WRMP_Site_Type || "NA";
-      },
-      layers: [
-        { value: "Benchmark", label: "Benchmark", color: C.LIGHT_GREEN },
-        { value: "Benchmark-Reference", label: "Benchmark and Reference", color: "#C7D865" },
-        { value: "Reference", label: "Reference", color: C.ADA_TEAL },
-        { value: "Reference Site Candidate", label: "Reference site candidate", color: C.TEAL },
-        { value: "Project", label: "Project", color: C.GREEN },
-        { value: "Other Restored Site", label: "Other restored site", color: "#6A9E3A" },
-        { value: "Planned Restoration", label: "Planned restoration", color: C.ORANGE },
-        { value: "NA", label: "Not classified", color: C.GRAY }
-      ]
-    },
-    survey: {
-      field: function (s) {
-        return s.projects || "WRMP";
-      },
-      layers: [
-        { value: "WRMP", label: "WRMP Monitoring Site Network", color: C.ADA_TEAL },
-        { value: "SBSP", label: "South Bay Salt Pond Restoration", color: C.GREEN },
-        { value: "SBOTS", label: "South Bay Otter Trawl Survey", color: C.SKY_BLUE },
-        { value: "NBOTS", label: "North Bay Otter Trawl Survey", color: C.TEAL },
-        { value: "SMFS", label: "Suisun Marsh Fish Study", color: C.ORANGE }
-      ]
-    }
-  };
-
-  // A topic opens the map on one grouping with one set of layers
-  // already on. Topics whose layers are not yet mapped have no
-  // preset here, so the map lands on its default.
-  var TOPIC_PRESETS = {
-    "baylands-geography": { grouping: "siteType", layers: null },
-    "fish-wildlife": { grouping: "survey", layers: ["SBOTS", "NBOTS", "SMFS"] }
-  };
-
-  // The extent of stations.json (lat 37.437–38.226, lon -122.520
-  // to -121.886) with a little air, rather than the wider framing
-  // the stepper exhibits use behind their story panel.
-  var BAY_FULL = [
-    [37.4, -122.58],
-    [38.27, -121.83]
-  ];
-  var POPUP_FIELDS = [
-    ["Region", "region"],
-    ["Network", "WRMP_Network"],
-    ["Habitat", "habitat"],
-    ["Site Type", "WRMP_Site_Type"]
-  ];
-
-  // ── State ─────────────────────────────────────────────────
-  var stations = [];
-  var grouping = "siteType";
-  var enabled = {}; // value -> bool, for the active grouping
-
-  // initMap attaches the shared WRMP basemap (WRMP.addBasemap in
-  // shared/js/map-init.js), so there is nothing to swap here.
-  var map = WRMP.initMap("tools-map", {});
-
-  map.fitBounds(BAY_FULL, { padding: [24, 24] });
-  L.control.zoom({ position: "topright" }).addTo(map);
-  var markerLayer = L.layerGroup().addTo(map);
-
-  var listEl = document.getElementById("layer-list");
-  var countEl = document.getElementById("map-count");
-  var resetEl = document.getElementById("layer-reset");
-  var tabsEl = document.getElementById("grouping-tabs");
-
-  function activeLayers() {
-    return GROUPINGS[grouping].layers;
-  }
-  function valueOf(station) {
-    return GROUPINGS[grouping].field(station);
-  }
-  function countFor(value) {
-    return stations.filter(function (s) {
-      return valueOf(s) === value;
-    }).length;
-  }
-  function colorFor(value) {
-    var found = null;
-    activeLayers().forEach(function (l) {
-      if (l.value === value) found = l.color;
-    });
-    return found || C.GRAY;
-  }
-
-  function makePopup(station, dotColor) {
-    return WRMP.makeMarkerPopup({
-      code: station.station_code,
-      name: station.station_name,
-      dotColor: dotColor,
-      showImage: false,
-      sections: [
-        {
-          rows: POPUP_FIELDS.filter(function (pair) {
-            return station[pair[1]];
-          }).map(function (pair) {
-            // marker-popup.js renders `value` as the field name and
-            // `label` as the datum, matching the stepper exhibit.
-            return { type: "row", label: station[pair[1]], value: pair[0] };
-          })
-        }
-      ]
-    });
-  }
-
-  // ── Render ────────────────────────────────────────────────
-  function renderMarkers() {
-    markerLayer.clearLayers();
-    var shown = 0;
-    stations.forEach(function (s) {
-      var value = valueOf(s);
-      if (!enabled[value]) return;
-      shown++;
-      var color = colorFor(value);
-      L.circleMarker([s.lat, s.lon], {
-        radius: 5,
-        fillColor: color,
-        color: "#fff",
-        weight: 1.5,
-        opacity: 1,
-        fillOpacity: 0.9
-      })
-        .addTo(markerLayer)
-        .bindPopup(makePopup(s, color));
-    });
-    countEl.textContent = String(shown);
-  }
-
-  function renderLayers() {
-    listEl.textContent = "";
-    activeLayers().forEach(function (layer) {
-      var n = countFor(layer.value);
-      if (!n) return;
-
-      var li = document.createElement("li");
-      var btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "layer";
-      btn.setAttribute("aria-pressed", enabled[layer.value] ? "true" : "false");
-
-      var swatch = document.createElement("span");
-      swatch.className = "layer__swatch";
-      swatch.style.background = layer.color;
-      swatch.setAttribute("aria-hidden", "true");
-
-      var name = document.createElement("span");
-      name.className = "layer__name";
-      name.textContent = layer.label;
-
-      var count = document.createElement("span");
-      count.className = "layer__count";
-      count.textContent = String(n);
-
-      btn.appendChild(swatch);
-      btn.appendChild(name);
-      btn.appendChild(count);
-      btn.addEventListener("click", function () {
-        enabled[layer.value] = !enabled[layer.value];
-        btn.setAttribute("aria-pressed", enabled[layer.value] ? "true" : "false");
-        renderMarkers();
-      });
-
-      li.appendChild(btn);
-      listEl.appendChild(li);
-    });
-  }
-
-  function setGrouping(next, onlyValues) {
-    grouping = next;
-    enabled = {};
-    activeLayers().forEach(function (layer) {
-      enabled[layer.value] = onlyValues ? onlyValues.indexOf(layer.value) !== -1 : true;
-    });
-    Array.prototype.forEach.call(tabsEl.querySelectorAll(".tab"), function (tab) {
-      tab.setAttribute(
-        "aria-selected",
-        tab.getAttribute("data-grouping") === grouping ? "true" : "false"
-      );
-    });
-    renderLayers();
-    renderMarkers();
-  }
-
-  Array.prototype.forEach.call(tabsEl.querySelectorAll(".tab"), function (tab) {
-    tab.addEventListener("click", function () {
-      setGrouping(tab.getAttribute("data-grouping"), null);
-    });
-  });
-  resetEl.addEventListener("click", function () {
-    setGrouping(grouping, null);
-  });
-
-  // ── Boot ──────────────────────────────────────────────────
-  WRMP.loadData({ stations: true }).then(function (data) {
-    stations = data.stations.filter(function (s) {
-      return typeof s.lat === "number" && typeof s.lon === "number";
-    });
-
-    var topic = new URLSearchParams(window.location.search).get("topic");
-    var preset = topic ? TOPIC_PRESETS[topic] : null;
-    if (preset) {
-      setGrouping(preset.grouping, preset.layers);
-    } else {
-      setGrouping("siteType", null);
-    }
-    // The canvas reaches its final height only after layout, so the
-    // fit has to be redone once the size is known — otherwise the
-    // zoom is set against a stale box and the Bay sits low.
-    map.invalidateSize();
-    map.fitBounds(BAY_FULL, { padding: [24, 24] });
-  });
 })();

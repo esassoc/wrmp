@@ -4,13 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tools — WRMP</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <!-- tokens.css first: it carries the Radix scales and the
-         --tools-* green ramp that site.css and tools.css read. -->
+    <!-- tokens.css first: it carries the colour scales and the
+         --tools-* green ramp that site.css and tools.css read.
+         exhibits-gallery.css is here for one thing: the .filter-bar
+         and its Topic <select>, the same control the Metrics page
+         uses. Reused rather than restyled so the two pages cannot
+         drift apart. -->
     <link rel="stylesheet" href="../shared/css/tokens.css" />
-    <link rel="stylesheet" href="../shared/css/leaflet-overrides.css" />
-    <link rel="stylesheet" href="../shared/css/marker-popup.css" />
     <link rel="stylesheet" href="assets/site.css" />
+    <link rel="stylesheet" href="assets/exhibits-gallery.css" />
     <link rel="stylesheet" href="assets/tools.css" />
   </head>
   <body>
@@ -179,98 +181,57 @@
     </header>
 
     <main>
-      <!-- ═══════════════════ Page head ═══════════════════ -->
-      <section class="site-container tools-head">
-        <span class="kicker">Resources</span>
-        <h1 class="tools-head__title">Tools</h1>
-      </section>
-
-      <!-- ═══════════════════ Featured tool ═══════════════════
-           One record out of the same TOOLS array that builds the
-           index below, rendered with its map live. Keeps the #map
-           anchor and the ?topic= parameter the topic-page badge
-           links to. -->
-      <section class="site-container tools-feature-wrap" id="map">
-        <article class="tool-feature">
-          <div class="tool-feature__head">
-            <h2 class="tool-feature__name">
-              <span class="tool-mark" aria-hidden="true"></span>
-              Monitoring Site Network Map
-            </h2>
-            <p class="tool-feature__desc">
-              Every WRMP monitoring site in the estuary, grouped by site type,
-              monitoring zone, or survey.
-            </p>
-            <dl class="tool-fields">
-              <div class="tool-fields__pair">
-                <dt>Type</dt>
-                <dd><span class="type-chip">Web map</span></dd>
-              </div>
-              <div class="tool-fields__pair">
-                <dt>Topics</dt>
-                <dd>Baylands Geography, Fish &amp; Wildlife</dd>
-              </div>
-              <div class="tool-fields__pair">
-                <dt>Where</dt>
-                <dd>wrmp.org</dd>
-              </div>
-            </dl>
-          </div>
-
-          <div class="tool-feature__controls">
-            <div class="tool-feature__grouping">
-              <span class="tool-feature__grouping-label" id="grouping-label">Group sites by</span>
-              <div class="tab-row" role="tablist" aria-labelledby="grouping-label" id="grouping-tabs">
-                <button class="tab" role="tab" type="button" data-grouping="siteType" aria-selected="true">Site type</button>
-                <button class="tab" role="tab" type="button" data-grouping="zone" aria-selected="false">Monitoring zone</button>
-                <button class="tab" role="tab" type="button" data-grouping="survey" aria-selected="false">Survey</button>
-              </div>
-            </div>
-            <p class="tool-figure">
-              <span class="tool-figure__value" id="map-count">119</span>
-              <span class="tool-figure__label">Sites shown</span>
+      <!-- ═══════════════════ Hero + overlapping title ═══════════════════ -->
+      <section class="hero">
+        <div class="hero__banner">
+          <img
+            src="assets/img/tools-hero.jpg"
+            alt="A tidal channel winding through marsh vegetation, with hills on the horizon"
+            fetchpriority="high"
+          />
+        </div>
+        <div class="overlap-card title-card">
+          <div class="title-card__inner">
+            <a class="breadcrumb" href="#">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+              Resources
+            </a>
+            <h1 class="page-title">Tools</h1>
+            <p class="page-subtitle">
+              Tools are the maps, catalogs, datasets and applications the WRMP
+              and its partners use to collect, share and interpret data about
+              the Estuary&rsquo;s wetlands.
             </p>
           </div>
-
-          <div class="tool-feature__body">
-            <div class="tool-feature__rail">
-              <h3 class="tool-feature__rail-head" id="layers-head">Layers</h3>
-              <ul class="layer-list" id="layer-list" aria-labelledby="layers-head"></ul>
-              <button class="layer-reset" type="button" id="layer-reset">Show all layers</button>
-            </div>
-            <div class="tool-feature__canvas" id="tools-map" role="application" aria-label="Map of WRMP monitoring sites"></div>
-          </div>
-        </article>
+        </div>
       </section>
 
       <!-- ═══════════════════ The index ═══════════════════
            Built by tools.js from the TOOLS array — one record per
-           row, grouped by content type, filterable by topic. -->
-      <section class="section" id="index">
-        <div class="site-container">
-          <div class="tool-filter">
-            <div class="tool-filter__topics">
-              <span class="tool-filter__label" id="topic-filter-label">Filter by topic</span>
-              <div class="topic-filter-chips" id="topic-filter" role="group" aria-labelledby="topic-filter-label"></div>
-            </div>
-            <p class="tool-figure tool-figure--count">
-              <span class="tool-figure__value" id="tool-count">0</span>
-              <span class="tool-figure__label">Tools listed</span>
-            </p>
+           row, grouped by content type, filtered by topic. The seven
+           topic options are appended to the <select> from the same
+           vocabulary the records are tagged with. -->
+      <div class="site-container section--after-hero">
+        <div class="filter-bar">
+          <div class="filter-group filter-group--topic">
+            <label class="filter-label" for="topic-select">Topic</label>
+            <select class="topic-select" id="topic-select">
+              <option value="">All topics</option>
+            </select>
           </div>
-
-          <table class="tool-index" id="tool-index">
-            <thead>
-              <tr>
-                <th scope="col">Tool</th>
-                <th scope="col">Type</th>
-                <th scope="col">Topics</th>
-                <th scope="col">Where</th>
-              </tr>
-            </thead>
-          </table>
         </div>
-      </section>
+
+        <table class="tool-index" id="tool-index">
+          <thead>
+            <tr>
+              <th scope="col">Tool</th>
+              <th scope="col">Type</th>
+              <th scope="col">Topics</th>
+              <th scope="col">Where</th>
+            </tr>
+          </thead>
+        </table>
+      </div>
     </main>
 
     <!-- ═══════════════════ Footer ═══════════════════ -->
@@ -339,10 +300,6 @@
       </div>
     </footer>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="../shared/js/data-loader.js"></script>
-    <script src="../shared/js/map-init.js"></script>
-    <script src="../shared/js/marker-popup.js"></script>
     <script src="assets/site.js"></script>
     <script src="assets/tools.js"></script>
   </body>

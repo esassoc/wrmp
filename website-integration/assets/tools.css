@@ -1,65 +1,28 @@
 /* ════════════════════════════════════════════════════════════
    WRMP.org — Tools index
-   ────────────────────────────────────────────────────────────
-   Loads after tokens.css (Radix scales + --tools-* ramp) and
-   site.css (site chrome, layout primitives, .tab-row, .kicker).
-   Only the tools category chrome lives here.
+   ───────────────────────────────────────────────────────────
+   Loads after tokens.css (--tools-* ramp), site.css (site chrome,
+   hero + overlapping title card, layout primitives) and
+   exhibits-gallery.css (the .filter-bar and its Topic <select>).
+   Only the index table and the tools category chrome live here.
 
    Parti: the page's one job is to let someone find a tool, so the
    surface is a catalog, not a showcase. Density wins over first
    glance — every record is a table row carrying its four fields,
-   not a card — and the sacrifice is drama: no posters, no imagery,
-   and the map that used to be the page is now one highlighted
-   record at the top. Green is a mark, a chip and an edge; the
-   ground stays the site's white and gray.
+   not a card — and the sacrifice is drama below the hero: no
+   posters, no embedded map, nothing competing with the list.
+   Green is a mark, a chip and an edge; the ground stays the
+   site's white and gray.
    ════════════════════════════════════════════════════════════ */
 
-/* ═══ Page head ═══ */
-.tools-head {
-  padding-block: var(--space-48) var(--space-32);
-}
-.tools-head__title {
-  font-size: 52px;
-  font-weight: 600;
-  line-height: 1.1;
-  color: var(--color-heading);
-}
-
 /* The tools category mark — a green square that sits beside a
-   heading. Page-local: the megamenu no longer carries one. */
+   section heading in the index. */
 .tool-mark {
   width: 14px;
   height: 14px;
   flex-shrink: 0;
   border-radius: 3px;
   background: var(--tools-solid);
-}
-
-/* ═══ Field pairs ═══
-   Both the featured record and the index name their fields, so a
-   value never sits next to another value with the relation left
-   to the reader. */
-.tool-fields {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-12) var(--space-32);
-  margin-top: var(--space-16);
-}
-.tool-fields__pair {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-8);
-  min-width: 0;
-}
-.tool-fields dt {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--color-text);
-}
-.tool-fields dd {
-  margin: 0; /* the UA sheet gives dd a 40px inline start */
-  font-size: 16px;
-  color: var(--color-text-muted);
 }
 
 /* The record's content type. Sentence case, not the hub's
@@ -76,242 +39,6 @@
   line-height: 1.4;
   white-space: nowrap;
   color: var(--tools-ink);
-}
-
-/* ═══ The featured tool ═══ */
-.tools-feature-wrap {
-  padding-bottom: var(--space-16);
-}
-.tool-feature {
-  border: 1px solid var(--tools-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-white);
-  box-shadow: var(--shadow-card);
-  overflow: hidden;
-}
-.tool-feature__head {
-  padding: var(--space-24) var(--space-32);
-  border-bottom: 1px solid var(--color-border);
-}
-.tool-feature__name {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-12);
-  font-size: 28px;
-  font-weight: 600;
-  color: var(--color-heading);
-  margin-bottom: var(--space-8);
-}
-.tool-feature__name .tool-mark {
-  width: 18px;
-  height: 18px;
-  margin-top: 0.32em; /* sits on the first line when the name wraps */
-  border-radius: var(--radius-xs);
-}
-.tool-feature__desc {
-  font-size: 18px;
-  line-height: 1.5;
-  color: var(--color-text);
-  max-width: 68ch;
-}
-
-.tool-feature__controls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-24);
-  flex-wrap: wrap;
-  padding: var(--space-16) var(--space-32);
-  background: var(--gray-050);
-  border-bottom: 1px solid var(--color-border);
-}
-.tool-feature__grouping {
-  display: flex;
-  align-items: center;
-  gap: var(--space-16);
-  flex-wrap: wrap;
-}
-.tool-feature__grouping-label {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--color-text);
-}
-/* The site's tab chip sits at 15px; on this surface it comes up to
-   the 16px floor without disturbing the shared rule. */
-.tool-feature .tab {
-  font-size: 16px;
-}
-
-/* A labeled figure — the label is the field name, the number is
-   the value. Never glued into one string. */
-.tool-figure {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-8);
-}
-.tool-figure__value {
-  font-size: 24px;
-  font-weight: 700;
-  line-height: 1;
-  color: var(--tools-ink);
-  font-variant-numeric: tabular-nums;
-}
-.tool-figure__label {
-  font-size: 16px;
-  color: var(--color-text-muted);
-}
-
-.tool-feature__body {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  min-height: 480px;
-}
-.tool-feature__rail {
-  border-right: 1px solid var(--color-border);
-  padding: var(--space-24);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-16);
-  overflow-y: auto;
-  max-height: 480px;
-}
-.tool-feature__rail-head {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--color-text);
-}
-.tool-feature__canvas {
-  min-height: 480px;
-  background: var(--gray-050);
-}
-
-/* — Layer toggles — */
-.layer-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-.layer {
-  display: flex;
-  align-items: center;
-  gap: var(--space-12);
-  width: 100%;
-  padding: var(--space-8);
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm);
-  background: none;
-  font-size: 16px;
-  line-height: 1.3;
-  text-align: left;
-  color: var(--color-text);
-}
-.layer:hover {
-  background: var(--gray-050);
-}
-.layer:focus-visible {
-  outline: 2px solid var(--tools-solid);
-  outline-offset: 2px;
-}
-.layer[aria-pressed="false"] {
-  color: var(--gray-500);
-}
-.layer[aria-pressed="false"] .layer__swatch {
-  background: var(--gray-200) !important;
-}
-.layer__swatch {
-  width: 14px;
-  height: 14px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  border: 2px solid var(--color-white);
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.18);
-}
-.layer__name {
-  flex: 1;
-  min-width: 0;
-}
-.layer__count {
-  font-size: 16px;
-  font-variant-numeric: tabular-nums;
-  color: var(--color-text-muted);
-}
-.layer-reset {
-  align-self: flex-start;
-  padding: var(--space-8) var(--space-12);
-  border: 1px solid var(--tools-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-white);
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--tools-ink);
-}
-.layer-reset:hover {
-  background: var(--tools-tint);
-}
-.layer-reset:focus-visible {
-  outline: 2px solid var(--tools-solid);
-  outline-offset: 2px;
-}
-
-/* ═══ Topic filter ═══ */
-.tool-filter {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-16) var(--space-24);
-  flex-wrap: wrap;
-  padding-bottom: var(--space-24);
-}
-.tool-filter__topics {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-16);
-  flex-wrap: wrap;
-  flex: 1 1 640px;
-  min-width: 0;
-}
-.tool-filter__label {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--color-text);
-}
-/* Deliberately NOT site.css's .chip — that one is a 12px uppercase
-   orange tag, and a topic name is a readable word at the 16px
-   floor, not an ornamental label. */
-.topic-filter-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-8);
-}
-.topic-filter-chip {
-  padding: var(--space-4) var(--space-12);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-white);
-  font-size: 16px;
-  line-height: 1.5;
-  color: var(--color-text);
-}
-.topic-filter-chip:hover {
-  border-color: var(--tools-border);
-  background: var(--tools-tint);
-  color: var(--tools-ink);
-}
-.topic-filter-chip[aria-pressed="true"] {
-  border-color: var(--tools-solid);
-  background: var(--tools-solid);
-  color: var(--color-white);
-  font-weight: 600;
-}
-.topic-filter-chip:focus-visible {
-  outline: 2px solid var(--tools-solid);
-  outline-offset: 2px;
-}
-.tool-figure--count {
-  flex-shrink: 0;
 }
 
 /* ═══ The index ═══
@@ -444,17 +171,6 @@
   }
 }
 
-@media (max-width: 1024px) {
-  .tool-feature__body {
-    grid-template-columns: 1fr;
-  }
-  .tool-feature__rail {
-    border-right: none;
-    border-bottom: 1px solid var(--color-border);
-    max-height: none;
-  }
-}
-
 /* Below this width the table stops being a table: each record
    becomes a stacked block and every field carries the label its
    column header was providing. */
@@ -503,42 +219,3 @@
   }
 }
 
-@media (max-width: 720px) {
-  .tools-head__title {
-    font-size: 36px;
-  }
-  .tool-feature__head,
-  .tool-feature__controls {
-    padding-inline: var(--space-16);
-  }
-  .tool-feature__rail {
-    padding: var(--space-16);
-  }
-  .tool-feature__body,
-  .tool-feature__canvas {
-    min-height: 340px;
-  }
-  .tool-feature__name {
-    font-size: 24px;
-  }
-  .tool-feature__desc {
-    font-size: 16px;
-  }
-  .tool-filter,
-  .tool-filter__topics {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-12);
-  }
-  /* In a column container flex-basis is a HEIGHT — the desktop
-     `flex: 1 1 640px` would open a 640px hole above the count. */
-  .tool-filter__topics {
-    flex: 0 0 auto;
-  }
-  /* Three grouping tabs do not fit one phone line; let them wrap
-     rather than break each label across two lines. */
-  .tool-feature .tab-row {
-    display: flex;
-    flex-wrap: wrap;
-  }
-}
