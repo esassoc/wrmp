@@ -112,25 +112,9 @@
   var grouping = "siteType";
   var enabled = {}; // value -> bool, for the active grouping
 
+  // initMap attaches the shared WRMP basemap (WRMP.addBasemap in
+  // shared/js/map-init.js), so there is nothing to swap here.
   var map = WRMP.initMap("tools-map", {});
-
-  // WRMP.initMap attaches the CARTO light_all basemap, which now
-  // returns an "API KEY REQUIRED" watermark tile. Swap it here for
-  // Esri's keyless light gray canvas rather than editing the shared
-  // helper, which every exhibit depends on. The same swap is owed to
-  // shared/js/map-init.js as its own change.
-  map.eachLayer(function (layer) {
-    if (layer instanceof L.TileLayer) map.removeLayer(layer);
-  });
-  var ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/";
-  L.tileLayer(ESRI + "World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}", {
-    attribution: "Esri, HERE, Garmin, FAO, NOAA, USGS",
-    maxZoom: 16
-  }).addTo(map);
-  // Place names ship as a separate reference layer on this basemap.
-  L.tileLayer(ESRI + "World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}", {
-    maxZoom: 16
-  }).addTo(map);
 
   map.fitBounds(BAY_FULL, { padding: [24, 24] });
   L.control.zoom({ position: "topright" }).addTo(map);
