@@ -1,0 +1,279 @@
+/* ── Monitoring Results overview ─────────────────────
+   Two things live here:
+
+     1 · .topic-card / .topic-grid — the seven monitoring-topic
+         tiles from the live page (image, title, excerpt, Explore).
+         The mock set had no image + excerpt card, so this is the
+         one new component on the page.
+
+     2 · .results-hub — the exhibit end-card hub (.l3-hub and its
+         children in level3.css) ported to a light page. Every
+         class name is unchanged; this file only re-points the
+         surface and category variables, because level3.css was
+         tuned for the dark end card inside a 16:9 exhibit frame.
+
+   Requires, in order: tokens.css, site.css, exhibit-tags.css,
+   sf-popover.css, level3.css. */
+
+/* ════════════════════════════════════════════════════
+   TOPIC GRID
+   ════════════════════════════════════════════════════ */
+.topic-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-32);
+}
+
+.topic-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  color: var(--color-text);
+  text-decoration: none;
+  transition: box-shadow 0.18s ease, transform 0.18s ease;
+}
+.topic-card:hover,
+.topic-card:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
+}
+.topic-card:focus-visible {
+  outline: 3px solid var(--color-teal);
+  outline-offset: 2px;
+}
+
+/* The seven topic photos ship at ratios from 1:1 to 3.75:1. The image is
+   taken out of flow so the media box's height comes from aspect-ratio
+   alone — left in flow, a flex item sizes to its content and the square
+   Baylands photo makes that one card a different shape from the rest. */
+.topic-card__media {
+  display: block;
+  position: relative;
+  flex: 0 0 auto;
+  aspect-ratio: 3 / 2;
+  background: var(--color-band);
+  border-bottom: 1px solid var(--color-border);
+}
+.topic-card__media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.topic-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding: var(--space-24);
+  flex: 1;
+}
+.topic-card__title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--color-heading);
+}
+.topic-card__excerpt {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  flex: 1;
+}
+/* "Explore" is the live page's own read-more affordance, kept as a
+   word plus an arrow rather than a button. */
+.topic-card__more {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  margin-top: var(--space-8);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-link);
+}
+.topic-card:hover .topic-card__more svg {
+  transform: translateX(3px);
+}
+.topic-card__more svg {
+  stroke: currentColor;
+  transition: transform 0.18s ease;
+}
+
+/* ════════════════════════════════════════════════════
+   DATA / TOOLS / SCIENCE FRAMEWORK HUB
+   ════════════════════════════════════════════════════ */
+
+/* A quiet band separates the three doors from the topic grid above.
+   Deliberately NOT the end card's dark surface: that darkness exists
+   to lift a Level 3 module off an exhibit photo, and this page has no
+   exhibit around it — and the site footer directly below is brand
+   teal, which a near-black band would fight. */
+.hub-band {
+  background: var(--color-band);
+  border-top: 1px solid var(--color-border);
+  padding-block: var(--space-64);
+  margin-top: var(--space-64);
+}
+
+.results-hub {
+  /* ─ Category spine ─
+     Three tokens per column, and nothing else carries category.
+
+     Science reads the Science-Framework orange ramp already in
+     tokens.css (SFEI's 2026-08-14 decision), so the panel and the
+     question badges inside it are one family.
+
+     Data reads the brand cyan at the steps that survive a light
+     surface: step 11 for ink and icons, step 3 for the wash.
+
+     Tools reads the --tools-* ramp in tokens.css. The fallbacks are
+     the same Radix grass rungs that ramp resolves to, so this page
+     renders correctly against either version of tokens.css: step 11
+     rather than the brand green (#379352 holds 3.85:1 on white and
+     cannot carry small ink), step 3 for the wash, step 6 for the
+     edge. Lime is deliberately unused. */
+  --cat-data-accent: var(--cyan-11);
+  --cat-data-soft: var(--cyan-3);
+  --cat-data-border: var(--cyan-6);
+
+  --cat-tools-accent: var(--tools-solid, var(--grass-11));
+  --cat-tools-soft: var(--tools-tint, var(--grass-3));
+  --cat-tools-border: var(--tools-border, var(--grass-6));
+
+  /* The accent stays on the Science-Framework ramp, and so do the
+     question badges inside the panel. The panel's own wash and border
+     do not: the ramp's PRA wash and mid border were drawn to carry
+     blocks on the Science Framework page, and at panel scale they read
+     a full step heavier than the other two columns (wash L*93.3 / C*12.3
+     against cyan's 96.7 / 6.2; border L*72.3 / C*43.6 against cyan's
+     84.3 / 21.1). Radix orange steps 2 and 5 land next to the cyan and
+     grass tints instead, so the three doors read as siblings. */
+  --cat-science-accent: var(--sf-mq-solid);
+  --cat-science-soft: var(--orange-2);
+  --cat-science-border: var(--orange-5);
+
+  /* level3.css reads secondary copy off --l3-text-subtle, which is a
+     pale ink for the dark card. Invert it for the light page. */
+  --l3-text-subtle: var(--color-text-muted);
+}
+.results-hub [data-cat="data"] {
+  --cat-border: var(--cat-data-border);
+}
+.results-hub [data-cat="tools"] {
+  --cat-border: var(--cat-tools-border);
+}
+.results-hub [data-cat="science"] {
+  --cat-border: var(--cat-science-border);
+}
+
+/* Three equal columns. align-items:start keeps each panel the height
+   of its own content — the end card's native flex-start behaviour —
+   rather than stretching the two short columns into empty boxes. */
+.results-hub .l3-hub {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-32);
+  align-items: start;
+  margin: 0;
+}
+
+/* The end card caps a panel at 420px so a lone panel can't stretch;
+   in a fixed three-column grid that cap is what stops the columns
+   filling the 1400px content width. Corner radius drops to the site's
+   card radius so the panels match the topic tiles above them. */
+.results-hub .l3-hub-panel {
+  min-width: 0;
+  max-width: none;
+  padding: var(--space-24);
+  border-radius: var(--radius-sm);
+  border-color: var(--cat-border);
+}
+.results-hub .l3-hub-panel-head {
+  padding-bottom: var(--space-16);
+  border-bottom-color: var(--cat-border);
+}
+.results-hub .l3-hub-panel-head .cat-name {
+  color: var(--color-text);
+}
+/* Count and format chip sit on white rather than the category wash:
+   on a light surface the accent-on-wash pair lands at 4.3–4.4:1,
+   under AA for text this small. On white the same three accents
+   measure 4.76 / 5.07 / 5.08. */
+.results-hub .cat-count,
+.results-hub .l3-chip {
+  background: var(--color-white);
+}
+
+.results-hub .l3-hub-item {
+  padding: var(--space-16) 0;
+  border-bottom-color: var(--color-border);
+}
+.results-hub .l3-hub-item .hf-icon {
+  height: calc(18px * 1.35);
+}
+/* Row type steps up to page scale. level3.css sets the name from
+   --step-0 (14px at 360px) and the description at 14px; both fall
+   under the 16px floor on a website page. */
+.results-hub .l3-hub-item .hf-name {
+  font-size: 18px;
+  line-height: 1.35;
+  color: var(--color-text);
+}
+.results-hub .l3-hub-item .hf-desc {
+  font-size: 16px;
+  line-height: 1.5;
+  margin-top: var(--space-8);
+}
+.results-hub .l3-hub-item .exhibit-tags {
+  margin-top: var(--space-12);
+}
+/* The end card's format chip shares a line with the resource name,
+   which works there because exhibit resource names are two or three
+   words. These are full WRMP page titles, and a mid-line chip breaks
+   them ("Surface Elevation Table and | WEB MAP | water level stations").
+   Rows carrying a chip give the name its own line; the guiding-question
+   rows have no chip and keep the arrow inline. */
+.results-hub .l3-hub-item .hf-top:has(.l3-chip) {
+  flex-wrap: wrap;
+  row-gap: var(--space-8);
+}
+.results-hub .l3-hub-item .hf-top:has(.l3-chip) .hf-name {
+  flex: 1 1 100%;
+}
+.results-hub .l3-hub-item .hf-top:has(.l3-chip) .hf-go {
+  margin-left: auto;
+}
+
+/* ════════════════════════════════════════════════════
+   RESPONSIVE
+   ════════════════════════════════════════════════════ */
+/* The hub has no two-column stage. Three sibling doors laid out 2-up
+   leave the third alone on its own row against an empty half, which
+   reads as a mistake rather than a category. Below three-across it
+   stacks. */
+@media (max-width: 1100px) {
+  .topic-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .results-hub .l3-hub {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-24);
+  }
+}
+
+@media (max-width: 760px) {
+  .topic-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-24);
+  }
+  .hub-band {
+    padding-block: var(--space-48);
+    margin-top: var(--space-48);
+  }
+}
