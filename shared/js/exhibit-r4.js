@@ -21,10 +21,15 @@ var WRMP = window.WRMP || {};
 (function () {
   "use strict";
 
-  var DEFAULT_TILE = {
-    url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-    opts: { attribution: "&copy; OSM &copy; CARTO", subdomains: "abcd", maxZoom: 17 },
-  };
+  // Basemap comes from shared/js/map-init.js (WRMP.addBasemap / WRMP.BASEMAP)
+  // so there is one definition of it, not one per engine. An exhibit may still
+  // override with config.map.tile = { url, opts }.
+  function addBasemap(map, tile) {
+    if (!WRMP.addBasemap) {
+      throw new Error("exhibit-r4: shared/js/map-init.js must load before exhibit-r4.js");
+    }
+    return WRMP.addBasemap(map, tile);
+  }
   var CAT_KEY = { Data: "data", Tools: "tools", Context: "science" };
   var CAT_ICON = { Data: "i-database", Tools: "i-compass", Context: "i-book" };
 
@@ -72,7 +77,7 @@ var WRMP = window.WRMP || {};
     var RESOURCES = config.resources || [];
     var MAP = config.map || { views: {} };
     var VIEWS = MAP.views || {};
-    var TILE = MAP.tile || DEFAULT_TILE;
+    var TILE = MAP.tile || null; // null => shared WRMP basemap
     var POPUP_FIELDS = MAP.popupFields || [];
     var CODE_FIELD = MAP.codeField || "station_code";
     var NAME_FIELD = MAP.nameField || "station_name";
@@ -424,7 +429,7 @@ var WRMP = window.WRMP || {};
         tap: false, touchZoom: false, scrollWheelZoom: false,
         doubleClickZoom: false, boxZoom: false, keyboard: false,
       });
-      L.tileLayer(TILE.url, TILE.opts).addTo(m);
+      addBasemap(m, TILE);
       div._map = m; div._view = viewKey;
       var draw = function () { m.invalidateSize(); makeMarkers(m, viewKey, null, false); fitFrozen(m, viewKey); };
       draw();
@@ -462,7 +467,7 @@ var WRMP = window.WRMP || {};
       mo.deck.classList.add("locked");
       if (!mo.modalMap) {
         mo.modalMap = L.map("modalMap", { zoomControl: false, attributionControl: true });
-        L.tileLayer(TILE.url, TILE.opts).addTo(mo.modalMap);
+        addBasemap(mo.modalMap, TILE);
         L.control.zoom({ position: "bottomright" }).addTo(mo.modalMap);
       }
       setTimeout(function () {
@@ -807,7 +812,7 @@ var WRMP = window.WRMP || {};
       var seedView = firstMapView();
 
       var map = L.map(mapEl, { zoomControl: false, attributionControl: true, keyboard: false });
-      L.tileLayer(TILE.url, TILE.opts).addTo(map);
+      addBasemap(map, TILE);
       L.layerGroup().addTo(map);
       de.map = map;
       if (seedView) map.fitBounds(VIEWS[seedView].bounds); // seed a view for flyTo
