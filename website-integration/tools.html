@@ -238,21 +238,26 @@
           </div>
         </div>
 
-        <table class="tool-index" id="tool-index">
-          <thead>
-            <tr>
-              <th scope="col">Tool</th>
-              <th scope="col">Type</th>
-              <th scope="col">Topics</th>
-              <th scope="col">Questions</th>
-              <th scope="col">Where</th>
-            </tr>
-          </thead>
-        </table>
+        <!-- The results region is one block so it can hold a floor
+             height; a filter that empties it must not shorten the
+             document out from under the scroll position. -->
+        <div class="tool-results" id="tool-results">
+          <table class="tool-index" id="tool-index">
+            <thead>
+              <tr>
+                <th scope="col">Tool</th>
+                <th scope="col">Type</th>
+                <th scope="col">Topics</th>
+                <th scope="col">Questions</th>
+                <th scope="col">Where</th>
+              </tr>
+            </thead>
+          </table>
 
-        <p class="gallery-empty" id="index-empty" role="status" hidden>
-          No tools match these filters yet.
-        </p>
+          <p class="gallery-empty" id="index-empty" role="status" hidden>
+            No tools match these filters yet.
+          </p>
+        </div>
       </div>
     </main>
 

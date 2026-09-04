@@ -41,6 +41,25 @@
   color: var(--tools-ink);
 }
 
+/* ═══ The results region ═══
+   A floor under the table and the empty state together, so narrowing
+   the filters cannot shorten the document past the scroll position and
+   throw the filter bar down the viewport mid-keystroke.
+
+   The floor it has to clear: with the bar parked at the top of the
+   viewport, the document must still run a viewport deeper — so the
+   region needs at least (viewport − filter bar − footer − the margins
+   between them), which measures out at 1440 as the viewport less 516px.
+   Solving that against the window height, 85vh holds for anything up
+   to 3440px tall, past any shipping display; 70vh gave out at 1720 and
+   let the bar slip. Viewport units rather than a pixel figure so the
+   floor tracks the window it is protecting. Desktop is the binding
+   case: the phone footer alone is 729px and already covers it. At rest
+   the table runs several viewports and this never binds. */
+.tool-results {
+  min-height: 85vh;
+}
+
 /* ═══ The index ═══
    A real table: the column headers are what label each record's
    fields, so no value stands next to another unlabeled. */
