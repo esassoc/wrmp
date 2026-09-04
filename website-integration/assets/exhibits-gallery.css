@@ -40,7 +40,7 @@
   gap: 9px;
 }
 .filter-label {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--color-text);
 }
@@ -136,7 +136,7 @@
   gap: 9px;
   padding: 8px 10px;
   border-radius: 3px;
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.35;
   color: var(--gray-12);
   cursor: pointer;

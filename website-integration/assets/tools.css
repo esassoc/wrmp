@@ -73,10 +73,16 @@
   width: 170px;
 }
 .tool-index thead th:nth-child(3) {
-  width: 300px;
+  width: 260px;
 }
+/* Questions — a code chip measures 47px, so 180 holds three per line
+   (156px of content against 152 of chips). Below three the five-code
+   records run to a third line and set the row height for the table. */
 .tool-index thead th:nth-child(4) {
   width: 180px;
+}
+.tool-index thead th:nth-child(5) {
+  width: 160px;
 }
 
 /* — Section header row — */
@@ -162,6 +168,11 @@
 .tool-index__host {
   color: var(--color-text-muted);
 }
+/* The chips sit a hair below the 16px cap-height of the cells beside
+   them; the shared .exhibit-tags wrapper supplies the wrap and gap. */
+.tool-index__questions .exhibit-tags {
+  padding-top: 2px;
+}
 
 /* ═══ Responsive ═══ */
 @media (max-width: 1180px) {
@@ -169,10 +180,13 @@
     width: 150px;
   }
   .tool-index thead th:nth-child(3) {
-    width: 230px;
+    width: 210px;
   }
   .tool-index thead th:nth-child(4) {
-    width: 150px;
+    width: 130px;
+  }
+  .tool-index thead th:nth-child(5) {
+    width: 140px;
   }
 }
 
@@ -218,6 +232,14 @@
     flex-shrink: 0;
     font-weight: 700;
     color: var(--color-text);
+  }
+  /* Untagged records: no chips, so no label either. Specificity has
+     to clear the display:flex rule above. */
+  .tool-index tbody td.tool-index__questions.is-empty {
+    display: none;
+  }
+  .tool-index__questions .exhibit-tags {
+    padding-top: 1px;
   }
   .tool-index__desc {
     max-width: none;

@@ -9,9 +9,13 @@
          exhibits-gallery.css is here for one thing: the .filter-bar
          and its Topic <select>, the same control the Metrics page
          uses. Reused rather than restyled so the two pages cannot
-         drift apart. -->
+         drift apart. exhibit-tags.css + sf-popover.css bring the
+         management-question chip and its hover card, the same pair
+         the metric dialog and the exhibit posters load. -->
     <link rel="stylesheet" href="../shared/css/tokens.css" />
     <link rel="stylesheet" href="assets/site.css" />
+    <link rel="stylesheet" href="../shared/css/exhibit-tags.css" />
+    <link rel="stylesheet" href="../shared/css/sf-popover.css" />
     <link rel="stylesheet" href="assets/exhibits-gallery.css" />
     <link rel="stylesheet" href="assets/tools.css" />
   </head>
@@ -240,6 +244,7 @@
               <th scope="col">Tool</th>
               <th scope="col">Type</th>
               <th scope="col">Topics</th>
+              <th scope="col">Questions</th>
               <th scope="col">Where</th>
             </tr>
           </thead>
@@ -319,5 +324,6 @@
 
     <script src="assets/site.js"></script>
     <script src="assets/tools.js"></script>
+    <script src="../shared/js/sf-popover.js"></script>
   </body>
 </html>

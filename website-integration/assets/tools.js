@@ -5,8 +5,8 @@
 
    1. TOOLS — the record set. One object per tool, shaped as the
       WordPress custom post type would be: a title, a post body of
-      one sentence, and four taxonomy / meta fields (family, type,
-      topics, host). Nothing on the page is invented outside this
+      one sentence, and five taxonomy / meta fields (family, type,
+      topics, questions, host). Nothing on the page is invented outside this
       array, and nothing in the array is invented outside wrmp.org
       and the sites it links to.
 
@@ -18,7 +18,9 @@
 
    The `questions` codes are a first pass, assigned here from each
    tool's subject against the question text. They are the field SFEI
-   should review; everything else came off wrmp.org.
+   should review, which is why every row also prints its codes as
+   chips: the tagging is reviewable on the page, not just filterable.
+   Everything else came off wrmp.org.
    ════════════════════════════════════════════════════════════ */
 
 /* ══════════════════════════════════════════════════════════════
@@ -567,6 +569,7 @@ var TOPICS = [
   // The management-question vocabulary is the exhibits plugin's
   // taxonomy, read from the same file the Exhibits gallery reads.
   var TAXONOMY_URL = "../data/exhibits.json";
+  var FRAMEWORK_PAGE = "science-framework.html";
 
   var SVG_NS = "http://www.w3.org/2000/svg";
   var ARROW = ["M7 7h10v10", "M7 17 17 7"]; // leaves-the-site glyph
@@ -667,16 +670,45 @@ var TOPICS = [
     typeCell.appendChild(chip);
 
     cell(tr, "Topics", "tool-index__topics").textContent = topicText(tool);
+    questionCell(tr, tool);
     cell(tr, "Where", "tool-index__host").textContent = tool.host;
 
     return tr;
+  }
+
+  // Science-Framework codes, as the chip the metric dialog and the
+  // exhibit posters carry: colour from the leading guiding-question
+  // digit, link to the question on the framework page, full wording
+  // from sf-popover.js on hover or focus. The title is the popover's
+  // preferred text source; before the taxonomy lands it is absent and
+  // the popover falls back to its own fetch, so a chip is never mute.
+  function questionCell(tr, tool) {
+    var td = cell(tr, "Questions", "tool-index__questions");
+    var codes = tool.questions || [];
+    if (!codes.length) {
+      // Untagged records show nothing here. On a phone the cell would
+      // otherwise print a bare "Questions" label with no value.
+      td.classList.add("is-empty");
+      return td;
+    }
+    var wrap = el("div", "exhibit-tags");
+    codes.forEach(function (code) {
+      var chip = el("a", "exhibit-tag");
+      chip.setAttribute("data-gq", code.charAt(0));
+      chip.href = FRAMEWORK_PAGE + "#mq-" + code;
+      if (mqText[code]) chip.setAttribute("title", mqText[code]);
+      chip.textContent = code;
+      wrap.appendChild(chip);
+    });
+    td.appendChild(wrap);
+    return td;
   }
 
   function groupRow(label, n) {
     var tr = document.createElement("tr");
     tr.className = "tool-index__group";
     var th = document.createElement("th");
-    th.setAttribute("colspan", "4");
+    th.setAttribute("colspan", "5");
     th.setAttribute("scope", "colgroup");
 
     var mark = el("span", "tool-mark");
@@ -920,6 +952,9 @@ var TOPICS = [
         // The control lists every question, not only those a tool
         // carries today; picking an empty one shows the empty state.
         buildMqDropdown(Object.keys(mqText).sort());
+        // The first render ran before this resolved, so its chips
+        // carry no question text. Rebuild the rows now they can.
+        renderIndex();
       })
       .catch(function (err) {
         // Without the taxonomy the control has no vocabulary. Drop
