@@ -109,6 +109,7 @@
    Science hub below, verbatim exhibit classes. */
 .metric-dialog {
   width: min(1100px, 94vw);
+  box-sizing: border-box;
   border: 1px solid var(--l3-border);
   border-radius: 14px;
   padding: 0;
@@ -177,6 +178,40 @@
   object-fit: contain;
   display: block;
 }
+/* ─ Fixed frame ─
+   Adding the question labels to the third column pushed the card past
+   the viewport on a laptop: measured, all four wanted 829-961px of an
+   816px box, so the new content was the part below the fold. Same
+   answer level3.css reached for the exhibit end card, where the card is
+   a fixed band and never the scroller. The hub takes the height it
+   needs and the figure is capped at what is left, so the chart grows on
+   a taller display instead of the card growing past the screen. */
+@media (min-width: 801px) {
+  .metric-dialog {
+    max-height: 92vh;
+    /* Everything the figure has to share the frame with: the inner
+       padding (56), the lead gap (20), the tallest hub column (372),
+       and the figure's own padding (36). Retune this if the hub's
+       content changes shape. */
+    --_frame-chrome: 484px;
+  }
+  /* The plate hugs its chart. Stretched to the column it would letterbox
+     every figure inside a large empty white box, and the four charts
+     range from 1.17:1 to 2.12:1 so there is no single box that fits
+     them. */
+  .metric-dialog__figure {
+    justify-self: center;
+    width: fit-content;
+    max-width: 100%;
+  }
+  .metric-dialog__figure img {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: min(56vh, calc(92vh - var(--_frame-chrome)));
+  }
+}
+
 .metric-dialog__info {
   display: flex;
   flex-direction: column;
@@ -191,26 +226,43 @@
   color: #fff;
   margin: 0;
 }
+/* Description — the one region that scrolls. Capped so a long metric
+   description can't change the card's height; the figure takes the
+   space instead. tabindex on the container in the markup makes the
+   region keyboard-scrollable. */
 .metric-dialog__desc {
+  font-size: 16px;
+  max-height: min(calc(1.55em * 7), 22vh);
+  overflow-y: auto;
+  padding-right: 14px;
+}
+/* Deliberately the -webkit- pseudos and NOT scrollbar-width/-color: on
+   macOS the standard properties still resolve to an overlay scrollbar
+   that is invisible at rest, so a clipped description reads as broken
+   text. The pseudo-element route forces a persistent gutter. */
+.metric-dialog__desc::-webkit-scrollbar {
+  width: 6px;
+}
+.metric-dialog__desc::-webkit-scrollbar-track {
+  background: var(--l3-border);
+  border-radius: 3px;
+}
+.metric-dialog__desc::-webkit-scrollbar-thumb {
+  background: var(--l3-text-subtle);
+  border-radius: 3px;
+}
+.metric-dialog__desc:focus-visible {
+  outline: 2px solid var(--l3-accent);
+  outline-offset: 3px;
+}
+.metric-dialog__desc p {
   font-size: 16px;
   line-height: 1.55;
   color: var(--l3-text-subtle);
   margin: 0;
 }
-/* Fine print — source + vintage + figure downloads stay readily
-   visible, per the decision to keep the data source on the card. */
-.metric-dialog__meta {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding-top: 12px;
-  border-top: 1px solid var(--l3-border);
-  font-size: 13px;
-  color: var(--l3-text-subtle);
-}
-.metric-dialog__meta a {
-  color: var(--l3-accent);
-  text-underline-offset: 2px;
+.metric-dialog__desc p + p {
+  margin-top: 10px;
 }
 .metric-dialog .l3-hub {
   margin: 0;
@@ -218,9 +270,32 @@
   grid-template-columns: repeat(3, 1fr);
   align-items: stretch;
 }
+/* Compacted to the same values level3.css uses for the end-card band,
+   which is the same problem: three panels inside a fixed frame. */
 .metric-dialog .l3-hub-panel {
   max-width: none;
   min-width: 0;
+  padding: 14px;
+}
+.metric-dialog .l3-hub-panel-head {
+  padding-bottom: 10px;
+}
+.metric-dialog .l3-hub-item {
+  padding: 9px 0;
+}
+/* Below the lead's own breakpoint the three columns are ~120px wide and
+   the panels are unreadable. Stack them, and drop the info column's
+   clearance for the close chip, which now sits over the figure. */
+@media (max-width: 800px) {
+  .metric-dialog .l3-hub {
+    grid-template-columns: 1fr;
+  }
+  .metric-dialog__inner {
+    padding: 22px 18px 24px;
+  }
+  .metric-dialog__info {
+    padding-right: 0;
+  }
 }
 /* A category with nothing linked keeps its column: dashed outline,
    no tinted wash, one muted line. */
@@ -234,6 +309,80 @@
   color: var(--l3-text-subtle);
   margin: 12px 0 0;
 }
+/* Data column — the two data types the client asked to distinguish:
+   the summarized series that produced the chart, and the dataset it
+   came from. The type chip leads its entry on its own line; sitting
+   beside the record name in a ~336px column it squeezed the name to
+   three lines. */
+.metric-dialog .l3-hub-panel[data-cat="data"] .hf-kind {
+  margin: 0 0 6px;
+}
+
+/* Management questions — the third-column placement that replaced
+   badging them on the metric tile. They share the Science column with
+   the derivation note and link through to the framework page; the
+   full question text comes from sf-popover.js on hover or focus. */
+.metric-dialog__mq {
+  padding-top: 13px;
+}
+.metric-dialog__mq-label {
+  font-size: var(--step-0);
+  font-weight: 600;
+  line-height: 1.3;
+  color: #fff;
+  margin: 0 0 10px;
+}
+/* Each question carries its own short label. Karen's objection to
+   badging the questions was that the codes alone confuse people, and a
+   row of bare codes here would reproduce that; the popover on the code
+   still gives the full wording. */
+.metric-dialog__mq-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.metric-dialog__mq-list .mq-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.metric-dialog__mq-list .mq-row__text {
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--l3-text-subtle);
+}
+/* The shared badge focus ring is ADA teal, which disappears against
+   the dark panel. Swap it for the Level 3 accent here only. */
+.metric-dialog__mq .exhibit-tag:focus-visible {
+  outline-color: var(--l3-accent);
+}
+
+/* metrics.js lifts the shared question popover into the top layer with
+   the Popover API so it can paint over an open modal dialog. That brings
+   the UA popover box with it — centring insets, a system border, and
+   overflow:auto, which would clip the popover's arrow. Neutralise them
+   so sf-popover.css keeps governing the card. */
+#sf-popover[popover] {
+  inset: auto;
+  margin: 0;
+  overflow: visible;
+  width: max-content;
+  max-width: 300px;
+  padding: 13px 15px 14px;
+  border: 1px solid var(--gray-6);
+  background: #fff;
+}
+/* Lifting the node cycles it through display:none, which restarts the
+   fade in sf-popover.css from opacity 0 every time. Drop the fade on
+   this page: a card that reliably appears beats one that dissolves in. */
+#sf-popover[popover],
+#sf-popover[popover].is-visible {
+  transition: none;
+}
+
 /* Topic chips on the dark dialog surface — the frosted on-cover
    treatment from exhibit-tags.css. */
 .metric-dialog__info .exhibit-topic {

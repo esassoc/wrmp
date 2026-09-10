@@ -19,7 +19,7 @@
     <style>
       /* ══════════════════════════════════════════════════════
          Page tokens — light retune of the exhibit's Level 3
-         Data / Tools / Context spine. Each category resolves one
+         Data / Tools / Science spine. Each category resolves one
          accent set from data-cat; children inherit it. Values map
          WRMP brand → Radix scales already imported by tokens.css.
          ══════════════════════════════════════════════════════ */
@@ -40,8 +40,9 @@
         --dd-soft: rgba(111, 211, 227, 0.16);
       }
 
-      /* Category accent sets — light surface. Data→teal, Tools→green,
-         Context→amber (the exhibit's own spine), Pending→neutral gray. */
+      /* Category accent sets — light surface. Data→cyan, Tools→green,
+         Science→orange (the site-wide spine in tokens.css, at this
+         page's own step shape), Pending→neutral gray. */
       [data-cat="data"] {
         --cat-tint: var(--cyan-3);
         --cat-tint-top: var(--cyan-4);
@@ -56,12 +57,12 @@
         --cat-ink: var(--grass-11);
         --cat-strong: var(--grass-11);
       }
-      [data-cat="context"] {
-        --cat-tint: var(--amber-3);
-        --cat-tint-top: var(--amber-4);
-        --cat-border: var(--amber-7);
-        --cat-ink: var(--amber-11);
-        --cat-strong: var(--amber-11);
+      [data-cat="science"] {
+        --cat-tint: var(--orange-2);
+        --cat-tint-top: var(--orange-3);
+        --cat-border: var(--orange-5);
+        --cat-ink: var(--sf-mq-solid);
+        --cat-strong: var(--sf-gq-solid);
       }
       [data-cat="pending"] {
         --cat-tint: var(--gray-3);
@@ -717,7 +718,7 @@
         <p>
           Three treatments of the topic-page metric card, each joining the
           round-3 exhibit family — the same format chips, scope metadata, and
-          Data / Tools / Context vocabulary as the exhibit end-card hub, brought
+          Data / Tools / Science vocabulary as the exhibit end-card hub, brought
           down to card scale. Every treatment is dataset-forward: it links to a
           specific data-catalog dataset, not to tools broadly. The three explore
           how much of the exhibit's data-hub to carry, and how prominent the
@@ -734,7 +735,7 @@
           <div class="axis">
             <h2>Category-chip density</h2>
             <p>
-              A single Data item, or the full Data / Tools / Context grouping
+              A single Data item, or the full Data / Tools / Science grouping
               with counts, carried down from the exhibit hub.
             </p>
           </div>
@@ -823,7 +824,7 @@
             <div class="study-caption">
               <p class="study-name">Study B — Mini categorized hub</p>
               <p class="study-tests">
-                The exhibit's Data / Tools / Context grouping carried to the card
+                The exhibit's Data / Tools / Science grouping carried to the card
                 — category headers with counts and per-category links. Tests how
                 much of the hub's richness survives at card density. (Also the
                 all-three-links case.)
@@ -892,11 +893,11 @@
                       </div>
                     </a>
                   </div>
-                  <!-- Context -->
-                  <div class="mc-hub-panel" data-cat="context">
+                  <!-- Science -->
+                  <div class="mc-hub-panel" data-cat="science">
                     <div class="mc-cat-head">
                       <span class="mc-cat-icon"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-book-open" /></svg></span>
-                      <span class="mc-cat-name">Context</span>
+                      <span class="mc-cat-name">Science</span>
                       <span class="mc-cat-count">1</span>
                     </div>
                     <a class="mc-row" href="../exhibits/round-3-2026-06/native-vs-invasive/" target="_blank" rel="noopener noreferrer">
@@ -1168,10 +1169,10 @@
                       </div>
                     </a>
                   </div>
-                  <div class="mc-hub-panel" data-cat="context">
+                  <div class="mc-hub-panel" data-cat="science">
                     <div class="mc-cat-head">
                       <span class="mc-cat-icon"><svg class="lc lc-sm" aria-hidden="true"><use href="#l3-icon-book-open" /></svg></span>
-                      <span class="mc-cat-name">Context</span>
+                      <span class="mc-cat-name">Science</span>
                       <span class="mc-cat-count">1</span>
                     </div>
                     <a class="mc-row" href="https://www.stateofourestuary.org/" target="_blank" rel="noopener noreferrer">

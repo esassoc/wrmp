@@ -1426,3 +1426,217 @@ body.is-dialog-open {
     --overlap-width: 100%;
   }
 }
+
+/* ═══ 20. Megamenu ═══════════════════════════════════════════
+   Additive. Pages that keep the plain <a class="site-nav__item">
+   header are untouched — nothing here matches without a
+   .site-mega panel in the markup.
+   The header becomes the positioning context so a panel can span
+   the full width beneath it. */
+.site-header {
+  position: relative;
+  z-index: 60;
+}
+
+/* A nav item that opens a panel is a <button>, so it needs the
+   anchor's chrome stripped back to the .site-nav__item look. */
+button.site-nav__item {
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: inherit;
+}
+button.site-nav__item[aria-expanded="true"] {
+  color: var(--color-teal-ada);
+}
+button.site-nav__item[aria-expanded="true"] .site-nav__caret {
+  transform: rotate(180deg);
+  stroke: var(--color-teal-ada);
+}
+.site-nav__caret {
+  transition: transform 0.18s ease;
+}
+.site-nav__item:focus-visible {
+  outline: 2px solid var(--color-teal-ada);
+  outline-offset: 4px;
+  border-radius: var(--radius-xs);
+}
+
+/* — The panel — */
+.site-mega {
+  position: absolute;
+  inset-inline: 0;
+  top: 100%;
+  display: none;
+  background: var(--color-white);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.12);
+}
+.site-mega.is-open {
+  display: block;
+}
+.site-mega__inner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-64);
+  padding-block: var(--space-32) var(--space-48);
+}
+
+/* — A labeled group of links inside the panel — */
+.mega-group {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.mega-group__heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text);
+  padding-bottom: var(--space-8);
+  margin-bottom: var(--space-12);
+  border-bottom: 1px solid var(--color-border);
+}
+.mega-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+/* A group whose list is long enough to want two columns. The <ul>
+   drops out of flex for this variant so column-count can take over. */
+.mega-group--wide {
+  flex: 2 1 0;
+}
+.mega-links--split {
+  display: block;
+  column-count: 2;
+  column-gap: var(--space-32);
+}
+.mega-links--split li {
+  break-inside: avoid;
+  margin-bottom: var(--space-8);
+}
+.mega-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--color-text);
+  text-decoration: none;
+}
+.mega-links a:hover {
+  color: var(--color-teal-ada);
+  text-decoration: underline;
+}
+.mega-links a:focus-visible {
+  outline: 2px solid var(--color-teal-ada);
+  outline-offset: 3px;
+  border-radius: var(--radius-xs);
+}
+/* Leaves the site — the glyph is the signal, so the external
+   group needs no extra words. */
+.mega-links__external {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  stroke: var(--gray-500);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.mega-links a:hover .mega-links__external {
+  stroke: var(--color-teal-ada);
+}
+
+/* The panel column that separates WRMP-owned from external gets a
+   rule rather than a color, so only tools carry the new hue. */
+.mega-group--external {
+  border-left: 1px solid var(--color-border);
+  padding-left: var(--space-32);
+}
+
+@media (max-width: 1024px) {
+  .site-mega__inner {
+    flex-wrap: wrap;
+    gap: var(--space-32);
+  }
+  .mega-group {
+    flex: 1 1 240px;
+  }
+  .mega-group--external {
+    border-left: none;
+    padding-left: 0;
+  }
+}
+@media (max-width: 720px) {
+  .site-mega {
+    position: static;
+    box-shadow: none;
+  }
+  .site-mega__inner {
+    flex-direction: column;
+    padding-block: var(--space-24);
+  }
+}
+
+/* ═══ 21. Interactive-map badge ══════════════════════════════
+   Additive. Overlays a static map image with the one thing on it
+   that is clickable — the image itself stays inert, so a page can
+   carry a live doorway without every picture becoming a target.
+   Placed inside any positioned media box (.step-card__media,
+   .media-frame). */
+.map-badge {
+  position: absolute;
+  left: var(--space-12);
+  bottom: var(--space-12);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding: var(--space-8) var(--space-12);
+  border: 1px solid var(--tools-border);
+  border-radius: 999px;
+  background: var(--color-white);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--tools-ink);
+  text-decoration: none;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease,
+    transform 0.16s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.map-badge svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  fill: none;
+  stroke: var(--tools-solid);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.map-badge:hover {
+  background: var(--tools-solid);
+  border-color: var(--tools-solid);
+  color: var(--color-white);
+  transform: translateY(-1px);
+}
+.map-badge:hover svg {
+  stroke: var(--color-white);
+}
+.map-badge:focus-visible {
+  outline: 2px solid var(--tools-solid);
+  outline-offset: 3px;
+}

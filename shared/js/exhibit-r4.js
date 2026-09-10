@@ -21,12 +21,33 @@ var WRMP = window.WRMP || {};
 (function () {
   "use strict";
 
-  var DEFAULT_TILE = {
-    url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-    opts: { attribution: "&copy; OSM &copy; CARTO", subdomains: "abcd", maxZoom: 17 },
-  };
-  var CAT_KEY = { Data: "data", Tools: "tools", Context: "science" };
-  var CAT_ICON = { Data: "i-database", Tools: "i-compass", Context: "i-book" };
+  // Basemap comes from shared/js/map-init.js (WRMP.addBasemap / WRMP.BASEMAP)
+  // so there is one definition of it, not one per engine. An exhibit may still
+  // override with config.map.tile = { url, opts }.
+  function addBasemap(map, tile) {
+    if (!WRMP.addBasemap) {
+      throw new Error("exhibit-r4: shared/js/map-init.js must load before exhibit-r4.js");
+    }
+    return WRMP.addBasemap(map, tile);
+  }
+  // Category spine — Data / Tools / Science, the three names the whole
+  // site uses (exhibit end card, metric dialog, Monitoring Results).
+  // "Context" was the round-3 name for Science; it stays an accepted
+  // alias so an unconverted exhibit config keeps rendering, and it
+  // renders under the current name rather than its own.
+  var CAT_ALIAS = { Context: "Science" };
+  var CAT_KEY = { Data: "data", Tools: "tools", Science: "science" };
+  var CAT_ICON = { Data: "i-database", Tools: "i-compass", Science: "i-flask" };
+
+  function catName(cat) {
+    return CAT_ALIAS[cat] || cat;
+  }
+  function catKey(cat) {
+    return CAT_KEY[catName(cat)] || "data";
+  }
+  function catIcon(group) {
+    return group.icon || CAT_ICON[catName(group.cat)] || "i-database";
+  }
 
   // Lucide glyphs, stroked. Rendered as <symbol>s; `.lc { fill:none;
   // stroke:currentColor }` in the CSS forces correct rendering through <use>.
@@ -36,6 +57,7 @@ var WRMP = window.WRMP || {};
     '<symbol id="i-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></symbol>' +
     '<symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"/></symbol>' +
     '<symbol id="i-book" viewBox="0 0 24 24"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></symbol>' +
+    '<symbol id="i-flask" viewBox="0 0 24 24"><path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"/><path d="M6.453 15h11.094"/><path d="M8.5 2h7"/></symbol>' +
     '<symbol id="i-download" viewBox="0 0 24 24"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></symbol>' +
     '<symbol id="i-map" viewBox="0 0 24 24"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/></symbol>' +
     '<symbol id="i-file" viewBox="0 0 24 24"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></symbol>' +
@@ -72,7 +94,7 @@ var WRMP = window.WRMP || {};
     var RESOURCES = config.resources || [];
     var MAP = config.map || { views: {} };
     var VIEWS = MAP.views || {};
-    var TILE = MAP.tile || DEFAULT_TILE;
+    var TILE = MAP.tile || null; // null => shared WRMP basemap
     var POPUP_FIELDS = MAP.popupFields || [];
     var CODE_FIELD = MAP.codeField || "station_code";
     var NAME_FIELD = MAP.nameField || "station_name";
@@ -161,15 +183,15 @@ var WRMP = window.WRMP || {};
       var wrap = el("div");
       RESOURCES.forEach(function (group) {
         var g = el("div", "res-group");
-        g.dataset.cat = CAT_KEY[group.cat] || "data";
+        g.dataset.cat = catKey(group.cat);
         g.appendChild(
           el(
             "div",
             "res-grouphead",
             '<span class="res-cat-icon">' +
-              svg(group.icon || CAT_ICON[group.cat] || "i-database") +
+              svg(catIcon(group)) +
               "</span>" +
-              '<span class="gh-name">' + group.cat + "</span>" +
+              '<span class="gh-name">' + catName(group.cat) + "</span>" +
               '<span class="gh-count">' + group.items.length + "</span>",
           ),
         );
@@ -424,7 +446,7 @@ var WRMP = window.WRMP || {};
         tap: false, touchZoom: false, scrollWheelZoom: false,
         doubleClickZoom: false, boxZoom: false, keyboard: false,
       });
-      L.tileLayer(TILE.url, TILE.opts).addTo(m);
+      addBasemap(m, TILE);
       div._map = m; div._view = viewKey;
       var draw = function () { m.invalidateSize(); makeMarkers(m, viewKey, null, false); fitFrozen(m, viewKey); };
       draw();
@@ -462,7 +484,7 @@ var WRMP = window.WRMP || {};
       mo.deck.classList.add("locked");
       if (!mo.modalMap) {
         mo.modalMap = L.map("modalMap", { zoomControl: false, attributionControl: true });
-        L.tileLayer(TILE.url, TILE.opts).addTo(mo.modalMap);
+        addBasemap(mo.modalMap, TILE);
         L.control.zoom({ position: "bottomright" }).addTo(mo.modalMap);
       }
       setTimeout(function () {
@@ -565,11 +587,11 @@ var WRMP = window.WRMP || {};
       var hub = el("div", "l3-hub");
       RESOURCES.forEach(function (group) {
         var panel = el("div", "l3-hub-panel");
-        panel.dataset.cat = CAT_KEY[group.cat] || "data";
+        panel.dataset.cat = catKey(group.cat);
         panel.appendChild(
           el("div", "l3-hub-panel-head",
-            '<span class="cat-icon">' + svg(group.icon || CAT_ICON[group.cat]) + "</span>" +
-            '<span class="cat-name">' + group.cat + "</span>" +
+            '<span class="cat-icon">' + svg(catIcon(group)) + "</span>" +
+            '<span class="cat-name">' + catName(group.cat) + "</span>" +
             '<span class="cat-count">' + group.items.length + "</span>"),
         );
         group.items.forEach(function (it) {
@@ -593,11 +615,11 @@ var WRMP = window.WRMP || {};
       var body = el("div", "level3-drawer-body");
       RESOURCES.forEach(function (group) {
         var g = el("div", "drf-group");
-        g.dataset.cat = CAT_KEY[group.cat] || "data";
+        g.dataset.cat = catKey(group.cat);
         g.appendChild(
           el("div", "drf-grouphead",
-            '<span class="cat-icon cat-icon-sm">' + svg(group.icon || CAT_ICON[group.cat]) + "</span>" +
-            '<span class="gh-name">' + group.cat + "</span>" +
+            '<span class="cat-icon cat-icon-sm">' + svg(catIcon(group)) + "</span>" +
+            '<span class="gh-name">' + catName(group.cat) + "</span>" +
             '<span class="gh-count">' + group.items.length + "</span>"),
         );
         group.items.forEach(function (it) {
@@ -807,7 +829,7 @@ var WRMP = window.WRMP || {};
       var seedView = firstMapView();
 
       var map = L.map(mapEl, { zoomControl: false, attributionControl: true, keyboard: false });
-      L.tileLayer(TILE.url, TILE.opts).addTo(map);
+      addBasemap(map, TILE);
       L.layerGroup().addTo(map);
       de.map = map;
       if (seedView) map.fitBounds(VIEWS[seedView].bounds); // seed a view for flyTo

@@ -1,0 +1,294 @@
+/* ════════════════════════════════════════════════════════════
+   WRMP.org — Tools index
+   ───────────────────────────────────────────────────────────
+   Loads after tokens.css (--tools-* ramp), site.css (site chrome,
+   hero + overlapping title card, layout primitives) and
+   exhibits-gallery.css (the .filter-bar and its Topic <select>).
+   Only the index table and the tools category chrome live here.
+
+   Parti: the page's one job is to let someone find a tool, so the
+   surface is a catalog, not a showcase. Density wins over first
+   glance — every record is a table row carrying its four fields,
+   not a card — and the sacrifice is drama below the hero: no
+   posters, no embedded map, nothing competing with the list.
+   Green is a mark, a chip and an edge; the ground stays the
+   site's white and gray.
+   ════════════════════════════════════════════════════════════ */
+
+/* The tools category mark — a green square that sits beside a
+   section heading in the index. */
+.tool-mark {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  border-radius: 3px;
+  background: var(--tools-solid);
+}
+
+/* The record's content type. Sentence case, not the hub's
+   uppercase chip: sixteen distinct type values read faster in
+   normal case, and several are two words long. */
+.type-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-8);
+  border: 1px solid var(--tools-border);
+  border-radius: var(--radius-sm);
+  background: var(--tools-tint);
+  font-size: 16px;
+  line-height: 1.4;
+  white-space: nowrap;
+  color: var(--tools-ink);
+}
+
+/* ═══ The results region ═══
+   A floor under the table and the empty state together, so narrowing
+   the filters cannot shorten the document past the scroll position and
+   throw the filter bar down the viewport mid-keystroke.
+
+   The floor it has to clear: with the bar parked at the top of the
+   viewport, the document must still run a viewport deeper — so the
+   region needs at least (viewport − filter bar − footer − the margins
+   between them), which measures out at 1440 as the viewport less 516px.
+   Solving that against the window height, 85vh holds for anything up
+   to 3440px tall, past any shipping display; 70vh gave out at 1720 and
+   let the bar slip. Viewport units rather than a pixel figure so the
+   floor tracks the window it is protecting. Desktop is the binding
+   case: the phone footer alone is 729px and already covers it. At rest
+   the table runs several viewports and this never binds. */
+.tool-results {
+  min-height: 85vh;
+}
+
+/* ═══ The index ═══
+   A real table: the column headers are what label each record's
+   fields, so no value stands next to another unlabeled. */
+.tool-index {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+/* The 860px block below re-declares .tool-index's display, which
+   outranks the UA [hidden] rule — restate it at equal specificity. */
+.tool-index[hidden] {
+  display: none;
+}
+.tool-index thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: var(--space-8) var(--space-12);
+  background: var(--color-white);
+  border-bottom: 2px solid var(--color-border);
+  font-size: 16px;
+  font-weight: 700;
+  text-align: left;
+  color: var(--color-text);
+}
+.tool-index thead th:nth-child(1) {
+  width: auto;
+}
+.tool-index thead th:nth-child(2) {
+  width: 170px;
+}
+.tool-index thead th:nth-child(3) {
+  width: 260px;
+}
+/* Questions — a code chip measures 47px, so 180 holds three per line
+   (156px of content against 152 of chips). Below three the five-code
+   records run to a third line and set the row height for the table. */
+.tool-index thead th:nth-child(4) {
+  width: 180px;
+}
+.tool-index thead th:nth-child(5) {
+  width: 160px;
+}
+
+/* — Section header row — */
+.tool-index__group th {
+  padding: var(--space-32) var(--space-12) var(--space-8);
+  border-bottom: 1px solid var(--tools-border);
+  text-align: left;
+  font-weight: 600;
+}
+.tool-index tbody:first-of-type .tool-index__group th {
+  padding-top: var(--space-16);
+}
+.tool-index__group th {
+  display: table-cell;
+}
+.tool-index__group .tool-mark {
+  display: inline-block;
+  margin-right: var(--space-8);
+  vertical-align: middle;
+}
+.tool-index__group-name {
+  font-size: 20px;
+  color: var(--tools-ink);
+  vertical-align: middle;
+}
+.tool-index__group-count {
+  margin-left: var(--space-8);
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+  vertical-align: middle;
+}
+
+/* — Record rows — */
+.tool-index tbody td {
+  padding: var(--space-12);
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: top;
+  font-size: 16px;
+  line-height: 1.45;
+}
+.tool-index tbody tr:hover td {
+  background: var(--gray-050);
+}
+.tool-index__name {
+  display: inline;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-link);
+  text-decoration: none;
+}
+.tool-index__name:hover {
+  color: var(--tools-ink);
+  text-decoration: underline;
+}
+.tool-index__name:focus-visible {
+  outline: 2px solid var(--tools-solid);
+  outline-offset: 3px;
+  border-radius: var(--radius-xs);
+}
+.tool-index__external {
+  width: 14px;
+  height: 14px;
+  margin-left: var(--space-4);
+  vertical-align: baseline;
+  fill: none;
+  stroke: var(--gray-500);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.tool-index__name:hover .tool-index__external {
+  stroke: var(--tools-ink);
+}
+.tool-index__desc {
+  display: block;
+  margin-top: var(--space-4);
+  color: var(--color-text);
+  max-width: 62ch;
+}
+.tool-index__topics,
+.tool-index__host {
+  color: var(--color-text-muted);
+}
+/* The chips sit a hair below the 16px cap-height of the cells beside
+   them; the shared .exhibit-tags wrapper supplies the wrap and gap. */
+.tool-index__questions .exhibit-tags {
+  padding-top: 2px;
+}
+
+/* ═══ Responsive ═══ */
+@media (max-width: 1180px) {
+  .tool-index thead th:nth-child(2) {
+    width: 150px;
+  }
+  .tool-index thead th:nth-child(3) {
+    width: 210px;
+  }
+  .tool-index thead th:nth-child(4) {
+    width: 130px;
+  }
+  .tool-index thead th:nth-child(5) {
+    width: 140px;
+  }
+}
+
+/* Below this width the table stops being a table: each record
+   becomes a stacked block and every field carries the label its
+   column header was providing. */
+@media (max-width: 860px) {
+  .tool-index,
+  .tool-index tbody,
+  .tool-index tr,
+  .tool-index td {
+    display: block;
+    width: auto;
+  }
+  .tool-index thead {
+    display: none;
+  }
+  .tool-index__group th {
+    display: block;
+    padding: var(--space-32) 0 var(--space-8);
+  }
+  .tool-index tbody:first-of-type .tool-index__group th {
+    padding-top: 0;
+  }
+  .tool-index tbody tr:not(.tool-index__group) {
+    padding: var(--space-16) 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .tool-index tbody td {
+    padding: 0;
+    border-bottom: none;
+  }
+  .tool-index tbody tr:hover td {
+    background: none;
+  }
+  .tool-index tbody td:not(.tool-index__tool) {
+    display: flex;
+    gap: var(--space-8);
+    margin-top: var(--space-8);
+  }
+  .tool-index tbody td:not(.tool-index__tool)::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    font-weight: 700;
+    color: var(--color-text);
+  }
+  /* Untagged records: no chips, so no label either. Specificity has
+     to clear the display:flex rule above. */
+  .tool-index tbody td.tool-index__questions.is-empty {
+    display: none;
+  }
+  .tool-index__questions .exhibit-tags {
+    padding-top: 1px;
+  }
+  .tool-index__desc {
+    max-width: none;
+  }
+}
+
+/* ═══ Filter bar on a phone ═══
+   The shared controls carry desktop min-widths (300px on the
+   management-question trigger, 260 and 220 on the other two) that a
+   390px viewport cannot hold three of. Page-local so the Metrics and
+   Exhibits bars keep their sizing: below 720 each control gives up
+   its floor and fills the row, and the listbox stops at the trigger's
+   width instead of its 420px cap. The value text already ellipsizes. */
+@media (max-width: 720px) {
+  .filter-group--keyword,
+  .filter-group--topic,
+  .filter-group--mq {
+    flex: 1 1 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+  .filter-group--keyword .keyword-input,
+  .filter-group--topic .topic-select,
+  .filter-group--mq .mq-select,
+  .filter-group--mq .mq-select__trigger {
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+  }
+  .filter-group--mq .mq-select__list {
+    max-width: 100%;
+  }
+}

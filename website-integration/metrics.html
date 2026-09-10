@@ -6,9 +6,9 @@
     <title>Metrics — WRMP</title>
     <!-- Same load order as exhibits.html: shared tokens first, then the
          site chrome. level3.css brings the exhibit end-card "deeper data"
-         system (dark surface, Data/Tools/Science panels, format chips) —
-         the metric dialog reuses it wholesale rather than inventing a
-         parallel treatment. -->
+         system (dark surface, Data/Tools/Science panels); the metric
+         dialog reuses it rather than inventing a parallel treatment.
+         sf-popover carries the full management-question text on hover. -->
     <link rel="stylesheet" href="../shared/css/tokens.css" />
     <link rel="stylesheet" href="assets/site.css" />
     <link rel="stylesheet" href="assets/exhibits.css" />
@@ -36,11 +36,6 @@
           <path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2" />
           <path d="M6.453 15h11.094" />
           <path d="M8.5 2h7" />
-        </symbol>
-        <symbol id="l3-icon-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 15V3" />
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-          <path d="m7 10 5 5 5-5" />
         </symbol>
         <symbol id="l3-icon-arrow-up-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M7 7h10v10" />
@@ -126,12 +121,6 @@
 
       <!-- ═══════════════════ Metric gallery ═══════════════════ -->
       <div class="site-container section--after-hero">
-        <p class="gallery-lead">
-          Browse the program's metrics, or filter by monitoring topic.
-          Open a metric for the full figure, its data sources, and the
-          tools behind it.
-        </p>
-
         <div class="filter-bar">
           <div class="filter-group filter-group--topic">
             <label class="filter-label" for="topic-select">Topic</label>
@@ -212,19 +201,13 @@
         </button>
         <div class="metric-dialog__lead">
           <div class="metric-dialog__figure">
-            <img src="assets/img/metrics/tidal-wetland-extent.png" alt="Bar chart: change in Bay-wide tidal wetland extent, 1998–2020" />
+            <img src="assets/img/metrics/tidal-wetland-extent.png" alt="Bar chart: change in Bay-wide tidal wetland extent, 1998&ndash;2020" />
           </div>
           <div class="metric-dialog__info">
             <span class="exhibit-topics"><span class="exhibit-topic">Baylands Geography</span></span>
             <h2 class="metric-dialog__title" id="dlg-extent-title">Tidal Wetland Extent</h2>
-            <p class="metric-dialog__desc">
-              Existing, restored, and evolving tidal wetland acreage across
-              the Bay in 1998, 2009, and 2020, tracked against the 100,000-acre
-              regional goal.
-            </p>
-            <div class="metric-dialog__meta">
-              <span>Last updated Aug 12, 2025</span>
-              <span>Download figure: <a href="#">PNG</a> · <a href="#">PDF</a></span>
+            <div class="metric-dialog__desc" tabindex="0">
+              <p>Existing, restored, and evolving tidal wetland acreage across the Bay in 1998, 2009, and 2020, tracked against the 100,000-acre regional goal.</p>
             </div>
           </div>
         </div>
@@ -233,14 +216,25 @@
             <div class="l3-hub-panel-head">
               <span class="cat-icon"><svg class="lc"><use href="#l3-icon-database" /></svg></span>
               <span class="cat-name">Data</span>
-              <span class="cat-count">1</span>
+              <span class="cat-count">2</span>
             </div>
             <a class="l3-hub-item" href="#">
-              <span class="hf-icon"><svg class="lc lc-sm"><use href="#l3-icon-download" /></svg></span>
+              <span class="hf-icon"><svg class="lc lc-sm"><use href="#l3-icon-database" /></svg></span>
               <div class="hf-body">
+                <p class="hf-kind"><span class="l3-chip">FIGURE DATA</span></p>
+                <div class="hf-top">
+                  <p class="hf-name">Tidal wetland extent by mapping year</p>
+                  <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-arrow-up-right" /></svg></span>
+                </div>
+                <p class="hf-desc">Acreage of each tidal wetland class for 1998, 2009, and 2020.</p>
+              </div>
+            </a>
+            <a class="l3-hub-item" href="#">
+              <span class="hf-icon"><svg class="lc lc-sm"><use href="#l3-icon-database" /></svg></span>
+              <div class="hf-body">
+                <p class="hf-kind"><span class="l3-chip">SOURCE DATASET</span></p>
                 <div class="hf-top">
                   <p class="hf-name">Baylands Habitat Map 2020</p>
-                  <span class="l3-chip">GIS DATA</span>
                   <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-arrow-up-right" /></svg></span>
                 </div>
                 <p class="hf-desc">Habitat type and extent across the San Francisco Bay baylands, mapped for the WRMP.</p>
@@ -258,7 +252,6 @@
               <div class="hf-body">
                 <div class="hf-top">
                   <p class="hf-name">EcoAtlas</p>
-                  <span class="l3-chip">WEB TOOL</span>
                   <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-arrow-up-right" /></svg></span>
                 </div>
                 <p class="hf-desc">Explore wetland habitat and restoration projects on the live regional map.</p>
@@ -269,19 +262,29 @@
             <div class="l3-hub-panel-head">
               <span class="cat-icon"><svg class="lc"><use href="#l3-icon-flask-conical" /></svg></span>
               <span class="cat-name">Science</span>
-              <span class="cat-count">1</span>
             </div>
-            <a class="l3-hub-item" href="#">
+            <div class="l3-hub-item">
               <span class="hf-icon"><svg class="lc lc-sm"><use href="#l3-icon-flask-conical" /></svg></span>
               <div class="hf-body">
                 <div class="hf-top">
-                  <p class="hf-name">How the extent change was measured</p>
-                  <span class="l3-chip">METHODS</span>
-                  <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-arrow-up-right" /></svg></span>
+                  <p class="hf-name">How this metric is derived</p>
                 </div>
-                <p class="hf-desc">Mapping approach and habitat definitions behind the 1998–2020 comparison.</p>
+                <p class="hf-desc">Habitat polygons from each edition of the map are reclassified to one common set of tidal wetland types, then totalled by class and year. Change between years reflects both change on the ground and improvements in mapping resolution.</p>
               </div>
-            </a>
+            </div>
+            <div class="metric-dialog__mq">
+              <p class="metric-dialog__mq-label">Management questions</p>
+              <ul class="metric-dialog__mq-list">
+                <li class="mq-row">
+                  <a class="exhibit-tag" data-gq="1" href="science-framework.html#mq-1A" title="What is the distribution, abundance and condition of tidal marsh ecosystems, and how are they changing over time?">1A</a>
+                  <span class="mq-row__text">Tidal marsh extent, abundance, and condition</span>
+                </li>
+                <li class="mq-row">
+                  <a class="exhibit-tag" data-gq="2" href="science-framework.html#mq-2A" title="How are tidal marshes and tidal flats, including restoration projects, changing in elevation and extent relative to local tidal datums?">2A</a>
+                  <span class="mq-row__text">Marsh elevation and extent over time</span>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
@@ -299,14 +302,10 @@
           <div class="metric-dialog__info">
             <span class="exhibit-topics"><span class="exhibit-topic">Baylands Geography</span></span>
             <h2 class="metric-dialog__title" id="dlg-restoration-title">Accurate tracking of wetland restoration progress</h2>
-            <p class="metric-dialog__desc">
-              Cumulative acreage of restored and evolving tidal wetland by
-              year of initial restoration — a new method for tracking
-              progress toward regional restoration goals.
-            </p>
-            <div class="metric-dialog__meta">
-              <span>Last updated Aug 12, 2025</span>
-              <span>Download figure: <a href="#">PNG</a> · <a href="#">PDF</a></span>
+            <div class="metric-dialog__desc" tabindex="0">
+              <p>Cumulative acreage of restored and evolving tidal wetland across the Bay, plotted by the year each project was first opened to the tide.</p>
+              <p>A project joins the curve when its levee is breached and stays on it while the site evolves toward tidal marsh, so the running total reports restoration underway rather than restoration completed.</p>
+              <p>Counting this way separates two things earlier acreage tallies ran together: how much land has been committed to restoration, and how much of it has developed marsh vegetation and channel structure. Both are tracked against the regional goal of 100,000 acres of tidal wetland in the Baylands.</p>
             </div>
           </div>
         </div>
@@ -315,17 +314,28 @@
             <div class="l3-hub-panel-head">
               <span class="cat-icon"><svg class="lc"><use href="#l3-icon-database" /></svg></span>
               <span class="cat-name">Data</span>
-              <span class="cat-count">1</span>
+              <span class="cat-count">2</span>
             </div>
             <a class="l3-hub-item" href="#">
-              <span class="hf-icon"><svg class="lc lc-sm"><use href="#l3-icon-download" /></svg></span>
+              <span class="hf-icon"><svg class="lc lc-sm"><use href="#l3-icon-database" /></svg></span>
               <div class="hf-body">
+                <p class="hf-kind"><span class="l3-chip">FIGURE DATA</span></p>
                 <div class="hf-top">
-                  <p class="hf-name">Restoration project tracker</p>
-                  <span class="l3-chip">DATA CATALOG</span>
+                  <p class="hf-name">Restored acreage by year</p>
                   <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-arrow-up-right" /></svg></span>
                 </div>
-                <p class="hf-desc">Every Bay tidal restoration project with breach date, acreage, and site state.</p>
+                <p class="hf-desc">Acreage restored in each year, and the running total.</p>
+              </div>
+            </a>
+            <a class="l3-hub-item" href="#">
+              <span class="hf-icon"><svg class="lc lc-sm"><use href="#l3-icon-database" /></svg></span>
+              <div class="hf-body">
+                <p class="hf-kind"><span class="l3-chip">SOURCE DATASET</span></p>
+                <div class="hf-top">
+                  <p class="hf-name">Restoration project tracker</p>
+                  <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-arrow-up-right" /></svg></span>
+                </div>
+                <p class="hf-desc">Every Bay tidal restoration project with its breach date, acreage, and current site state.</p>
               </div>
             </a>
           </div>
@@ -340,20 +350,39 @@
               <div class="hf-body">
                 <div class="hf-top">
                   <p class="hf-name">EcoAtlas</p>
-                  <span class="l3-chip">WEB TOOL</span>
                   <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-arrow-up-right" /></svg></span>
                 </div>
                 <p class="hf-desc">Browse the restoration projects behind this curve on the regional map.</p>
               </div>
             </a>
           </div>
-          <div class="l3-hub-panel l3-hub-panel--empty" data-cat="science">
+          <div class="l3-hub-panel" data-cat="science">
             <div class="l3-hub-panel-head">
               <span class="cat-icon"><svg class="lc"><use href="#l3-icon-flask-conical" /></svg></span>
               <span class="cat-name">Science</span>
-              <span class="cat-count">0</span>
             </div>
-            <p class="l3-hub-empty">Nothing linked yet</p>
+            <div class="l3-hub-item">
+              <span class="hf-icon"><svg class="lc lc-sm"><use href="#l3-icon-flask-conical" /></svg></span>
+              <div class="hf-body">
+                <div class="hf-top">
+                  <p class="hf-name">How this metric is derived</p>
+                </div>
+                <p class="hf-desc">Projects in the tracker are grouped by the year of first tidal reconnection and their acreages accumulated forward. Sites still evolving count at full project acreage, so the curve reports area under restoration, not area of established marsh.</p>
+              </div>
+            </div>
+            <div class="metric-dialog__mq">
+              <p class="metric-dialog__mq-label">Management questions</p>
+              <ul class="metric-dialog__mq-list">
+                <li class="mq-row">
+                  <a class="exhibit-tag" data-gq="1" href="science-framework.html#mq-1A" title="What is the distribution, abundance and condition of tidal marsh ecosystems, and how are they changing over time?">1A</a>
+                  <span class="mq-row__text">Tidal marsh extent, abundance, and condition</span>
+                </li>
+                <li class="mq-row">
+                  <a class="exhibit-tag" data-gq="3" href="science-framework.html#mq-3A" title="What new information do we need to better understand regional lessons from tidal marsh restoration projects, advance tidal marsh science, and ensure the continued success of restoration projects?">3A</a>
+                  <span class="mq-row__text">New information to advance restoration</span>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
@@ -371,14 +400,8 @@
           <div class="metric-dialog__info">
             <span class="exhibit-topics"><span class="exhibit-topic">Wetland Condition</span><span class="exhibit-topic">Vegetation</span></span>
             <h2 class="metric-dialog__title" id="dlg-cram-title">Measuring wetland condition with the CRAM Estuarine Habitat Development Curve</h2>
-            <p class="metric-dialog__desc">
-              CRAM index scores of restoration sites plotted against wetland
-              age show the condition a restoring marsh can be expected to
-              reach over time.
-            </p>
-            <div class="metric-dialog__meta">
-              <span>Last updated Aug 12, 2025</span>
-              <span>Download figure: <a href="#">PNG</a> · <a href="#">PDF</a></span>
+            <div class="metric-dialog__desc" tabindex="0">
+              <p>CRAM index scores of restoration sites plotted against wetland age. The fitted curve describes the condition a restoring marsh can be expected to reach as it matures, so each site is read against a benchmark for its own age rather than a single pass-or-fail threshold.</p>
             </div>
           </div>
         </div>
@@ -387,14 +410,25 @@
             <div class="l3-hub-panel-head">
               <span class="cat-icon"><svg class="lc"><use href="#l3-icon-database" /></svg></span>
               <span class="cat-name">Data</span>
-              <span class="cat-count">1</span>
+              <span class="cat-count">2</span>
             </div>
             <a class="l3-hub-item" href="#">
-              <span class="hf-icon"><svg class="lc lc-sm"><use href="#l3-icon-download" /></svg></span>
+              <span class="hf-icon"><svg class="lc lc-sm"><use href="#l3-icon-database" /></svg></span>
               <div class="hf-body">
+                <p class="hf-kind"><span class="l3-chip">FIGURE DATA</span></p>
+                <div class="hf-top">
+                  <p class="hf-name">CRAM scores by site age</p>
+                  <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-arrow-up-right" /></svg></span>
+                </div>
+                <p class="hf-desc">Index score and wetland age for each restoration site, with the fitted curve.</p>
+              </div>
+            </a>
+            <a class="l3-hub-item" href="#">
+              <span class="hf-icon"><svg class="lc lc-sm"><use href="#l3-icon-database" /></svg></span>
+              <div class="hf-body">
+                <p class="hf-kind"><span class="l3-chip">SOURCE DATASET</span></p>
                 <div class="hf-top">
                   <p class="hf-name">CRAM assessment scores</p>
-                  <span class="l3-chip">WEB DATA</span>
                   <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-arrow-up-right" /></svg></span>
                 </div>
                 <p class="hf-desc">Site-level condition scores for estuarine wetlands across California.</p>
@@ -413,19 +447,29 @@
             <div class="l3-hub-panel-head">
               <span class="cat-icon"><svg class="lc"><use href="#l3-icon-flask-conical" /></svg></span>
               <span class="cat-name">Science</span>
-              <span class="cat-count">1</span>
             </div>
-            <a class="l3-hub-item" href="#">
+            <div class="l3-hub-item">
               <span class="hf-icon"><svg class="lc lc-sm"><use href="#l3-icon-flask-conical" /></svg></span>
               <div class="hf-body">
                 <div class="hf-top">
-                  <p class="hf-name">Habitat Development Curve method</p>
-                  <span class="l3-chip">METHODS</span>
-                  <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-arrow-up-right" /></svg></span>
+                  <p class="hf-name">How this metric is derived</p>
                 </div>
-                <p class="hf-desc">How reference-site CRAM scores define the expected trajectory for restoring marshes.</p>
+                <p class="hf-desc">Scores from mature reference marshes set the upper bound, and a curve is fitted through restoration-site scores against years since breach. A site is compared with the curve value for its own age.</p>
               </div>
-            </a>
+            </div>
+            <div class="metric-dialog__mq">
+              <p class="metric-dialog__mq-label">Management questions</p>
+              <ul class="metric-dialog__mq-list">
+                <li class="mq-row">
+                  <a class="exhibit-tag" data-gq="1" href="science-framework.html#mq-1A" title="What is the distribution, abundance and condition of tidal marsh ecosystems, and how are they changing over time?">1A</a>
+                  <span class="mq-row__text">Tidal marsh extent, abundance, and condition</span>
+                </li>
+                <li class="mq-row">
+                  <a class="exhibit-tag" data-gq="3" href="science-framework.html#mq-3A" title="What new information do we need to better understand regional lessons from tidal marsh restoration projects, advance tidal marsh science, and ensure the continued success of restoration projects?">3A</a>
+                  <span class="mq-row__text">New information to advance restoration</span>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
@@ -442,14 +486,9 @@
           </div>
           <div class="metric-dialog__info">
             <span class="exhibit-topics"><span class="exhibit-topic">Wetlands and Sea Level Rise</span></span>
-            <h2 class="metric-dialog__title" id="dlg-set-title">Surface Elevation Tables – Marker Horizons</h2>
-            <p class="metric-dialog__desc">
-              Rates of marsh surface elevation change measured at Petaluma
-              stations, compared against the local rate of sea-level rise.
-            </p>
-            <div class="metric-dialog__meta">
-              <span>Last updated Aug 12, 2025</span>
-              <span>Download figure: <a href="#">PNG</a> · <a href="#">PDF</a></span>
+            <h2 class="metric-dialog__title" id="dlg-set-title">Surface Elevation Tables &ndash; Marker Horizons</h2>
+            <div class="metric-dialog__desc" tabindex="0">
+              <p>Rates of marsh surface elevation change measured at Petaluma stations, compared against the local rate of sea-level rise. Where a station gains elevation faster than the water rises the marsh is keeping pace; where it does not, the marsh is losing ground in the tidal frame.</p>
             </div>
           </div>
         </div>
@@ -458,17 +497,28 @@
             <div class="l3-hub-panel-head">
               <span class="cat-icon"><svg class="lc"><use href="#l3-icon-database" /></svg></span>
               <span class="cat-name">Data</span>
-              <span class="cat-count">1</span>
+              <span class="cat-count">2</span>
             </div>
             <a class="l3-hub-item" href="#">
-              <span class="hf-icon"><svg class="lc lc-sm"><use href="#l3-icon-download" /></svg></span>
+              <span class="hf-icon"><svg class="lc lc-sm"><use href="#l3-icon-database" /></svg></span>
               <div class="hf-body">
+                <p class="hf-kind"><span class="l3-chip">FIGURE DATA</span></p>
+                <div class="hf-top">
+                  <p class="hf-name">Elevation change rates by station</p>
+                  <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-arrow-up-right" /></svg></span>
+                </div>
+                <p class="hf-desc">Annual rate of elevation change and accretion for each station, with the local sea-level rise rate.</p>
+              </div>
+            </a>
+            <a class="l3-hub-item" href="#">
+              <span class="hf-icon"><svg class="lc lc-sm"><use href="#l3-icon-database" /></svg></span>
+              <div class="hf-body">
+                <p class="hf-kind"><span class="l3-chip">SOURCE DATASET</span></p>
                 <div class="hf-top">
                   <p class="hf-name">SET-MH measurements</p>
-                  <span class="l3-chip">CSV</span>
-                  <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-download" /></svg></span>
+                  <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-arrow-up-right" /></svg></span>
                 </div>
-                <p class="hf-desc">Elevation change and accretion readings from the program's SET stations.</p>
+                <p class="hf-desc">Elevation change and accretion readings from the program's surface elevation table stations.</p>
               </div>
             </a>
           </div>
@@ -484,19 +534,29 @@
             <div class="l3-hub-panel-head">
               <span class="cat-icon"><svg class="lc"><use href="#l3-icon-flask-conical" /></svg></span>
               <span class="cat-name">Science</span>
-              <span class="cat-count">1</span>
             </div>
-            <a class="l3-hub-item" href="#">
+            <div class="l3-hub-item">
               <span class="hf-icon"><svg class="lc lc-sm"><use href="#l3-icon-flask-conical" /></svg></span>
               <div class="hf-body">
                 <div class="hf-top">
-                  <p class="hf-name">SET-MH monitoring protocol</p>
-                  <span class="l3-chip">PDF</span>
-                  <span class="hf-go"><svg class="lc lc-sm"><use href="#l3-icon-arrow-up-right" /></svg></span>
+                  <p class="hf-name">How this metric is derived</p>
                 </div>
-                <p class="hf-desc">How surface elevation tables and marker horizons measure whether marshes keep pace.</p>
+                <p class="hf-desc">Repeat readings at each surface elevation table are regressed against time to give a rate of elevation change, and marker horizon cores give accretion over the same period. Rates are compared with the local tide gauge trend.</p>
               </div>
-            </a>
+            </div>
+            <div class="metric-dialog__mq">
+              <p class="metric-dialog__mq-label">Management questions</p>
+              <ul class="metric-dialog__mq-list">
+                <li class="mq-row">
+                  <a class="exhibit-tag" data-gq="2" href="science-framework.html#mq-2A" title="How are tidal marshes and tidal flats, including restoration projects, changing in elevation and extent relative to local tidal datums?">2A</a>
+                  <span class="mq-row__text">Marsh elevation and extent over time</span>
+                </li>
+                <li class="mq-row">
+                  <a class="exhibit-tag" data-gq="2" href="science-framework.html#mq-2B" title="What are the regional differences in the sources and amounts of sediment available to support accretion in tidal marsh ecosystems?">2B</a>
+                  <span class="mq-row__text">Sediment supply for marsh accretion</span>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>

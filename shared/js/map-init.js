@@ -12,11 +12,43 @@
 var WRMP = window.WRMP || {};
 
 (function () {
-    var TILE_URL = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
-    var TILE_OPTS = {
-        attribution: "&copy; OSM &copy; CARTO",
-        subdomains: "abcd",
-        maxZoom: 17,
+    /* Basemap: Esri World Light Gray Canvas, keyless.
+       Replaces CARTO light_all, which now returns "API KEY REQUIRED"
+       watermark tiles. This block is the single definition of the WRMP
+       basemap — exhibit-r4.js and website-integration/assets/tools.js
+       both attach it through WRMP.addBasemap() rather than restating it.
+
+       Note: the Esri canvas ships place names as a SEPARATE reference
+       layer, so a full basemap is two tile layers, where CARTO's
+       light_all was one. maxZoom 16 is the service ceiling. */
+    var ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/";
+
+    WRMP.BASEMAP = {
+        url: ESRI + "World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+        opts: {
+            attribution: "Esri, HERE, Garmin, FAO, NOAA, USGS",
+            maxZoom: 16,
+        },
+        labelsUrl: ESRI + "World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}",
+        labelsOpts: { maxZoom: 16 },
+    };
+
+    /**
+     * Attach the WRMP basemap (base tiles + place-name reference layer).
+     * @param {L.Map} map
+     * @param {Object} [tile] - Optional override { url, opts }. When given,
+     *   that single layer is used verbatim and no labels layer is added.
+     * @returns {L.Map} the same map, for chaining
+     */
+    WRMP.addBasemap = function (map, tile) {
+        if (tile && tile.url) {
+            L.tileLayer(tile.url, tile.opts || {}).addTo(map);
+            return map;
+        }
+        var b = WRMP.BASEMAP;
+        L.tileLayer(b.url, b.opts).addTo(map);
+        L.tileLayer(b.labelsUrl, b.labelsOpts).addTo(map);
+        return map;
     };
 
     /**
@@ -51,7 +83,7 @@ var WRMP = window.WRMP || {};
             map.fitBounds(opts.bounds, WRMP.getMapPadding());
         }
 
-        L.tileLayer(TILE_URL, TILE_OPTS).addTo(map);
+        WRMP.addBasemap(map);
         return map;
     };
 
