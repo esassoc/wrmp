@@ -253,12 +253,12 @@
 }
 
 /* ═══ 5. All Resources index ═══ */
-/* Made by the WRMP: a small teal tag ahead of the type chip. */
+/* Made by the WRMP: a small teal tag on its own line above the type
+   chip, so the Type column keeps the width it had with the chip alone. */
 .wrmp-badge {
   display: inline-flex;
   align-items: center;
   padding: 1px 6px;
-  margin-right: var(--space-8);
   border-radius: var(--radius-xs, 3px);
   background: var(--color-teal-ada);
   color: var(--color-white);
@@ -268,8 +268,10 @@
   line-height: 1.5;
   vertical-align: middle;
 }
-.tool-index__type {
-  white-space: nowrap;
+.tool-index__type .wrmp-badge {
+  display: flex;
+  width: fit-content;
+  margin-bottom: 6px;
 }
 .wrmp-toggle {
   display: inline-flex;
@@ -286,9 +288,6 @@
   height: 18px;
   margin: 0;
   accent-color: var(--color-teal-ada);
-}
-.wrmp-toggle .wrmp-badge {
-  margin-right: 0;
 }
 .catalog-pointer {
   margin: var(--space-24) 0 var(--space-64);
