@@ -575,6 +575,25 @@
     </footer>
 
     <script src="assets/metrics.js"></script>
+    <!-- The Data / Tools / Science row opens and closes as one. -->
+    <script>
+      (function () {
+        document.querySelectorAll(".metric-dialog .l3-hub").forEach(function (hub) {
+          var panels = hub.querySelectorAll("details.l3-hub-panel");
+          var syncing = false;
+          panels.forEach(function (panel) {
+            panel.addEventListener("toggle", function () {
+              if (syncing) return;
+              syncing = true;
+              panels.forEach(function (other) {
+                other.open = panel.open;
+              });
+              syncing = false;
+            });
+          });
+        });
+      })();
+    </script>
     <!-- Topic filter: shows the tiles whose topic chips include the
          chosen topic. -->
     <script>

@@ -55,23 +55,58 @@
   outline-color: var(--color-teal-ada);
 }
 
-/* The figure leads. With the hub collapsed the chart can take most
-   of the card's height. */
+/* Fixed frame. The card is one height whether the Data / Tools /
+   Science row is open or closed: the row takes what it needs (up to
+   about half the card, then scrolls) and the figure fills the rest.
+   Closed, the chart gets nearly the whole card; open, it shrinks
+   instead of the card growing. */
 @media (min-width: 801px) {
   .metric-dialog--light {
-    /* inner padding 56 + lead gap 20 + collapsed hub 62 + fine print
-       34 + figure padding 16. */
-    --_frame-chrome: 200px;
+    height: min(860px, 92vh);
+    max-height: none;
+    overflow: hidden;
+  }
+  .metric-dialog--light .metric-dialog__inner {
+    box-sizing: border-box;
+    height: 100%;
   }
   .metric-dialog--light .metric-dialog__lead {
+    flex: 1 1 auto;
+    min-height: 0;
     grid-template-columns: minmax(0, 2.4fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    align-items: stretch;
+  }
+  .metric-dialog--light .metric-dialog__figure-col {
+    min-height: 0;
+  }
+  .metric-dialog--light .metric-dialog__figure {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
   }
   .metric-dialog--light .metric-dialog__figure img {
-    max-height: min(68vh, calc(92vh - var(--_frame-chrome)));
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
   }
-  /* The text column runs as tall as the figure beside it. */
+  .metric-dialog--light .metric-dialog__info {
+    min-height: 0;
+  }
   .metric-dialog--light .metric-dialog__desc {
-    max-height: min(calc(92vh - 340px), 56vh);
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+  }
+  .metric-dialog--light .l3-hub {
+    flex: 0 0 auto;
+    max-height: 48%;
+    overflow-y: auto;
   }
 }
 @media (max-width: 800px) {
@@ -111,6 +146,10 @@
 }
 .metric-dialog--light .l3-hub-panel[open] {
   padding-bottom: 12px;
+}
+/* Open as a row, the three boxes share one height. */
+.metric-dialog--light .l3-hub:has(details[open]) {
+  align-items: stretch;
 }
 .metric-dialog--light .l3-hub-panel > :not(summary) {
   margin-inline: 14px;
