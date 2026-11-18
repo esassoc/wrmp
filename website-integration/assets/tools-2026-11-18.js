@@ -50,27 +50,27 @@ var TOOLS = [
   /* ── Data Visualizations ───────────────────────────────────── */
   {
     id: "monitoring-site-network-map",
-    name: "Monitoring Site Network map",
+    name: "WRMP Monitoring Map",
     family: "viz",
-    type: "Map download",
+    type: "Web map",
     wrmp: true,
-    topics: ["Baylands Geography","Fish & Wildlife"],
-    questions: ["1A","3A","4B"],
+    topics: ["Baylands Geography", "Fish & Wildlife"],
+    questions: ["1A", "3A", "4B"],
     host: "wrmp.org",
-    url: "https://www.wrmp.org/monitoring-site-network/",
-    desc: "Every WRMP monitoring site in the estuary, as a downloadable map with the WRMP logo and attribution."
+    url: "site-network-map-2026-11-18.html",
+    desc: "Every WRMP monitoring site and monitoring layer on one interactive map, by topic, with a downloadable version."
   },
   {
     id: "set-water-level-station-map",
-    name: "Interactive Surface Elevation Table and Water Level Station Map",
+    name: "Surface Elevation Table and Water Level Stations",
     family: "viz",
     type: "Web map",
     wrmp: true,
     topics: ["Wetlands & Sea Level Rise"],
     questions: ["2A"],
     host: "wrmp.org",
-    url: "https://www.wrmp.org/interactive-set-and-water-level-station-map",
-    desc: "Every SET and water level monitoring station in the estuary, on one interactive map."
+    url: "site-network-map-2026-11-18.html?topic=wetlands-sea-level-rise#map",
+    desc: "The WRMP Monitoring Map opened on Wetlands & Sea Level Rise: SET-MH and water level stations across the estuary."
   },
   {
     id: "ecoatlas-bhm-2020",
