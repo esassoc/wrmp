@@ -1,0 +1,323 @@
+/* ════════════════════════════════════════════════════════════
+   Revised mockup styles (metric dialog, All Resources, menus)
+   ───────────────────────────────────────────────────────────
+   Loaded only by the *-2026-11-18.html pages, after the page's
+   own stylesheets, so the earlier mockups stay exactly as they
+   were. Sections:
+     1. Metric dialog, white (1.1) with a collapsed hub (1.2)
+     2. Figure fine print (1.6, 1.7)
+     3. Filtering helpers ([hidden] on flex boxes)
+     4. Resources megamenu (3.1, 5.1)
+     5. All Resources index (3.5, 3.7)
+   ════════════════════════════════════════════════════════════ */
+
+/* ═══ 1. Metric dialog, white ═══ */
+.metric-dialog--light {
+  background: var(--color-white);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+.metric-dialog--light .metric-dialog__close {
+  background: var(--gray-3);
+  color: var(--gray-11);
+}
+.metric-dialog--light .metric-dialog__close:hover,
+.metric-dialog--light .metric-dialog__close:focus-visible {
+  background: var(--gray-5);
+  color: var(--gray-12);
+  outline-color: var(--color-teal-ada);
+}
+.metric-dialog--light .metric-dialog__title {
+  color: var(--color-heading);
+}
+.metric-dialog--light .metric-dialog__desc p {
+  color: var(--gray-11);
+}
+.metric-dialog--light .metric-dialog__desc::-webkit-scrollbar-track {
+  background: var(--gray-4);
+}
+.metric-dialog--light .metric-dialog__desc::-webkit-scrollbar-thumb {
+  background: var(--gray-8);
+}
+.metric-dialog--light .metric-dialog__desc:focus-visible {
+  outline-color: var(--color-teal-ada);
+}
+/* Topic chips go back to their neutral default on white. */
+.metric-dialog--light .metric-dialog__info .exhibit-topic {
+  background: var(--topic-chip-bg);
+  border-color: var(--topic-chip-border);
+  color: var(--topic-chip-ink);
+}
+.metric-dialog--light .metric-dialog__mq-label {
+  color: var(--color-text);
+}
+.metric-dialog--light .metric-dialog__mq .exhibit-tag:focus-visible {
+  outline-color: var(--color-teal-ada);
+}
+
+/* The figure leads. With the hub collapsed the chart can take most
+   of the card's height. */
+@media (min-width: 801px) {
+  .metric-dialog--light {
+    /* inner padding 56 + lead gap 20 + collapsed hub 62 + fine print
+       34 + figure padding 16. */
+    --_frame-chrome: 200px;
+  }
+  .metric-dialog--light .metric-dialog__lead {
+    grid-template-columns: minmax(0, 2.4fr) minmax(0, 1fr);
+  }
+  .metric-dialog--light .metric-dialog__figure img {
+    max-height: min(68vh, calc(92vh - var(--_frame-chrome)));
+  }
+  /* The text column runs as tall as the figure beside it. */
+  .metric-dialog--light .metric-dialog__desc {
+    max-height: min(calc(92vh - 340px), 56vh);
+  }
+}
+@media (max-width: 800px) {
+  /* Clear the close chip above the figure on a phone. */
+  .metric-dialog--light .metric-dialog__inner {
+    padding-top: 60px;
+  }
+}
+.metric-dialog--light .metric-dialog__figure {
+  padding: 8px;
+  border: 1px solid var(--color-border);
+}
+.metric-dialog__figure-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* Hub: Data / Tools / Science as quiet disclosure rows. Closed, each
+   is one line; open, it shows its list. Only categories with
+   something linked are in the markup (1.3), and the grid shares the
+   width among whatever is there. */
+.metric-dialog--light .l3-hub {
+  grid-template-columns: none;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+}
+.metric-dialog--light .l3-hub-panel {
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0;
+}
+.metric-dialog--light .l3-hub-panel[open] {
+  padding-bottom: 12px;
+}
+.metric-dialog--light .l3-hub-panel > :not(summary) {
+  margin-inline: 14px;
+}
+.metric-dialog--light .l3-hub-panel-head {
+  list-style: none;
+  cursor: pointer;
+  padding: 10px 14px;
+  margin: 0;
+  border-bottom: none;
+}
+.metric-dialog--light .l3-hub-panel-head::-webkit-details-marker {
+  display: none;
+}
+.metric-dialog--light .l3-hub-panel[open] > .l3-hub-panel-head {
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 4px;
+}
+.metric-dialog--light .l3-hub-panel-head:hover {
+  background: var(--gray-2);
+}
+.metric-dialog--light .l3-hub-panel-head:focus-visible {
+  outline: 2px solid var(--color-teal-ada);
+  outline-offset: 2px;
+}
+.metric-dialog--light .l3-hub-panel-head .cat-icon {
+  width: 28px;
+  height: 28px;
+}
+.metric-dialog--light .l3-hub-panel-head .cat-name {
+  font-size: 16px;
+  color: var(--color-text);
+}
+.metric-dialog--light .hub-chevron {
+  margin-left: auto;
+  color: var(--gray-11);
+  transition: transform 0.18s ease;
+}
+.metric-dialog--light .l3-hub-panel[open] .hub-chevron {
+  transform: rotate(180deg);
+}
+.metric-dialog--light .l3-hub-item {
+  border-bottom-color: var(--color-border);
+}
+.metric-dialog--light .l3-hub-item .hf-name {
+  color: var(--color-text);
+}
+.metric-dialog--light .l3-chip {
+  background: var(--color-white);
+}
+@media (max-width: 800px) {
+  .metric-dialog--light .l3-hub {
+    grid-auto-flow: row;
+  }
+}
+
+/* ═══ 2. Figure fine print ═══
+   The two downloads sit as one quiet line under the chart. */
+.metric-dialog__fineprint {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 20px;
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.4;
+}
+.metric-dialog__fineprint a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-link);
+  text-decoration: none;
+}
+.metric-dialog__fineprint a:hover {
+  text-decoration: underline;
+}
+.metric-dialog__fineprint a:focus-visible {
+  outline: 2px solid var(--color-teal-ada);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+.metric-dialog__fineprint .lc {
+  stroke: currentColor;
+}
+
+/* ═══ 3. Filtering helpers ═══
+   Both boxes set display:flex, which outranks the UA [hidden] rule. */
+.metric-tile[hidden],
+.map-badge[hidden] {
+  display: none;
+}
+
+/* ═══ 4. Resources megamenu ═══ */
+.mega-intro {
+  flex: 0 1 280px;
+  min-width: 0;
+}
+.mega-intro__title {
+  font-family: var(--font-display, var(--font-body));
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-heading);
+  margin: 0 0 var(--space-8);
+}
+.mega-intro__sub {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--color-text-subtle);
+  margin: 0;
+}
+.mega-group__heading-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  color: var(--color-heading);
+  text-decoration: none;
+}
+.mega-group__heading-link:hover {
+  text-decoration: underline;
+}
+.mega-group__heading-link:focus-visible {
+  outline: 2px solid var(--color-teal-ada);
+  outline-offset: 3px;
+  border-radius: var(--radius-xs);
+}
+.mega-links__go {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* A page that belongs to the link above it. */
+.mega-links__child {
+  padding-left: var(--space-16);
+}
+
+/* ═══ 5. All Resources index ═══ */
+/* Made by the WRMP: a small teal tag ahead of the type chip. */
+.wrmp-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  margin-right: var(--space-8);
+  border-radius: var(--radius-xs, 3px);
+  background: var(--color-teal-ada);
+  color: var(--color-white);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  line-height: 1.5;
+  vertical-align: middle;
+}
+.tool-index__type {
+  white-space: nowrap;
+}
+.wrmp-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  min-height: 44px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+}
+.wrmp-toggle input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--color-teal-ada);
+}
+.wrmp-toggle .wrmp-badge {
+  margin-right: 0;
+}
+.catalog-pointer {
+  margin: var(--space-24) 0 var(--space-64);
+  font-size: 16px;
+  color: var(--color-text-subtle);
+}
+.catalog-pointer a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-link);
+  font-weight: 600;
+}
+.catalog-pointer svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+@media (max-width: 720px) {
+  .filter-group--type {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+  .filter-group--type .topic-select {
+    width: 100%;
+    min-width: 0;
+  }
+}
