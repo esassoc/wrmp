@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="assets/site.css" />
     <link rel="stylesheet" href="assets/sfei-2026-11-18.css" />
     <link rel="stylesheet" href="assets/exhibits-gallery.css" />
-    <link rel="stylesheet" href="assets/site-network-map-2026-11-18.css" />
+    <link rel="stylesheet" href="assets/site-network-map-2026-11-18.css?v=2" />
   </head>
   <body>
     <!-- ═══════════════════ Header ═══════════════════ -->
@@ -196,92 +196,62 @@
             <h1 class="page-title">WRMP Monitoring Map</h1>
             <p class="page-subtitle">
               Where the WRMP and its partners monitor the estuary&rsquo;s tidal
-              wetlands. Choose a topic to see its monitoring layers.
+              wetlands, over the habitat, sea level and access layers that frame them.
             </p>
           </div>
         </div>
       </section>
 
-      <!-- ═══════════════════ Monitoring Site Network Map ═══════════════════ -->
-      <section class="site-container section--after-hero" id="map">
-        <div class="tool-map">
-          <div class="tool-map__head">
-            <div class="tool-map__topic">
-              <label class="filter-label" for="map-topic">Topic</label>
-              <select class="topic-select" id="map-topic"></select>
-            </div>
-            <a class="tool-map__download" href="#" download>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3" /><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="m7 10 5 5 5-5" /></svg>
-              Download the map (PNG)
-            </a>
-            <p class="tool-figure">
-              <span class="tool-figure__value" id="map-count">119</span>
-              <span class="tool-figure__label" id="map-count-label">Monitoring sites shown</span>
-            </p>
-          </div>
-
-          <div class="tool-map__tabs" id="grouping">
-            <span class="tool-map__tabs-label" id="grouping-label">Group sites by</span>
-            <div class="tab-row" role="tablist" aria-labelledby="grouping-label" id="grouping-tabs">
-              <button class="tab" role="tab" type="button" data-grouping="siteType" aria-selected="true">Site type</button>
-              <button class="tab" role="tab" type="button" data-grouping="zone" aria-selected="false">Monitoring zone</button>
-              <button class="tab" role="tab" type="button" data-grouping="survey" aria-selected="false">Survey</button>
+      <!-- ═══════════════════ Map viewer ═══════════════════ -->
+      <section class="map-viewer" id="map" aria-label="WRMP Monitoring Map">
+        <aside class="mv-panel">
+          <div class="mv-topic">
+            <span class="mv-label" id="topic-label">Topic</span>
+            <div class="topic-picker" id="topic-picker">
+              <button class="topic-picker__button" type="button" id="topic-button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="topic-label topic-button">
+                <span class="topic-dot" id="topic-dot" aria-hidden="true"></span>
+                <span class="topic-picker__text" id="topic-text">All monitoring sites</span>
+                <svg class="topic-picker__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+              </button>
+              <ul class="topic-picker__list" id="topic-list" role="listbox" aria-labelledby="topic-label" tabindex="-1" hidden></ul>
             </div>
           </div>
+          <div class="mv-layers" id="layer-list"></div>
+        </aside>
 
-          <div class="tool-map__body">
-            <div class="tool-map__rail">
-              <h3 class="tool-map__rail-head" id="layers-head">Layers</h3>
-              <ul class="layer-list" id="layer-list" aria-labelledby="layers-head"></ul>
-              <button class="layer-reset" type="button" id="layer-reset">Show all layers</button>
-            </div>
-            <div class="tool-map__canvas" id="tools-map" role="application" aria-label="WRMP monitoring map"></div>
-          </div>
-        </div>
+        <div class="mv-map">
+          <div class="mv-canvas" id="tools-map" role="application" aria-label="Map"></div>
 
-        <div class="site-type-defs">
-          <div class="site-type-def">
-            <h3 class="site-type-def__name">
-              <span class="layer__swatch" style="background: var(--wrmp-light-green)" aria-hidden="true"></span>
-              Benchmark sites
-            </h3>
-            <p class="site-type-def__body">
-              Historic, minimally modified mature tidal wetlands that represent
-              pre-colonial ecosystems.
-            </p>
-          </div>
-          <div class="site-type-def">
-            <h3 class="site-type-def__name">
-              <span class="layer__swatch" style="background: var(--wrmp-ada-teal)" aria-hidden="true"></span>
-              Reference sites
-            </h3>
-            <p class="site-type-def__body">
-              Century-old fringing wetlands, well-established restoration projects,
-              and other mature marshes that represent reasonable habitat development
-              endpoint projections for newer restoration projects.
-            </p>
-          </div>
-          <div class="site-type-def">
-            <h3 class="site-type-def__name">
-              <span class="layer__swatch" style="background: var(--wrmp-green)" aria-hidden="true"></span>
-              Project sites
-            </h3>
-            <p class="site-type-def__body">
-              Recently restored tidal wetlands that represent a variety of design
-              and management approaches.
-            </p>
-          </div>
-        </div>
-      </section>
+          <div class="mv-basemaps" id="basemaps" role="radiogroup" aria-label="Basemap"></div>
 
-      <!-- ═══════════════════ Topic doorways ═══════════════════ -->
-      <section class="section" id="by-topic">
-        <div class="site-container">
-          <div class="section-head section-head--wide">
-            <h2 class="section-head__title">Maps by topic</h2>
+          <div class="mv-legend" id="legend">
+            <button class="mv-legend__head" type="button" id="legend-toggle" aria-expanded="true">
+              Legend
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+            </button>
+            <div class="mv-legend__body" id="legend-body"></div>
           </div>
 
-          <ul class="topic-doors" id="topic-doors"></ul>
+          <div class="mv-inspect" id="inspect" hidden>
+            <button class="mv-inspect__close" type="button" id="inspect-close" aria-label="Close">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+            </button>
+            <div id="inspect-body"></div>
+          </div>
+
+          <div class="mv-statusbar">
+            <span class="mv-coords" id="coords">37.8000° N, 122.2000° W</span>
+            <span class="mv-statusbar__actions">
+              <button class="mv-action" type="button" id="copy-link">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></svg>
+                <span id="copy-link-text">Copy link</span>
+              </button>
+              <a class="mv-action" href="#" download>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3" /><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="m7 10 5 5 5-5" /></svg>
+                Download map (PNG)
+              </a>
+            </span>
+          </div>
         </div>
       </section>
 
@@ -358,6 +328,6 @@
     <script src="../shared/js/map-init.js"></script>
     <script src="../shared/js/marker-popup.js"></script>
     <script src="assets/site.js"></script>
-    <script src="assets/site-network-map-2026-11-18.js"></script>
+    <script src="assets/site-network-map-2026-11-18.js?v=2"></script>
   </body>
 </html>
